@@ -22,12 +22,14 @@ class VideoFrames(Mapping[int, np.ndarray]):
         video_src: Path to the video file
 
     Examples:
+
         >>> import tempfile
         >>> # Create a small test video (requires actual video file to test)
-        >>> # vf = VideoFrames("test_video.mp4")  # doctest: +SKIP
-        >>> # frame = vf[0]  # Get first frame  # doctest: +SKIP
-        >>> # last_frame = vf[-1]  # Get last frame  # doctest: +SKIP
-        >>> # frames = list(vf[10:20])  # Get frames 10-19  # doctest: +SKIP
+        >>> vf = VideoFrames("test_video.mp4")  # doctest: +SKIP
+        >>> frame = vf[0]  # Get first frame  # doctest: +SKIP
+        >>> last_frame = vf[-1]  # Get last frame  # doctest: +SKIP
+        >>> frames = list(vf[10:20])  # Get frames 10-19  # doctest: +SKIP
+
     """
 
     def __init__(self, video_src: str):
@@ -145,10 +147,11 @@ def save_frame(
         Path to the saved image file
 
     Examples:
-    
-        >>> # save_frame("video.mp4")  # Saves as video_0.png  # doctest: +SKIP
-        >>> # save_frame("video.mp4", 10, saveas=".jpg")  # Saves as video_10.jpg  # doctest: +SKIP
-        >>> # save_frame("video.mp4", -1, saveas="last_frame.png")  # doctest: +SKIP
+
+        >>> save_frame("video.mp4")  # Saves as video_0.png  # doctest: +SKIP
+        >>> save_frame("video.mp4", 10, saveas=".jpg")  # Saves as video_10.jpg  # doctest: +SKIP
+        >>> save_frame("video.mp4", -1, saveas="last_frame.png")  # doctest: +SKIP
+        
     """
 
     # Get the frame
