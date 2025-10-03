@@ -1,0 +1,229 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>mixing.video.video_util &mdash; mixing 0.0.3 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=47de8214"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../_static/toggleprompt.js?v=d7ede5d2"></script>
+      <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            mixing
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing.html">mixing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video.html">mixing.video</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/video_files.html">mixing.video.video_files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/video_util.html">mixing.video.video_util</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">mixing</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">mixing.video.video_util</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for mixing.video.video_util</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Video util&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Optional</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">moviepy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">mp</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">config2py</span><span class="w"> </span><span class="kn">import</span> <span class="n">process_path</span>
+
+
+<div class="viewcode-block" id="to_srt_time">
+<a class="viewcode-back" href="../../../module_docs/mixing/video/video_util.html#mixing.video.video_util.to_srt_time">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">to_srt_time</span><span class="p">(</span><span class="n">seconds</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convert seconds to SRT time format.</span>
+
+<span class="sd">    Example usage:</span>
+
+<span class="sd">    &gt;&gt;&gt; to_srt_time(1.5)</span>
+<span class="sd">    &#39;00:00:01,500&#39;</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">milliseconds</span> <span class="o">=</span> <span class="nb">int</span><span class="p">((</span><span class="n">seconds</span> <span class="o">-</span> <span class="nb">int</span><span class="p">(</span><span class="n">seconds</span><span class="p">))</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">)</span>
+    <span class="n">minutes</span><span class="p">,</span> <span class="n">seconds</span> <span class="o">=</span> <span class="nb">divmod</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">seconds</span><span class="p">),</span> <span class="mi">60</span><span class="p">)</span>
+    <span class="n">hours</span><span class="p">,</span> <span class="n">minutes</span> <span class="o">=</span> <span class="nb">divmod</span><span class="p">(</span><span class="n">minutes</span><span class="p">,</span> <span class="mi">60</span><span class="p">)</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">hours</span><span class="si">:</span><span class="s2">02</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">minutes</span><span class="si">:</span><span class="s2">02</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">seconds</span><span class="si">:</span><span class="s2">02</span><span class="si">}</span><span class="s2">,</span><span class="si">{</span><span class="n">milliseconds</span><span class="si">:</span><span class="s2">03</span><span class="si">}</span><span class="s2">&quot;</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">generate_subtitle_clips</span><span class="p">(</span><span class="n">subtitles</span><span class="p">,</span> <span class="n">video_clip</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">24</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;white&#39;</span><span class="p">):</span>
+    <span class="n">subtitle_clips</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">subtitle</span> <span class="ow">in</span> <span class="n">subtitles</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n\n</span><span class="s1">&#39;</span><span class="p">):</span>
+        <span class="n">lines</span> <span class="o">=</span> <span class="n">subtitle</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="n">time_info</span> <span class="o">=</span> <span class="n">lines</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; --&gt; &#39;</span><span class="p">)</span>
+            <span class="n">start_time</span> <span class="o">=</span> <span class="n">time_info</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">,</span> <span class="s1">&#39;.&#39;</span><span class="p">)</span>
+            <span class="n">end_time</span> <span class="o">=</span> <span class="n">time_info</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">,</span> <span class="s1">&#39;.&#39;</span><span class="p">)</span>
+            <span class="n">text</span> <span class="o">=</span> <span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">[</span><span class="mi">2</span><span class="p">:])</span>
+            <span class="n">txt_clip</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">TextClip</span><span class="p">(</span>
+                <span class="n">text</span><span class="p">,</span>
+                <span class="n">fontsize</span><span class="o">=</span><span class="n">fontsize</span><span class="p">,</span>
+                <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">,</span>
+                <span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="n">video_clip</span><span class="o">.</span><span class="n">w</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+                <span class="n">method</span><span class="o">=</span><span class="s1">&#39;caption&#39;</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">txt_clip</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">txt_clip</span><span class="o">.</span><span class="n">set_start</span><span class="p">(</span><span class="n">start_time</span><span class="p">)</span>
+                <span class="o">.</span><span class="n">set_end</span><span class="p">(</span><span class="n">end_time</span><span class="p">)</span>
+                <span class="o">.</span><span class="n">set_position</span><span class="p">((</span><span class="s1">&#39;center&#39;</span><span class="p">,</span> <span class="s1">&#39;bottom&#39;</span><span class="p">))</span>
+            <span class="p">)</span>
+            <span class="n">subtitle_clips</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">txt_clip</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">subtitle_clips</span>
+
+
+<span class="n">Filepath</span> <span class="o">=</span> <span class="nb">str</span>
+
+
+<div class="viewcode-block" id="write_subtitles_in_video">
+<a class="viewcode-back" href="../../../module_docs/mixing/video/video_util.html#mixing.video.video_util.write_subtitles_in_video">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">write_subtitles_in_video</span><span class="p">(</span>
+    <span class="n">video</span><span class="p">:</span> <span class="n">Filepath</span><span class="p">,</span> <span class="n">subtitles</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">output_video</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Write subtitles in a video.</span>
+
+<span class="sd">    Example usage:</span>
+
+<span class="sd">    &gt;&gt;&gt; output_path = write_subtitles_in_video(&quot;~/Downloads/some_video.mp4&quot;)  # doctest: +SKIP</span>
+
+<span class="sd">    Which is syntactic sugar for the more explicit:</span>
+
+<span class="sd">    &gt;&gt;&gt; output_path = write_subtitles_in_video(</span>
+<span class="sd">    ...     &quot;~/Downloads/some_video.mp4&quot;,</span>
+<span class="sd">    ...     subtitles=&quot;~/Downloads/Ssome_video.srt&quot;,</span>
+<span class="sd">    ...     output_video=&quot;~/Downloads/some_video.mp4&quot;</span>
+<span class="sd">    ... )  # doctest: +SKIP</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">video_path</span> <span class="o">=</span> <span class="n">process_path</span><span class="p">(</span><span class="n">video</span><span class="p">)</span>
+
+    <span class="n">srt_content</span><span class="p">,</span> <span class="n">output_video_path</span> <span class="o">=</span> <span class="n">_process_inputs</span><span class="p">(</span>
+        <span class="n">subtitles</span><span class="p">,</span> <span class="n">output_video</span><span class="p">,</span> <span class="n">video_path</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Load the video file</span>
+    <span class="n">video_clip</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">VideoFileClip</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">video_path</span><span class="p">))</span>
+
+    <span class="c1"># Generate subtitle clips</span>
+    <span class="n">subtitle_clips</span> <span class="o">=</span> <span class="n">generate_subtitle_clips</span><span class="p">(</span><span class="n">srt_content</span><span class="p">,</span> <span class="n">video_clip</span><span class="p">)</span>
+
+    <span class="c1"># Create a composite video with subtitles</span>
+    <span class="n">video_with_subtitles</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">CompositeVideoClip</span><span class="p">([</span><span class="n">video_clip</span><span class="p">]</span> <span class="o">+</span> <span class="n">subtitle_clips</span><span class="p">)</span>
+
+    <span class="c1"># Export the video with subtitles</span>
+    <span class="n">video_with_subtitles</span><span class="o">.</span><span class="n">write_videofile</span><span class="p">(</span>
+        <span class="nb">str</span><span class="p">(</span><span class="n">output_video_path</span><span class="p">),</span> <span class="n">codec</span><span class="o">=</span><span class="s2">&quot;libx264&quot;</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="n">video_clip</span><span class="o">.</span><span class="n">fps</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">output_video_path</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_process_inputs</span><span class="p">(</span><span class="n">subtitles</span><span class="p">,</span> <span class="n">output_video</span><span class="p">,</span> <span class="n">video_path</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">subtitles</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">subtitles_path</span> <span class="o">=</span> <span class="n">video_path</span><span class="o">.</span><span class="n">with_suffix</span><span class="p">(</span><span class="s1">&#39;.srt&#39;</span><span class="p">)</span>
+        <span class="n">srt_content</span> <span class="o">=</span> <span class="n">subtitles_path</span><span class="o">.</span><span class="n">read_text</span><span class="p">()</span>
+    <span class="k">elif</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">subtitles</span><span class="p">):</span>
+        <span class="n">subtitles_path</span> <span class="o">=</span> <span class="n">process_path</span><span class="p">(</span><span class="n">subtitles</span><span class="p">)</span>
+        <span class="n">srt_content</span> <span class="o">=</span> <span class="n">subtitles_path</span><span class="o">.</span><span class="n">read_text</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">subtitles</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span> <span class="s2">&quot;subtitles should be a string&quot;</span>
+        <span class="n">srt_content</span> <span class="o">=</span> <span class="n">subtitles</span>
+
+    <span class="k">if</span> <span class="n">output_video</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">output_video_path</span> <span class="o">=</span> <span class="n">video_path</span><span class="o">.</span><span class="n">with_stem</span><span class="p">(</span><span class="n">video_path</span><span class="o">.</span><span class="n">stem</span> <span class="o">+</span> <span class="s1">&#39;_with_subtitles&#39;</span><span class="p">)</span>
+        <span class="n">output_video_path</span> <span class="o">=</span> <span class="n">output_video_path</span><span class="o">.</span><span class="n">with_suffix</span><span class="p">(</span><span class="n">video_path</span><span class="o">.</span><span class="n">suffix</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">output_video_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">output_video</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">srt_content</span><span class="p">,</span> <span class="n">output_video_path</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright NO COPYRIGHT.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,172 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>mixing.video.video_files &mdash; mixing 0.0.3 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=47de8214"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../_static/toggleprompt.js?v=d7ede5d2"></script>
+      <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="mixing.video.video_util" href="video_util.html" />
+    <link rel="prev" title="mixing.video" href="../video.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            mixing
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../mixing.html">mixing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../video.html">mixing.video</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">mixing.video.video_files</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#mixing.video.video_files.VideoFrames"><code class="docutils literal notranslate"><span class="pre">VideoFrames</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mixing.video.video_files.save_frame"><code class="docutils literal notranslate"><span class="pre">save_frame()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="video_util.html">mixing.video.video_util</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">mixing</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">mixing.video.video_files</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../_sources/module_docs/mixing/video/video_files.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-mixing.video.video_files">
+<span id="mixing-video-video-files"></span><h1>mixing.video.video_files<a class="headerlink" href="#module-mixing.video.video_files" title="Link to this heading"></a></h1>
+<p>Video frame access via Mapping interface.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="mixing.video.video_files.VideoFrames">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mixing.video.video_files.</span></span><span class="sig-name descname"><span class="pre">VideoFrames</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">video_src</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/mixing/video/video_files.html#VideoFrames"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.video.video_files.VideoFrames" title="Link to this definition"></a></dt>
+<dd><p>Mapping interface to access video frames by index.</p>
+<p>Provides dictionary-like access to video frames with support for negative
+indexing and slicing. Frames are returned as numpy arrays (BGR format).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>video_src</strong> – Path to the video file</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Create a small test video (requires actual video file to test)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">vf</span> <span class="o">=</span> <span class="n">VideoFrames</span><span class="p">(</span><span class="s2">&quot;test_video.mp4&quot;</span><span class="p">)</span>  
+<span class="gp">&gt;&gt;&gt; </span><span class="n">frame</span> <span class="o">=</span> <span class="n">vf</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>  <span class="c1"># Get first frame  </span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">last_frame</span> <span class="o">=</span> <span class="n">vf</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>  <span class="c1"># Get last frame  </span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">frames</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">vf</span><span class="p">[</span><span class="mi">10</span><span class="p">:</span><span class="mi">20</span><span class="p">])</span>  <span class="c1"># Get frames 10-19  </span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mixing.video.video_files.save_frame">
+<span class="sig-prename descclassname"><span class="pre">mixing.video.video_files.</span></span><span class="sig-name descname"><span class="pre">save_frame</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">video_src</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frame_idx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">saveas</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">image_format</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'png'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/mixing/video/video_files.html#save_frame"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.video.video_files.save_frame" title="Link to this definition"></a></dt>
+<dd><p>Extract and save a frame from a video file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>video_src</strong> – Path to the video file</p></li>
+<li><p><strong>frame_idx</strong> – Index of the frame to extract (default: 0)</p></li>
+<li><p><strong>saveas</strong> – Output path for the image. Can be:
+- None: Auto-generate path based on video filename
+- Path starting with ‘.’: Use as extension (e.g., ‘.jpg’)
+- Full filepath: Use as-is</p></li>
+<li><p><strong>image_format</strong> – Default image format if not specified in saveas (default: ‘png’)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Path to the saved image file</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">save_frame</span><span class="p">(</span><span class="s2">&quot;video.mp4&quot;</span><span class="p">)</span>  <span class="c1"># Saves as video_0.png  </span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">save_frame</span><span class="p">(</span><span class="s2">&quot;video.mp4&quot;</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="n">saveas</span><span class="o">=</span><span class="s2">&quot;.jpg&quot;</span><span class="p">)</span>  <span class="c1"># Saves as video_10.jpg  </span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">save_frame</span><span class="p">(</span><span class="s2">&quot;video.mp4&quot;</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">saveas</span><span class="o">=</span><span class="s2">&quot;last_frame.png&quot;</span><span class="p">)</span>  
+</pre></div>
+</div>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../video.html" class="btn btn-neutral float-left" title="mixing.video" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="video_util.html" class="btn btn-neutral float-right" title="mixing.video.video_util" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright NO COPYRIGHT.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
