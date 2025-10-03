@@ -25,26 +25,26 @@ def to_srt_time(seconds):
     return f"{hours:02}:{minutes:02}:{seconds:02},{milliseconds:03}"
 
 
-def generate_subtitle_clips(subtitles, video_clip, fontsize=24, color='white'):
+def generate_subtitle_clips(subtitles, video_clip, fontsize=24, color="white"):
     subtitle_clips = []
-    for subtitle in subtitles.split('\n\n'):
-        lines = subtitle.split('\n')
+    for subtitle in subtitles.split("\n\n"):
+        lines = subtitle.split("\n")
         if len(lines) >= 3:
-            time_info = lines[1].split(' --> ')
-            start_time = time_info[0].replace(',', '.')
-            end_time = time_info[1].replace(',', '.')
-            text = ' '.join(lines[2:])
+            time_info = lines[1].split(" --> ")
+            start_time = time_info[0].replace(",", ".")
+            end_time = time_info[1].replace(",", ".")
+            text = " ".join(lines[2:])
             txt_clip = mp.TextClip(
                 text,
                 fontsize=fontsize,
                 color=color,
                 size=(video_clip.w, None),
-                method='caption',
+                method="caption",
             )
             txt_clip = (
                 txt_clip.set_start(start_time)
                 .set_end(end_time)
-                .set_position(('center', 'bottom'))
+                .set_position(("center", "bottom"))
             )
             subtitle_clips.append(txt_clip)
     return subtitle_clips
@@ -97,7 +97,7 @@ def write_subtitles_in_video(
 
 def _process_inputs(subtitles, output_video, video_path):
     if subtitles is None:
-        subtitles_path = video_path.with_suffix('.srt')
+        subtitles_path = video_path.with_suffix(".srt")
         srt_content = subtitles_path.read_text()
     elif os.path.isfile(subtitles):
         subtitles_path = process_path(subtitles)
@@ -107,7 +107,7 @@ def _process_inputs(subtitles, output_video, video_path):
         srt_content = subtitles
 
     if output_video is None:
-        output_video_path = video_path.with_stem(video_path.stem + '_with_subtitles')
+        output_video_path = video_path.with_stem(video_path.stem + "_with_subtitles")
         output_video_path = output_video_path.with_suffix(video_path.suffix)
     else:
         output_video_path = Path(output_video)

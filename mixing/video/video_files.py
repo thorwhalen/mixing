@@ -129,7 +129,7 @@ def save_frame(
     frame_idx: int = 0,
     *,
     saveas: str = None,
-    image_format: str = 'png',
+    image_format: str = "png",
 ):
     """
     Extract and save a frame from a video file.
@@ -151,13 +151,12 @@ def save_frame(
         >>> save_frame("video.mp4")  # Saves as video_0.png  # doctest: +SKIP
         >>> save_frame("video.mp4", 10, saveas=".jpg")  # Saves as video_10.jpg  # doctest: +SKIP
         >>> save_frame("video.mp4", -1, saveas="last_frame.png")  # doctest: +SKIP
-        
+
     """
 
     # Get the frame
     frames = VideoFrames(video_src)
     frame = frames[frame_idx]
-
 
     # Determine output path and format
     if saveas is None:
@@ -168,7 +167,7 @@ def save_frame(
             video_dir, f"{video_name}_{frame_idx:06d}.{image_format}"
         )
         ext = image_format
-    elif saveas.startswith('.'):
+    elif saveas.startswith("."):
         # Extension provided: video_dir/video_name_frameIdx.ext
         ext = saveas[1:]  # Remove the leading dot
         video_dir = os.path.dirname(os.path.abspath(video_src))
