@@ -8,6 +8,7 @@ from typing import Iterator, Union
 from collections.abc import Mapping
 import cv2
 import numpy as np
+import tempfile
 
 
 # TODO: Use i2.castgraph to make video_src input flexible
@@ -140,6 +141,7 @@ def save_frame(
         saveas: Output path for the image. Can be:
             - None: Auto-generate path based on video filename
             - Path starting with '.': Use as extension (e.g., '.jpg')
+            - '/TMP': Save to temporary directory with auto-generated filename
             - Full filepath: Use as-is
         image_format: Default image format if not specified in saveas (default: 'png')
 
@@ -151,6 +153,7 @@ def save_frame(
         >>> save_frame("video.mp4")  # Saves as video_0.png  # doctest: +SKIP
         >>> save_frame("video.mp4", 10, saveas=".jpg")  # Saves as video_10.jpg  # doctest: +SKIP
         >>> save_frame("video.mp4", -1, saveas="last_frame.png")  # doctest: +SKIP
+        >>> save_frame("video.mp4", 5, saveas="/TMP")  # Saves to temp dir  # doctest: +SKIP
 
     """
 
@@ -165,6 +168,14 @@ def save_frame(
         video_name = os.path.splitext(os.path.basename(video_src))[0]
         output_path = os.path.join(
             video_dir, f"{video_name}_{frame_idx:06d}.{image_format}"
+        )
+        ext = image_format
+    elif saveas == "/TMP":
+        # Save to temporary directory
+        temp_dir = tempfile.gettempdir()
+        video_name = os.path.splitext(os.path.basename(video_src))[0]
+        output_path = os.path.join(
+            temp_dir, f"{video_name}_{frame_idx:06d}.{image_format}"
         )
         ext = image_format
     elif saveas.startswith("."):
