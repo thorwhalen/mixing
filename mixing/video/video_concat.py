@@ -13,7 +13,7 @@ Key Features:
 
 Basic Usage:
     >>> paths = ['video1.mp4', 'video2.mp4', 'video3.mp4']
-    >>> stitch_with_trim_and_crossfade(paths, 'output.mp4', duration=0.4)
+    >>> stitch_with_trim_and_crossfade(paths, 'output.mp4', duration=0.4)  # doctest: +SKIP
 
 Transition Options:
     - crossfade_transition: Simple blend between clips
@@ -23,7 +23,7 @@ Transition Options:
 
 Frame Verification:
     >>> match, diff = verify_frame_continuity('v1.mp4', 'v2.mp4',
-    ...                                       save_comparison='comp.png')
+    ...   save_comparison='comp.png')    # doctest: +SKIP
 """
 
 from typing import Iterable, Callable, Optional, Union
@@ -78,8 +78,8 @@ def verify_frame_continuity(
 
     Example:
         >>> match, diff = verify_frame_continuity('video1.mp4', 'video2.mp4',
-        ...                                       save_comparison='comparison.png')
-        >>> print(f"Frames match: {match}, difference: {diff:.4f}")
+        ...                                       save_comparison='comparison.png')  # doctest: +SKIP
+        >>> print(f"Frames match: {match}, difference: {diff:.4f}")  # doctest: +SKIP
     """
     clips_to_close = []
 
@@ -198,11 +198,11 @@ def concatenate_videos(
         ...     '''Keep first clip intact, trim first frame from rest.'''
         ...     yield clips[0]
         ...     for clip in clips[1:]:
-        ...         yield clip.subclipped(1 / clip.fps)
-        >>> paths = ['video1.mp4', 'video2.mp4', 'video3.mp4']
-        >>> final = concatenate_videos(paths, transform_clips=trim_first_frame)
-        >>> final.write_videofile('output.mp4')
-        >>> final.close()
+        ...         yield clip.subclipped(1 / clip.fps)  # doctest: +SKIP
+        >>> paths = ['video1.mp4', 'video2.mp4', 'video3.mp4']  # doctest: +SKIP
+        >>> final = concatenate_videos(paths, transform_clips=trim_first_frame)  # doctest: +SKIP
+        >>> final.write_videofile('output.mp4')  # doctest: +SKIP
+        >>> final.close()  # doctest: +SKIP
     """
     clips_to_close = []
 
