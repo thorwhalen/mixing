@@ -81,8 +81,100 @@ Which is syntactic sugar for the more explicit:
 ... )  
 ```
 
+### AI Video Generation with Google Vertex AI Veo
+
+Generate videos using Google's state-of-the-art Veo models. The simplest approach generates videos and returns file paths in one call.
+
+#### Quick Start
+
+```python
+from mixing.video.video_gen import generate_video
+
+# Generate video and get file path in one call
+video_path = generate_video("A serene forest at dawn with golden sunlight filtering through mist")
+print(f"Video saved to: {video_path}")
+```
+
+#### Authentication Setup
+
+Before using video generation, set up Google Cloud authentication:
+
+```bash
+# Service account (recommended for production)
+export GOOGLE_APPLICATION_CREDENTIALS="/path/to/service-account.json"
+export GOOGLE_CLOUD_PROJECT="your-project-id"
+
+# Or use gcloud CLI (for development)
+gcloud auth application-default login
+export GOOGLE_CLOUD_PROJECT="your-project-id"
+```
+
+#### Advanced Examples
+
+```python
+# Save to specific location
+video_path = generate_video(
+    prompt="The camera slowly zooms out revealing a vast landscape",
+    first_frame="/path/to/image.jpg",
+    save_video="/my/custom/video.mp4",
+    duration_seconds=8
+)
+
+# Video-to-video: Use frames from existing videos
+video_path = generate_video(
+    prompt="Smooth transition with swirling particles",
+    first_frame="video1.mp4",  # Uses last frame as start
+    last_frame="video2.mp4",   # Uses first frame as end
+    model="veo-2.0-generate-001"
+)
+
+# Handle multiple generated videos (some models create variations)
+video_paths = generate_video(
+    "A magical forest with dancing fireflies",
+    save_video="/output/directory/"  # Auto-indexed files
+)
+
+# Get raw operation for custom processing
+operation = generate_video("Epic landscape", save_video=False)
+# Process operation.response.generated_videos as needed
+```
+
+#### Flexible Egress Control
+
+The `save_video` parameter controls how videos are processed:
+
+```python
+# Default: Auto-save to temp files and return path(s)
+path = generate_video("prompt")
+
+# Save to specific file or directory
+path = generate_video("prompt", save_video="/path/to/video.mp4")
+path = generate_video("prompt", save_video="/output/dir/")
+
+# Just get the operation (no saving)
+op = generate_video("prompt", save_video=False)
+
+# Custom processing function
+def custom_processor(operation):
+    # Your custom logic here
+    return processed_result
+
+result = generate_video("prompt", save_video=custom_processor)
+```
+
 
 # Further requirements
+
+## Google Cloud Setup (for AI Video Generation)
+
+To use the AI video generation features:
+
+1. **Google Cloud Project**: Create a project with billing enabled
+2. **Enable APIs**: Enable the Vertex AI API in your project  
+3. **Authentication**: Set up service account credentials or use application default credentials
+4. **Quotas**: Ensure sufficient Vertex AI quotas for video generation
+
+For detailed setup instructions, see the [video generation authentication guide](mixing/video/README.md#authentication-setup).
 
 ## FFmpeg
 
