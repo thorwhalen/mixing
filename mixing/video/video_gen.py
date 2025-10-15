@@ -63,7 +63,8 @@ import base64
 import mimetypes
 import os
 import tempfile
-from typing import Union, Callable
+from typing import Union
+from collections.abc import Callable
 
 from dol import non_colliding_key
 
@@ -589,7 +590,7 @@ def generate_video(
     first_frame: str | None = None,
     last_frame: str | None = None,
     *,
-    save_video: Union[Callable, str] = save_generated_videos,
+    save_video: Callable | str = save_generated_videos,
     model: str = "veo-2.0-generate-001",  # TODO: manage models better (when aix offers model routing tools)
     aspect_ratio: str = "16:9",
     duration_seconds: int = 5,

@@ -54,7 +54,7 @@ Filepath = str
 
 
 def write_subtitles_in_video(
-    video: Filepath, subtitles: Optional[str] = None, output_video: Optional[str] = None
+    video: Filepath, subtitles: str | None = None, output_video: str | None = None
 ):
     """
     Write subtitles in a video.

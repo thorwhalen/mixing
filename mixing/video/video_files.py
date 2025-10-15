@@ -4,7 +4,8 @@ Video frame access via Mapping interface.
 """
 
 import os
-from typing import Iterator, Union
+from typing import Union
+from collections.abc import Iterator
 from collections.abc import Mapping
 import cv2
 import numpy as np
@@ -101,8 +102,8 @@ class VideoFrames(Mapping[int, np.ndarray]):
                 yield self._read_frame_at_index(idx)
 
     def __getitem__(
-        self, key: Union[int, slice]
-    ) -> Union[np.ndarray, Iterator[np.ndarray]]:
+        self, key: int | slice
+    ) -> np.ndarray | Iterator[np.ndarray]:
         """
         Get frame(s) by index or slice.
 

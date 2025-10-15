@@ -26,7 +26,8 @@ Frame Verification:
     ...   save_comparison='comp.png')    # doctest: +SKIP
 """
 
-from typing import Iterable, Callable, Optional, Union
+from typing import Optional, Union
+from collections.abc import Iterable, Callable
 from pathlib import Path
 from io import BytesIO
 import numpy as np
@@ -60,7 +61,7 @@ def verify_frame_continuity(
     video2: VideoSource,
     *,
     tolerance: float = 0.0,
-    save_comparison: Optional[str] = None,
+    save_comparison: str | None = None,
 ) -> tuple[bool, float]:
     """
     Verify that the last frame of video1 matches the first frame of video2.
@@ -172,10 +173,10 @@ def _save_frame_comparison(
 def concatenate_videos(
     videos: Iterable[VideoSource],
     *,
-    transform_clips: Optional[
+    transform_clips: None | (
         Callable[[list[VideoFileClip]], Iterable[VideoFileClip]]
-    ] = None,
-    output_path: Optional[str] = None,
+    ) = None,
+    output_path: str | None = None,
 ) -> VideoFileClip:
     """
     Concatenate multiple videos with optional clip transformation.
