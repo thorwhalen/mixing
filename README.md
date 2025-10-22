@@ -1,10 +1,8 @@
-
 # mixing
+
 Tools for video and audio editing
 
-
 To install:	```pip install mixing```
-
 
 # Examples
 
@@ -219,3 +217,19 @@ For more details, visit the [FFmpeg installation page for Linux](https://ffmpeg.
    - Extract the downloaded files and add the `bin` directory to your system's PATH.
 
 For more details, visit the [FFmpeg installation page for Windows](https://ffmpeg.org/download.html#build-windows).
+
+
+# Optional Dependencies
+
+For additional functionality, you can install optional dependencies:
+
+```bash
+# For testing
+pip install mixing[testing]
+
+# For clipboard functionality
+pip install mixing[clipboard]
+
+# Install multiple extras
+pip install mixing[testing,clipboard]
+```
