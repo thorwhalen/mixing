@@ -8,3 +8,4 @@ from mixing.video.video_util import (
     to_srt_time,
     write_subtitles_in_video,
 )
+from mixing.video.video_concat import concatenate_videos

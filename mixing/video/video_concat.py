@@ -30,10 +30,25 @@ from typing import Optional, Union
 from collections.abc import Iterable, Callable
 from pathlib import Path
 from io import BytesIO
+import os
 import numpy as np
 from moviepy import VideoFileClip, concatenate_videoclips, vfx
 
 VideoSource = Union[str, Path, VideoFileClip, bytes, BytesIO]
+
+# Common video file extensions
+_VIDEO_EXTENSIONS = {
+    '.mp4',
+    '.avi',
+    '.mov',
+    '.mkv',
+    '.wmv',
+    '.flv',
+    '.webm',
+    '.m4v',
+    '.mpg',
+    '.mpeg',
+}
 
 
 def _ensure_video_clip(video_src: VideoSource) -> VideoFileClip:
@@ -54,6 +69,65 @@ def _ensure_video_clip(video_src: VideoSource) -> VideoFileClip:
     else:
         # Assume it's a file-like object
         return VideoFileClip(video_src)
+
+
+def _is_video_file(path: Path) -> bool:
+    """Check if a file path has a video extension."""
+    return path.suffix.lower() in _VIDEO_EXTENSIONS
+
+
+def _iter_video_files(folder_path: Path) -> Iterable[Path]:
+    """
+    Generate video file paths from a folder in sorted order.
+
+    >>> # Example (doctest would require actual folder):
+    >>> # list(_iter_video_files(Path('/path/to/videos')))
+    """
+    for filepath in sorted(folder_path.iterdir()):
+        if filepath.is_file() and _is_video_file(filepath):
+            yield filepath
+
+
+def ensure_videoclip_iterable(
+    videos: Union[str, Path, Iterable[VideoSource]],
+) -> Iterable[VideoFileClip]:
+    """
+    Normalize various video input formats to an iterable of VideoFileClip instances.
+
+    Handles:
+    - Folder paths (str/Path): Iterates through video files in sorted order
+    - Iterables of VideoSource: Converts each item to VideoFileClip
+
+    Args:
+        videos: Can be:
+            - A folder path (str or Path) containing video files
+            - An iterable of VideoSource items (paths, clips, bytes, etc.)
+
+    Returns:
+        Iterable of VideoFileClip instances
+
+    Examples:
+        >>> # From folder path
+        >>> clips = ensure_videoclip_iterable('/path/to/videos/')  # doctest: +SKIP
+
+        >>> # From list of paths
+        >>> clips = ensure_videoclip_iterable(['v1.mp4', 'v2.mp4'])  # doctest: +SKIP
+
+        >>> # From existing clips
+        >>> existing_clips = [VideoFileClip('v1.mp4')]  # doctest: +SKIP
+        >>> clips = ensure_videoclip_iterable(existing_clips)  # doctest: +SKIP
+    """
+    # Check if it's a folder path
+    if isinstance(videos, (str, Path)):
+        folder_path = Path(videos)
+        if folder_path.is_dir():
+            return map(_ensure_video_clip, _iter_video_files(folder_path))
+        else:
+            # Single file path - wrap in iterable
+            return map(_ensure_video_clip, [videos])
+
+    # It's an iterable of VideoSource items
+    return map(_ensure_video_clip, videos)
 
 
 def verify_frame_continuity(
@@ -171,30 +245,42 @@ def _save_frame_comparison(
 
 
 def concatenate_videos(
-    videos: Iterable[VideoSource],
+    videos: Union[str, Path, Iterable[VideoSource]],
     *,
     transform_clips: None | (
         Callable[[list[VideoFileClip]], Iterable[VideoFileClip]]
     ) = None,
-    output_path: str | None = None,
+    output_path: str | bool | None = None,
+    **concat_kwargs,
 ) -> VideoFileClip:
     """
     Concatenate multiple videos with optional clip transformation.
 
-    Automatically manages resource cleanup for clips created from sources,
-    while preserving user-provided VideoFileClip instances for caller control.
+    Automatically manages resource cleanup for clips created from sources.
 
     Args:
-        videos: Iterable of video sources (file paths, VideoFileClip instances,
-                bytes, BytesIO, or file-like objects)
+        videos: Can be:
+            - A folder path (str or Path) containing video files (sorted order)
+            - An iterable of video sources (file paths, VideoFileClip instances,
+              bytes, BytesIO, or file-like objects)
         transform_clips: Optional function to transform clips before concatenation.
                         Receives a list of clips, returns an iterable of clips.
-        output_path: Optional path to save the concatenated video file
+        output_path: Optional path to save the concatenated video file.
+                    If True and videos is a folder path, generates filename from folder name.
+                    If True and videos is not a folder, raises ValueError.
 
     Returns:
         Concatenated VideoFileClip. Caller is responsible for closing this clip.
 
-    Example:
+    Examples:
+        >>> # From folder path
+        >>> final = concatenate_videos('/path/to/videos/')  # doctest: +SKIP
+
+        >>> # From folder path with auto-generated output name
+        >>> final = concatenate_videos('/path/to/my_videos/', output_path=True)  # doctest: +SKIP
+        >>> # Creates 'my_videos.mp4' in the same directory
+
+        >>> # From list of paths with transformation
         >>> def trim_first_frame(clips):
         ...     '''Keep first clip intact, trim first frame from rest.'''
         ...     yield clips[0]
@@ -208,17 +294,24 @@ def concatenate_videos(
     clips_to_close = []
 
     try:
-        # Convert all video sources to clips, tracking which ones we create
-        clips = []
-        for video_src in videos:
-            if isinstance(video_src, VideoFileClip):
-                # User-provided clip; they manage lifecycle
-                clips.append(video_src)
+        # Handle auto-generated output path from folder name
+        if output_path is True:
+            if isinstance(videos, (str, Path)):
+                folder_path = Path(videos)
+                if folder_path.is_dir():
+                    # Generate output filename from folder name
+                    output_path = str(folder_path.parent / f"{folder_path.name}.mp4")
+                else:
+                    raise ValueError(
+                        "output_path=True requires videos to be a folder path"
+                    )
             else:
-                # We create this clip; we manage cleanup
-                clip = _ensure_video_clip(video_src)
-                clips.append(clip)
-                clips_to_close.append(clip)
+                raise ValueError("output_path=True requires videos to be a folder path")
+
+        # Normalize input to iterable of VideoFileClips
+        # All clips created by ensure_videoclip_iterable need to be closed by us
+        clips = list(ensure_videoclip_iterable(videos))
+        clips_to_close.extend(clips)
 
         # Apply transformation if provided
         if transform_clips is not None:
@@ -233,14 +326,14 @@ def concatenate_videos(
             clips_to_concat = clips
 
         # Concatenate and optionally write
-        final_clip = concatenate_videoclips(clips_to_concat)
+        final_clip = concatenate_videoclips(clips_to_concat, **concat_kwargs)
         if output_path is not None:
             final_clip.write_videofile(output_path)
 
         return final_clip
 
     finally:
-        # Clean up only clips we created
+        # Clean up clips we created
         for clip in clips_to_close:
             try:
                 clip.close()
@@ -251,6 +344,7 @@ def concatenate_videos(
 
 # Example usage matching your original code
 if __name__ == "__main__":
+    # Example 1: Using a list of video paths
     video_paths = """
     /Users/thorwhalen/Downloads/cosmo_vids/00_Book_Skyscraper_City_Video.mp4
     /Users/thorwhalen/Downloads/cosmo_vids/01_Book_Towers_Collapsing_Video.mp4
@@ -275,6 +369,16 @@ if __name__ == "__main__":
     final_clip.close()
 
     print(f"Successfully concatenated videos and saved to {output_path}")
+
+    # Example 2: Using a folder path (new feature!)
+    # This will automatically find and concatenate all video files in sorted order
+    # folder_path = "/Users/thorwhalen/Downloads/cosmo_vids/"
+    # final_clip = concatenate_videos(
+    #     folder_path,
+    #     transform_clips=trim_first_frame_from_subsequent_clips,
+    #     output_path="output_from_folder.mp4",
+    # )
+    # final_clip.close()
 
 
 # ============================================================================
