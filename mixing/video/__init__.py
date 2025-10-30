@@ -9,3 +9,4 @@ from mixing.video.video_util import (
     write_subtitles_in_video,
 )
 from mixing.video.video_concat import concatenate_videos
+from mixing.video.video_files import save_frame
