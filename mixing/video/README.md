@@ -280,7 +280,7 @@ The `saveas` parameter accepts:
 - `/TMP`: Save to temporary directory (persists)
 - Full path: Save to this specific location
 
-## Video Processing (`video_util`)
+## Video Processing (`video_subtitles`)
 
 ### write_subtitles_in_video
 
@@ -289,7 +289,7 @@ Write subtitles in a video.
 Example usage:
 
 ```python
-from mixing.video.video_util import write_subtitles_in_video
+from mixing.video.video_subtitles import write_subtitles_in_video
 
 # Auto-detect subtitle file
 output_path = write_subtitles_in_video("~/Downloads/some_video.mp4") 
@@ -355,6 +355,6 @@ Download from [FFmpeg official site](https://ffmpeg.org/download.html#build-wind
 For detailed API documentation, see the docstrings in individual modules:
 - `video_gen.py`: AI video generation with Veo
 - `video_files.py`: Frame extraction and video file utilities  
-- `video_util.py`: Subtitle processing and video utilities
+- `video_subtitles.py`: Subtitle processing and video utilities
 - `video_concat.py`: Video concatenation and transitions
 

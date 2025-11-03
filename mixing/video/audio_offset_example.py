@@ -5,7 +5,7 @@ This shows how to use the new audio detection features to automatically
 align subtitles with when speech actually starts in a video.
 """
 
-from mixing.video.video_util import (
+from mixing.video.video_subtitles import (
     fix_srt_file,
     auto_shift_srt_to_start,
     find_audio_start_offset,
