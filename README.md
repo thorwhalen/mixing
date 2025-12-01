@@ -4,9 +4,175 @@ Tools for video and audio editing
 
 To install:	```pip install mixing```
 
+# Quick Start
+
+```python
+# Audio editing
+from mixing.audio import Audio, fade_in, concatenate_audio
+
+audio = Audio("song.mp3")
+segment = audio[10:30]  # Get 10s-30s segment
+faded = segment.fade_in(2).fade_out(3)  # Apply fades
+faded.save("edited.mp3")
+
+# Video editing
+from mixing.video import Video, loop_video, replace_audio
+
+video = Video("clip.mp4")
+trimmed = video[5:15]  # Get 5s-15s segment
+looped = loop_video("intro.mp4", n_loops=3)  # Repeat 3 times
+mixed = replace_audio("video.mp4", "music.mp3", mix_ratio=0.7)  # Mix audio
+```
+
 # Examples
 
+## mixing.audio (NEW!)
+
+### Audio: Sliceable audio editing interface
+
+The `Audio` class provides a clean, Pythonic interface for audio editing with slice notation and chainable operations.
+
+```python
+from mixing.audio import Audio
+
+# Load audio file
+audio = Audio("song.mp3")
+
+# Slice audio (lazy evaluation - no copying)
+intro = audio[0:10]        # First 10 seconds
+chorus = audio[30:60]       # 30s to 60s
+outro = audio[-10:]         # Last 10 seconds
+
+# Use different time units
+audio_samples = Audio("song.mp3", time_unit="samples")
+segment = audio_samples[0:44100]  # First 44100 samples (1s at 44.1kHz)
+
+audio_ms = Audio("song.mp3", time_unit="milliseconds")
+segment = audio_ms[0:5000]  # First 5000ms (5 seconds)
+
+# Chain operations
+edited = audio[10:120].fade_in(2).fade_out(3)
+edited.save("edited.mp3")
+
+# Access properties
+print(f"Duration: {audio.duration}s")
+print(f"Sample rate: {audio.sample_rate}Hz")
+print(f"Channels: {audio.channels}")
+```
+
+### Audio Editing Functions
+
+```python
+from mixing.audio import fade_in, fade_out, crop_audio, concatenate_audio, overlay_audio
+
+# Apply fade effects
+faded_in = fade_in("song.mp3", duration=2.0)
+faded_out = fade_out("song.mp3", duration=3.0)
+
+# Crop/trim audio
+crop_audio("song.mp3", start=10, end=30, output_path="segment.mp3")
+
+# Concatenate multiple audio files
+combined = concatenate_audio(
+    "intro.mp3", 
+    "main.mp3", 
+    "outro.mp3",
+    crossfade=0.5  # 500ms crossfade between segments
+)
+combined.save("full_song.mp3")
+
+# Overlay/mix audio tracks
+# mix_ratio controls the balance: 0.0=only background, 1.0=only overlay, 0.5=equal mix
+mixed = overlay_audio(
+    background="music.mp3",
+    overlay="voice.mp3",
+    position=5.0,      # Start overlay at 5 seconds
+    mix_ratio=0.7      # 70% overlay, 30% background
+)
+mixed.save("mixed.mp3")
+```
+
+### AudioSamples: Sample-level access
+
+Access individual audio samples through a Mapping interface:
+
+```python
+audio = Audio("song.mp3")
+samples = audio.samples
+
+# Access individual samples
+first_sample = samples[0]
+last_sample = samples[-1]
+
+# Slice samples
+sample_range = samples[1000:2000]  # Returns numpy array
+
+# Get properties
+print(f"Total samples: {len(samples)}")
+```
+
 ## mixing.video
+
+### Video: Sliceable video editing interface (Enhanced!)
+
+```python
+from mixing.video import Video
+
+# Load and slice video
+video = Video("movie.mp4")
+clip = video[10:30]  # Get 10s-30s segment
+clip.save("clip.mp4")
+
+# Use frame numbers
+video_frames = Video("movie.mp4", time_unit="frames")
+segment = video_frames[100:500]  # Frames 100-500
+
+# Extract single frames
+frame = video[15]  # Returns numpy array (frame at 15s)
+```
+
+### NEW: Loop Video
+
+Repeat a video multiple times:
+
+```python
+from mixing.video import loop_video
+
+# Loop video 3 times
+looped = loop_video("intro.mp4", n_loops=3)
+print(f"Looped video saved to: {looped}")
+
+# Custom output path
+looped = loop_video("clip.mp4", n_loops=5, output_path="extended_clip.mp4")
+```
+
+### NEW: Replace/Mix Video Audio
+
+Replace or mix audio in videos with fine control:
+
+```python
+from mixing.video import replace_audio
+
+# Complete audio replacement
+replace_audio("video.mp4", "new_music.mp3", mix_ratio=1.0)
+
+# Equal mix of original and new audio
+replace_audio("video.mp4", "music.mp3", mix_ratio=0.5)
+
+# Mostly new audio with some original (70% new, 30% original)
+replace_audio("video.mp4", "voice.mp3", mix_ratio=0.7)
+
+# Keep only original audio (no change)
+replace_audio("video.mp4", "music.mp3", mix_ratio=0.0)
+
+# Auto-adjust audio length to match video
+replace_audio(
+    "video.mp4", 
+    "short_music.mp3",
+    mix_ratio=1.0,
+    normalize_audio=True  # Loops/trims audio to match video length
+)
+```
 
 ### VideoFrames: Dictionary-like access to video frames
 
@@ -227,9 +393,23 @@ For additional functionality, you can install optional dependencies:
 # For testing
 pip install mixing[testing]
 
-# For clipboard functionality
+# For clipboard functionality (get file paths from clipboard)
 pip install mixing[clipboard]
 
+# For audio editing functionality
+pip install mixing[audio]
+
 # Install multiple extras
-pip install mixing[testing,clipboard]
+pip install mixing[testing,clipboard,audio]
+```
+
+## Audio Editing Requirements
+
+The audio editing features require:
+- **pydub**: Python audio manipulation library
+- **ffmpeg**: Audio/video processing (see installation below)
+
+Install audio extras:
+```bash
+pip install mixing[audio]
 ```

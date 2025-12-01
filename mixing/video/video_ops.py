@@ -38,7 +38,7 @@ Design principles:
 - Single source of truth: One class handles both time ranges and frames
 """
 
-from typing import Union, Literal
+from typing import Union
 from pathlib import Path
 from collections.abc import Callable, Iterator, Mapping
 import io
@@ -48,76 +48,19 @@ import numpy as np
 import cv2
 import moviepy as mp
 
-
-TimeUnit = Literal["seconds", "frames", "milliseconds"]
+from ..util import require_package, TimeUnit, to_seconds
 
 
 def _to_seconds(value: float, *, unit: TimeUnit, fps: float) -> float:
-    """Convert time value to seconds based on unit."""
-    if unit == "seconds":
-        return value
-    elif unit == "frames":
-        return value / fps
-    elif unit == "milliseconds":
-        return value / 1000.0
-    else:
-        raise ValueError(f"Invalid time unit: {unit}")
-
-
-def require_package(package_name: str):
-    """
-    Import a package, raising an informative error if not installed.
-
-    >>> math = require_package('math')  # doctest: +SKIP
-    >>> math.pi  # doctest: +SKIP
-    3.141592653589793
-    """
-    try:
-        import importlib
-
-        return importlib.import_module(package_name)
-    except ImportError as e:
-        raise ImportError(
-            f"Package '{package_name}' is required for this functionality. "
-            f"Please install it via 'pip install {package_name}'."
-        ) from e
+    """Convert time value to seconds based on unit (wraps util.to_seconds with fps as rate)."""
+    return to_seconds(value, unit=unit, rate=fps)
 
 
 def _get_video_path_from_clipboard() -> str:
     """Get video file path from clipboard and validate it."""
-    print("Getting video source from clipboard...")
-    clipboard_content = require_package('pyclip').paste()
+    from ..util import get_path_from_clipboard
 
-    # Validate it's text, not binary data
-    if isinstance(clipboard_content, bytes):
-        try:
-            video_src = clipboard_content.decode('utf-8')
-        except UnicodeDecodeError:
-            raise ValueError(
-                "Clipboard contains binary data that cannot be decoded as text. "
-                "Expected a file path string."
-            )
-    elif isinstance(clipboard_content, str):
-        video_src = clipboard_content
-    else:
-        raise ValueError(
-            f"Clipboard content is not a valid string or bytes. "
-            f"Got {type(clipboard_content).__name__}"
-        )
-
-    # Clean up the path
-    video_src = os.path.expanduser(video_src.strip())
-
-    # Validate it's a file path
-    if not os.path.isfile(video_src):
-        # Truncate long strings to avoid printing huge binary garbage
-        display_content = video_src if len(video_src) < 100 else video_src[:100] + '...'
-        raise ValueError(
-            f"Clipboard content is not a valid (existing) file path: {display_content}"
-        )
-
-    print(f"... Video source: {video_src}")
-    return video_src
+    return get_path_from_clipboard()
 
 
 def _copy_frame_to_clipboard(frame: np.ndarray) -> None:
@@ -126,7 +69,8 @@ def _copy_frame_to_clipboard(frame: np.ndarray) -> None:
 
     Requires: pillow, pyclip
     """
-    pyclip = require_package('pyclip')
+    from ..util import copy_to_clipboard
+
     PIL_Image = require_package('PIL.Image')
 
     # Convert BGR (OpenCV) to RGB (PIL)
@@ -138,7 +82,7 @@ def _copy_frame_to_clipboard(frame: np.ndarray) -> None:
     image.save(buffer, format='PNG')
     image_bytes = buffer.getvalue()
 
-    pyclip.copy(image_bytes)
+    copy_to_clipboard(image_bytes)
 
 
 class VideoFrames(Mapping[int, np.ndarray]):
@@ -353,6 +297,31 @@ class Video:
             cap.release()
         return self._frame_count
 
+    def _find_last_readable_frame(self) -> int:
+        """Find the last actually readable frame index (some videos have corrupted end frames)."""
+        cap = cv2.VideoCapture(self.src_path)
+        try:
+            reported_count = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+
+            # Binary search for last readable frame
+            left, right = 0, reported_count - 1
+            last_readable = 0
+
+            while left <= right:
+                mid = (left + right) // 2
+                cap.set(cv2.CAP_PROP_POS_FRAMES, mid)
+                ret, _ = cap.read()
+
+                if ret:
+                    last_readable = mid
+                    left = mid + 1
+                else:
+                    right = mid - 1
+
+            return last_readable
+        finally:
+            cap.release()
+
     def _normalize_index(self, idx: int | float | None, is_start: bool) -> float:
         """Convert slice index to seconds, handling None and negative indices."""
         if idx is None:
@@ -381,10 +350,25 @@ class Video:
         try:
             cap.set(cv2.CAP_PROP_POS_FRAMES, frame_idx)
             ret, frame = cap.read()
+
+            # Handle corrupted/unreadable frames at end of video
             if not ret:
+                # Find last readable frame
+                last_readable = self._find_last_readable_frame()
+
+                if frame_idx > last_readable:
+                    # Requested frame is beyond readable range, use last readable
+                    cap.set(cv2.CAP_PROP_POS_FRAMES, last_readable)
+                    ret, frame = cap.read()
+                    if ret:
+                        return frame
+
+                # Still failed - raise error
                 raise ValueError(
-                    f"Failed to read frame at time {time_seconds}s (frame {frame_idx})"
+                    f"Failed to read frame at time {time_seconds}s (frame {frame_idx}). "
+                    f"Last readable frame: {last_readable}"
                 )
+
             return frame
         finally:
             cap.release()
@@ -730,3 +714,337 @@ def save_frame(
         image_format=image_format,
         copy_to_clipboard=copy_to_clipboard,
     )
+
+
+def loop_video(
+    src_path: str,
+    n_loops: int = 2,
+    *,
+    output_path: str | None = None,
+    **save_kwargs,
+) -> Path:
+    """
+    Create a video by looping/repeating another video.
+
+    Args:
+        src_path: Path to source video
+        n_loops: Number of times to repeat the video
+        output_path: Path for output (auto-generated if None)
+        **save_kwargs: Additional arguments for video export
+
+    Returns:
+        Path to saved looped video
+
+    Examples:
+        >>> loop_video("intro.mp4", 3)  # Repeat 3 times  # doctest: +SKIP
+        >>> loop_video("short_clip.mp4", 5, output_path="extended.mp4")  # doctest: +SKIP
+    """
+    if n_loops < 1:
+        raise ValueError(f"n_loops must be at least 1, got {n_loops}")
+
+    if output_path is None:
+        src = Path(src_path)
+        output_path = src.with_stem(f"{src.stem}_loop{n_loops}")
+
+    output_path = Path(output_path)
+
+    # Load video clip
+    with mp.VideoFileClip(src_path) as clip:
+        # Create list of clips to concatenate
+        clips = [clip] * n_loops
+
+        # Concatenate
+        looped = mp.concatenate_videoclips(clips)
+
+        # Write output
+        looped.write_videofile(str(output_path), **save_kwargs)
+
+        # Clean up
+        looped.close()
+
+    print(f"Saved looped video to: {output_path}")
+    return output_path
+
+
+def replace_audio(
+    video_src: str,
+    audio_src: str,
+    *,
+    mix_ratio: float = 1.0,
+    output_path: str | None = None,
+    normalize_audio: bool = True,
+    **save_kwargs,
+) -> Path:
+    """
+    Replace or mix audio in a video with new audio.
+
+    Args:
+        video_src: Path to source video
+        audio_src: Path to audio file to add/mix
+        mix_ratio: Audio mixing ratio (0.0 = keep only original, 1.0 = replace completely,
+                   0.5 = mix both equally). Values between 0 and 1 blend the audio tracks.
+        output_path: Path for output (auto-generated if None)
+        normalize_audio: If True, adjust audio duration to match video
+        **save_kwargs: Additional arguments for video export
+
+    Returns:
+        Path to saved video with new/mixed audio
+
+    Examples:
+        >>> replace_audio("video.mp4", "music.mp3")  # Replace audio completely  # doctest: +SKIP
+        >>> replace_audio("video.mp4", "bgm.mp3", mix_ratio=0.5)  # Equal mix  # doctest: +SKIP
+        >>> replace_audio("video.mp4", "voice.mp3", mix_ratio=0.7)  # 70% new, 30% original  # doctest: +SKIP
+    """
+    if not 0.0 <= mix_ratio <= 1.0:
+        raise ValueError(f"mix_ratio must be between 0.0 and 1.0, got {mix_ratio}")
+
+    if output_path is None:
+        src = Path(video_src)
+        audio_name = Path(audio_src).stem
+        output_path = src.with_stem(f"{src.stem}_audio_{audio_name}")
+
+    output_path = Path(output_path)
+
+    # Load video and audio
+    with mp.VideoFileClip(video_src) as video_clip:
+        # Load new audio
+        with mp.AudioFileClip(audio_src) as new_audio:
+            # Adjust audio duration if needed
+            if normalize_audio and new_audio.duration != video_clip.duration:
+                if new_audio.duration < video_clip.duration:
+                    # Loop audio to match video length
+                    n_loops = int(np.ceil(video_clip.duration / new_audio.duration))
+                    new_audio = mp.concatenate_audioclips([new_audio] * n_loops)
+                # Trim to exact video duration
+                new_audio = new_audio.subclipped(0, video_clip.duration)
+
+            # Handle audio mixing based on ratio
+            if mix_ratio == 1.0:
+                # Complete replacement
+                final_clip = video_clip.with_audio(new_audio)
+            elif mix_ratio == 0.0:
+                # Keep original audio only
+                if video_clip.audio is None:
+                    # No original audio, add new audio anyway
+                    final_clip = video_clip.with_audio(new_audio)
+                else:
+                    # Keep original - no change needed
+                    final_clip = video_clip
+            else:
+                # Mix original and new audio
+                if video_clip.audio is None:
+                    # No original audio, just use new
+                    final_clip = video_clip.with_audio(new_audio)
+                else:
+                    # Blend both audio tracks
+                    # Adjust volumes: mix_ratio controls new audio prominence
+                    original_volume = 1.0 - mix_ratio
+                    new_volume = mix_ratio
+
+                    # Apply volume adjustments using fx
+                    from moviepy.audio.fx import MultiplyVolume
+
+                    original_audio = video_clip.audio.with_effects(
+                        [MultiplyVolume(original_volume)]
+                    )
+                    adjusted_new_audio = new_audio.with_effects(
+                        [MultiplyVolume(new_volume)]
+                    )
+
+                    # Composite audio tracks
+                    mixed_audio = mp.CompositeAudioClip(
+                        [original_audio, adjusted_new_audio]
+                    )
+                    final_clip = video_clip.with_audio(mixed_audio)
+
+            # Write output with audio codec specified
+            if 'codec' not in save_kwargs:
+                save_kwargs['codec'] = 'libx264'
+            if 'audio_codec' not in save_kwargs:
+                save_kwargs['audio_codec'] = 'aac'
+
+            final_clip.write_videofile(str(output_path), **save_kwargs)
+
+    print(f"Saved video with audio to: {output_path}")
+    return output_path
+
+
+def _parse_rectangle(rect, default=(0.5, 0.5, 1.0)):
+    """
+    Normalize rectangle input to (cx, cy, s) tuple.
+    Accepts:
+        - None: returns default
+        - single number: (0.5, 0.5, v)
+        - pair: (cx, cy, 1.0)
+        - triple: (cx, cy, s)
+    """
+    if rect is None:
+        return default
+    if isinstance(rect, (int, float)):
+        return (0.5, 0.5, float(rect))
+    if isinstance(rect, (list, tuple)):
+        if len(rect) == 1:
+            return (0.5, 0.5, float(rect[0]))
+        elif len(rect) == 2:
+            return (float(rect[0]), float(rect[1]), 1.0)
+        elif len(rect) == 3:
+            return (float(rect[0]), float(rect[1]), float(rect[2]))
+    raise ValueError(f"Invalid rectangle: {rect}")
+
+
+def _rect_to_box(cx, cy, s, img_w, img_h):
+    """
+    Convert (cx, cy, s) to pixel bounding box (xmin, ymin, xmax, ymax) in image coordinates.
+    """
+    w = 1.0 / s
+    h = 1.0 / s
+    xmin = (cx - w / 2) * img_w
+    ymin = (cy - h / 2) * img_h
+    xmax = (cx + w / 2) * img_w
+    ymax = (cy + h / 2) * img_h
+    # Clamp to image bounds
+    xmin = max(0, xmin)
+    ymin = max(0, ymin)
+    xmax = min(img_w, xmax)
+    ymax = min(img_h, ymax)
+    return int(xmin), int(ymin), int(xmax), int(ymax)
+
+
+def ken_burns_video(
+    image,
+    *,
+    duration_s: float = 3,
+    fps=30,
+    start_rectangle=None,
+    end_rectangle=None,
+    output_path=None,
+    codec="libx264",
+    audio_codec="aac",
+    **write_kwargs,
+):
+    """
+    Create a Ken Burns effect video from an image.
+
+    Args:
+        image: Path to image file or image object (PIL.Image, np.ndarray)
+        duration_s: Duration of output video in seconds
+        fps: Frames per second (default 30)
+        start_rectangle: Ken Burns rect at start (see doc)
+        end_rectangle: Ken Burns rect at end (see doc)
+        output_path: Where to save video (default: image path with .mp4 extension,
+            auto-incremented if exists)
+        codec: Video codec (default libx264)
+        audio_codec: Audio codec (default aac)
+        **write_kwargs: Passed to write_videofile
+
+    Returns:
+        Path to saved video
+
+    Rectangle parameterization:
+        Rect = (cx, cy, s)
+        cx, cy in [0, 1], s > 0
+        s = 1: original size, <1: zoomed out, >1: zoomed in
+        See module doc for details.
+
+    Examples:
+        >>> ken_burns_video("photo.jpg", duration_s=5, start_rectangle=1.5, end_rectangle=1.0)  # doctest: +SKIP
+        >>> ken_burns_video("photo.jpg", duration_s=3, start_rectangle=(0.3, 0.3, 2), end_rectangle=(0.7, 0.7, 2))  # doctest: +SKIP
+    """
+    from dol import non_colliding_key
+
+    # Accept image as path, PIL.Image, or np.ndarray
+    PIL_Image = require_package('PIL.Image')
+
+    # Track the original image path for output path generation
+    image_path = None
+    if isinstance(image, str) or isinstance(image, Path):
+        image_path = Path(image)
+        img = PIL_Image.open(str(image)).convert("RGB")
+    elif isinstance(image, np.ndarray):
+        img = PIL_Image.fromarray(image)
+    elif hasattr(image, 'convert'):
+        img = image.convert("RGB")
+    else:
+        raise ValueError(f"Unsupported image type: {type(image)}")
+
+    img_w, img_h = img.size
+    n_frames = int(duration_s * fps)
+
+    # Parse rectangles
+    start_rect = _parse_rectangle(start_rectangle)
+    end_rect = _parse_rectangle(end_rectangle)
+
+    # Interpolate rectangles for each frame
+    def lerp(a, b, t):
+        return a + (b - a) * t
+
+    rects = [
+        (
+            lerp(start_rect[0], end_rect[0], i / (n_frames - 1)),
+            lerp(start_rect[1], end_rect[1], i / (n_frames - 1)),
+            lerp(start_rect[2], end_rect[2], i / (n_frames - 1)),
+        )
+        for i in range(n_frames)
+    ]
+
+    # Preload as numpy array for fast cropping
+    img_np = np.array(img)
+
+    frames = []
+    for cx, cy, s in rects:
+        xmin, ymin, xmax, ymax = _rect_to_box(cx, cy, s, img_w, img_h)
+        crop = img_np[ymin:ymax, xmin:xmax]
+        # Resize to original size
+        crop_img = PIL_Image.fromarray(crop).resize(
+            (img_w, img_h), resample=PIL_Image.BICUBIC
+        )
+        frames.append(np.array(crop_img))
+
+    # Determine output path
+    if output_path is None:
+        if image_path is not None:
+            # Use image path with .mp4 extension
+            output_path = image_path.with_suffix('.mp4')
+        else:
+            # Fallback to temp directory
+            output_path = Path(tempfile.gettempdir()) / f"kenburns_{os.getpid()}.mp4"
+    else:
+        output_path = Path(output_path)
+        # Ensure it has a video extension
+        if not output_path.suffix or output_path.suffix.lower() not in [
+            '.mp4',
+            '.mov',
+            '.avi',
+            '.mkv',
+        ]:
+            output_path = output_path.with_suffix('.mp4')
+
+    # Use non_colliding_key to avoid overwriting
+    directory = output_path.parent
+    filename = output_path.name
+    try:
+        existing_files = (
+            set(os.listdir(directory)) if directory else set(os.listdir('.'))
+        )
+    except OSError:
+        existing_files = set()
+
+    if filename in existing_files:
+        safe_filename = non_colliding_key(filename, existing_files)
+        output_path = directory / safe_filename
+
+    # Create video using moviepy with proper settings for compatibility
+    clip = mp.ImageSequenceClip(frames, fps=fps)
+
+    # Set default kwargs for better compatibility
+    write_kwargs.setdefault('bitrate', '5000k')
+    write_kwargs.setdefault('preset', 'medium')
+    write_kwargs.setdefault('logger', None)  # Suppress verbose output
+
+    clip.write_videofile(
+        str(output_path), codec=codec, audio_codec=audio_codec, **write_kwargs
+    )
+    clip.close()
+
+    print(f"Saved Ken Burns video to: {output_path}")
+    return output_path
