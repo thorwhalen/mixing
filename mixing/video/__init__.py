@@ -17,3 +17,8 @@ from mixing.video.video_ops import (
     loop_video,
     replace_audio,
 )
+from mixing.video.video_util import (
+    get_video_dimensions,
+    resize_to_dimensions,
+    normalize_video_dimensions,
+)

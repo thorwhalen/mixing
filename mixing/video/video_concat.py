@@ -26,7 +26,7 @@ Frame Verification:
     ...   save_comparison='comp.png')    # doctest: +SKIP
 """
 
-from typing import Optional, Union
+from typing import Optional, Union, Literal
 from collections.abc import Iterable, Callable
 from pathlib import Path
 from io import BytesIO
@@ -250,12 +250,18 @@ def concatenate_videos(
     transform_clips: None | (
         Callable[[list[VideoFileClip]], Iterable[VideoFileClip]]
     ) = None,
+    normalize_dimensions: bool | Literal['stretch', 'fit', 'fill', 'social'] = 'social',
+    target_width: int | None = None,
+    target_height: int | None = None,
     output_path: str | bool | None = None,
+    codec: str = 'libx264',
+    audio_codec: str = 'aac',
     **concat_kwargs,
 ) -> VideoFileClip:
     """
-    Concatenate multiple videos with optional clip transformation.
+    Concatenate multiple videos with optional clip transformation and dimension normalization.
 
+    Audio from all input videos is automatically concatenated and included in the output.
     Automatically manages resource cleanup for clips created from sources.
 
     Args:
@@ -265,29 +271,50 @@ def concatenate_videos(
               bytes, BytesIO, or file-like objects)
         transform_clips: Optional function to transform clips before concatenation.
                         Receives a list of clips, returns an iterable of clips.
+        normalize_dimensions: How to handle videos with different dimensions:
+            - False: No normalization (may cause issues if dimensions differ)
+            - 'stretch': Stretch all videos to match first video's dimensions
+            - 'fit': Scale to fit inside dimensions with padding (letterbox/pillarbox)
+            - 'fill': Scale to fill dimensions (may crop edges)
+            - 'social': Scale with blurred/zoomed background (social media style) [DEFAULT]
+            - True: Same as 'social'
+        target_width: Explicit target width (overrides first video's dimensions)
+        target_height: Explicit target height (overrides first video's dimensions)
         output_path: Optional path to save the concatenated video file.
                     If True and videos is a folder path, generates filename from folder name.
                     If True and videos is not a folder, raises ValueError.
+        codec: Video codec to use when writing file (default: 'libx264')
+        audio_codec: Audio codec to use when writing file (default: 'aac')
+        **concat_kwargs: Additional arguments passed to moviepy's concatenate_videoclips
 
     Returns:
-        Concatenated VideoFileClip. Caller is responsible for closing this clip.
+        Concatenated VideoFileClip with audio. Caller is responsible for closing this clip.
 
     Examples:
-        >>> # From folder path
+        >>> # From folder path with auto dimension handling (social media style)
         >>> final = concatenate_videos('/path/to/videos/')  # doctest: +SKIP
 
-        >>> # From folder path with auto-generated output name
-        >>> final = concatenate_videos('/path/to/my_videos/', output_path=True)  # doctest: +SKIP
-        >>> # Creates 'my_videos.mp4' in the same directory
+        >>> # From folder path with explicit output and letterboxing
+        >>> final = concatenate_videos(
+        ...     '/path/to/videos/',
+        ...     normalize_dimensions='fit',
+        ...     output_path='/path/output.mp4'
+        ... )  # doctest: +SKIP
 
-        >>> # From list of paths with transformation
+        >>> # From list of paths with transformation and specific dimensions
         >>> def trim_first_frame(clips):
         ...     '''Keep first clip intact, trim first frame from rest.'''
         ...     yield clips[0]
         ...     for clip in clips[1:]:
         ...         yield clip.subclipped(1 / clip.fps)  # doctest: +SKIP
         >>> paths = ['video1.mp4', 'video2.mp4', 'video3.mp4']  # doctest: +SKIP
-        >>> final = concatenate_videos(paths, transform_clips=trim_first_frame)  # doctest: +SKIP
+        >>> final = concatenate_videos(
+        ...     paths,
+        ...     transform_clips=trim_first_frame,
+        ...     target_width=1920,
+        ...     target_height=1080,
+        ...     normalize_dimensions='social'
+        ... )  # doctest: +SKIP
         >>> final.write_videofile('output.mp4')  # doctest: +SKIP
         >>> final.close()  # doctest: +SKIP
     """
@@ -313,6 +340,28 @@ def concatenate_videos(
         clips = list(ensure_videoclip_iterable(videos))
         clips_to_close.extend(clips)
 
+        # Normalize dimensions if requested
+        if normalize_dimensions is not False:
+            from mixing.video.video_util import normalize_video_dimensions
+
+            # Handle normalize_dimensions=True -> 'social'
+            method = 'social' if normalize_dimensions is True else normalize_dimensions
+
+            normalized_clips = normalize_video_dimensions(
+                clips,
+                target_width=target_width,
+                target_height=target_height,
+                method=method,
+            )
+
+            # Track newly created normalized clips for cleanup
+            original_ids = {id(c) for c in clips}
+            for clip in normalized_clips:
+                if id(clip) not in original_ids:
+                    clips_to_close.append(clip)
+
+            clips = normalized_clips
+
         # Apply transformation if provided
         if transform_clips is not None:
             transformed = list(transform_clips(clips))
@@ -328,7 +377,12 @@ def concatenate_videos(
         # Concatenate and optionally write
         final_clip = concatenate_videoclips(clips_to_concat, **concat_kwargs)
         if output_path is not None:
-            final_clip.write_videofile(output_path)
+            # Explicitly include audio with proper codecs
+            final_clip.write_videofile(
+                output_path, 
+                codec=codec, 
+                audio_codec=audio_codec
+            )
 
         return final_clip
 

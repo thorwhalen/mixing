@@ -307,20 +307,109 @@ output_path = write_subtitles_in_video(
 
 ## Video Concatenation (`video_concat`)
 
-Combine multiple videos with various transition effects:
+Combine multiple videos with various transition effects and automatic dimension normalization:
+
+### Basic Concatenation
 
 ```python
-from mixing.video.video_concat import concatenate_videos
+from mixing.video import concatenate_videos
 
-# Simple concatenation
-final_video = concatenate_videos([
-    "video1.mp4",
-    "video2.mp4", 
-    "video3.mp4"
-])
+# Simple concatenation from a folder (auto-normalizes dimensions)
+final_video = concatenate_videos(
+    "/path/to/videos/",
+    output_path="/output/combined.mp4"
+)
+```
 
-# Save the result
-final_video.write_videofile("combined.mp4")
+### Dimension Normalization
+
+When concatenating videos with different dimensions (width/height), `concatenate_videos` automatically normalizes them. The default mode uses a **'social media style'** with blurred/zoomed background (like Instagram/TikTok):
+
+```python
+# Default: Social media style (blurred background)
+concatenate_videos(
+    [video1, video2, video3],  # Videos with different dimensions
+    output_path="output.mp4"
+    # normalize_dimensions='social' is the default
+)
+```
+
+**Available normalization methods:**
+
+- **`'social'`** (default): Scales video to fit with blurred/zoomed background fill
+- **`'fit'`**: Letterbox/pillarbox - scale to fit with black bars
+- **`'fill'`**: Scale to fill (may crop edges)
+- **`'stretch'`**: Stretch to fit (may distort aspect ratio)
+- **`False`**: No normalization (may cause issues if dimensions differ)
+
+```python
+# Letterbox style (black bars on sides/top-bottom)
+concatenate_videos(
+    videos,
+    output_path="letterbox.mp4",
+    normalize_dimensions='fit'
+)
+
+# Fill mode (may crop edges to avoid distortion)
+concatenate_videos(
+    videos,
+    output_path="filled.mp4",
+    normalize_dimensions='fill'
+)
+
+# Explicit target dimensions
+concatenate_videos(
+    videos,
+    target_width=1920,
+    target_height=1080,
+    normalize_dimensions='social',
+    output_path="1080p.mp4"
+)
+```
+
+### Using Resize Utilities Separately
+
+You can also use the dimension utilities independently for single videos:
+
+```python
+from mixing.video import resize_to_dimensions, get_video_dimensions
+from moviepy import VideoFileClip
+
+# Check video dimensions
+video = VideoFileClip("my_video.mp4")
+width, height = get_video_dimensions(video)
+print(f"Original: {width}x{height}")
+
+# Resize with social media style
+resized = resize_to_dimensions(
+    video,
+    1920, 1080,
+    method='social'
+)
+resized.write_videofile("resized_social.mp4")
+
+# Or use letterbox
+resized = resize_to_dimensions(
+    video,
+    1920, 1080,
+    method='fit',
+    bg_color=(0, 0, 0)  # Black background
+)
+```
+
+### Transition Effects
+
+Add smooth transitions between concatenated videos:
+
+```python
+from mixing.video.video_concat import trim_and_crossfade
+
+# Concatenate with crossfade transitions
+final = concatenate_videos(
+    videos,
+    transform_clips=lambda clips: trim_and_crossfade(clips, duration=0.4),
+    output_path="smooth_transitions.mp4"
+)
 ```
 
 ## Requirements
