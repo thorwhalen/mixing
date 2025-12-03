@@ -159,13 +159,25 @@ def resize_to_dimensions(
             y2=y_offset + target_height,
         )
 
-        # Apply blur to background
-        from moviepy import vfx
+        # Apply blur to background using PIL
+        def blur_frame(frame):
+            """Apply Gaussian blur to a frame using PIL."""
+            from PIL import Image, ImageFilter
+            import numpy as np
 
-        background = background.with_effects([vfx.GaussianBlur(sigma=15)])
+            # Convert numpy array to PIL Image
+            img = Image.fromarray(frame.astype('uint8'))
+            # Apply Gaussian blur
+            blurred = img.filter(ImageFilter.GaussianBlur(radius=15))
+            # Convert back to numpy array
+            return np.array(blurred)
+
+        background = background.image_transform(blur_frame)
 
         # Optionally darken the background slightly for better contrast
-        background = background.with_multiply_color([0.7, 0.7, 0.7])
+        from moviepy import vfx
+
+        background = background.with_effects([vfx.MultiplyColor([0.7, 0.7, 0.7])])
 
         # Center the foreground on the background
         x_pos = (target_width - new_width) // 2

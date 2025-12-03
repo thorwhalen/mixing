@@ -49,6 +49,13 @@ import cv2
 import moviepy as mp
 
 from ..util import require_package, TimeUnit, to_seconds
+from ._helpers import (
+    _auto_video_path,
+    _auto_frame_path,
+    _set_default_codecs,
+    _ensure_output_path,
+    _resolve_output_path,
+)
 
 
 def _to_seconds(value: float, *, unit: TimeUnit, fps: float) -> float:
@@ -212,7 +219,7 @@ class Video:
     (not copies), enabling chained operations.
 
     Args:
-        src_path: Path to source video file
+        video_src: Path to source video file
         time_unit: Unit for slice indices ('seconds', 'frames', 'milliseconds')
         start_time: Start time in seconds (for creating sub-views)
         end_time: End time in seconds (for creating sub-views)
@@ -243,13 +250,13 @@ class Video:
 
     def __init__(
         self,
-        src_path: str,
+        video_src: str,
         *,
         time_unit: TimeUnit = "seconds",
         start_time: float | None = None,
         end_time: float | None = None,
     ):
-        self.src_path = str(src_path)
+        self.video_src = str(video_src)
         self.time_unit = time_unit
         self._start_time = start_time  # None means start of video
         self._end_time = end_time  # None means end of video
@@ -271,7 +278,7 @@ class Video:
     def full_duration(self) -> float:
         """Duration of the source video in seconds."""
         if self._duration is None:
-            with mp.VideoFileClip(self.src_path) as clip:
+            with mp.VideoFileClip(self.video_src) as clip:
                 self._duration = clip.duration
         return self._duration
 
@@ -284,7 +291,7 @@ class Video:
     def fps(self) -> float:
         """Frames per second of video."""
         if self._fps is None:
-            with mp.VideoFileClip(self.src_path) as clip:
+            with mp.VideoFileClip(self.video_src) as clip:
                 self._fps = clip.fps
         return self._fps
 
@@ -292,14 +299,14 @@ class Video:
     def frame_count(self) -> int:
         """Total number of frames in source video."""
         if self._frame_count is None:
-            cap = cv2.VideoCapture(self.src_path)
+            cap = cv2.VideoCapture(self.video_src)
             self._frame_count = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
             cap.release()
         return self._frame_count
 
     def _find_last_readable_frame(self) -> int:
         """Find the last actually readable frame index (some videos have corrupted end frames)."""
-        cap = cv2.VideoCapture(self.src_path)
+        cap = cv2.VideoCapture(self.video_src)
         try:
             reported_count = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
 
@@ -322,8 +329,19 @@ class Video:
         finally:
             cap.release()
 
-    def _normalize_index(self, idx: int | float | None, is_start: bool) -> float:
-        """Convert slice index to seconds, handling None and negative indices."""
+    def _resolve_time(self, idx: int | float | None, *, is_start: bool) -> float:
+        """
+        Convert index to absolute time in seconds, handling negative indices.
+
+        Centralizes time/index resolution logic used throughout the class.
+
+        Args:
+            idx: Time/frame index (can be negative for end-relative)
+            is_start: True if this is a start index, False for end
+
+        Returns:
+            Absolute time in seconds, clamped to segment bounds
+        """
         if idx is None:
             return self.start_time if is_start else self.end_time
 
@@ -346,7 +364,7 @@ class Video:
         frame_idx = int(time_seconds * self.fps)
         frame_idx = max(0, min(frame_idx, self.frame_count - 1))
 
-        cap = cv2.VideoCapture(self.src_path)
+        cap = cv2.VideoCapture(self.video_src)
         try:
             cap.set(cv2.CAP_PROP_POS_FRAMES, frame_idx)
             ret, frame = cap.read()
@@ -393,8 +411,8 @@ class Video:
             if key.step is not None:
                 raise ValueError("Step is not supported for video cropping")
 
-            start = self._normalize_index(key.start, is_start=True)
-            end = self._normalize_index(key.stop, is_start=False)
+            start = self._resolve_time(key.start, is_start=True)
+            end = self._resolve_time(key.stop, is_start=False)
 
             if start >= end:
                 raise ValueError(
@@ -433,7 +451,7 @@ class Video:
 
     def save(
         self,
-        output_path: str | None = None,
+        saveas: str | None = None,
         *,
         codec: str = "libx264",
         audio_codec: str = "aac",
@@ -443,7 +461,7 @@ class Video:
         Save this video/segment to a new video file.
 
         Args:
-            output_path: Path for output file (auto-generated if None)
+            saveas: Path for output file (auto-generated if None)
             codec: Video codec to use
             audio_codec: Audio codec to use
             **write_kwargs: Additional arguments for write_videofile
@@ -451,15 +469,14 @@ class Video:
         Returns:
             Path to saved file
         """
-        if output_path is None:
-            src = Path(self.src_path)
-            output_path = src.with_stem(
-                f"{src.stem}_{int(self.start_time)}_{int(self.end_time)}"
+        if saveas is None:
+            saveas = _auto_video_path(
+                self.video_src, f"{int(self.start_time)}_{int(self.end_time)}"
             )
 
-        output_path = Path(output_path)
+        output_path = _ensure_output_path(saveas)
 
-        with mp.VideoFileClip(self.src_path) as clip:
+        with mp.VideoFileClip(self.video_src) as clip:
             subclip = clip.subclipped(self.start_time, self.end_time)
             subclip.write_videofile(
                 str(output_path), codec=codec, audio_codec=audio_codec, **write_kwargs
@@ -469,8 +486,8 @@ class Video:
 
     def save_frame(
         self,
-        frame_time: float | None = None,
-        output_path: str | None = None,
+        time_or_frame: float | None = None,
+        saveas: str | None = None,
         *,
         image_format: str = "png",
         copy_to_clipboard: bool = False,
@@ -479,8 +496,8 @@ class Video:
         Save a single frame as an image and/or copy to clipboard.
 
         Args:
-            frame_time: Time in seconds (None = start of segment)
-            output_path: Path for output image (auto-generated if None,
+            time_or_frame: Time/frame index (None = start of segment)
+            saveas: Path for output image (auto-generated if None,
                         False = don't save to file)
             image_format: Image format (png, jpg, etc.)
             copy_to_clipboard: If True, copy image to system clipboard
@@ -492,18 +509,18 @@ class Video:
             >>> video = Video("movie.mp4")  # doctest: +SKIP
             >>> video.save_frame(10.5)  # Save frame at 10.5s  # doctest: +SKIP
             >>> video.save_frame(10.5, copy_to_clipboard=True)  # Save and copy  # doctest: +SKIP
-            >>> video.save_frame(10.5, output_path=False, copy_to_clipboard=True)  # Clipboard only  # doctest: +SKIP
+            >>> video.save_frame(10.5, saveas=False, copy_to_clipboard=True)  # Clipboard only  # doctest: +SKIP
         """
-        if output_path is False and not copy_to_clipboard:
+        if saveas is False and not copy_to_clipboard:
             raise ValueError(
-                "Must specify at least one output: set output_path or copy_to_clipboard=True"
+                "Must specify at least one output: set saveas or copy_to_clipboard=True"
             )
 
-        if frame_time is None:
-            frame_time = self.start_time
+        if time_or_frame is None:
+            time_or_frame = self.start_time
 
         # Get the frame
-        frame = self._get_frame_at_time(frame_time)
+        frame = self._get_frame_at_time(time_or_frame)
 
         # Copy to clipboard if requested
         if copy_to_clipboard:
@@ -511,19 +528,20 @@ class Video:
             _copy_frame_to_clipboard(frame)
 
         # Save to file if requested
-        if output_path is not False:
+        if saveas is not False:
             # Determine output path
-            if output_path is None:
-                src = Path(self.src_path)
-                frame_idx = int(frame_time * self.fps)
-                output_path = src.parent / f"{src.stem}_{frame_idx:06d}.{image_format}"
+            if saveas is None:
+                frame_idx = int(time_or_frame * self.fps)
+                saveas = _auto_frame_path(
+                    self.video_src, frame_idx, image_format=image_format
+                )
             else:
-                output_path = Path(output_path)
-                if not output_path.suffix:
-                    output_path = output_path.with_suffix(f".{image_format}")
+                saveas = Path(saveas)
+                if not saveas.suffix:
+                    saveas = saveas.with_suffix(f".{image_format}")
 
             # Ensure directory exists
-            output_path.parent.mkdir(parents=True, exist_ok=True)
+            output_path = _ensure_output_path(saveas)
 
             # Save frame
             cv2.imwrite(str(output_path), frame)
@@ -539,13 +557,13 @@ class Video:
 
         Note: Caller is responsible for closing the clip.
         """
-        clip = mp.VideoFileClip(self.src_path)
+        clip = mp.VideoFileClip(self.video_src)
         return clip.subclipped(self.start_time, self.end_time)
 
     def __repr__(self) -> str:
         if self._start_time is not None or self._end_time is not None:
             return (
-                f"Video('{self.src_path}', "
+                f"Video('{self.video_src}', "
                 f"time_unit='{self.time_unit}', "
                 f"start={self.start_time:.2f}s, "
                 f"end={self.end_time:.2f}s, "
@@ -553,7 +571,7 @@ class Video:
             )
         else:
             return (
-                f"Video('{self.src_path}', "
+                f"Video('{self.video_src}', "
                 f"time_unit='{self.time_unit}', "
                 f"duration={self.full_duration:.2f}s)"
             )
@@ -562,30 +580,30 @@ class Video:
     def frames(self) -> 'VideoFrames':
         """Get frame-by-frame Mapping interface for this video/segment."""
         return VideoFrames(
-            self.src_path,
+            self.video_src,
             start_frame=int(self.start_time * self.fps),
             end_frame=int(self.end_time * self.fps),
         )
 
 
 def crop_video(
-    src_path: str,
+    video_src: str,
     start: float | int | None = None,
     end: float | int | None = None,
     *,
     time_unit: TimeUnit = "seconds",
-    output_path: str | None = None,
+    saveas: str | None = None,
     **save_kwargs,
 ) -> Path:
     """
     Convenience function to crop and save a video segment or frame.
 
     Args:
-        src_path: Path to source video
+        video_src: Path to source video
         start: Start time/frame (None = beginning)
         end: End time/frame (None = end of video)
         time_unit: Unit for start/end values
-        output_path: Path for output (auto-generated if None)
+        saveas: Path for output (auto-generated if None or False)
         **save_kwargs: Additional arguments for save operation
 
     Returns:
@@ -596,27 +614,21 @@ def crop_video(
         >>> crop_video("video.mp4", 100, 500, time_unit="frames")  # doctest: +SKIP
         >>> crop_video("video.mp4", 10, 10)  # Single frame at 10s  # doctest: +SKIP
     """
-    video = Video(src_path, time_unit=time_unit)
+    video = Video(video_src, time_unit=time_unit)
 
     # Handle single frame case
     if start is not None and end is not None and start == end:
         # Extract single frame
-        if output_path is None:
-            # Auto-generate image path
-            return video.save_frame(frame_time=start, **save_kwargs)
-        else:
-            return video.save_frame(
-                frame_time=start, output_path=output_path, **save_kwargs
-            )
+        return video.save_frame(time_or_frame=start, saveas=saveas, **save_kwargs)
 
     # Handle segment case
     segment = video[start:end]
-    return segment.save(output_path, **save_kwargs)
+    return segment.save(saveas, **save_kwargs)
 
 
 def save_frame(
     video_src: str | None = None,
-    frame_idx: int | float = 0,
+    time_or_frame: int | float = 0,
     *,
     time_unit: TimeUnit | None = None,
     saveas: str | bool | None = None,
@@ -626,13 +638,11 @@ def save_frame(
     """
     Extract and save a frame from a video file.
 
-    Backward compatibility wrapper with full feature parity to original.
-
     Args:
         video_src: Path to the video file. If None, gets from clipboard.
-        frame_idx: Index/time of the frame to extract (default: 0)
-        time_unit: Unit for frame_idx ('seconds', 'frames', 'milliseconds').
-            If None, defaults to 'seconds', unless frame_idx is a negative integer,
+        time_or_frame: Time/frame index of the frame to extract (default: 0)
+        time_unit: Unit for time_or_frame ('seconds', 'frames', 'milliseconds').
+            If None, defaults to 'seconds', unless time_or_frame is a negative integer,
             in which case it defaults to 'frames'.
         saveas: Where to save the image. If None or "", auto-generates path.
             - None or "": Auto-generate path based on video filename
@@ -653,8 +663,8 @@ def save_frame(
         >>> save_frame("video.mp4", 100, time_unit="frames")  # Frame 100  # doctest: +SKIP
         >>> save_frame("video.mp4", 5, saveas=".jpg")  # doctest: +SKIP
         >>> save_frame("video.mp4", 5, saveas="/TMP")  # doctest: +SKIP
-        >>> save_frame(frame_idx=3, copy_to_clipboard=True)  # From clipboard  # doctest: +SKIP
-        >>> save_frame(frame_idx=3, saveas=False, copy_to_clipboard=True)  # Clipboard only  # doctest: +SKIP
+        >>> save_frame(time_or_frame=3, copy_to_clipboard=True)  # From clipboard  # doctest: +SKIP
+        >>> save_frame(time_or_frame=3, saveas=False, copy_to_clipboard=True)  # Clipboard only  # doctest: +SKIP
     """
     if saveas is False and not copy_to_clipboard:
         raise ValueError(
@@ -666,24 +676,15 @@ def save_frame(
 
     # Smart defaulting for time_unit
     if time_unit is None:
-        if isinstance(frame_idx, int) and frame_idx < 0:
+        if isinstance(time_or_frame, int) and time_or_frame < 0:
             time_unit = "frames"
         else:
             time_unit = "seconds"
 
     video = Video(video_src, time_unit=time_unit)
 
-    # Handle negative indices (from end)
-    if frame_idx < 0:
-        if time_unit == "frames":
-            # Negative frame index: count from end
-            frame_time = (video.frame_count + frame_idx) / video.fps
-        else:
-            # Negative time: subtract from duration
-            frame_time = video.full_duration + frame_idx
-    else:
-        # Positive index: convert to seconds
-        frame_time = _to_seconds(frame_idx, unit=time_unit, fps=video.fps)
+    # Resolve time using the Video's _resolve_time method
+    time_seconds = video._resolve_time(time_or_frame, is_start=True)
 
     # Determine output path based on saveas parameter
     output_path = None
@@ -696,7 +697,7 @@ def save_frame(
         # Save to temporary directory
         temp_dir = tempfile.gettempdir()
         video_name = Path(video_src).stem
-        frame_idx_int = int(frame_time * video.fps)
+        frame_idx_int = int(time_seconds * video.fps)
         output_path = (
             Path(temp_dir) / f"{video_name}_{frame_idx_int:06d}.{image_format}"
         )
@@ -709,27 +710,27 @@ def save_frame(
         output_path = saveas
 
     return video.save_frame(
-        frame_time=frame_time,
-        output_path=output_path,
+        time_or_frame=time_seconds,
+        saveas=output_path,
         image_format=image_format,
         copy_to_clipboard=copy_to_clipboard,
     )
 
 
 def loop_video(
-    src_path: str,
+    video_src: str,
     n_loops: int = 2,
     *,
-    output_path: str | None = None,
+    saveas: str | None = None,
     **save_kwargs,
 ) -> Path:
     """
     Create a video by looping/repeating another video.
 
     Args:
-        src_path: Path to source video
+        video_src: Path to source video
         n_loops: Number of times to repeat the video
-        output_path: Path for output (auto-generated if None)
+        saveas: Path for output (auto-generated if None)
         **save_kwargs: Additional arguments for video export
 
     Returns:
@@ -737,19 +738,18 @@ def loop_video(
 
     Examples:
         >>> loop_video("intro.mp4", 3)  # Repeat 3 times  # doctest: +SKIP
-        >>> loop_video("short_clip.mp4", 5, output_path="extended.mp4")  # doctest: +SKIP
+        >>> loop_video("short_clip.mp4", 5, saveas="extended.mp4")  # doctest: +SKIP
     """
     if n_loops < 1:
         raise ValueError(f"n_loops must be at least 1, got {n_loops}")
 
-    if output_path is None:
-        src = Path(src_path)
-        output_path = src.with_stem(f"{src.stem}_loop{n_loops}")
+    output_path = _resolve_output_path(video_src, saveas, f"loop{n_loops}")
 
-    output_path = Path(output_path)
+    # Set default codecs
+    _set_default_codecs(save_kwargs)
 
     # Load video clip
-    with mp.VideoFileClip(src_path) as clip:
+    with mp.VideoFileClip(video_src) as clip:
         # Create list of clips to concatenate
         clips = [clip] * n_loops
 
@@ -771,8 +771,8 @@ def replace_audio(
     audio_src: str,
     *,
     mix_ratio: float = 1.0,
-    output_path: str | None = None,
-    normalize_audio: bool = True,
+    saveas: str | None = None,
+    match_duration: bool = True,
     **save_kwargs,
 ) -> Path:
     """
@@ -783,8 +783,8 @@ def replace_audio(
         audio_src: Path to audio file to add/mix
         mix_ratio: Audio mixing ratio (0.0 = keep only original, 1.0 = replace completely,
                    0.5 = mix both equally). Values between 0 and 1 blend the audio tracks.
-        output_path: Path for output (auto-generated if None)
-        normalize_audio: If True, adjust audio duration to match video
+        saveas: Path for output (auto-generated if None)
+        match_duration: If True, adjust audio duration to match video
         **save_kwargs: Additional arguments for video export
 
     Returns:
@@ -798,19 +798,18 @@ def replace_audio(
     if not 0.0 <= mix_ratio <= 1.0:
         raise ValueError(f"mix_ratio must be between 0.0 and 1.0, got {mix_ratio}")
 
-    if output_path is None:
-        src = Path(video_src)
-        audio_name = Path(audio_src).stem
-        output_path = src.with_stem(f"{src.stem}_audio_{audio_name}")
+    audio_name = Path(audio_src).stem
+    output_path = _resolve_output_path(video_src, saveas, f"audio_{audio_name}")
 
-    output_path = Path(output_path)
+    # Set default codecs
+    _set_default_codecs(save_kwargs)
 
     # Load video and audio
     with mp.VideoFileClip(video_src) as video_clip:
         # Load new audio
         with mp.AudioFileClip(audio_src) as new_audio:
             # Adjust audio duration if needed
-            if normalize_audio and new_audio.duration != video_clip.duration:
+            if match_duration and new_audio.duration != video_clip.duration:
                 if new_audio.duration < video_clip.duration:
                     # Loop audio to match video length
                     n_loops = int(np.ceil(video_clip.duration / new_audio.duration))
@@ -857,15 +856,120 @@ def replace_audio(
                     )
                     final_clip = video_clip.with_audio(mixed_audio)
 
-            # Write output with audio codec specified
-            if 'codec' not in save_kwargs:
-                save_kwargs['codec'] = 'libx264'
-            if 'audio_codec' not in save_kwargs:
-                save_kwargs['audio_codec'] = 'aac'
-
+            # Write output
             final_clip.write_videofile(str(output_path), **save_kwargs)
 
     print(f"Saved video with audio to: {output_path}")
+    return output_path
+
+
+def normalize_audio(
+    video_src: str,
+    *,
+    saveas: str | None = None,
+    **save_kwargs,
+) -> Path:
+    """
+    Normalize audio levels in a video to reduce volume fluctuations.
+
+    This function adjusts the audio so that the loudest parts reach a consistent
+    level, reducing the variation between quiet and loud sections. This is
+    particularly useful for videos with narration that varies in volume.
+
+    Args:
+        video_src: Path to input video file
+        saveas: Optional output path. If None, generates name with suffix
+        **save_kwargs: Additional arguments for write_videofile (e.g., codec, audio_codec)
+
+    Returns:
+        Path to the output video file with normalized audio
+
+    Examples:
+        >>> # Normalize audio in a video with varying narrator volume
+        >>> normalize_audio("lecture.mp4")  # doctest: +SKIP
+        >>> # Output: lecture_normalized.mp4
+
+        >>> # Specify custom output path
+        >>> normalize_audio("interview.mp4", saveas="interview_fixed.mp4")  # doctest: +SKIP
+    """
+    output_path = _resolve_output_path(video_src, saveas, "normalized")
+
+    # Set default codecs
+    _set_default_codecs(save_kwargs)
+
+    # Load video and normalize audio
+    with mp.VideoFileClip(str(video_src)) as clip:
+        if clip.audio is not None:
+            # Apply audio normalization
+            from moviepy.audio.fx import AudioNormalize
+
+            normalized_audio = clip.audio.with_effects([AudioNormalize()])
+            final_clip = clip.with_audio(normalized_audio)
+        else:
+            # No audio to normalize
+            print(f"Warning: {video_src} has no audio track")
+            final_clip = clip
+
+        final_clip.write_videofile(str(output_path), **save_kwargs)
+
+    print(f"Saved video with normalized audio to: {output_path}")
+    return output_path
+
+
+def change_speed(
+    video_src: str,
+    speed_factor: float,
+    *,
+    saveas: str | None = None,
+    **save_kwargs,
+) -> Path:
+    """
+    Change the playback speed of a video.
+
+    Creates a new video that plays faster or slower than the original while
+    preserving audio pitch (audio is also sped up/slowed down proportionally).
+
+    Args:
+        video_src: Path to input video file
+        speed_factor: Speed multiplier (e.g., 2.0 = 2x faster, 0.5 = half speed)
+            - > 1.0: speeds up the video (e.g., 2.0 = twice as fast)
+            - < 1.0: slows down the video (e.g., 0.5 = half speed)
+            - 1.0: no change
+        saveas: Optional output path. If None, generates name with speed suffix
+        **save_kwargs: Additional arguments for write_videofile (e.g., codec, fps)
+
+    Returns:
+        Path to the output video file
+
+    Examples:
+        >>> # Create slow-motion video at half speed
+        >>> change_speed("action.mp4", 0.5)  # doctest: +SKIP
+        >>> # Output: action_speed_0.5x.mp4
+
+        >>> # Speed up video 2x
+        >>> change_speed("lecture.mp4", 2.0, saveas="fast_lecture.mp4")  # doctest: +SKIP
+
+        >>> # Extreme slow motion
+        >>> change_speed("jump.mp4", 0.25)  # doctest: +SKIP
+        >>> # Output: jump_speed_0.25x.mp4
+    """
+    output_path = _resolve_output_path(video_src, saveas, f"speed_{speed_factor}x")
+
+    # Set default codecs
+    _set_default_codecs(save_kwargs)
+
+    # Load video and change speed
+    with mp.VideoFileClip(str(video_src)) as clip:
+        # Apply speed change (this also affects audio)
+        sped_clip = clip.with_speed_scaled(speed_factor)
+
+        # Write output
+        sped_clip.write_videofile(str(output_path), **save_kwargs)
+
+        # Clean up
+        sped_clip.close()
+
+    print(f"Saved {speed_factor}x speed video to: {output_path}")
     return output_path
 
 
@@ -914,14 +1018,14 @@ def ken_burns_video(
     image,
     *,
     duration_s: float = 3,
-    fps=30,
+    fps: int = 30,
     start_rectangle=None,
     end_rectangle=None,
-    output_path=None,
-    codec="libx264",
-    audio_codec="aac",
+    saveas: str | None = None,
+    codec: str = "libx264",
+    audio_codec: str = "aac",
     **write_kwargs,
-):
+) -> Path:
     """
     Create a Ken Burns effect video from an image.
 
@@ -931,7 +1035,7 @@ def ken_burns_video(
         fps: Frames per second (default 30)
         start_rectangle: Ken Burns rect at start (see doc)
         end_rectangle: Ken Burns rect at end (see doc)
-        output_path: Where to save video (default: image path with .mp4 extension,
+        saveas: Where to save video (default: image path with .mp4 extension,
             auto-incremented if exists)
         codec: Video codec (default libx264)
         audio_codec: Audio codec (default aac)
@@ -1001,7 +1105,7 @@ def ken_burns_video(
         frames.append(np.array(crop_img))
 
     # Determine output path
-    if output_path is None:
+    if saveas is None:
         if image_path is not None:
             # Use image path with .mp4 extension
             output_path = image_path.with_suffix('.mp4')
@@ -1009,7 +1113,7 @@ def ken_burns_video(
             # Fallback to temp directory
             output_path = Path(tempfile.gettempdir()) / f"kenburns_{os.getpid()}.mp4"
     else:
-        output_path = Path(output_path)
+        output_path = Path(saveas)
         # Ensure it has a video extension
         if not output_path.suffix or output_path.suffix.lower() not in [
             '.mp4',

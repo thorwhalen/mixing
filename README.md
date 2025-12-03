@@ -174,6 +174,23 @@ replace_audio(
 )
 ```
 
+### NEW: Normalize Audio Levels
+
+Reduce volume fluctuations in video audio (perfect for narration with varying volume):
+
+```python
+from mixing.video import normalize_audio
+
+# Normalize audio in a video with varying narrator volume
+normalize_audio("lecture.mp4")  # Creates lecture_normalized.mp4
+
+# Custom output path
+normalize_audio("interview.mp4", output_path="interview_fixed.mp4")
+
+# The function adjusts audio so loudest parts reach a consistent level,
+# reducing variation between quiet and loud sections
+```
+
 ### VideoFrames: Dictionary-like access to video frames
 
 `VideoFrames` provides a Mapping interface to access individual frames from a video file by index. Frames are returned as numpy arrays (BGR format).

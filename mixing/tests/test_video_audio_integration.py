@@ -85,10 +85,10 @@ class TestLoopVideo:
 
         # Loop 3 times
         with tempfile.NamedTemporaryFile(suffix='.mp4', delete=False) as f:
-            output_path = f.name
+            saveas = f.name
 
         try:
-            result = loop_video(sample_video_file, n_loops=3, output_path=output_path)
+            result = loop_video(sample_video_file, n_loops=3, saveas=saveas)
 
             assert isinstance(result, Path)
             assert result.exists()
@@ -99,8 +99,8 @@ class TestLoopVideo:
                     abs(looped.duration - original_duration * 3) < 0.5
                 )  # 0.5s tolerance
         finally:
-            if os.path.exists(output_path):
-                os.unlink(output_path)
+            if os.path.exists(saveas):
+                os.unlink(saveas)
 
     def test_loop_video_twice(self, sample_video_file):
         """Test looping video twice."""
@@ -111,10 +111,10 @@ class TestLoopVideo:
             original_duration = clip.duration
 
         with tempfile.NamedTemporaryFile(suffix='.mp4', delete=False) as f:
-            output_path = f.name
+            saveas = f.name
 
         try:
-            result = loop_video(sample_video_file, n_loops=2, output_path=output_path)
+            result = loop_video(sample_video_file, n_loops=2, saveas=saveas)
 
             assert result.exists()
 
@@ -123,8 +123,8 @@ class TestLoopVideo:
                 assert looped.duration > original_duration * 1.8
                 assert looped.duration < original_duration * 2.2
         finally:
-            if os.path.exists(output_path):
-                os.unlink(output_path)
+            if os.path.exists(saveas):
+                os.unlink(saveas)
 
     def test_loop_video_invalid_loops(self, sample_video_file):
         """Test that invalid n_loops raises error."""
@@ -150,14 +150,14 @@ class TestReplaceAudio:
         import moviepy as mp
 
         with tempfile.NamedTemporaryFile(suffix='.mp4', delete=False) as f:
-            output_path = f.name
+            saveas = f.name
 
         try:
             result = replace_audio(
                 sample_video_file,
                 sample_audio_file,
                 mix_ratio=1.0,
-                output_path=output_path,
+                saveas=saveas,
             )
 
             assert isinstance(result, Path)
@@ -167,8 +167,8 @@ class TestReplaceAudio:
             with mp.VideoFileClip(str(result)) as clip:
                 assert clip.audio is not None
         finally:
-            if os.path.exists(output_path):
-                os.unlink(output_path)
+            if os.path.exists(saveas):
+                os.unlink(saveas)
 
     def test_replace_audio_mix_ratios(self, sample_video_file, sample_audio_file):
         """Test different mix ratios."""
@@ -178,20 +178,20 @@ class TestReplaceAudio:
 
         for ratio in mix_ratios:
             with tempfile.NamedTemporaryFile(suffix='.mp4', delete=False) as f:
-                output_path = f.name
+                saveas = f.name
 
             try:
                 result = replace_audio(
                     sample_video_file,
                     sample_audio_file,
                     mix_ratio=ratio,
-                    output_path=output_path,
+                    saveas=saveas,
                 )
 
                 assert result.exists()
             finally:
-                if os.path.exists(output_path):
-                    os.unlink(output_path)
+                if os.path.exists(saveas):
+                    os.unlink(saveas)
 
     def test_replace_audio_invalid_ratio(self, sample_video_file, sample_audio_file):
         """Test that invalid mix_ratio raises error."""
@@ -210,15 +210,15 @@ class TestReplaceAudio:
         import moviepy as mp
 
         with tempfile.NamedTemporaryFile(suffix='.mp4', delete=False) as f:
-            output_path = f.name
+            saveas = f.name
 
         try:
             result = replace_audio(
                 sample_video_file,
                 sample_audio_file,
                 mix_ratio=1.0,
-                normalize_audio=True,
-                output_path=output_path,
+                match_duration=True,
+                saveas=saveas,
             )
 
             assert result.exists()
@@ -228,8 +228,8 @@ class TestReplaceAudio:
                 if clip.audio:
                     assert abs(clip.audio.duration - clip.duration) < 0.5
         finally:
-            if os.path.exists(output_path):
-                os.unlink(output_path)
+            if os.path.exists(saveas):
+                os.unlink(saveas)
 
 
 class TestVideoAudioIntegration:
@@ -254,12 +254,12 @@ class TestVideoAudioIntegration:
 
         try:
             # First loop the video
-            looped = loop_video(sample_video_file, n_loops=2, output_path=looped_path)
+            looped = loop_video(sample_video_file, n_loops=2, saveas=looped_path)
             assert looped.exists()
 
             # Then replace audio
             final = replace_audio(
-                str(looped), sample_audio_file, mix_ratio=1.0, output_path=final_path
+                str(looped), sample_audio_file, mix_ratio=1.0, saveas=final_path
             )
             assert final.exists()
         finally:

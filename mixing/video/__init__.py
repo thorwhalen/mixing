@@ -16,6 +16,8 @@ from mixing.video.video_ops import (
     save_frame,
     loop_video,
     replace_audio,
+    normalize_audio,
+    change_speed,
 )
 from mixing.video.video_util import (
     get_video_dimensions,

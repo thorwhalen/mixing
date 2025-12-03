@@ -379,9 +379,7 @@ def concatenate_videos(
         if output_path is not None:
             # Explicitly include audio with proper codecs
             final_clip.write_videofile(
-                output_path, 
-                codec=codec, 
-                audio_codec=audio_codec
+                output_path, codec=codec, audio_codec=audio_codec
             )
 
         return final_clip
