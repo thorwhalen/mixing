@@ -1017,7 +1017,7 @@ def _rect_to_box(cx, cy, s, img_w, img_h):
 def ken_burns_video(
     image,
     *,
-    duration_s: float = 3,
+    duration_s: float = 2,
     fps: int = 30,
     start_rectangle=None,
     end_rectangle=None,
@@ -1031,12 +1031,11 @@ def ken_burns_video(
 
     Args:
         image: Path to image file or image object (PIL.Image, np.ndarray)
-        duration_s: Duration of output video in seconds
+        duration_s: Duration of output video in seconds (default: 2)
         fps: Frames per second (default 30)
-        start_rectangle: Ken Burns rect at start (see doc)
-        end_rectangle: Ken Burns rect at end (see doc)
-        saveas: Where to save video (default: image path with .mp4 extension,
-            auto-incremented if exists)
+        start_rectangle: Ken Burns rect at start (default: standard Ken Burns start)
+        end_rectangle: Ken Burns rect at end (default: standard Ken Burns end)
+        saveas: Where to save video (default: image path with "__kenburns" appended before extension)
         codec: Video codec (default libx264)
         audio_codec: Audio codec (default aac)
         **write_kwargs: Passed to write_videofile
@@ -1048,9 +1047,10 @@ def ken_burns_video(
         Rect = (cx, cy, s)
         cx, cy in [0, 1], s > 0
         s = 1: original size, <1: zoomed out, >1: zoomed in
-        See module doc for details.
+        Standard Ken Burns: starts slightly zoomed out (s=0.85) and ends zoomed in (s=1.3)
 
     Examples:
+        >>> ken_burns_video("photo.jpg")  # Standard Ken Burns, 2 seconds  # doctest: +SKIP
         >>> ken_burns_video("photo.jpg", duration_s=5, start_rectangle=1.5, end_rectangle=1.0)  # doctest: +SKIP
         >>> ken_burns_video("photo.jpg", duration_s=3, start_rectangle=(0.3, 0.3, 2), end_rectangle=(0.7, 0.7, 2))  # doctest: +SKIP
     """
@@ -1074,9 +1074,11 @@ def ken_burns_video(
     img_w, img_h = img.size
     n_frames = int(duration_s * fps)
 
-    # Parse rectangles
-    start_rect = _parse_rectangle(start_rectangle)
-    end_rect = _parse_rectangle(end_rectangle)
+    # Parse rectangles - use standard Ken Burns defaults if not specified
+    start_rect = _parse_rectangle(
+        start_rectangle, default=(0.5, 0.5, 0.85)
+    )  # Start zoomed out
+    end_rect = _parse_rectangle(end_rectangle, default=(0.5, 0.5, 1.3))  # End zoomed in
 
     # Interpolate rectangles for each frame
     def lerp(a, b, t):
@@ -1107,13 +1109,13 @@ def ken_burns_video(
     # Determine output path
     if saveas is None:
         if image_path is not None:
-            # Use image path with .mp4 extension
-            output_path = image_path.with_suffix('.mp4')
+            # Use _auto_video_path to append "__kenburns" to filename
+            output_path = _auto_video_path(str(image_path), "_kenburns", ext=".mp4")
         else:
             # Fallback to temp directory
             output_path = Path(tempfile.gettempdir()) / f"kenburns_{os.getpid()}.mp4"
     else:
-        output_path = Path(saveas)
+        output_path = _ensure_output_path(saveas)
         # Ensure it has a video extension
         if not output_path.suffix or output_path.suffix.lower() not in [
             '.mp4',
@@ -1123,19 +1125,20 @@ def ken_burns_video(
         ]:
             output_path = output_path.with_suffix('.mp4')
 
-    # Use non_colliding_key to avoid overwriting
-    directory = output_path.parent
-    filename = output_path.name
-    try:
-        existing_files = (
-            set(os.listdir(directory)) if directory else set(os.listdir('.'))
-        )
-    except OSError:
-        existing_files = set()
+    # Use non_colliding_key to avoid overwriting (only if auto-generated path)
+    if saveas is None:
+        directory = output_path.parent
+        filename = output_path.name
+        try:
+            existing_files = (
+                set(os.listdir(directory)) if directory else set(os.listdir('.'))
+            )
+        except OSError:
+            existing_files = set()
 
-    if filename in existing_files:
-        safe_filename = non_colliding_key(filename, existing_files)
-        output_path = directory / safe_filename
+        if filename in existing_files:
+            safe_filename = non_colliding_key(filename, existing_files)
+            output_path = directory / safe_filename
 
     # Create video using moviepy with proper settings for compatibility
     clip = mp.ImageSequenceClip(frames, fps=fps)
