@@ -46,6 +46,7 @@ import tempfile
 import numpy as np
 
 from ..util import require_package, AudioTimeUnit, to_seconds, get_path_from_clipboard
+from .audio_util import AudioSource, _normalize_audio_source
 
 if TYPE_CHECKING:
     from pydub import AudioSegment
@@ -715,3 +716,67 @@ def save_audio_clip(
     segment = audio[start:end] if end is not None else audio[start:]
 
     return segment.save(saveas, format=format)
+
+
+def find_audio_offset(
+    reference_audio: AudioSource,
+    query_audio: AudioSource,
+    *,
+    sample_rate: int = 16000,
+) -> float:
+    """Find the time offset where query_audio best aligns within reference_audio.
+
+    Uses FFT-based cross-correlation to find the position in reference_audio
+    where query_audio starts. This is useful for aligning different recordings
+    of the same performance — for example, aligning a studio recording (voice
+    + instruments) with a camera recording (voice only).
+
+    The two audio signals don't need to be identical; they just need to share
+    a correlated component (e.g., the same voice in both).
+
+    Args:
+        reference_audio: The longer audio to search within (e.g., extracted
+            from a video). Accepts a file path, numpy array, or AudioSegment.
+        query_audio: The shorter audio to align (e.g., a studio recording).
+            Accepts a file path, numpy array, or AudioSegment.
+        sample_rate: Sample rate for analysis. Lower values are faster but
+            less precise. Default 16000 Hz gives ~0.06ms precision, which is
+            more than sufficient for alignment purposes.
+
+    Returns:
+        Offset in seconds — the position in reference_audio where query_audio
+        starts. Positive means query begins after the start of reference.
+
+    Examples:
+        >>> from mixing.audio import find_audio_offset  # doctest: +SKIP
+        >>> # Find where a studio recording aligns with a camera recording
+        >>> offset = find_audio_offset("camera_audio.wav", "studio.mp3")  # doctest: +SKIP
+        >>> print(f"Studio recording starts at {offset:.2f}s in the camera audio")  # doctest: +SKIP
+    """
+    correlate = require_package("scipy.signal").correlate
+
+    # Load both as AudioSegments, convert to mono at target sample rate
+    ref_seg = _normalize_audio_source(reference_audio, target_type="AudioSegment")
+    query_seg = _normalize_audio_source(query_audio, target_type="AudioSegment")
+
+    ref_seg = ref_seg.set_channels(1).set_frame_rate(sample_rate)
+    query_seg = query_seg.set_channels(1).set_frame_rate(sample_rate)
+
+    # Convert to float64 numpy arrays
+    ref_samples = np.array(ref_seg.get_array_of_samples(), dtype=np.float64)
+    query_samples = np.array(query_seg.get_array_of_samples(), dtype=np.float64)
+
+    # Remove DC offset
+    ref_samples -= ref_samples.mean()
+    query_samples -= query_samples.mean()
+
+    # Cross-correlate using FFT (much faster for long signals)
+    correlation = correlate(ref_samples, query_samples, mode="full", method="fft")
+
+    # The zero-lag index in the "full" output is at len(query) - 1.
+    # Peak index k corresponds to lag = k - (len(query) - 1).
+    # Positive lag means query starts that many samples into reference.
+    peak_index = int(np.argmax(np.abs(correlation)))
+    lag_samples = peak_index - (len(query_samples) - 1)
+
+    return lag_samples / sample_rate

@@ -92,6 +92,35 @@ mixed = overlay_audio(
 mixed.save("mixed.mp3")
 ```
 
+### Audio Alignment: Find where one recording fits inside another
+
+`find_audio_offset` uses cross-correlation to find the best time offset where a
+query audio aligns within a reference audio. Useful for aligning different
+recordings of the same performance — e.g., a studio mix (voice + instruments)
+with a camera recording (voice only).
+
+```python
+from mixing.audio import find_audio_offset
+
+# Find where the studio recording aligns with the camera audio
+offset = find_audio_offset("camera_recording.wav", "studio_mix.mp3")
+print(f"Studio recording starts at {offset:.2f}s into the camera audio")
+
+# Then use the offset to splice the studio audio into the video
+from pydub import AudioSegment
+
+video_audio = AudioSegment.from_file("camera_recording.mov")
+studio_audio = AudioSegment.from_file("studio_mix.mp3")
+
+offset_ms = int(offset * 1000)
+composite = (
+    video_audio[:offset_ms]
+    + studio_audio
+    + video_audio[offset_ms + len(studio_audio):]
+)
+composite.export("composite_audio.wav", format="wav")
+```
+
 ### AudioSamples: Sample-level access
 
 Access individual audio samples through a Mapping interface:

@@ -7,6 +7,7 @@ Main exports:
 - concatenate_audio: Join multiple audio files
 - overlay_audio: Mix/overlay audio tracks
 - save_audio_clip: Extract and save audio segments
+- find_audio_offset: Align two recordings via cross-correlation
 
 Examples:
     >>> from mixing.audio import Audio, fade_in, concatenate_audio  # doctest: +SKIP
@@ -27,6 +28,7 @@ from .audio_ops import (
     concatenate_audio,
     overlay_audio,
     save_audio_clip,
+    find_audio_offset,
 )
 
 __all__ = [
@@ -38,4 +40,5 @@ __all__ = [
     "concatenate_audio",
     "overlay_audio",
     "save_audio_clip",
+    "find_audio_offset",
 ]
