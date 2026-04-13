@@ -1,0 +1,1042 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>mixing.video.video_subtitles &mdash; mixing 0.0.4 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=8c5712d9"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../_static/toggleprompt.js?v=d7ede5d2"></script>
+      <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            mixing
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing.html">mixing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/audio.html">mixing.audio</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/audio/audio_ops.html">mixing.audio.audio_ops</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/audio/audio_util.html">mixing.audio.audio_util</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/audio/audio_widget.html">mixing.audio.audio_widget</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/audio/demo_audio_widget.html">mixing.audio.demo_audio_widget</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/audio/test_audio_widget.html">mixing.audio.test_audio_widget</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/util.html">mixing.util</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video.html">mixing.video</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/_helpers.html">mixing.video._helpers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/audio_offset_example.html">mixing.video.audio_offset_example</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/video_concat.html">mixing.video.video_concat</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/video_files.html">mixing.video.video_files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/video_gen.html">mixing.video.video_gen</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/video_ops.html">mixing.video.video_ops</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/video_subtitles.html">mixing.video.video_subtitles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/video_util.html">mixing.video.video_util</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">mixing</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">mixing.video.video_subtitles</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for mixing.video.video_subtitles</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Video utilities for subtitle embedding and video processing.</span>
+
+<span class="sd">This module provides utilities for embedding subtitles into videos with two approaches:</span>
+<span class="sd">1. Fast FFmpeg-based approach (recommended for production)</span>
+<span class="sd">2. MoviePy CompositeVideoClip approach (for compatibility)</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Callable</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">subprocess</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">moviepy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">mp</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">config2py</span><span class="w"> </span><span class="kn">import</span> <span class="n">process_path</span>
+
+
+<div class="viewcode-block" id="srt_time_to_seconds">
+<a class="viewcode-back" href="../../../module_docs/mixing/video/video_subtitles.html#mixing.video.video_subtitles.srt_time_to_seconds">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">srt_time_to_seconds</span><span class="p">(</span><span class="n">time_str</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convert SRT time format to seconds.</span>
+
+<span class="sd">    &gt;&gt;&gt; srt_time_to_seconds(&#39;00:43:12,187&#39;)</span>
+<span class="sd">    2592.187</span>
+<span class="sd">    &gt;&gt;&gt; srt_time_to_seconds(&#39;00:00:01,500&#39;)</span>
+<span class="sd">    1.5</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Parse HH:MM:SS,mmm format</span>
+    <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;(\d+):(\d+):(\d+),(\d+)&#39;</span><span class="p">,</span> <span class="n">time_str</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">match</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid time format: </span><span class="si">{</span><span class="n">time_str</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="n">hours</span><span class="p">,</span> <span class="n">minutes</span><span class="p">,</span> <span class="n">seconds</span><span class="p">,</span> <span class="n">milliseconds</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">match</span><span class="o">.</span><span class="n">groups</span><span class="p">())</span>
+    <span class="n">total_seconds</span> <span class="o">=</span> <span class="n">hours</span> <span class="o">*</span> <span class="mi">3600</span> <span class="o">+</span> <span class="n">minutes</span> <span class="o">*</span> <span class="mi">60</span> <span class="o">+</span> <span class="n">seconds</span> <span class="o">+</span> <span class="n">milliseconds</span> <span class="o">/</span> <span class="mi">1000</span>
+    <span class="k">return</span> <span class="n">total_seconds</span></div>
+
+
+
+<div class="viewcode-block" id="seconds_to_srt_time">
+<a class="viewcode-back" href="../../../module_docs/mixing/video/video_subtitles.html#mixing.video.video_subtitles.seconds_to_srt_time">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">seconds_to_srt_time</span><span class="p">(</span><span class="n">seconds</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convert seconds to SRT time format.</span>
+
+<span class="sd">    &gt;&gt;&gt; seconds_to_srt_time(2592.187)</span>
+<span class="sd">    &#39;00:43:12,187&#39;</span>
+<span class="sd">    &gt;&gt;&gt; seconds_to_srt_time(1.5)</span>
+<span class="sd">    &#39;00:00:01,500&#39;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Handle negative times (clamp to 0)</span>
+    <span class="k">if</span> <span class="n">seconds</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">seconds</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="n">hours</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">seconds</span> <span class="o">//</span> <span class="mi">3600</span><span class="p">)</span>
+    <span class="n">minutes</span> <span class="o">=</span> <span class="nb">int</span><span class="p">((</span><span class="n">seconds</span> <span class="o">%</span> <span class="mi">3600</span><span class="p">)</span> <span class="o">//</span> <span class="mi">60</span><span class="p">)</span>
+    <span class="n">secs</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">seconds</span> <span class="o">%</span> <span class="mi">60</span><span class="p">)</span>
+    <span class="c1"># Round milliseconds to handle floating-point precision</span>
+    <span class="n">milliseconds</span> <span class="o">=</span> <span class="nb">round</span><span class="p">((</span><span class="n">seconds</span> <span class="o">-</span> <span class="nb">int</span><span class="p">(</span><span class="n">seconds</span><span class="p">))</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">hours</span><span class="si">:</span><span class="s2">02d</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">minutes</span><span class="si">:</span><span class="s2">02d</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">secs</span><span class="si">:</span><span class="s2">02d</span><span class="si">}</span><span class="s2">,</span><span class="si">{</span><span class="n">milliseconds</span><span class="si">:</span><span class="s2">03d</span><span class="si">}</span><span class="s2">&quot;</span></div>
+
+
+
+<div class="viewcode-block" id="shift_srt_timestamps">
+<a class="viewcode-back" href="../../../module_docs/mixing/video/video_subtitles.html#mixing.video.video_subtitles.shift_srt_timestamps">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">shift_srt_timestamps</span><span class="p">(</span><span class="n">srt_content</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">shift_seconds</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Shift all timestamps in an SRT file by a given number of seconds.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        srt_content: SRT file content as string</span>
+<span class="sd">        shift_seconds: Number of seconds to shift (negative to shift earlier)</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Modified SRT content with shifted timestamps</span>
+
+<span class="sd">    &gt;&gt;&gt; srt = &#39;&#39;&#39;1</span>
+<span class="sd">    ... 00:43:12,187 --&gt; 00:43:13,817</span>
+<span class="sd">    ... Hello world&#39;&#39;&#39;</span>
+<span class="sd">    &gt;&gt;&gt; shifted = shift_srt_timestamps(srt, -2592)  # Shift back 43 minutes 12 seconds</span>
+<span class="sd">    &gt;&gt;&gt; &#39;00:00:00,187 --&gt; 00:00:01,817&#39; in shifted</span>
+<span class="sd">    True</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_shift_timestamp_line</span><span class="p">(</span><span class="n">line</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Shift a single timestamp line.&quot;&quot;&quot;</span>
+        <span class="c1"># Match the timestamp line format: &quot;00:43:12,187 --&gt; 00:43:13,817&quot;</span>
+        <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;(\d+:\d+:\d+,\d+)\s+--&gt;\s+(\d+:\d+:\d+,\d+)&#39;</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">match</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">line</span>
+
+        <span class="n">start_time_str</span><span class="p">,</span> <span class="n">end_time_str</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">groups</span><span class="p">()</span>
+
+        <span class="c1"># Convert to seconds, shift, and convert back</span>
+        <span class="n">start_seconds</span> <span class="o">=</span> <span class="n">srt_time_to_seconds</span><span class="p">(</span><span class="n">start_time_str</span><span class="p">)</span> <span class="o">+</span> <span class="n">shift_seconds</span>
+        <span class="n">end_seconds</span> <span class="o">=</span> <span class="n">srt_time_to_seconds</span><span class="p">(</span><span class="n">end_time_str</span><span class="p">)</span> <span class="o">+</span> <span class="n">shift_seconds</span>
+
+        <span class="n">new_start</span> <span class="o">=</span> <span class="n">seconds_to_srt_time</span><span class="p">(</span><span class="n">start_seconds</span><span class="p">)</span>
+        <span class="n">new_end</span> <span class="o">=</span> <span class="n">seconds_to_srt_time</span><span class="p">(</span><span class="n">end_seconds</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">new_start</span><span class="si">}</span><span class="s2"> --&gt; </span><span class="si">{</span><span class="n">new_end</span><span class="si">}</span><span class="s2">&quot;</span>
+
+    <span class="c1"># Process line by line</span>
+    <span class="n">lines</span> <span class="o">=</span> <span class="n">srt_content</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="n">shifted_lines</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s1">&#39;--&gt;&#39;</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
+            <span class="n">shifted_lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_shift_timestamp_line</span><span class="p">(</span><span class="n">line</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">shifted_lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">shifted_lines</span><span class="p">)</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_find_audio_peaks</span><span class="p">(</span>
+    <span class="n">video_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">first_n_seconds_to_sample</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">20.0</span><span class="p">,</span>
+    <span class="n">window_size</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.1</span><span class="p">,</span>
+    <span class="n">min_peak_threshold</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.001</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Analyze audio waveform to find peaks indicating sound activity.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        video_path: Path to video file</span>
+<span class="sd">        first_n_seconds_to_sample: Duration to analyze (default 20 seconds)</span>
+<span class="sd">        window_size: Size of analysis window in seconds (default 0.1s)</span>
+<span class="sd">        min_peak_threshold: Minimum threshold for peak detection (0-1 scale, default 0.001)</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        List of dicts with keys: &#39;time&#39; (seconds), &#39;intensity&#39; (std dev),</span>
+<span class="sd">        &#39;variation&#39; (change from previous window)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">video</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">VideoFileClip</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">video_path</span><span class="p">))</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">video</span><span class="o">.</span><span class="n">audio</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[]</span>
+
+        <span class="c1"># Limit to sampling duration</span>
+        <span class="n">duration</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">first_n_seconds_to_sample</span><span class="p">,</span> <span class="n">video</span><span class="o">.</span><span class="n">duration</span><span class="p">)</span>
+
+        <span class="c1"># Extract audio data</span>
+        <span class="n">fps</span> <span class="o">=</span> <span class="n">video</span><span class="o">.</span><span class="n">audio</span><span class="o">.</span><span class="n">fps</span>
+        <span class="n">audio_array</span> <span class="o">=</span> <span class="n">video</span><span class="o">.</span><span class="n">audio</span><span class="o">.</span><span class="n">to_soundarray</span><span class="p">(</span><span class="n">fps</span><span class="o">=</span><span class="n">fps</span><span class="p">)</span>
+
+        <span class="c1"># Handle stereo by averaging channels</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">audio_array</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">audio_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">audio_array</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="c1"># Calculate window size in samples</span>
+        <span class="n">samples_per_window</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">window_size</span> <span class="o">*</span> <span class="n">fps</span><span class="p">)</span>
+        <span class="n">num_windows</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">duration</span> <span class="o">/</span> <span class="n">window_size</span><span class="p">)</span>
+
+        <span class="n">peaks</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">prev_intensity</span> <span class="o">=</span> <span class="mf">0.0</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_windows</span><span class="p">):</span>
+            <span class="n">start_sample</span> <span class="o">=</span> <span class="n">i</span> <span class="o">*</span> <span class="n">samples_per_window</span>
+            <span class="n">end_sample</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">start_sample</span> <span class="o">+</span> <span class="n">samples_per_window</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">audio_array</span><span class="p">))</span>
+
+            <span class="k">if</span> <span class="n">end_sample</span> <span class="o">&lt;=</span> <span class="n">start_sample</span><span class="p">:</span>
+                <span class="k">break</span>
+
+            <span class="n">window_data</span> <span class="o">=</span> <span class="n">audio_array</span><span class="p">[</span><span class="n">start_sample</span><span class="p">:</span><span class="n">end_sample</span><span class="p">]</span>
+
+            <span class="c1"># Calculate intensity (standard deviation of waveform)</span>
+            <span class="n">intensity</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">window_data</span><span class="p">))</span>
+
+            <span class="c1"># Calculate variation (change from previous window)</span>
+            <span class="n">variation</span> <span class="o">=</span> <span class="n">intensity</span> <span class="o">-</span> <span class="n">prev_intensity</span>
+
+            <span class="n">time_offset</span> <span class="o">=</span> <span class="n">i</span> <span class="o">*</span> <span class="n">window_size</span>
+
+            <span class="c1"># Only record if above threshold</span>
+            <span class="k">if</span> <span class="n">intensity</span> <span class="o">&gt;=</span> <span class="n">min_peak_threshold</span><span class="p">:</span>
+                <span class="n">peaks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="p">{</span>
+                        <span class="s1">&#39;time&#39;</span><span class="p">:</span> <span class="n">time_offset</span><span class="p">,</span>
+                        <span class="s1">&#39;intensity&#39;</span><span class="p">:</span> <span class="n">intensity</span><span class="p">,</span>
+                        <span class="s1">&#39;variation&#39;</span><span class="p">:</span> <span class="n">variation</span><span class="p">,</span>
+                    <span class="p">}</span>
+                <span class="p">)</span>
+
+            <span class="n">prev_intensity</span> <span class="o">=</span> <span class="n">intensity</span>
+
+        <span class="k">return</span> <span class="n">peaks</span>
+
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="n">video</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+
+<div class="viewcode-block" id="find_audio_start_offset">
+<a class="viewcode-back" href="../../../module_docs/mixing/video/video_subtitles.html#mixing.video.video_subtitles.find_audio_start_offset">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">find_audio_start_offset</span><span class="p">(</span>
+    <span class="n">video_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">first_n_seconds_to_sample</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">20.0</span><span class="p">,</span>
+    <span class="n">intensity_threshold</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.001</span><span class="p">,</span>
+    <span class="n">variation_multiplier</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">2.0</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Determine when speaking/audio actually starts in a video.</span>
+
+<span class="sd">    Analyzes audio peaks and finds the first significant audio activity,</span>
+<span class="sd">    typically indicating when speech begins.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        video_path: Path to video file</span>
+<span class="sd">        first_n_seconds_to_sample: Duration to analyze (default 20 seconds)</span>
+<span class="sd">        intensity_threshold: Minimum intensity to consider as &quot;audio start&quot; (default 0.001)</span>
+<span class="sd">        variation_multiplier: Multiplier for variation-based detection</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Time offset in seconds where audio starts (0.0 if no audio detected)</span>
+
+<span class="sd">    Note:</span>
+<span class="sd">        The default threshold of 0.001 is calibrated to detect speech start reliably</span>
+<span class="sd">        across various audio levels. Adjust if needed for very quiet or loud audio.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">peaks</span> <span class="o">=</span> <span class="n">_find_audio_peaks</span><span class="p">(</span>
+        <span class="n">video_path</span><span class="p">,</span> <span class="n">first_n_seconds_to_sample</span><span class="o">=</span><span class="n">first_n_seconds_to_sample</span>
+    <span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">peaks</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mf">0.0</span>
+
+    <span class="c1"># Calculate statistics</span>
+    <span class="n">intensities</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span><span class="p">[</span><span class="s1">&#39;intensity&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">peaks</span><span class="p">]</span>
+    <span class="n">variations</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span><span class="p">[</span><span class="s1">&#39;variation&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">peaks</span><span class="p">]</span>
+
+    <span class="n">mean_intensity</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">intensities</span><span class="p">)</span>
+    <span class="n">std_intensity</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">intensities</span><span class="p">)</span>
+    <span class="n">mean_variation</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">variations</span><span class="p">)</span>
+    <span class="n">std_variation</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">variations</span><span class="p">)</span>
+
+    <span class="c1"># Find first significant peak</span>
+    <span class="c1"># Look for intensity above threshold AND significant variation</span>
+    <span class="k">for</span> <span class="n">peak</span> <span class="ow">in</span> <span class="n">peaks</span><span class="p">:</span>
+        <span class="c1"># Strong intensity signal</span>
+        <span class="n">intensity_significant</span> <span class="o">=</span> <span class="n">peak</span><span class="p">[</span><span class="s1">&#39;intensity&#39;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">intensity_threshold</span>
+
+        <span class="c1"># Or significant jump in variation (sudden increase)</span>
+        <span class="n">variation_significant</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">peak</span><span class="p">[</span><span class="s1">&#39;variation&#39;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">mean_variation</span> <span class="o">+</span> <span class="n">variation_multiplier</span> <span class="o">*</span> <span class="n">std_variation</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">intensity_significant</span> <span class="ow">or</span> <span class="n">variation_significant</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">peak</span><span class="p">[</span><span class="s1">&#39;time&#39;</span><span class="p">]</span>
+
+    <span class="c1"># Fallback: return time of first peak</span>
+    <span class="k">return</span> <span class="n">peaks</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;time&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="n">peaks</span> <span class="k">else</span> <span class="mf">0.0</span></div>
+
+
+
+<div class="viewcode-block" id="auto_shift_srt_to_start">
+<a class="viewcode-back" href="../../../module_docs/mixing/video/video_subtitles.html#mixing.video.video_subtitles.auto_shift_srt_to_start">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">auto_shift_srt_to_start</span><span class="p">(</span>
+    <span class="n">srt_content</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">video_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">auto_detect_audio_start</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">start_time</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">bool</span> <span class="o">|</span> <span class="n">Callable</span><span class="p">[[</span><span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">],</span> <span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Automatically shift SRT timestamps to align with a target start time.</span>
+
+<span class="sd">    By default, keeps subtitles at their original timestamps. Can optionally align</span>
+<span class="sd">    to a specific start time, or auto-detect when audio actually begins.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        srt_content: SRT file content as string</span>
+<span class="sd">        video_path: Path to video file (required if auto_detect_audio_start=True or start_time=True)</span>
+<span class="sd">        auto_detect_audio_start: If True, detect actual audio start time (default False)</span>
+<span class="sd">        start_time: Target start time for first subtitle, or True for auto-detect, or callable.</span>
+<span class="sd">            - None (default): No change, keep original subtitle timestamps</span>
+<span class="sd">            - float: Shift subtitles so first one starts at this time (in seconds)</span>
+<span class="sd">            - True: Auto-detect audio start and align first subtitle to that time</span>
+<span class="sd">            - callable: Use this function to find the target start time</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Modified SRT content with shifted timestamps</span>
+
+<span class="sd">    Examples:</span>
+<span class="sd">        &gt;&gt;&gt; srt = &#39;&#39;&#39;1</span>
+<span class="sd">        ... 00:43:12,187 --&gt; 00:43:13,817</span>
+<span class="sd">        ... First subtitle</span>
+<span class="sd">        ...</span>
+<span class="sd">        ... 2</span>
+<span class="sd">        ... 00:43:20,557 --&gt; 00:43:22,087</span>
+<span class="sd">        ... Second subtitle&#39;&#39;&#39;</span>
+<span class="sd">        &gt;&gt;&gt; shifted = auto_shift_srt_to_start(srt, start_time=0.0)  # doctest: +ELLIPSIS</span>
+<span class="sd">        📝 Subtitles currently start at: ...s</span>
+<span class="sd">        ⏱️  Shifting by: ...s (first subtitle → 0.00s)</span>
+<span class="sd">        &gt;&gt;&gt; &#39;00:00:00,000 --&gt; 00:00:01,630&#39; in shifted</span>
+<span class="sd">        True</span>
+<span class="sd">        &gt;&gt;&gt; &#39;00:00:08,370 --&gt; 00:00:09,900&#39; in shifted</span>
+<span class="sd">        True</span>
+
+<span class="sd">    Note:</span>
+<span class="sd">        The shift amount is calculated as: shift = start_time - current_first_subtitle_time</span>
+<span class="sd">        Example: If subtitles start at 10s and start_time=3s, shift will be -7s,</span>
+<span class="sd">        moving all timestamps back by 7 seconds so first subtitle starts at 3s.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Find first subtitle timestamp</span>
+    <span class="n">lines</span> <span class="o">=</span> <span class="n">srt_content</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="n">first_subtitle_time</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">:</span>
+        <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;(\d+:\d+:\d+,\d+)\s+--&gt;&#39;</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">match</span><span class="p">:</span>
+            <span class="n">first_timestamp</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">first_subtitle_time</span> <span class="o">=</span> <span class="n">srt_time_to_seconds</span><span class="p">(</span><span class="n">first_timestamp</span><span class="p">)</span>
+            <span class="k">break</span>
+
+    <span class="k">if</span> <span class="n">first_subtitle_time</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># No timestamps found, return unchanged</span>
+        <span class="k">return</span> <span class="n">srt_content</span>
+
+    <span class="c1"># If no start_time specified and not auto-detecting, keep original timestamps</span>
+    <span class="k">if</span> <span class="n">start_time</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">auto_detect_audio_start</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">srt_content</span>
+
+    <span class="c1"># Determine the target start time</span>
+    <span class="n">should_detect_audio</span> <span class="o">=</span> <span class="n">auto_detect_audio_start</span> <span class="ow">or</span> <span class="n">start_time</span> <span class="ow">is</span> <span class="kc">True</span>
+
+    <span class="k">if</span> <span class="n">should_detect_audio</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">video_path</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;video_path is required when auto_detect_audio_start=True or start_time=True&quot;</span>
+            <span class="p">)</span>
+
+        <span class="c1"># Use custom function if provided, otherwise use default</span>
+        <span class="k">if</span> <span class="nb">callable</span><span class="p">(</span><span class="n">start_time</span><span class="p">):</span>
+            <span class="n">target_start_time</span> <span class="o">=</span> <span class="n">start_time</span><span class="p">(</span><span class="n">video_path</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">target_start_time</span> <span class="o">=</span> <span class="n">find_audio_start_offset</span><span class="p">(</span><span class="n">video_path</span><span class="p">)</span>
+
+        <span class="c1"># Calculate shift: if subtitles start at 10s and target is 3s, shift by -7s</span>
+        <span class="n">shift_amount</span> <span class="o">=</span> <span class="n">target_start_time</span> <span class="o">-</span> <span class="n">first_subtitle_time</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;🎵 Audio detected at: </span><span class="si">{</span><span class="n">target_start_time</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">s&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;📝 Subtitles currently start at: </span><span class="si">{</span><span class="n">first_subtitle_time</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">s&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;⏱️  Shifting by: </span><span class="si">{</span><span class="n">shift_amount</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">s (first subtitle → </span><span class="si">{</span><span class="n">target_start_time</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">s)&quot;</span>
+        <span class="p">)</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">start_time</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">)):</span>
+        <span class="c1"># User provided explicit target start time</span>
+        <span class="n">target_start_time</span> <span class="o">=</span> <span class="n">start_time</span>
+        <span class="n">shift_amount</span> <span class="o">=</span> <span class="n">target_start_time</span> <span class="o">-</span> <span class="n">first_subtitle_time</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;📝 Subtitles currently start at: </span><span class="si">{</span><span class="n">first_subtitle_time</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">s&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;⏱️  Shifting by: </span><span class="si">{</span><span class="n">shift_amount</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">s (first subtitle → </span><span class="si">{</span><span class="n">target_start_time</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">s)&quot;</span>
+        <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># Should not reach here, but fallback to no change</span>
+        <span class="k">return</span> <span class="n">srt_content</span>
+
+    <span class="k">return</span> <span class="n">shift_srt_timestamps</span><span class="p">(</span><span class="n">srt_content</span><span class="p">,</span> <span class="n">shift_amount</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="fix_srt_file">
+<a class="viewcode-back" href="../../../module_docs/mixing/video/video_subtitles.html#mixing.video.video_subtitles.fix_srt_file">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">fix_srt_file</span><span class="p">(</span>
+    <span class="n">input_srt</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span>
+    <span class="n">output_srt</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">video_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">auto_detect_audio_start</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">start_time</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">bool</span> <span class="o">|</span> <span class="n">Callable</span><span class="p">[[</span><span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">],</span> <span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Fix an SRT file by shifting timestamps to align with a target start time.</span>
+
+<span class="sd">    By default, keeps subtitles at their original timestamps. Can optionally align</span>
+<span class="sd">    to a specific start time, or auto-detect when audio actually begins.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        input_srt: Path to input SRT file</span>
+<span class="sd">        output_srt: Path to output SRT file (default: add suffix based on operation)</span>
+<span class="sd">        video_path: Path to video file (for audio-based start time detection)</span>
+<span class="sd">        auto_detect_audio_start: If True, align with detected audio start (default False)</span>
+<span class="sd">        start_time: Target start time for first subtitle, or True for auto-detect, or callable.</span>
+<span class="sd">            - None (default): No change, keep original subtitle timestamps</span>
+<span class="sd">            - float: Shift subtitles so first one starts at this time (in seconds)</span>
+<span class="sd">            - True: Auto-detect audio start and align first subtitle to that time</span>
+<span class="sd">            - callable: Use this function to find the target start time</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Path to the fixed SRT file</span>
+
+<span class="sd">    Examples:</span>
+<span class="sd">        Basic usage (no change): fix_srt_file(&#39;subtitles.srt&#39;)</span>
+<span class="sd">        Shift to start at 0: fix_srt_file(&#39;subtitles.srt&#39;, start_time=0.0)</span>
+<span class="sd">        With audio detection: fix_srt_file(&#39;subtitles.srt&#39;, video_path=&#39;video.mp4&#39;,</span>
+<span class="sd">                                          auto_detect_audio_start=True)</span>
+<span class="sd">        Explicit start time: fix_srt_file(&#39;subtitles.srt&#39;, start_time=3.5)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">input_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">input_srt</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">output_srt</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">has_adjustment</span> <span class="o">=</span> <span class="n">auto_detect_audio_start</span> <span class="ow">or</span> <span class="n">start_time</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="n">suffix</span> <span class="o">=</span> <span class="s1">&#39;_audio_aligned&#39;</span> <span class="k">if</span> <span class="n">has_adjustment</span> <span class="k">else</span> <span class="s1">&#39;_fixed&#39;</span>
+        <span class="n">output_path</span> <span class="o">=</span> <span class="n">input_path</span><span class="o">.</span><span class="n">with_stem</span><span class="p">(</span><span class="n">input_path</span><span class="o">.</span><span class="n">stem</span> <span class="o">+</span> <span class="n">suffix</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">output_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">output_srt</span><span class="p">)</span>
+
+    <span class="c1"># Read original content</span>
+    <span class="n">srt_content</span> <span class="o">=</span> <span class="n">input_path</span><span class="o">.</span><span class="n">read_text</span><span class="p">()</span>
+
+    <span class="c1"># Shift timestamps</span>
+    <span class="n">fixed_content</span> <span class="o">=</span> <span class="n">auto_shift_srt_to_start</span><span class="p">(</span>
+        <span class="n">srt_content</span><span class="p">,</span>
+        <span class="n">video_path</span><span class="o">=</span><span class="n">video_path</span><span class="p">,</span>
+        <span class="n">auto_detect_audio_start</span><span class="o">=</span><span class="n">auto_detect_audio_start</span><span class="p">,</span>
+        <span class="n">start_time</span><span class="o">=</span><span class="n">start_time</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Write fixed content</span>
+    <span class="n">output_path</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="n">fixed_content</span><span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;✅ Fixed SRT file saved to: </span><span class="si">{</span><span class="n">output_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;   Original first subtitle: </span><span class="si">{</span><span class="n">_get_first_timestamp</span><span class="p">(</span><span class="n">srt_content</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;   Fixed first subtitle: </span><span class="si">{</span><span class="n">_get_first_timestamp</span><span class="p">(</span><span class="n">fixed_content</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">output_path</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_first_timestamp</span><span class="p">(</span><span class="n">srt_content</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get the first timestamp from SRT content.&quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">srt_content</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">):</span>
+        <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;(\d+:\d+:\d+,\d+)\s+--&gt;&#39;</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">match</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">return</span> <span class="s2">&quot;Not found&quot;</span>
+
+
+<div class="viewcode-block" id="SubtitleStyle">
+<a class="viewcode-back" href="../../../module_docs/mixing/video/video_subtitles.html#mixing.video.video_subtitles.SubtitleStyle">[docs]</a>
+<span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">SubtitleStyle</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Configuration for subtitle appearance.&quot;&quot;&quot;</span>
+
+    <span class="n">font_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">24</span>
+    <span class="n">color</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;white&#39;</span>
+    <span class="n">position</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;center&#39;</span><span class="p">,</span> <span class="s1">&#39;bottom&#39;</span><span class="p">)</span>
+    <span class="n">font_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;Arial&#39;</span>
+
+<div class="viewcode-block" id="SubtitleStyle.to_text_clip_kwargs">
+<a class="viewcode-back" href="../../../module_docs/mixing/video/video_subtitles.html#mixing.video.video_subtitles.SubtitleStyle.to_text_clip_kwargs">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_text_clip_kwargs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Convert style to TextClip kwargs.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s1">&#39;font_size&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">font_size</span><span class="p">,</span>
+            <span class="s1">&#39;color&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">color</span><span class="p">,</span>
+        <span class="p">}</span></div>
+
+
+<div class="viewcode-block" id="SubtitleStyle.to_ffmpeg_style">
+<a class="viewcode-back" href="../../../module_docs/mixing/video/video_subtitles.html#mixing.video.video_subtitles.SubtitleStyle.to_ffmpeg_style">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_ffmpeg_style</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Convert to FFmpeg subtitle style string.&quot;&quot;&quot;</span>
+        <span class="n">alignment_map</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="p">(</span><span class="s1">&#39;center&#39;</span><span class="p">,</span> <span class="s1">&#39;bottom&#39;</span><span class="p">):</span> <span class="mi">2</span><span class="p">,</span>
+            <span class="p">(</span><span class="s1">&#39;center&#39;</span><span class="p">,</span> <span class="s1">&#39;top&#39;</span><span class="p">):</span> <span class="mi">8</span><span class="p">,</span>
+            <span class="p">(</span><span class="s1">&#39;center&#39;</span><span class="p">,</span> <span class="s1">&#39;center&#39;</span><span class="p">):</span> <span class="mi">5</span><span class="p">,</span>
+            <span class="p">(</span><span class="s1">&#39;left&#39;</span><span class="p">,</span> <span class="s1">&#39;bottom&#39;</span><span class="p">):</span> <span class="mi">1</span><span class="p">,</span>
+            <span class="p">(</span><span class="s1">&#39;right&#39;</span><span class="p">,</span> <span class="s1">&#39;bottom&#39;</span><span class="p">):</span> <span class="mi">3</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="n">alignment</span> <span class="o">=</span> <span class="n">alignment_map</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">position</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+
+        <span class="n">color_map</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;white&#39;</span><span class="p">:</span> <span class="s1">&#39;FFFFFF&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;yellow&#39;</span><span class="p">:</span> <span class="s1">&#39;FFFF00&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;black&#39;</span><span class="p">:</span> <span class="s1">&#39;000000&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;red&#39;</span><span class="p">:</span> <span class="s1">&#39;FF0000&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;green&#39;</span><span class="p">:</span> <span class="s1">&#39;00FF00&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;blue&#39;</span><span class="p">:</span> <span class="s1">&#39;0000FF&#39;</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="n">color_hex</span> <span class="o">=</span> <span class="n">color_map</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">color</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span> <span class="s1">&#39;FFFFFF&#39;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;FontSize=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">font_size</span><span class="si">}</span><span class="s2">,FontName=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">font_name</span><span class="si">}</span><span class="s2">,PrimaryColour=&amp;H</span><span class="si">{</span><span class="n">color_hex</span><span class="si">}</span><span class="s2">&amp;,Alignment=</span><span class="si">{</span><span class="n">alignment</span><span class="si">}</span><span class="s2">&quot;</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="to_srt_time">
+<a class="viewcode-back" href="../../../module_docs/mixing/video/video_subtitles.html#mixing.video.video_subtitles.to_srt_time">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">to_srt_time</span><span class="p">(</span><span class="n">seconds</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convert seconds to SRT time format.</span>
+
+<span class="sd">    &gt;&gt;&gt; to_srt_time(1.5)</span>
+<span class="sd">    &#39;00:00:01,500&#39;</span>
+<span class="sd">    &gt;&gt;&gt; to_srt_time(65.123)</span>
+<span class="sd">    &#39;00:01:05,123&#39;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">milliseconds</span> <span class="o">=</span> <span class="nb">int</span><span class="p">((</span><span class="n">seconds</span> <span class="o">-</span> <span class="nb">int</span><span class="p">(</span><span class="n">seconds</span><span class="p">))</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">)</span>
+    <span class="n">minutes</span><span class="p">,</span> <span class="n">seconds</span> <span class="o">=</span> <span class="nb">divmod</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">seconds</span><span class="p">),</span> <span class="mi">60</span><span class="p">)</span>
+    <span class="n">hours</span><span class="p">,</span> <span class="n">minutes</span> <span class="o">=</span> <span class="nb">divmod</span><span class="p">(</span><span class="n">minutes</span><span class="p">,</span> <span class="mi">60</span><span class="p">)</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">hours</span><span class="si">:</span><span class="s2">02</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">minutes</span><span class="si">:</span><span class="s2">02</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">seconds</span><span class="si">:</span><span class="s2">02</span><span class="si">}</span><span class="s2">,</span><span class="si">{</span><span class="n">milliseconds</span><span class="si">:</span><span class="s2">03</span><span class="si">}</span><span class="s2">&quot;</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_parse_srt_timestamp</span><span class="p">(</span><span class="n">timestamp</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Parse SRT timestamp and convert to moviepy format.</span>
+
+<span class="sd">    &gt;&gt;&gt; _parse_srt_timestamp(&#39;00:00:01,500&#39;)</span>
+<span class="sd">    &#39;00:00:01.500&#39;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">timestamp</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">,</span> <span class="s1">&#39;.&#39;</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_parse_srt_subtitle</span><span class="p">(</span><span class="n">subtitle_block</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Parse a single SRT subtitle block.</span>
+
+<span class="sd">    Returns (start_time, end_time, text) or None if invalid.</span>
+
+<span class="sd">    &gt;&gt;&gt; block = &#39;&#39;&#39;1</span>
+<span class="sd">    ... 00:00:01,000 --&gt; 00:00:03,000</span>
+<span class="sd">    ... Hello, world!&#39;&#39;&#39;</span>
+<span class="sd">    &gt;&gt;&gt; _parse_srt_subtitle(block)</span>
+<span class="sd">    (&#39;00:00:01.000&#39;, &#39;00:00:03.000&#39;, &#39;Hello, world!&#39;)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">lines</span> <span class="o">=</span> <span class="n">subtitle_block</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">time_info</span> <span class="o">=</span> <span class="n">lines</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; --&gt; &#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">time_info</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="n">start_time</span> <span class="o">=</span> <span class="n">_parse_srt_timestamp</span><span class="p">(</span><span class="n">time_info</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">end_time</span> <span class="o">=</span> <span class="n">_parse_srt_timestamp</span><span class="p">(</span><span class="n">time_info</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">text</span> <span class="o">=</span> <span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">[</span><span class="mi">2</span><span class="p">:])</span>
+        <span class="k">return</span> <span class="n">start_time</span><span class="p">,</span> <span class="n">end_time</span><span class="p">,</span> <span class="n">text</span>
+    <span class="k">except</span> <span class="p">(</span><span class="ne">IndexError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+
+<div class="viewcode-block" id="generate_subtitle_clips">
+<a class="viewcode-back" href="../../../module_docs/mixing/video/video_subtitles.html#mixing.video.video_subtitles.generate_subtitle_clips">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">generate_subtitle_clips</span><span class="p">(</span>
+    <span class="n">subtitles</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">video_clip</span><span class="p">:</span> <span class="n">mp</span><span class="o">.</span><span class="n">VideoClip</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">style</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">SubtitleStyle</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">text_clip_kwargs</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">mp</span><span class="o">.</span><span class="n">TextClip</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Generate subtitle clips from SRT content.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">style</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">style</span> <span class="o">=</span> <span class="n">SubtitleStyle</span><span class="p">()</span>
+
+    <span class="n">text_kwargs</span> <span class="o">=</span> <span class="p">{</span><span class="o">**</span><span class="n">style</span><span class="o">.</span><span class="n">to_text_clip_kwargs</span><span class="p">(),</span> <span class="o">**</span><span class="n">text_clip_kwargs</span><span class="p">}</span>
+
+    <span class="n">subtitle_clips</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">subtitle_block</span> <span class="ow">in</span> <span class="n">subtitles</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n\n</span><span class="s1">&#39;</span><span class="p">):</span>
+        <span class="n">parsed</span> <span class="o">=</span> <span class="n">_parse_srt_subtitle</span><span class="p">(</span><span class="n">subtitle_block</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">parsed</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">continue</span>
+
+        <span class="n">start_time</span><span class="p">,</span> <span class="n">end_time</span><span class="p">,</span> <span class="n">text</span> <span class="o">=</span> <span class="n">parsed</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">txt_clip</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">TextClip</span><span class="p">(</span>
+                <span class="n">text</span><span class="o">=</span><span class="n">text</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="n">video_clip</span><span class="o">.</span><span class="n">w</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;caption&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">text_kwargs</span>
+            <span class="p">)</span>
+            <span class="n">txt_clip</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">txt_clip</span><span class="o">.</span><span class="n">with_start</span><span class="p">(</span><span class="n">start_time</span><span class="p">)</span>
+                <span class="o">.</span><span class="n">with_end</span><span class="p">(</span><span class="n">end_time</span><span class="p">)</span>
+                <span class="o">.</span><span class="n">with_position</span><span class="p">(</span><span class="n">style</span><span class="o">.</span><span class="n">position</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="n">subtitle_clips</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">txt_clip</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Warning: Failed to create subtitle clip: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">continue</span>
+
+    <span class="k">return</span> <span class="n">subtitle_clips</span></div>
+
+
+
+<span class="n">Filepath</span> <span class="o">=</span> <span class="nb">str</span>
+
+
+<div class="viewcode-block" id="write_subtitles_in_video">
+<a class="viewcode-back" href="../../../module_docs/mixing/video/video_subtitles.html#mixing.video.video_subtitles.write_subtitles_in_video">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">write_subtitles_in_video</span><span class="p">(</span>
+    <span class="n">video</span><span class="p">:</span> <span class="n">Filepath</span><span class="p">,</span>
+    <span class="n">subtitles</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">output_video</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">embed_subtitles</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">style</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">SubtitleStyle</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">use_ffmpeg</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">auto_detect_audio_start</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">start_time</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">bool</span> <span class="o">|</span> <span class="n">Callable</span><span class="p">[[</span><span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">],</span> <span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">subtitle_kwargs</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Write subtitles in a video, preserving audio and video quality.</span>
+
+<span class="sd">    Uses FFmpeg by default for 100x speedup over MoviePy&#39;s CompositeVideoClip.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        video: Path to input video file</span>
+<span class="sd">        subtitles: Path to SRT file, SRT content string, or None (auto-detect)</span>
+<span class="sd">        output_video: Path for output video, or None (auto-generate)</span>
+<span class="sd">        embed_subtitles: Whether to embed subtitles (default True)</span>
+<span class="sd">        style: SubtitleStyle configuration (optional)</span>
+<span class="sd">        use_ffmpeg: Use FFmpeg directly for speed (default True, recommended)</span>
+<span class="sd">        auto_detect_audio_start: If True, align subtitles with detected audio start (default False)</span>
+<span class="sd">        start_time: Target start time for first subtitle, or True for auto-detect, or callable.</span>
+<span class="sd">            - None (default): No change, keep original subtitle timestamps</span>
+<span class="sd">            - float: Shift subtitles so first one starts at this time (in seconds)</span>
+<span class="sd">            - True: Auto-detect audio start and align first subtitle to that time</span>
+<span class="sd">            - callable: Use this function to find the target start time</span>
+<span class="sd">        **subtitle_kwargs: Additional kwargs for subtitle styling (MoviePy only)</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Path to the output video file</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">video_path</span> <span class="o">=</span> <span class="n">process_path</span><span class="p">(</span><span class="n">video</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">embed_subtitles</span><span class="p">:</span>
+        <span class="n">output_video_path</span> <span class="o">=</span> <span class="n">_get_output_path</span><span class="p">(</span><span class="n">output_video</span><span class="p">,</span> <span class="n">video_path</span><span class="p">,</span> <span class="n">suffix</span><span class="o">=</span><span class="s1">&#39;_copy&#39;</span><span class="p">)</span>
+        <span class="kn">import</span><span class="w"> </span><span class="nn">shutil</span>
+
+        <span class="n">shutil</span><span class="o">.</span><span class="n">copy2</span><span class="p">(</span><span class="n">video_path</span><span class="p">,</span> <span class="n">output_video_path</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">output_video_path</span>
+
+    <span class="n">srt_content</span><span class="p">,</span> <span class="n">output_video_path</span> <span class="o">=</span> <span class="n">_process_subtitle_inputs</span><span class="p">(</span>
+        <span class="n">subtitles</span><span class="p">,</span> <span class="n">output_video</span><span class="p">,</span> <span class="n">video_path</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Apply timestamp adjustment if requested</span>
+    <span class="k">if</span> <span class="n">auto_detect_audio_start</span> <span class="ow">or</span> <span class="n">start_time</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">srt_content</span> <span class="o">=</span> <span class="n">auto_shift_srt_to_start</span><span class="p">(</span>
+            <span class="n">srt_content</span><span class="p">,</span>
+            <span class="n">video_path</span><span class="o">=</span><span class="n">video_path</span><span class="p">,</span>
+            <span class="n">auto_detect_audio_start</span><span class="o">=</span><span class="n">auto_detect_audio_start</span><span class="p">,</span>
+            <span class="n">start_time</span><span class="o">=</span><span class="n">start_time</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">use_ffmpeg</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">_embed_subtitles_ffmpeg</span><span class="p">(</span>
+            <span class="n">video_path</span><span class="p">,</span> <span class="n">srt_content</span><span class="p">,</span> <span class="n">output_video_path</span><span class="p">,</span> <span class="n">style</span>
+        <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">_embed_subtitles_moviepy</span><span class="p">(</span>
+            <span class="n">video_path</span><span class="p">,</span> <span class="n">srt_content</span><span class="p">,</span> <span class="n">output_video_path</span><span class="p">,</span> <span class="n">style</span><span class="p">,</span> <span class="o">**</span><span class="n">subtitle_kwargs</span>
+        <span class="p">)</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_embed_subtitles_ffmpeg</span><span class="p">(</span>
+    <span class="n">video_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
+    <span class="n">srt_content</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">output_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
+    <span class="n">style</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">SubtitleStyle</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Embed subtitles using FFmpeg directly (FAST - recommended).&quot;&quot;&quot;</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
+
+    <span class="k">if</span> <span class="n">style</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">style</span> <span class="o">=</span> <span class="n">SubtitleStyle</span><span class="p">()</span>
+
+    <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">NamedTemporaryFile</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s1">&#39;w&#39;</span><span class="p">,</span> <span class="n">suffix</span><span class="o">=</span><span class="s1">&#39;.srt&#39;</span><span class="p">,</span> <span class="n">delete</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">temp_srt_path</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">name</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">srt_content</span><span class="p">)</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">style_str</span> <span class="o">=</span> <span class="n">style</span><span class="o">.</span><span class="n">to_ffmpeg_style</span><span class="p">()</span>
+
+        <span class="n">cmd</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="s1">&#39;ffmpeg&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;-i&#39;</span><span class="p">,</span>
+            <span class="nb">str</span><span class="p">(</span><span class="n">video_path</span><span class="p">),</span>
+            <span class="s1">&#39;-vf&#39;</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">&quot;subtitles=&#39;</span><span class="si">{</span><span class="n">temp_srt_path</span><span class="si">}</span><span class="s2">&#39;:force_style=&#39;</span><span class="si">{</span><span class="n">style_str</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">,</span>
+            <span class="s1">&#39;-c:a&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;copy&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;-y&#39;</span><span class="p">,</span>
+            <span class="nb">str</span><span class="p">(</span><span class="n">output_path</span><span class="p">),</span>
+        <span class="p">]</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Running FFmpeg to embed subtitles...&quot;</span><span class="p">)</span>
+
+        <span class="n">result</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="n">capture_output</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">check</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">result</span><span class="o">.</span><span class="n">returncode</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;FFmpeg stderr: </span><span class="si">{</span><span class="n">result</span><span class="o">.</span><span class="n">stderr</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;FFmpeg failed with return code </span><span class="si">{</span><span class="n">result</span><span class="o">.</span><span class="n">returncode</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;✅ Subtitles embedded successfully!&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">output_path</span>
+
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">unlink</span><span class="p">(</span><span class="n">temp_srt_path</span><span class="p">)</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="k">pass</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_embed_subtitles_moviepy</span><span class="p">(</span>
+    <span class="n">video_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
+    <span class="n">srt_content</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">output_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
+    <span class="n">style</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">SubtitleStyle</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">subtitle_kwargs</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Embed subtitles using MoviePy CompositeVideoClip (SLOW - legacy method).&quot;&quot;&quot;</span>
+    <span class="nb">print</span><span class="p">(</span>
+        <span class="s2">&quot;WARNING: Using slow MoviePy method. Consider use_ffmpeg=True for 100x speedup.&quot;</span>
+    <span class="p">)</span>
+
+    <span class="n">video_clip</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">VideoFileClip</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">video_path</span><span class="p">))</span>
+
+    <span class="n">subtitle_clips</span> <span class="o">=</span> <span class="n">generate_subtitle_clips</span><span class="p">(</span>
+        <span class="n">srt_content</span><span class="p">,</span> <span class="n">video_clip</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="n">style</span><span class="p">,</span> <span class="o">**</span><span class="n">subtitle_kwargs</span>
+    <span class="p">)</span>
+
+    <span class="n">video_with_subtitles</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">CompositeVideoClip</span><span class="p">([</span><span class="n">video_clip</span><span class="p">]</span> <span class="o">+</span> <span class="n">subtitle_clips</span><span class="p">)</span>
+    <span class="n">video_with_subtitles</span> <span class="o">=</span> <span class="n">video_with_subtitles</span><span class="o">.</span><span class="n">with_audio</span><span class="p">(</span><span class="n">video_clip</span><span class="o">.</span><span class="n">audio</span><span class="p">)</span>
+
+    <span class="n">video_with_subtitles</span><span class="o">.</span><span class="n">write_videofile</span><span class="p">(</span>
+        <span class="nb">str</span><span class="p">(</span><span class="n">output_path</span><span class="p">),</span> <span class="n">codec</span><span class="o">=</span><span class="s1">&#39;libx264&#39;</span><span class="p">,</span> <span class="n">audio_codec</span><span class="o">=</span><span class="s1">&#39;aac&#39;</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="n">video_clip</span><span class="o">.</span><span class="n">fps</span>
+    <span class="p">)</span>
+
+    <span class="n">video_clip</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="n">output_path</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_process_subtitle_inputs</span><span class="p">(</span>
+    <span class="n">subtitles</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">output_video</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">video_path</span><span class="p">:</span> <span class="n">Path</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Process subtitle and output video path inputs.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">subtitles</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">subtitles_path</span> <span class="o">=</span> <span class="n">video_path</span><span class="o">.</span><span class="n">with_suffix</span><span class="p">(</span><span class="s1">&#39;.srt&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">subtitles_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;No subtitle file found at </span><span class="si">{</span><span class="n">subtitles_path</span><span class="si">}</span><span class="s2">. &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;Please provide subtitles explicitly.&quot;</span>
+            <span class="p">)</span>
+        <span class="n">srt_content</span> <span class="o">=</span> <span class="n">subtitles_path</span><span class="o">.</span><span class="n">read_text</span><span class="p">()</span>
+    <span class="k">elif</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">subtitles</span><span class="p">):</span>
+        <span class="n">subtitles_path</span> <span class="o">=</span> <span class="n">process_path</span><span class="p">(</span><span class="n">subtitles</span><span class="p">)</span>
+        <span class="n">srt_content</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">subtitles_path</span><span class="p">)</span><span class="o">.</span><span class="n">read_text</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">srt_content</span> <span class="o">=</span> <span class="n">subtitles</span>
+
+    <span class="n">output_video_path</span> <span class="o">=</span> <span class="n">_get_output_path</span><span class="p">(</span><span class="n">output_video</span><span class="p">,</span> <span class="n">video_path</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">srt_content</span><span class="p">,</span> <span class="n">output_video_path</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_output_path</span><span class="p">(</span>
+    <span class="n">output_video</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">video_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">suffix</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;_with_subtitles&#39;</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Generate output video path.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">output_video</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">output_video_path</span> <span class="o">=</span> <span class="n">video_path</span><span class="o">.</span><span class="n">with_stem</span><span class="p">(</span><span class="n">video_path</span><span class="o">.</span><span class="n">stem</span> <span class="o">+</span> <span class="n">suffix</span><span class="p">)</span>
+        <span class="n">output_video_path</span> <span class="o">=</span> <span class="n">output_video_path</span><span class="o">.</span><span class="n">with_suffix</span><span class="p">(</span><span class="n">video_path</span><span class="o">.</span><span class="n">suffix</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">output_video_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">output_video</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">output_video_path</span>
+
+
+<span class="c1"># --------------------------------------------------------------------------------------</span>
+<span class="c1"># Testing utilities</span>
+<span class="c1"># --------------------------------------------------------------------------------------</span>
+
+
+<div class="viewcode-block" id="create_test_video">
+<a class="viewcode-back" href="../../../module_docs/mixing/video/video_subtitles.html#mixing.video.video_subtitles.create_test_video">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">create_test_video</span><span class="p">(</span>
+    <span class="n">output_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;/tmp/test_video.mp4&#39;</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">duration</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">5.0</span><span class="p">,</span>
+    <span class="n">fps</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">24</span><span class="p">,</span>
+    <span class="n">size</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">640</span><span class="p">,</span> <span class="mi">480</span><span class="p">),</span>
+    <span class="n">with_audio</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a simple test video with color bars and optional audio tone.&quot;&quot;&quot;</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+    <span class="n">num_frames</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">duration</span> <span class="o">*</span> <span class="n">fps</span><span class="p">)</span>
+    <span class="n">frames</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">for</span> <span class="n">frame_idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_frames</span><span class="p">):</span>
+        <span class="n">t</span> <span class="o">=</span> <span class="n">frame_idx</span> <span class="o">/</span> <span class="n">fps</span>
+        <span class="n">frame</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">size</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">size</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">3</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span>
+        <span class="n">bar_width</span> <span class="o">=</span> <span class="n">size</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">//</span> <span class="mi">3</span>
+        <span class="n">frame</span><span class="p">[:,</span> <span class="p">:</span><span class="n">bar_width</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="mi">255</span> <span class="o">*</span> <span class="p">(</span><span class="n">t</span> <span class="o">/</span> <span class="n">duration</span><span class="p">)),</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+        <span class="n">frame</span><span class="p">[:,</span> <span class="n">bar_width</span> <span class="p">:</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">bar_width</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="mi">255</span> <span class="o">*</span> <span class="p">(</span><span class="n">t</span> <span class="o">/</span> <span class="n">duration</span><span class="p">)),</span> <span class="mi">0</span><span class="p">]</span>
+        <span class="n">frame</span><span class="p">[:,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">bar_width</span> <span class="p">:]</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="mi">255</span> <span class="o">*</span> <span class="p">(</span><span class="n">t</span> <span class="o">/</span> <span class="n">duration</span><span class="p">))]</span>
+        <span class="n">frames</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">frame</span><span class="p">)</span>
+
+    <span class="n">video</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">ImageSequenceClip</span><span class="p">(</span><span class="n">frames</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="n">fps</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">with_audio</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="kn">from</span><span class="w"> </span><span class="nn">moviepy.audio.AudioClip</span><span class="w"> </span><span class="kn">import</span> <span class="n">AudioClip</span>
+
+            <span class="k">def</span><span class="w"> </span><span class="nf">_make_audio_frame</span><span class="p">(</span><span class="n">t</span><span class="p">):</span>
+<span class="w">                </span><span class="sd">&quot;&quot;&quot;Generate audio sample at time t.&quot;&quot;&quot;</span>
+                <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="mi">440</span> <span class="o">*</span> <span class="n">t</span><span class="p">)</span>
+
+            <span class="n">audio</span> <span class="o">=</span> <span class="n">AudioClip</span><span class="p">(</span>
+                <span class="n">make_frame</span><span class="o">=</span><span class="n">_make_audio_frame</span><span class="p">,</span> <span class="n">duration</span><span class="o">=</span><span class="n">duration</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="mi">44100</span>
+            <span class="p">)</span>
+            <span class="n">video</span> <span class="o">=</span> <span class="n">video</span><span class="o">.</span><span class="n">with_audio</span><span class="p">(</span><span class="n">audio</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Warning: Could not add audio to test video: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="n">output_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">output_path</span><span class="p">)</span>
+    <span class="n">write_kwargs</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;codec&#39;</span><span class="p">:</span> <span class="s1">&#39;libx264&#39;</span><span class="p">,</span> <span class="s1">&#39;fps&#39;</span><span class="p">:</span> <span class="n">fps</span><span class="p">,</span> <span class="s1">&#39;logger&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">}</span>
+
+    <span class="k">if</span> <span class="n">video</span><span class="o">.</span><span class="n">audio</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">write_kwargs</span><span class="p">[</span><span class="s1">&#39;audio_codec&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;aac&#39;</span>
+
+    <span class="n">video</span><span class="o">.</span><span class="n">write_videofile</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">output_path</span><span class="p">),</span> <span class="o">**</span><span class="n">write_kwargs</span><span class="p">)</span>
+    <span class="n">video</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="n">output_path</span></div>
+
+
+
+<div class="viewcode-block" id="create_test_srt">
+<a class="viewcode-back" href="../../../module_docs/mixing/video/video_subtitles.html#mixing.video.video_subtitles.create_test_srt">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">create_test_srt</span><span class="p">(</span>
+    <span class="n">output_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;/tmp/test_subtitles.srt&#39;</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">num_subtitles</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">3</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a simple test SRT subtitle file.&quot;&quot;&quot;</span>
+    <span class="n">srt_content</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_subtitles</span><span class="p">):</span>
+        <span class="n">start_time</span> <span class="o">=</span> <span class="n">i</span> <span class="o">*</span> <span class="mf">1.5</span>
+        <span class="n">end_time</span> <span class="o">=</span> <span class="n">start_time</span> <span class="o">+</span> <span class="mf">1.2</span>
+        <span class="n">srt_content</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">i</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">srt_content</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">to_srt_time</span><span class="p">(</span><span class="n">start_time</span><span class="p">)</span><span class="si">}</span><span class="s2"> --&gt; </span><span class="si">{</span><span class="n">to_srt_time</span><span class="p">(</span><span class="n">end_time</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">srt_content</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Test subtitle </span><span class="si">{</span><span class="n">i</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">srt_content</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+
+    <span class="n">output_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">output_path</span><span class="p">)</span>
+    <span class="n">output_path</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">srt_content</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">output_path</span></div>
+
+
+
+<div class="viewcode-block" id="test_subtitle_embedding">
+<a class="viewcode-back" href="../../../module_docs/mixing/video/video_subtitles.html#mixing.video.video_subtitles.test_subtitle_embedding">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_subtitle_embedding</span><span class="p">(</span><span class="n">cleanup</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">use_ffmpeg</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Run a simple automated test of subtitle embedding functionality.&quot;&quot;&quot;</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">tmpdir</span><span class="p">:</span>
+            <span class="n">video_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">tmpdir</span><span class="p">)</span> <span class="o">/</span> <span class="s1">&#39;test_video.mp4&#39;</span>
+            <span class="n">srt_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">tmpdir</span><span class="p">)</span> <span class="o">/</span> <span class="s1">&#39;test_subtitles.srt&#39;</span>
+            <span class="n">output_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">tmpdir</span><span class="p">)</span> <span class="o">/</span> <span class="s1">&#39;output_video.mp4&#39;</span>
+
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Creating test video...&quot;</span><span class="p">)</span>
+            <span class="n">create_test_video</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">video_path</span><span class="p">),</span> <span class="n">duration</span><span class="o">=</span><span class="mf">5.0</span><span class="p">,</span> <span class="n">with_audio</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Creating test subtitles...&quot;</span><span class="p">)</span>
+            <span class="n">create_test_srt</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">srt_path</span><span class="p">),</span> <span class="n">num_subtitles</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Embedding subtitles...&quot;</span><span class="p">)</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">write_subtitles_in_video</span><span class="p">(</span>
+                <span class="nb">str</span><span class="p">(</span><span class="n">video_path</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">srt_path</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">output_path</span><span class="p">),</span> <span class="n">use_ffmpeg</span><span class="o">=</span><span class="n">use_ffmpeg</span>
+            <span class="p">)</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">result</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;❌ Output video not created&quot;</span><span class="p">)</span>
+                <span class="k">return</span> <span class="kc">False</span>
+
+            <span class="k">if</span> <span class="n">result</span><span class="o">.</span><span class="n">stat</span><span class="p">()</span><span class="o">.</span><span class="n">st_size</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;❌ Output video is empty&quot;</span><span class="p">)</span>
+                <span class="k">return</span> <span class="kc">False</span>
+
+            <span class="n">output_clip</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">VideoFileClip</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">result</span><span class="p">))</span>
+            <span class="n">has_video</span> <span class="o">=</span> <span class="n">output_clip</span><span class="o">.</span><span class="n">duration</span> <span class="o">&gt;</span> <span class="mi">0</span>
+            <span class="n">has_audio</span> <span class="o">=</span> <span class="n">output_clip</span><span class="o">.</span><span class="n">audio</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">has_audio</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span>
+                    <span class="s2">&quot;⚠️  Output video has no audio (this is okay in some test environments)&quot;</span>
+                <span class="p">)</span>
+
+            <span class="n">output_clip</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">has_video</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;❌ Output video has no video content&quot;</span><span class="p">)</span>
+                <span class="k">return</span> <span class="kc">False</span>
+
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;✅ All tests passed!&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">has_audio</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;✅ Audio preserved successfully&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">True</span>
+
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;❌ Test failed with error: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="kn">import</span><span class="w"> </span><span class="nn">traceback</span>
+
+        <span class="n">traceback</span><span class="o">.</span><span class="n">print_exc</span><span class="p">()</span>
+        <span class="k">return</span> <span class="kc">False</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright NO COPYRIGHT.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

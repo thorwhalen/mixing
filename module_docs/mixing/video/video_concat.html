@@ -1,0 +1,348 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>mixing.video.video_concat &mdash; mixing 0.0.4 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=8c5712d9"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../_static/toggleprompt.js?v=d7ede5d2"></script>
+      <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="mixing.video.video_files" href="video_files.html" />
+    <link rel="prev" title="mixing.video.audio_offset_example" href="audio_offset_example.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            mixing
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../mixing.html">mixing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../audio.html">mixing.audio</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../audio/audio_ops.html">mixing.audio.audio_ops</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../audio/audio_util.html">mixing.audio.audio_util</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../audio/audio_widget.html">mixing.audio.audio_widget</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../audio/demo_audio_widget.html">mixing.audio.demo_audio_widget</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../audio/test_audio_widget.html">mixing.audio.test_audio_widget</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../util.html">mixing.util</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../video.html">mixing.video</a></li>
+<li class="toctree-l1"><a class="reference internal" href="_helpers.html">mixing.video._helpers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="audio_offset_example.html">mixing.video.audio_offset_example</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">mixing.video.video_concat</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#mixing.video.video_concat.concatenate_videos"><code class="docutils literal notranslate"><span class="pre">concatenate_videos()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mixing.video.video_concat.crossfade_transition"><code class="docutils literal notranslate"><span class="pre">crossfade_transition()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mixing.video.video_concat.ensure_videoclip_iterable"><code class="docutils literal notranslate"><span class="pre">ensure_videoclip_iterable()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mixing.video.video_concat.fade_through_black"><code class="docutils literal notranslate"><span class="pre">fade_through_black()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mixing.video.video_concat.overlap_blend"><code class="docutils literal notranslate"><span class="pre">overlap_blend()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mixing.video.video_concat.slow_motion_blend"><code class="docutils literal notranslate"><span class="pre">slow_motion_blend()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mixing.video.video_concat.trim_and_crossfade"><code class="docutils literal notranslate"><span class="pre">trim_and_crossfade()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mixing.video.video_concat.trim_first_frame_from_subsequent_clips"><code class="docutils literal notranslate"><span class="pre">trim_first_frame_from_subsequent_clips()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mixing.video.video_concat.verify_frame_continuity"><code class="docutils literal notranslate"><span class="pre">verify_frame_continuity()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="video_files.html">mixing.video.video_files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="video_gen.html">mixing.video.video_gen</a></li>
+<li class="toctree-l1"><a class="reference internal" href="video_ops.html">mixing.video.video_ops</a></li>
+<li class="toctree-l1"><a class="reference internal" href="video_subtitles.html">mixing.video.video_subtitles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="video_util.html">mixing.video.video_util</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">mixing</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">mixing.video.video_concat</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../_sources/module_docs/mixing/video/video_concat.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-mixing.video.video_concat">
+<span id="mixing-video-video-concat"></span><h1>mixing.video.video_concat<a class="headerlink" href="#module-mixing.video.video_concat" title="Link to this heading"></a></h1>
+<p>Video concatenation utilities with smooth transitions.</p>
+<p>Provides tools for concatenating videos from various sources (file paths, clips,
+bytes, BytesIO) with configurable transition effects to handle AI-generated video
+discontinuities.</p>
+<p>Key Features:
+- Flexible video source handling (paths, clips, bytes, file objects)
+- Multiple transition types (crossfade, fade through black, overlap blend)
+- Frame continuity verification between videos
+- Automatic resource management for created clips</p>
+<dl>
+<dt>Basic Usage:</dt><dd><div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">paths</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;video1.mp4&#39;</span><span class="p">,</span> <span class="s1">&#39;video2.mp4&#39;</span><span class="p">,</span> <span class="s1">&#39;video3.mp4&#39;</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">stitch_with_trim_and_crossfade</span><span class="p">(</span><span class="n">paths</span><span class="p">,</span> <span class="s1">&#39;output.mp4&#39;</span><span class="p">,</span> <span class="n">duration</span><span class="o">=</span><span class="mf">0.4</span><span class="p">)</span>  
+</pre></div>
+</div>
+</dd>
+<dt>Transition Options:</dt><dd><ul class="simple">
+<li><p>crossfade_transition: Simple blend between clips</p></li>
+<li><p>trim_and_crossfade: Remove duplicate frames then blend</p></li>
+<li><p>fade_through_black: Fade out/in through black</p></li>
+<li><p>overlap_blend: Overlap and blend clips aggressively</p></li>
+</ul>
+</dd>
+<dt>Frame Verification:</dt><dd><div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">match</span><span class="p">,</span> <span class="n">diff</span> <span class="o">=</span> <span class="n">verify_frame_continuity</span><span class="p">(</span><span class="s1">&#39;v1.mp4&#39;</span><span class="p">,</span> <span class="s1">&#39;v2.mp4&#39;</span><span class="p">,</span>
+<span class="gp">... </span>  <span class="n">save_comparison</span><span class="o">=</span><span class="s1">&#39;comp.png&#39;</span><span class="p">)</span>    
+</pre></div>
+</div>
+</dd>
+</dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="mixing.video.video_concat.concatenate_videos">
+<span class="sig-prename descclassname"><span class="pre">mixing.video.video_concat.</span></span><span class="sig-name descname"><span class="pre">concatenate_videos</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">videos</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">VideoFileClip</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">bytes</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">BytesIO</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transform_clips</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">None</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">VideoFileClip</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">VideoFileClip</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalize_dimensions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'stretch'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'fit'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'fill'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'social'</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'social'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_width</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_height</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">codec</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'libx264'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">audio_codec</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'aac'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">concat_kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">VideoFileClip</span></span></span><a class="reference internal" href="../../../_modules/mixing/video/video_concat.html#concatenate_videos"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.video.video_concat.concatenate_videos" title="Link to this definition"></a></dt>
+<dd><p>Concatenate multiple videos with optional clip transformation and dimension normalization.</p>
+<p>Audio from all input videos is automatically concatenated and included in the output.
+Automatically manages resource cleanup for clips created from sources.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>videos</strong> – <p>Can be:
+- A folder path (str or Path) containing video files (sorted order)
+- An iterable of video sources (file paths, VideoFileClip instances,</p>
+<blockquote>
+<div><p>bytes, BytesIO, or file-like objects)</p>
+</div></blockquote>
+</p></li>
+<li><p><strong>transform_clips</strong> – Optional function to transform clips before concatenation.
+Receives a list of clips, returns an iterable of clips.</p></li>
+<li><p><strong>normalize_dimensions</strong> – How to handle videos with different dimensions:
+- False: No normalization (may cause issues if dimensions differ)
+- ‘stretch’: Stretch all videos to match first video’s dimensions
+- ‘fit’: Scale to fit inside dimensions with padding (letterbox/pillarbox)
+- ‘fill’: Scale to fill dimensions (may crop edges)
+- ‘social’: Scale with blurred/zoomed background (social media style) [DEFAULT]
+- True: Same as ‘social’</p></li>
+<li><p><strong>target_width</strong> – Explicit target width (overrides first video’s dimensions)</p></li>
+<li><p><strong>target_height</strong> – Explicit target height (overrides first video’s dimensions)</p></li>
+<li><p><strong>output_path</strong> – Optional path to save the concatenated video file.
+If True and videos is a folder path, generates filename from folder name.
+If True and videos is not a folder, raises ValueError.</p></li>
+<li><p><strong>codec</strong> – Video codec to use when writing file (default: ‘libx264’)</p></li>
+<li><p><strong>audio_codec</strong> – Audio codec to use when writing file (default: ‘aac’)</p></li>
+<li><p><strong>**concat_kwargs</strong> – Additional arguments passed to moviepy’s concatenate_videoclips</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Concatenated VideoFileClip with audio. Caller is responsible for closing this clip.</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># From folder path with auto dimension handling (social media style)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">final</span> <span class="o">=</span> <span class="n">concatenate_videos</span><span class="p">(</span><span class="s1">&#39;/path/to/videos/&#39;</span><span class="p">)</span>  
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># From folder path with explicit output and letterboxing</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">final</span> <span class="o">=</span> <span class="n">concatenate_videos</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="s1">&#39;/path/to/videos/&#39;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">normalize_dimensions</span><span class="o">=</span><span class="s1">&#39;fit&#39;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">output_path</span><span class="o">=</span><span class="s1">&#39;/path/output.mp4&#39;</span>
+<span class="gp">... </span><span class="p">)</span>  
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># From list of paths with transformation and specific dimensions</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span><span class="w"> </span><span class="nf">trim_first_frame</span><span class="p">(</span><span class="n">clips</span><span class="p">):</span>
+<span class="gp">... </span><span class="w">    </span><span class="sd">&#39;&#39;&#39;Keep first clip intact, trim first frame from rest.&#39;&#39;&#39;</span>
+<span class="gp">... </span>    <span class="k">yield</span> <span class="n">clips</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="gp">... </span>    <span class="k">for</span> <span class="n">clip</span> <span class="ow">in</span> <span class="n">clips</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
+<span class="gp">... </span>        <span class="k">yield</span> <span class="n">clip</span><span class="o">.</span><span class="n">subclipped</span><span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="n">clip</span><span class="o">.</span><span class="n">fps</span><span class="p">)</span>  
+<span class="gp">&gt;&gt;&gt; </span><span class="n">paths</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;video1.mp4&#39;</span><span class="p">,</span> <span class="s1">&#39;video2.mp4&#39;</span><span class="p">,</span> <span class="s1">&#39;video3.mp4&#39;</span><span class="p">]</span>  
+<span class="gp">&gt;&gt;&gt; </span><span class="n">final</span> <span class="o">=</span> <span class="n">concatenate_videos</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">paths</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">transform_clips</span><span class="o">=</span><span class="n">trim_first_frame</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">target_width</span><span class="o">=</span><span class="mi">1920</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">target_height</span><span class="o">=</span><span class="mi">1080</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">normalize_dimensions</span><span class="o">=</span><span class="s1">&#39;social&#39;</span>
+<span class="gp">... </span><span class="p">)</span>  
+<span class="gp">&gt;&gt;&gt; </span><span class="n">final</span><span class="o">.</span><span class="n">write_videofile</span><span class="p">(</span><span class="s1">&#39;output.mp4&#39;</span><span class="p">)</span>  
+<span class="gp">&gt;&gt;&gt; </span><span class="n">final</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>  
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mixing.video.video_concat.crossfade_transition">
+<span class="sig-prename descclassname"><span class="pre">mixing.video.video_concat.</span></span><span class="sig-name descname"><span class="pre">crossfade_transition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">clips</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">VideoFileClip</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">duration</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.5</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">VideoFileClip</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/mixing/video/video_concat.html#crossfade_transition"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.video.video_concat.crossfade_transition" title="Link to this definition"></a></dt>
+<dd><p>Crossfade between clips to smoothly blend spatial and temporal discontinuities.</p>
+<p>Best for hiding both pixel differences and motion changes.
+Recommended: duration=0.3 to 0.8 seconds.</p>
+<p>Uses CrossFadeOut on end of clips and CrossFadeIn on start of clips.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mixing.video.video_concat.ensure_videoclip_iterable">
+<span class="sig-prename descclassname"><span class="pre">mixing.video.video_concat.</span></span><span class="sig-name descname"><span class="pre">ensure_videoclip_iterable</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">videos</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">VideoFileClip</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">bytes</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">BytesIO</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">VideoFileClip</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/mixing/video/video_concat.html#ensure_videoclip_iterable"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.video.video_concat.ensure_videoclip_iterable" title="Link to this definition"></a></dt>
+<dd><p>Normalize various video input formats to an iterable of VideoFileClip instances.</p>
+<p>Handles:
+- Folder paths (str/Path): Iterates through video files in sorted order
+- Iterables of VideoSource: Converts each item to VideoFileClip</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>videos</strong> – Can be:
+- A folder path (str or Path) containing video files
+- An iterable of VideoSource items (paths, clips, bytes, etc.)</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Iterable of VideoFileClip instances</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># From folder path</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">clips</span> <span class="o">=</span> <span class="n">ensure_videoclip_iterable</span><span class="p">(</span><span class="s1">&#39;/path/to/videos/&#39;</span><span class="p">)</span>  
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># From list of paths</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">clips</span> <span class="o">=</span> <span class="n">ensure_videoclip_iterable</span><span class="p">([</span><span class="s1">&#39;v1.mp4&#39;</span><span class="p">,</span> <span class="s1">&#39;v2.mp4&#39;</span><span class="p">])</span>  
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># From existing clips</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">existing_clips</span> <span class="o">=</span> <span class="p">[</span><span class="n">VideoFileClip</span><span class="p">(</span><span class="s1">&#39;v1.mp4&#39;</span><span class="p">)]</span>  
+<span class="gp">&gt;&gt;&gt; </span><span class="n">clips</span> <span class="o">=</span> <span class="n">ensure_videoclip_iterable</span><span class="p">(</span><span class="n">existing_clips</span><span class="p">)</span>  
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mixing.video.video_concat.fade_through_black">
+<span class="sig-prename descclassname"><span class="pre">mixing.video.video_concat.</span></span><span class="sig-name descname"><span class="pre">fade_through_black</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">clips</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">VideoFileClip</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">duration</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.3</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">VideoFileClip</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/mixing/video/video_concat.html#fade_through_black"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.video.video_concat.fade_through_black" title="Link to this definition"></a></dt>
+<dd><p>Fade out to black, then fade in from black between clips.</p>
+<p>More dramatic transition - clearly separates scenes.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mixing.video.video_concat.overlap_blend">
+<span class="sig-prename descclassname"><span class="pre">mixing.video.video_concat.</span></span><span class="sig-name descname"><span class="pre">overlap_blend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">clips</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">VideoFileClip</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overlap</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.5</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">VideoFileClip</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/mixing/video/video_concat.html#overlap_blend"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.video.video_concat.overlap_blend" title="Link to this definition"></a></dt>
+<dd><p>Overlap clips and crossfade the overlapping region.</p>
+<p>More aggressive blending - uses more footage from both clips.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mixing.video.video_concat.slow_motion_blend">
+<span class="sig-prename descclassname"><span class="pre">mixing.video.video_concat.</span></span><span class="sig-name descname"><span class="pre">slow_motion_blend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">clips</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">VideoFileClip</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ramp_duration</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.5</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">VideoFileClip</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/mixing/video/video_concat.html#slow_motion_blend"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.video.video_concat.slow_motion_blend" title="Link to this definition"></a></dt>
+<dd><p>Slow down the end of each clip and beginning of next for smoother motion transition.</p>
+<p>Helps with motion discontinuity by creating a speed buffer zone.
+Note: This changes timing, so final video will be slightly longer.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mixing.video.video_concat.trim_and_crossfade">
+<span class="sig-prename descclassname"><span class="pre">mixing.video.video_concat.</span></span><span class="sig-name descname"><span class="pre">trim_and_crossfade</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">clips</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">VideoFileClip</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">duration</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.4</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">VideoFileClip</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/mixing/video/video_concat.html#trim_and_crossfade"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.video.video_concat.trim_and_crossfade" title="Link to this definition"></a></dt>
+<dd><p>Trim first frame from subsequent clips, then crossfade.</p>
+<p>Combines frame removal with smooth blending.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mixing.video.video_concat.trim_first_frame_from_subsequent_clips">
+<span class="sig-prename descclassname"><span class="pre">mixing.video.video_concat.</span></span><span class="sig-name descname"><span class="pre">trim_first_frame_from_subsequent_clips</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">clips</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">VideoFileClip</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">VideoFileClip</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/mixing/video/video_concat.html#trim_first_frame_from_subsequent_clips"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.video.video_concat.trim_first_frame_from_subsequent_clips" title="Link to this definition"></a></dt>
+<dd><p>Keep first clip intact, trim first frame from subsequent clips.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mixing.video.video_concat.verify_frame_continuity">
+<span class="sig-prename descclassname"><span class="pre">mixing.video.video_concat.</span></span><span class="sig-name descname"><span class="pre">verify_frame_continuity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">video1</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">VideoFileClip</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">bytes</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">BytesIO</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">video2</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">VideoFileClip</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">bytes</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">BytesIO</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tolerance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_comparison</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/mixing/video/video_concat.html#verify_frame_continuity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.video.video_concat.verify_frame_continuity" title="Link to this definition"></a></dt>
+<dd><p>Verify that the last frame of video1 matches the first frame of video2.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>video1</strong> – First video source</p></li>
+<li><p><strong>video2</strong> – Second video source</p></li>
+<li><p><strong>tolerance</strong> – Maximum allowed difference (0.0-1.0) for frames to be considered equal.
+0.0 = exact match, 1.0 = completely different</p></li>
+<li><p><strong>save_comparison</strong> – Optional path to save a side-by-side comparison image</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>bool, difference_score: float)
+difference_score is the mean absolute difference normalized to [0, 1]</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Tuple of (frames_match</p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">match</span><span class="p">,</span> <span class="n">diff</span> <span class="o">=</span> <span class="n">verify_frame_continuity</span><span class="p">(</span><span class="s1">&#39;video1.mp4&#39;</span><span class="p">,</span> <span class="s1">&#39;video2.mp4&#39;</span><span class="p">,</span>
+<span class="gp">... </span>                                      <span class="n">save_comparison</span><span class="o">=</span><span class="s1">&#39;comparison.png&#39;</span><span class="p">)</span>  
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Frames match: </span><span class="si">{</span><span class="n">match</span><span class="si">}</span><span class="s2">, difference: </span><span class="si">{</span><span class="n">diff</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>  
+</pre></div>
+</div>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="audio_offset_example.html" class="btn btn-neutral float-left" title="mixing.video.audio_offset_example" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="video_files.html" class="btn btn-neutral float-right" title="mixing.video.video_files" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright NO COPYRIGHT.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

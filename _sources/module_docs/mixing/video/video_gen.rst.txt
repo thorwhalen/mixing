@@ -1,0 +1,4 @@
+mixing.video.video_gen
+======================
+.. automodule:: mixing.video.video_gen
+   :members:

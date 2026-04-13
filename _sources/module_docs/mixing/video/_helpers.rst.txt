@@ -1,0 +1,4 @@
+mixing.video._helpers
+=====================
+.. automodule:: mixing.video._helpers
+   :members:

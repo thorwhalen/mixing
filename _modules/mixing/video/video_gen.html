@@ -1,0 +1,931 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>mixing.video.video_gen &mdash; mixing 0.0.4 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=8c5712d9"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../_static/toggleprompt.js?v=d7ede5d2"></script>
+      <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            mixing
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing.html">mixing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/audio.html">mixing.audio</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/audio/audio_ops.html">mixing.audio.audio_ops</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/audio/audio_util.html">mixing.audio.audio_util</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/audio/audio_widget.html">mixing.audio.audio_widget</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/audio/demo_audio_widget.html">mixing.audio.demo_audio_widget</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/audio/test_audio_widget.html">mixing.audio.test_audio_widget</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/util.html">mixing.util</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video.html">mixing.video</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/_helpers.html">mixing.video._helpers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/audio_offset_example.html">mixing.video.audio_offset_example</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/video_concat.html">mixing.video.video_concat</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/video_files.html">mixing.video.video_files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/video_gen.html">mixing.video.video_gen</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/video_ops.html">mixing.video.video_ops</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/video_subtitles.html">mixing.video.video_subtitles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/video_util.html">mixing.video.video_util</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">mixing</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">mixing.video.video_gen</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for mixing.video.video_gen</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">AI Video Generation with Google Vertex AI Veo</span>
+
+<span class="sd">This module provides tools for generating videos using Google&#39;s Veo models on Vertex AI.</span>
+<span class="sd">The main workflow is simple: **generate and get a file path** to your video.</span>
+
+<span class="sd">Key features include:</span>
+
+<span class="sd">• **One-Step Generation**: Generate videos and get file paths in one call</span>
+<span class="sd">• **Flexible Egress**: Control how videos are saved with the `save_video` parameter</span>
+<span class="sd">• **Multiple Input Formats**: Generate from text prompts, images, or video frames</span>
+<span class="sd">• **Smart Authentication**: Automatic environment variable detection and helpful error messages</span>
+<span class="sd">• **Multiple Video Support**: Handle models that generate multiple video variations</span>
+
+<span class="sd">Quick Start (Generate and Save):</span>
+<span class="sd">```python</span>
+<span class="sd">from mixing.video.video_gen import generate_video</span>
+
+<span class="sd"># Generate video and get file path in one call</span>
+<span class="sd">video_path = generate_video(&quot;A serene forest at dawn with mist&quot;)</span>
+<span class="sd">print(f&quot;Video saved to: {video_path}&quot;)</span>
+<span class="sd">```</span>
+
+<span class="sd">Flexible Egress Options:</span>
+<span class="sd">```python</span>
+<span class="sd"># Default: Auto-save to temp files and return path(s)</span>
+<span class="sd">path = generate_video(&quot;prompt&quot;)</span>
+
+<span class="sd"># Save to specific location</span>
+<span class="sd">path = generate_video(&quot;prompt&quot;, save_video=&quot;/path/to/my_video.mp4&quot;)</span>
+
+<span class="sd"># Save to directory with auto-naming</span>
+<span class="sd">path = generate_video(&quot;prompt&quot;, save_video=&quot;/path/to/output_dir/&quot;)</span>
+
+<span class="sd"># Just return the operation (no saving)</span>
+<span class="sd">op = generate_video(&quot;prompt&quot;, save_video=False)</span>
+<span class="sd"># or: op = generate_video(&quot;prompt&quot;, save_video=lambda x: x)</span>
+
+<span class="sd"># Custom processing function</span>
+<span class="sd">def my_processor(operation):</span>
+<span class="sd">    paths = save_generated_videos(operation, prefix=&quot;custom_&quot;)</span>
+<span class="sd">    print(f&quot;Saved {len(paths)} videos&quot;)</span>
+<span class="sd">    return paths</span>
+
+<span class="sd">result = generate_video(&quot;prompt&quot;, save_video=my_processor)</span>
+<span class="sd">```</span>
+
+<span class="sd">Authentication Setup:</span>
+<span class="sd">Set environment variables for automatic authentication:</span>
+<span class="sd">```bash</span>
+<span class="sd">export GOOGLE_APPLICATION_CREDENTIALS=&quot;/path/to/service-account.json&quot;</span>
+<span class="sd">export GOOGLE_CLOUD_PROJECT=&quot;your-project-id&quot;</span>
+<span class="sd">```</span>
+
+<span class="sd">Main Functions:</span>
+<span class="sd">- generate_video(): Generate videos with flexible egress options</span>
+<span class="sd">- save_generated_videos(): Standalone video saving utility</span>
+<span class="sd">- Frame extraction utilities for using video frames as inputs</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">base64</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">mimetypes</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Union</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callable</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">dol</span><span class="w"> </span><span class="kn">import</span> <span class="n">non_colliding_key</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_print_auth_help</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Print helpful authentication setup information.&quot;&quot;&quot;</span>
+    <span class="n">help_msg</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">╔══════════════════════════════════════════════════════════════════════════════╗</span>
+<span class="s2">║                        GOOGLE CLOUD AUTHENTICATION SETUP                     ║</span>
+<span class="s2">╠══════════════════════════════════════════════════════════════════════════════╣</span>
+<span class="s2">║                                                                              ║</span>
+<span class="s2">║ To authenticate with Google Cloud Vertex AI, you have several options:      ║</span>
+<span class="s2">║                                                                              ║</span>
+<span class="s2">║ 1. SERVICE ACCOUNT (Recommended for production):                            ║</span>
+<span class="s2">║    • Download service account JSON from Google Cloud Console                ║</span>
+<span class="s2">║    • Set environment variable:                                              ║</span>
+<span class="s2">║      export GOOGLE_APPLICATION_CREDENTIALS=&quot;/path/to/service-account.json&quot;  ║</span>
+<span class="s2">║    • Or set: export VEO_SERVICE_ACCOUNT_FILE=&quot;/path/to/service-account.json&quot;║</span>
+<span class="s2">║                                                                              ║</span>
+<span class="s2">║ 2. PROJECT ID (Required):                                                   ║</span>
+<span class="s2">║    • Set environment variable:                                              ║</span>
+<span class="s2">║      export GOOGLE_CLOUD_PROJECT=&quot;your-project-id&quot;                          ║</span>
+<span class="s2">║    • Or set: export VEO_PROJECT_ID=&quot;your-project-id&quot;                        ║</span>
+<span class="s2">║                                                                              ║</span>
+<span class="s2">║ 3. APPLICATION DEFAULT CREDENTIALS (Development):                           ║</span>
+<span class="s2">║    • Run: gcloud auth application-default login                             ║</span>
+<span class="s2">║    • This allows local development without service account                  ║</span>
+<span class="s2">║                                                                              ║</span>
+<span class="s2">║ 4. FUNCTION PARAMETERS (Override):                                          ║</span>
+<span class="s2">║    • Pass service_account_file=&quot;path/to/file.json&quot;                          ║</span>
+<span class="s2">║    • Pass project_id=&quot;your-project-id&quot;                                      ║</span>
+<span class="s2">║                                                                              ║</span>
+<span class="s2">║ For more info: https://cloud.google.com/docs/authentication                 ║</span>
+<span class="s2">║                                                                              ║</span>
+<span class="s2">╚══════════════════════════════════════════════════════════════════════════════╝</span>
+<span class="s2">    &quot;&quot;&quot;</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">help_msg</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_auth_from_env</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get authentication info from environment variables.&quot;&quot;&quot;</span>
+    <span class="c1"># Check for service account file</span>
+    <span class="n">service_account_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s1">&#39;VEO_SERVICE_ACCOUNT_FILE&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span>
+        <span class="s1">&#39;GOOGLE_APPLICATION_CREDENTIALS&#39;</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Check for project ID</span>
+    <span class="n">project_id</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s1">&#39;VEO_PROJECT_ID&#39;</span><span class="p">)</span>
+        <span class="ow">or</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s1">&#39;GOOGLE_CLOUD_PROJECT&#39;</span><span class="p">)</span>
+        <span class="ow">or</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s1">&#39;GCLOUD_PROJECT&#39;</span><span class="p">)</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Check for location</span>
+    <span class="n">location</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s1">&#39;VEO_LOCATION&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s1">&#39;GOOGLE_CLOUD_LOCATION&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="s1">&#39;us-central1&#39;</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">service_account_file</span><span class="p">,</span> <span class="n">project_id</span><span class="p">,</span> <span class="n">location</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_setup_genai_client</span><span class="p">(</span>
+    <span class="n">service_account_file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">project_id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">location</span><span class="o">=</span><span class="s2">&quot;us-central1&quot;</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Set up Google GenAI client with proper error handling.&quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">google</span><span class="w"> </span><span class="kn">import</span> <span class="n">genai</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">service_account_file</span><span class="p">:</span>
+            <span class="kn">from</span><span class="w"> </span><span class="nn">google.oauth2</span><span class="w"> </span><span class="kn">import</span> <span class="n">service_account</span>
+
+            <span class="c1"># Expand user path if needed</span>
+            <span class="n">sa_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">expanduser</span><span class="p">(</span><span class="n">service_account_file</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">sa_file</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Service account file not found: </span><span class="si">{</span><span class="n">sa_file</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+            <span class="n">creds</span> <span class="o">=</span> <span class="n">service_account</span><span class="o">.</span><span class="n">Credentials</span><span class="o">.</span><span class="n">from_service_account_file</span><span class="p">(</span>
+                <span class="n">sa_file</span><span class="p">,</span>
+                <span class="n">scopes</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;https://www.googleapis.com/auth/cloud-platform&quot;</span><span class="p">],</span>
+            <span class="p">)</span>
+            <span class="n">client</span> <span class="o">=</span> <span class="n">genai</span><span class="o">.</span><span class="n">Client</span><span class="p">(</span>
+                <span class="n">credentials</span><span class="o">=</span><span class="n">creds</span><span class="p">,</span>
+                <span class="n">project</span><span class="o">=</span><span class="n">project_id</span><span class="p">,</span>
+                <span class="n">location</span><span class="o">=</span><span class="n">location</span><span class="p">,</span>
+                <span class="n">vertexai</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Use default credentials</span>
+            <span class="n">client</span> <span class="o">=</span> <span class="n">genai</span><span class="o">.</span><span class="n">Client</span><span class="p">(</span><span class="n">project</span><span class="o">=</span><span class="n">project_id</span><span class="p">,</span> <span class="n">location</span><span class="o">=</span><span class="n">location</span><span class="p">,</span> <span class="n">vertexai</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">client</span>
+
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="c1"># Print helpful error message</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">80</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;❌ AUTHENTICATION ERROR&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">80</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">This usually means one of the following:&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;• Service account file is missing or invalid&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;• Project ID is not set or incorrect&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;• Application default credentials are not configured&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;• Missing required permissions for Vertex AI&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">_print_auth_help</span><span class="p">()</span>
+        <span class="k">raise</span>  <span class="c1"># Re-raise the original exception</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_video_extension_from_mime</span><span class="p">(</span><span class="n">mime_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get video file extension from MIME type.&quot;&quot;&quot;</span>
+    <span class="n">mime_to_ext</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;video/mp4&#39;</span><span class="p">:</span> <span class="s1">&#39;mp4&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;video/avi&#39;</span><span class="p">:</span> <span class="s1">&#39;avi&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;video/mkv&#39;</span><span class="p">:</span> <span class="s1">&#39;mkv&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;video/mov&#39;</span><span class="p">:</span> <span class="s1">&#39;mov&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;video/quicktime&#39;</span><span class="p">:</span> <span class="s1">&#39;mov&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;video/webm&#39;</span><span class="p">:</span> <span class="s1">&#39;webm&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;video/wmv&#39;</span><span class="p">:</span> <span class="s1">&#39;wmv&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;video/flv&#39;</span><span class="p">:</span> <span class="s1">&#39;flv&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;video/3gpp&#39;</span><span class="p">:</span> <span class="s1">&#39;3gp&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;video/mpeg&#39;</span><span class="p">:</span> <span class="s1">&#39;mpg&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;video/x-msvideo&#39;</span><span class="p">:</span> <span class="s1">&#39;avi&#39;</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="n">mime_to_ext</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">mime_type</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span> <span class="s1">&#39;mp4&#39;</span><span class="p">)</span>  <span class="c1"># Default to mp4</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_generate_output_paths</span><span class="p">(</span>
+    <span class="n">generated_videos</span><span class="p">,</span>
+    <span class="n">save_filepath</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">prefix</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;generated_video_&#39;</span><span class="p">,</span>
+    <span class="n">directory_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;generated_video_&#39;</span><span class="p">,</span>
+    <span class="n">extension_fallback</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;mp4&#39;</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generate output file paths for video saving, ensuring no conflicts with existing files.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        generated_videos: List of GeneratedVideo objects</span>
+<span class="sd">        save_filepath: Output path specification (None, extension, directory, or full path)</span>
+<span class="sd">        prefix: Prefix for auto-generated filenames</span>
+<span class="sd">        directory_name: Name to use when save_filepath is directory</span>
+<span class="sd">        extension_fallback: Default extension if MIME type can&#39;t be determined</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        List of output file paths that don&#39;t conflict with existing files</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">num_videos</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">generated_videos</span><span class="p">)</span>
+    <span class="n">is_single_video</span> <span class="o">=</span> <span class="n">num_videos</span> <span class="o">==</span> <span class="mi">1</span>
+    <span class="n">output_paths</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">if</span> <span class="n">save_filepath</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># Auto-generate temp files</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">video</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">generated_videos</span><span class="p">):</span>
+            <span class="c1"># Get extension from MIME type if available (handle both new and legacy API)</span>
+            <span class="k">if</span> <span class="p">(</span>
+                <span class="nb">hasattr</span><span class="p">(</span><span class="n">video</span><span class="p">,</span> <span class="s1">&#39;video&#39;</span><span class="p">)</span>
+                <span class="ow">and</span> <span class="n">video</span><span class="o">.</span><span class="n">video</span>
+                <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">video</span><span class="o">.</span><span class="n">video</span><span class="p">,</span> <span class="s1">&#39;mime_type&#39;</span><span class="p">)</span>
+            <span class="p">):</span>
+                <span class="n">mime_type</span> <span class="o">=</span> <span class="n">video</span><span class="o">.</span><span class="n">video</span><span class="o">.</span><span class="n">mime_type</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">mime_type</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">video</span><span class="p">,</span> <span class="s1">&#39;mime_type&#39;</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;video/</span><span class="si">{</span><span class="n">extension_fallback</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="n">ext</span> <span class="o">=</span> <span class="n">_get_video_extension_from_mime</span><span class="p">(</span><span class="n">mime_type</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">is_single_video</span><span class="p">:</span>
+                <span class="n">temp_fd</span><span class="p">,</span> <span class="n">output_path</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">mkstemp</span><span class="p">(</span><span class="n">suffix</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;.</span><span class="si">{</span><span class="n">ext</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="n">prefix</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">temp_fd</span><span class="p">,</span> <span class="n">output_path</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">mkstemp</span><span class="p">(</span>
+                    <span class="n">suffix</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;.</span><span class="si">{</span><span class="n">ext</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}{</span><span class="n">i</span><span class="si">:</span><span class="s1">02d</span><span class="si">}</span><span class="s1">_&#39;</span>
+                <span class="p">)</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">temp_fd</span><span class="p">)</span>  <span class="c1"># Close the file descriptor since we&#39;ll write separately</span>
+            <span class="n">output_paths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">output_path</span><span class="p">)</span>
+
+    <span class="k">elif</span> <span class="n">save_filepath</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">):</span>
+        <span class="c1"># Extension provided</span>
+        <span class="n">ext</span> <span class="o">=</span> <span class="n">save_filepath</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>  <span class="c1"># Remove the leading dot</span>
+
+        <span class="c1"># Validate it&#39;s a video extension</span>
+        <span class="n">video_extensions</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;mp4&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;avi&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;mkv&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;mov&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;wmv&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;flv&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;webm&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;m4v&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;3gp&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;mpg&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;mpeg&#39;</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="k">if</span> <span class="n">ext</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">video_extensions</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Invalid video extension: </span><span class="si">{</span><span class="n">ext</span><span class="si">}</span><span class="s2">. Must be one of: </span><span class="si">{</span><span class="n">video_extensions</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_videos</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">is_single_video</span><span class="p">:</span>
+                <span class="n">temp_fd</span><span class="p">,</span> <span class="n">output_path</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">mkstemp</span><span class="p">(</span><span class="n">suffix</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;.</span><span class="si">{</span><span class="n">ext</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="n">prefix</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">temp_fd</span><span class="p">,</span> <span class="n">output_path</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">mkstemp</span><span class="p">(</span>
+                    <span class="n">suffix</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;.</span><span class="si">{</span><span class="n">ext</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}{</span><span class="n">i</span><span class="si">:</span><span class="s1">02d</span><span class="si">}</span><span class="s1">_&#39;</span>
+                <span class="p">)</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">temp_fd</span><span class="p">)</span>
+            <span class="n">output_paths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">output_path</span><span class="p">)</span>
+
+    <span class="k">elif</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">save_filepath</span><span class="p">):</span>
+        <span class="c1"># Directory provided - generate safe filenames</span>
+        <span class="c1"># Get list of existing files in the directory for collision detection</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">existing_files</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">save_filepath</span><span class="p">))</span>
+        <span class="k">except</span> <span class="ne">OSError</span><span class="p">:</span>
+            <span class="n">existing_files</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">video</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">generated_videos</span><span class="p">):</span>
+            <span class="c1"># Get extension from MIME type if available (handle both new and legacy API)</span>
+            <span class="k">if</span> <span class="p">(</span>
+                <span class="nb">hasattr</span><span class="p">(</span><span class="n">video</span><span class="p">,</span> <span class="s1">&#39;video&#39;</span><span class="p">)</span>
+                <span class="ow">and</span> <span class="n">video</span><span class="o">.</span><span class="n">video</span>
+                <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">video</span><span class="o">.</span><span class="n">video</span><span class="p">,</span> <span class="s1">&#39;mime_type&#39;</span><span class="p">)</span>
+            <span class="p">):</span>
+                <span class="n">mime_type</span> <span class="o">=</span> <span class="n">video</span><span class="o">.</span><span class="n">video</span><span class="o">.</span><span class="n">mime_type</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">mime_type</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">video</span><span class="p">,</span> <span class="s1">&#39;mime_type&#39;</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;video/</span><span class="si">{</span><span class="n">extension_fallback</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="n">ext</span> <span class="o">=</span> <span class="n">_get_video_extension_from_mime</span><span class="p">(</span><span class="n">mime_type</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">is_single_video</span><span class="p">:</span>
+                <span class="n">base_filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">directory_name</span><span class="si">}</span><span class="s1">.</span><span class="si">{</span><span class="n">ext</span><span class="si">}</span><span class="s1">&#39;</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">base_filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">directory_name</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">i</span><span class="si">:</span><span class="s1">02d</span><span class="si">}</span><span class="s1">.</span><span class="si">{</span><span class="n">ext</span><span class="si">}</span><span class="s1">&#39;</span>
+
+            <span class="c1"># Use non_colliding_key to ensure we don&#39;t overwrite existing files</span>
+            <span class="n">safe_filename</span> <span class="o">=</span> <span class="n">non_colliding_key</span><span class="p">(</span><span class="n">base_filename</span><span class="p">,</span> <span class="n">existing_files</span><span class="p">)</span>
+            <span class="n">output_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">save_filepath</span><span class="p">,</span> <span class="n">safe_filename</span><span class="p">)</span>
+            <span class="n">output_paths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">output_path</span><span class="p">)</span>
+
+            <span class="c1"># Add the new filename to existing_files to avoid collisions within this batch</span>
+            <span class="n">existing_files</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">safe_filename</span><span class="p">)</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># Full path provided</span>
+        <span class="k">if</span> <span class="n">is_single_video</span><span class="p">:</span>
+            <span class="c1"># For single video, check if file exists and use non_colliding_key if needed</span>
+            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">save_filepath</span><span class="p">):</span>
+                <span class="n">directory</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">save_filepath</span><span class="p">)</span>
+                <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">save_filepath</span><span class="p">)</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">existing_files</span> <span class="o">=</span> <span class="p">(</span>
+                        <span class="nb">set</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">directory</span><span class="p">))</span>
+                        <span class="k">if</span> <span class="n">directory</span>
+                        <span class="k">else</span> <span class="nb">set</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">))</span>
+                    <span class="p">)</span>
+                <span class="k">except</span> <span class="ne">OSError</span><span class="p">:</span>
+                    <span class="n">existing_files</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+                <span class="n">safe_filename</span> <span class="o">=</span> <span class="n">non_colliding_key</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">existing_files</span><span class="p">)</span>
+                <span class="n">output_path</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">safe_filename</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">directory</span>
+                    <span class="k">else</span> <span class="n">safe_filename</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">output_path</span> <span class="o">=</span> <span class="n">save_filepath</span>
+            <span class="n">output_paths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">output_path</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Multiple videos - generate indexed paths using non_colliding_key</span>
+            <span class="n">base_path</span><span class="p">,</span> <span class="n">ext</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">save_filepath</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">ext</span><span class="p">:</span>
+                <span class="n">ext</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;.</span><span class="si">{</span><span class="n">extension_fallback</span><span class="si">}</span><span class="s1">&#39;</span>
+
+            <span class="n">directory</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">save_filepath</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">existing_files</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="nb">set</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">directory</span><span class="p">))</span> <span class="k">if</span> <span class="n">directory</span> <span class="k">else</span> <span class="nb">set</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">))</span>
+                <span class="p">)</span>
+            <span class="k">except</span> <span class="ne">OSError</span><span class="p">:</span>
+                <span class="n">existing_files</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_videos</span><span class="p">):</span>
+                <span class="c1"># Generate base indexed filename</span>
+                <span class="n">base_filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">base_path</span><span class="si">}</span><span class="s1">__</span><span class="si">{</span><span class="n">i</span><span class="si">:</span><span class="s1">02d</span><span class="si">}{</span><span class="n">ext</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="c1"># Use non_colliding_key to ensure uniqueness</span>
+                <span class="n">safe_filename</span> <span class="o">=</span> <span class="n">non_colliding_key</span><span class="p">(</span><span class="n">base_filename</span><span class="p">,</span> <span class="n">existing_files</span><span class="p">)</span>
+                <span class="n">output_path</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">safe_filename</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">directory</span>
+                    <span class="k">else</span> <span class="n">safe_filename</span>
+                <span class="p">)</span>
+                <span class="n">output_paths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">output_path</span><span class="p">)</span>
+
+                <span class="c1"># Add to existing_files to avoid collisions within this batch</span>
+                <span class="n">existing_files</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">safe_filename</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">output_paths</span>
+
+
+<div class="viewcode-block" id="save_generated_videos">
+<a class="viewcode-back" href="../../../module_docs/mixing/video/video_gen.html#mixing.video.video_gen.save_generated_videos">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">save_generated_videos</span><span class="p">(</span>
+    <span class="n">video_input</span><span class="p">,</span>  <span class="c1"># Can be: GeneratedVideo, list[GeneratedVideo], operation.response, or operation</span>
+    <span class="n">save_filepath</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">prefix</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;generated_video_&#39;</span><span class="p">,</span>
+    <span class="n">directory_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;generated_video_&#39;</span><span class="p">,</span>
+    <span class="n">extension_fallback</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;mp4&#39;</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Save generated video(s) to file(s). Handles single videos, lists of videos,</span>
+<span class="sd">    operation responses, or full operations.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        video_input: Can be one of:</span>
+<span class="sd">            - A single google.genai.types.GeneratedVideo object</span>
+<span class="sd">            - A list of GeneratedVideo objects (from op.response.generated_videos)</span>
+<span class="sd">            - An operation response object (op.response)</span>
+<span class="sd">            - A full operation object (op)</span>
+<span class="sd">        save_filepath: Output path specification. Can be:</span>
+<span class="sd">            - None: Auto-generate temp file(s) with appropriate extension</span>
+<span class="sd">            - Path starting with &#39;.&#39;: Use as extension (e.g., &#39;.mp4&#39;)</span>
+<span class="sd">            - Full filepath: Use as-is (for single video) or add index for multiple</span>
+<span class="sd">            - Directory path: Use directory with generated names</span>
+<span class="sd">        prefix: Prefix for auto-generated filenames (keyword-only)</span>
+<span class="sd">        directory_name: Name to use when save_filepath is directory (keyword-only)</span>
+<span class="sd">        extension_fallback: Default extension if MIME type can&#39;t be determined (keyword-only)</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Single path (str) for one video, or list of paths for multiple videos</span>
+
+<span class="sd">    Examples:</span>
+<span class="sd">        &gt;&gt;&gt; # Save single video to temp file</span>
+<span class="sd">        &gt;&gt;&gt; path = save_generated_videos(video_obj)  # doctest: +SKIP</span>
+<span class="sd">        &gt;&gt;&gt; # Save multiple videos with index</span>
+<span class="sd">        &gt;&gt;&gt; paths = save_generated_videos(op.response.generated_videos)  # doctest: +SKIP</span>
+<span class="sd">        &gt;&gt;&gt; # Save from full operation</span>
+<span class="sd">        &gt;&gt;&gt; paths = save_generated_videos(op, &#39;/path/to/videos/&#39;)  # doctest: +SKIP</span>
+<span class="sd">        &gt;&gt;&gt; # Save with specific extension</span>
+<span class="sd">        &gt;&gt;&gt; path = save_generated_videos(video_obj, &#39;.mp4&#39;)  # doctest: +SKIP</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Extract list of GeneratedVideo objects from various input types</span>
+    <span class="n">generated_videos</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="c1"># Check for operation object first (most specific)</span>
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">video_input</span><span class="p">,</span> <span class="s1">&#39;response&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span>
+        <span class="n">video_input</span><span class="o">.</span><span class="n">response</span><span class="p">,</span> <span class="s1">&#39;generated_videos&#39;</span>
+    <span class="p">):</span>
+        <span class="c1"># It&#39;s a full operation (op)</span>
+        <span class="n">generated_videos</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">video_input</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">generated_videos</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">video_input</span><span class="p">,</span> <span class="s1">&#39;generated_videos&#39;</span><span class="p">):</span>
+        <span class="c1"># It&#39;s an operation response (op.response)</span>
+        <span class="n">generated_videos</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">video_input</span><span class="o">.</span><span class="n">generated_videos</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">video_input</span><span class="p">,</span> <span class="s1">&#39;video&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">video_input</span><span class="o">.</span><span class="n">video</span><span class="p">:</span>
+        <span class="c1"># It&#39;s a single GeneratedVideo object (new API format)</span>
+        <span class="n">generated_videos</span> <span class="o">=</span> <span class="p">[</span><span class="n">video_input</span><span class="p">]</span>
+    <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">video_input</span><span class="p">,</span> <span class="s1">&#39;video_bytes&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">video_input</span><span class="p">,</span> <span class="s1">&#39;uri&#39;</span><span class="p">):</span>
+        <span class="c1"># It&#39;s a single GeneratedVideo object (legacy format)</span>
+        <span class="n">generated_videos</span> <span class="o">=</span> <span class="p">[</span><span class="n">video_input</span><span class="p">]</span>
+    <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">video_input</span><span class="p">,</span> <span class="s1">&#39;__iter__&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">video_input</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="c1"># It&#39;s a list or iterable of videos (check this last to avoid catching operation objects)</span>
+        <span class="n">video_list</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">video_input</span><span class="p">)</span>
+        <span class="c1"># Verify that the first item is actually a video object</span>
+        <span class="k">if</span> <span class="n">video_list</span> <span class="ow">and</span> <span class="p">(</span>
+            <span class="nb">hasattr</span><span class="p">(</span><span class="n">video_list</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s1">&#39;video&#39;</span><span class="p">)</span>
+            <span class="ow">or</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">video_list</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s1">&#39;video_bytes&#39;</span><span class="p">)</span>
+            <span class="ow">or</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">video_list</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s1">&#39;uri&#39;</span><span class="p">)</span>
+        <span class="p">):</span>
+            <span class="n">generated_videos</span> <span class="o">=</span> <span class="n">video_list</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Iterable contains invalid video objects. First item type: </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">video_list</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">video_list</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s1">&#39;empty&#39;</span><span class="si">}</span><span class="s2">, &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;attributes: </span><span class="si">{</span><span class="p">[</span><span class="n">attr</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">attr</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="nb">dir</span><span class="p">(</span><span class="n">video_list</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="ow">not</span><span class="w"> </span><span class="n">attr</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)]</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">video_list</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s1">&#39;none&#39;</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">&quot;video_input must be a GeneratedVideo object, list of GeneratedVideo objects, &quot;</span>
+            <span class="s2">&quot;operation response, or full operation object&quot;</span>
+        <span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">generated_videos</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No videos found in the input&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Helper function to save a single video</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_save_single_video</span><span class="p">(</span><span class="n">generated_video</span><span class="p">,</span> <span class="n">output_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="c1"># Handle both new and legacy API formats</span>
+        <span class="n">video_bytes</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">mime_type</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="c1"># New API format: video data is nested in generated_video.video</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">generated_video</span><span class="p">,</span> <span class="s1">&#39;video&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">generated_video</span><span class="o">.</span><span class="n">video</span><span class="p">:</span>
+            <span class="n">video_obj</span> <span class="o">=</span> <span class="n">generated_video</span><span class="o">.</span><span class="n">video</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">video_obj</span><span class="p">,</span> <span class="s1">&#39;video_bytes&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">video_obj</span><span class="o">.</span><span class="n">video_bytes</span><span class="p">:</span>
+                <span class="n">video_bytes</span> <span class="o">=</span> <span class="n">video_obj</span><span class="o">.</span><span class="n">video_bytes</span>
+                <span class="n">mime_type</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span>
+                    <span class="n">video_obj</span><span class="p">,</span> <span class="s1">&#39;mime_type&#39;</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;video/</span><span class="si">{</span><span class="n">extension_fallback</span><span class="si">}</span><span class="s1">&#39;</span>
+                <span class="p">)</span>
+            <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">video_obj</span><span class="p">,</span> <span class="s1">&#39;uri&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">video_obj</span><span class="o">.</span><span class="n">uri</span><span class="p">:</span>
+                <span class="c1"># Handle case where video is stored as URI (would need to download)</span>
+                <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
+                    <span class="s2">&quot;URI-based videos not yet supported. Video should have video_bytes.&quot;</span>
+                <span class="p">)</span>
+
+        <span class="c1"># Legacy API format: video data is directly on generated_video</span>
+        <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">generated_video</span><span class="p">,</span> <span class="s1">&#39;video_bytes&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">generated_video</span><span class="o">.</span><span class="n">video_bytes</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">generated_video</span><span class="o">.</span><span class="n">video_bytes</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                <span class="c1"># Base64 encoded string</span>
+                <span class="n">video_bytes</span> <span class="o">=</span> <span class="n">base64</span><span class="o">.</span><span class="n">b64decode</span><span class="p">(</span><span class="n">generated_video</span><span class="o">.</span><span class="n">video_bytes</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># Already bytes</span>
+                <span class="n">video_bytes</span> <span class="o">=</span> <span class="n">generated_video</span><span class="o">.</span><span class="n">video_bytes</span>
+            <span class="n">mime_type</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span>
+                <span class="n">generated_video</span><span class="p">,</span> <span class="s1">&#39;mime_type&#39;</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;video/</span><span class="si">{</span><span class="n">extension_fallback</span><span class="si">}</span><span class="s1">&#39;</span>
+            <span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">generated_video</span><span class="p">,</span> <span class="s1">&#39;uri&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">generated_video</span><span class="o">.</span><span class="n">uri</span><span class="p">:</span>
+            <span class="c1"># Handle case where video is stored as URI (would need to download)</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
+                <span class="s2">&quot;URI-based videos not yet supported. Video should have video_bytes.&quot;</span>
+            <span class="p">)</span>
+
+        <span class="c1"># Check if we successfully got video data</span>
+        <span class="k">if</span> <span class="n">video_bytes</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># Provide helpful error message with what we found</span>
+            <span class="n">available_attrs</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">attr</span> <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="nb">dir</span><span class="p">(</span><span class="n">generated_video</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">attr</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)</span>
+            <span class="p">]</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">generated_video</span><span class="p">,</span> <span class="s1">&#39;video&#39;</span><span class="p">):</span>
+                <span class="n">video_attrs</span> <span class="o">=</span> <span class="p">[</span>
+                    <span class="n">attr</span>
+                    <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="nb">dir</span><span class="p">(</span><span class="n">generated_video</span><span class="o">.</span><span class="n">video</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">attr</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)</span>
+                <span class="p">]</span>
+                <span class="n">error_msg</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;GeneratedVideo object doesn&#39;t contain video data. &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;Available attributes: </span><span class="si">{</span><span class="n">available_attrs</span><span class="si">}</span><span class="s2">. &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;Video sub-object attributes: </span><span class="si">{</span><span class="n">video_attrs</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">error_msg</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;GeneratedVideo object must have either video_bytes or uri attribute. &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;Available attributes: </span><span class="si">{</span><span class="n">available_attrs</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">error_msg</span><span class="p">)</span>
+
+        <span class="c1"># Ensure output directory exists</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">output_path</span><span class="p">)),</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="c1"># Write video bytes to file</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">output_path</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">video_bytes</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">output_path</span>
+
+    <span class="c1"># Determine how many videos we&#39;re saving</span>
+    <span class="n">num_videos</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">generated_videos</span><span class="p">)</span>
+    <span class="n">is_single_video</span> <span class="o">=</span> <span class="n">num_videos</span> <span class="o">==</span> <span class="mi">1</span>
+
+    <span class="c1"># Generate output paths using helper function</span>
+    <span class="n">output_paths</span> <span class="o">=</span> <span class="n">_generate_output_paths</span><span class="p">(</span>
+        <span class="n">generated_videos</span><span class="p">,</span>
+        <span class="n">save_filepath</span><span class="p">,</span>
+        <span class="n">prefix</span><span class="o">=</span><span class="n">prefix</span><span class="p">,</span>
+        <span class="n">directory_name</span><span class="o">=</span><span class="n">directory_name</span><span class="p">,</span>
+        <span class="n">extension_fallback</span><span class="o">=</span><span class="n">extension_fallback</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Save all videos</span>
+    <span class="n">saved_paths</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">video</span><span class="p">,</span> <span class="n">output_path</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">generated_videos</span><span class="p">,</span> <span class="n">output_paths</span><span class="p">):</span>
+        <span class="n">saved_path</span> <span class="o">=</span> <span class="n">_save_single_video</span><span class="p">(</span><span class="n">video</span><span class="p">,</span> <span class="n">output_path</span><span class="p">)</span>
+        <span class="n">saved_paths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">saved_path</span><span class="p">)</span>
+
+    <span class="c1"># Return single path for single video, list for multiple</span>
+    <span class="k">if</span> <span class="n">is_single_video</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">saved_paths</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">saved_paths</span></div>
+
+
+
+<span class="c1"># Backward compatibility alias</span>
+<span class="n">save_generated_video</span> <span class="o">=</span> <span class="n">save_generated_videos</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_is_video_file</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Check if a file has a video extension.&quot;&quot;&quot;</span>
+    <span class="n">video_extensions</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;.mp4&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;.avi&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;.mkv&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;.mov&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;.wmv&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;.flv&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;.webm&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;.m4v&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;.3gp&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;.mpg&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;.mpeg&#39;</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">lower</span><span class="p">())[</span><span class="mi">1</span><span class="p">]</span> <span class="ow">in</span> <span class="n">video_extensions</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_frame_path</span><span class="p">(</span><span class="n">media_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">frame_idx</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get frame path from media file. If it&#39;s a video, extract frame to temp file.</span>
+<span class="sd">    If it&#39;s already an image, return the original path.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">_is_video_file</span><span class="p">(</span><span class="n">media_path</span><span class="p">):</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">.video_files</span><span class="w"> </span><span class="kn">import</span> <span class="n">save_frame</span>
+
+        <span class="k">return</span> <span class="n">save_frame</span><span class="p">(</span><span class="n">media_path</span><span class="p">,</span> <span class="n">frame_idx</span><span class="p">,</span> <span class="n">saveas</span><span class="o">=</span><span class="s1">&#39;/TMP&#39;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">media_path</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_read_image_as_base64</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Read a local image file and return (data: str, mime_type: str).&quot;&quot;&quot;</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">b</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+    <span class="n">data_b64</span> <span class="o">=</span> <span class="n">base64</span><span class="o">.</span><span class="n">b64encode</span><span class="p">(</span><span class="n">b</span><span class="p">)</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="n">mime_type</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">mimetypes</span><span class="o">.</span><span class="n">guess_type</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">mime_type</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">mime_type</span> <span class="o">=</span> <span class="s2">&quot;image/png&quot;</span>
+    <span class="k">return</span> <span class="n">data_b64</span><span class="p">,</span> <span class="n">mime_type</span>
+
+
+<div class="viewcode-block" id="generate_video">
+<a class="viewcode-back" href="../../../module_docs/mixing/video/video_gen.html#mixing.video.video_gen.generate_video">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">generate_video</span><span class="p">(</span>
+    <span class="n">prompt</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">first_frame</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">last_frame</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">save_video</span><span class="p">:</span> <span class="n">Callable</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">save_generated_videos</span><span class="p">,</span>
+    <span class="n">model</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;veo-2.0-generate-001&quot;</span><span class="p">,</span>  <span class="c1"># TODO: manage models better (when aix offers model routing tools)</span>
+    <span class="n">aspect_ratio</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;16:9&quot;</span><span class="p">,</span>
+    <span class="n">duration_seconds</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span>
+    <span class="n">output_gcs_uri</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">service_account_file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">project_id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">location</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;us-central1&quot;</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generate a video using Veo (Vertex AI) and get the file path(s).</span>
+
+<span class="sd">    This function provides a complete workflow: generate video(s) and get downloadable file(s).</span>
+<span class="sd">    By default, videos are automatically saved to temporary files and you get the path(s).</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        prompt: Text prompt for video generation</span>
+<span class="sd">        first_frame: Path to image/video file for first frame</span>
+<span class="sd">        last_frame: Path to image/video file for last frame</span>
+<span class="sd">        save_video: Egress function or path specification. Controls how generated videos are processed:</span>
+<span class="sd">            - save_generated_videos (default): Auto-save to temp files, return path(s)</span>
+<span class="sd">            - &quot;/path/to/file.mp4&quot;: Save to specific file path</span>
+<span class="sd">            - &quot;/path/to/directory/&quot;: Save to directory with auto-generated names</span>
+<span class="sd">            - &quot;.mp4&quot;: Save to temp files with specific extension</span>
+<span class="sd">            - False or lambda x: x: Return raw operation without saving</span>
+<span class="sd">            - Custom function: Process operation and return your desired result</span>
+<span class="sd">        model: Model to use for generation</span>
+<span class="sd">        aspect_ratio: Video aspect ratio</span>
+<span class="sd">        duration_seconds: Video duration</span>
+<span class="sd">        output_gcs_uri: GCS URI for output</span>
+<span class="sd">        service_account_file: Path to service account JSON file</span>
+<span class="sd">        project_id: Google Cloud project ID</span>
+<span class="sd">        location: Google Cloud location</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Depends on save_video parameter:</span>
+<span class="sd">        - Default: File path(s) where video(s) were saved</span>
+<span class="sd">        - save_video=False: Raw operation object</span>
+<span class="sd">        - Custom function: Whatever your function returns</span>
+
+<span class="sd">    Examples:</span>
+<span class="sd">        Basic usage (generate and get file path):</span>
+<span class="sd">        &gt;&gt;&gt; path = generate_video(&quot;A serene forest at dawn&quot;)  # doctest: +SKIP</span>
+<span class="sd">        &gt;&gt;&gt; print(f&quot;Video saved to: {path}&quot;)  # doctest: +SKIP</span>
+
+<span class="sd">        Save to specific location:</span>
+<span class="sd">        &gt;&gt;&gt; path = generate_video(&quot;Forest scene&quot;, save_video=&quot;/my/video.mp4&quot;)  # doctest: +SKIP</span>
+
+<span class="sd">        Save to directory:</span>
+<span class="sd">        &gt;&gt;&gt; path = generate_video(&quot;Forest scene&quot;, save_video=&quot;/output/dir/&quot;)  # doctest: +SKIP</span>
+
+<span class="sd">        Just get the operation (no saving):</span>
+<span class="sd">        &gt;&gt;&gt; op = generate_video(&quot;Forest scene&quot;, save_video=False)  # doctest: +SKIP</span>
+<span class="sd">        &gt;&gt;&gt; # Process op.response.generated_videos yourself</span>
+
+<span class="sd">        Custom processing:</span>
+<span class="sd">        &gt;&gt;&gt; def my_saver(op):</span>
+<span class="sd">        ...     return save_generated_videos(op, prefix=&quot;custom_&quot;, extension_fallback=&quot;webm&quot;)</span>
+<span class="sd">        &gt;&gt;&gt; paths = generate_video(&quot;Forest scene&quot;, save_video=my_saver)  # doctest: +SKIP</span>
+
+<span class="sd">    Environment Variables:</span>
+<span class="sd">        VEO_SERVICE_ACCOUNT_FILE or GOOGLE_APPLICATION_CREDENTIALS: Service account JSON path</span>
+<span class="sd">        VEO_PROJECT_ID, GOOGLE_CLOUD_PROJECT, or GCLOUD_PROJECT: Project ID</span>
+<span class="sd">        VEO_LOCATION or GOOGLE_CLOUD_LOCATION: Cloud location (default: us-central1)</span>
+
+<span class="sd">    Authentication Setup:</span>
+<span class="sd">        For automatic authentication, set these environment variables:</span>
+<span class="sd">        ```bash</span>
+<span class="sd">        export GOOGLE_APPLICATION_CREDENTIALS=&quot;/path/to/service-account.json&quot;</span>
+<span class="sd">        export GOOGLE_CLOUD_PROJECT=&quot;your-project-id&quot;</span>
+<span class="sd">        ```</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        Authentication errors with helpful setup instructions</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># TODO: manage models better (when aix offers model routing tools)</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">google</span><span class="w"> </span><span class="kn">import</span> <span class="n">genai</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">google.genai.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">GenerateVideosConfig</span><span class="p">,</span> <span class="n">Image</span>
+
+    <span class="k">if</span> <span class="n">save_video</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">save_video</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">save_video</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">):</span>
+            <span class="n">save_filepath</span> <span class="o">=</span> <span class="n">save_video</span>
+            <span class="n">save_video</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">v</span><span class="p">:</span> <span class="n">save_generated_videos</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">save_filepath</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="ow">not</span> <span class="nb">callable</span><span class="p">(</span><span class="n">save_video</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;save_video must be a callable function or &#39;save_generated_videos&#39;&quot;</span>
+            <span class="p">)</span>
+
+    <span class="c1"># Get authentication info from environment if not provided</span>
+    <span class="n">env_sa_file</span><span class="p">,</span> <span class="n">env_project_id</span><span class="p">,</span> <span class="n">env_location</span> <span class="o">=</span> <span class="n">_get_auth_from_env</span><span class="p">()</span>
+
+    <span class="c1"># Use provided parameters or fall back to environment</span>
+    <span class="n">final_sa_file</span> <span class="o">=</span> <span class="n">service_account_file</span> <span class="ow">or</span> <span class="n">env_sa_file</span>
+    <span class="n">final_project_id</span> <span class="o">=</span> <span class="n">project_id</span> <span class="ow">or</span> <span class="n">env_project_id</span>
+    <span class="n">final_location</span> <span class="o">=</span> <span class="n">location</span> <span class="k">if</span> <span class="n">location</span> <span class="o">!=</span> <span class="s2">&quot;us-central1&quot;</span> <span class="k">else</span> <span class="n">env_location</span>
+
+    <span class="c1"># Set up client with error handling</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">client</span> <span class="o">=</span> <span class="n">_setup_genai_client</span><span class="p">(</span><span class="n">final_sa_file</span><span class="p">,</span> <span class="n">final_project_id</span><span class="p">,</span> <span class="n">final_location</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="c1"># Additional context for missing project ID</span>
+        <span class="k">if</span> <span class="s2">&quot;project&quot;</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">final_project_id</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">80</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;❌ MISSING PROJECT ID&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">80</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;No project ID was provided via parameter or environment variable.&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Please set one of the following:&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;• export GOOGLE_CLOUD_PROJECT=&#39;your-project-id&#39;&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;• export VEO_PROJECT_ID=&#39;your-project-id&#39;&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;• Or pass project_id=&#39;your-project-id&#39; to the function&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">80</span><span class="p">)</span>
+        <span class="k">raise</span>
+
+    <span class="c1"># Prepare Image objects if frames provided</span>
+    <span class="n">image_obj</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">last_image_obj</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">if</span> <span class="n">first_frame</span><span class="p">:</span>
+        <span class="c1"># Get last frame (-1) if the video, otherwise use as-is</span>
+        <span class="n">frame_path</span> <span class="o">=</span> <span class="n">_get_frame_path</span><span class="p">(</span><span class="n">first_frame</span><span class="p">,</span> <span class="n">frame_idx</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">b64</span><span class="p">,</span> <span class="n">mime</span> <span class="o">=</span> <span class="n">_read_image_as_base64</span><span class="p">(</span><span class="n">frame_path</span><span class="p">)</span>
+        <span class="n">image_obj</span> <span class="o">=</span> <span class="n">Image</span><span class="p">(</span>
+            <span class="n">mime_type</span><span class="o">=</span><span class="n">mime</span><span class="p">,</span>
+            <span class="n">image_bytes</span><span class="o">=</span><span class="n">b64</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="n">last_frame</span><span class="p">:</span>
+        <span class="c1"># Get first frame (0) if the video to be the last frame of the generated video</span>
+        <span class="n">frame_path</span> <span class="o">=</span> <span class="n">_get_frame_path</span><span class="p">(</span><span class="n">last_frame</span><span class="p">,</span> <span class="n">frame_idx</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">b642</span><span class="p">,</span> <span class="n">mime2</span> <span class="o">=</span> <span class="n">_read_image_as_base64</span><span class="p">(</span><span class="n">frame_path</span><span class="p">)</span>
+        <span class="n">last_image_obj</span> <span class="o">=</span> <span class="n">Image</span><span class="p">(</span>
+            <span class="n">mime_type</span><span class="o">=</span><span class="n">mime2</span><span class="p">,</span>
+            <span class="n">image_bytes</span><span class="o">=</span><span class="n">b642</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="c1"># Build config</span>
+    <span class="n">config</span> <span class="o">=</span> <span class="n">GenerateVideosConfig</span><span class="p">(</span>
+        <span class="n">aspect_ratio</span><span class="o">=</span><span class="n">aspect_ratio</span><span class="p">,</span>
+        <span class="n">duration_seconds</span><span class="o">=</span><span class="n">duration_seconds</span><span class="p">,</span>
+        <span class="n">output_gcs_uri</span><span class="o">=</span><span class="n">output_gcs_uri</span><span class="p">,</span>
+        <span class="n">last_frame</span><span class="o">=</span><span class="n">last_image_obj</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Build request with error handling</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">operation</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">generate_videos</span><span class="p">(</span>
+            <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span>
+            <span class="n">prompt</span><span class="o">=</span><span class="n">prompt</span><span class="p">,</span>
+            <span class="n">image</span><span class="o">=</span><span class="n">image_obj</span><span class="p">,</span>
+            <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="c1"># Handle API authentication/permission errors</span>
+        <span class="n">error_str</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+        <span class="k">if</span> <span class="nb">any</span><span class="p">(</span>
+            <span class="n">term</span> <span class="ow">in</span> <span class="n">error_str</span>
+            <span class="k">for</span> <span class="n">term</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;unauthenticated&#39;</span><span class="p">,</span> <span class="s1">&#39;unauthorized&#39;</span><span class="p">,</span> <span class="s1">&#39;401&#39;</span><span class="p">,</span> <span class="s1">&#39;403&#39;</span><span class="p">]</span>
+        <span class="p">):</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">80</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;❌ API AUTHENTICATION/PERMISSION ERROR&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">80</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">This usually means:&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;• Your authentication credentials are invalid or expired&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;• Your project doesn&#39;t have Vertex AI API enabled&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;• Your service account lacks necessary permissions&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;• You need to enable the Vertex AI API in Google Cloud Console&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Required permissions:&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;• aiplatform.predictions.predict&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;• aiplatform.operations.get&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">_print_auth_help</span><span class="p">()</span>
+        <span class="k">raise</span>
+
+    <span class="c1"># Poll until done with error handling</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">while</span> <span class="ow">not</span> <span class="n">operation</span><span class="o">.</span><span class="n">done</span><span class="p">:</span>
+            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+            <span class="n">operation</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">operations</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">operation</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">80</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;❌ VIDEO GENERATION ERROR&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">80</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error during video generation: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">This could be due to:&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;• API quota limits exceeded&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;• Invalid model parameters&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;• Network connectivity issues&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;• Service temporarily unavailable&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">80</span><span class="p">)</span>
+        <span class="k">raise</span>
+
+    <span class="c1"># Process the result through save_video egress function</span>
+    <span class="k">if</span> <span class="n">save_video</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">save_video</span><span class="p">(</span><span class="n">operation</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error saving video: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="kn">from</span><span class="w"> </span><span class="nn">xdol</span><span class="w"> </span><span class="kn">import</span> <span class="n">save_obj</span>
+
+            <span class="c1"># TODO: Change this to saving the operation to a temp file and including the path to it in the error message.</span>
+            <span class="n">_error_save_path</span> <span class="o">=</span> <span class="n">save_obj</span><span class="p">(</span><span class="n">operation</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;I saved the operation object as a pickle under: </span><span class="si">{</span><span class="n">_error_save_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">raise</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">operation</span></div>
+
+
+
+<span class="c1"># if __name__ == &quot;__main__&quot;:</span>
+<span class="c1">#     import argh</span>
+<span class="c1">#</span>
+<span class="c1">#     argh.dispatch_commands([generate_video, save_generated_videos])</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright NO COPYRIGHT.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

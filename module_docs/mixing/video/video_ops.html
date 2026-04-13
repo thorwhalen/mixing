@@ -1,0 +1,578 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>mixing.video.video_ops &mdash; mixing 0.0.4 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=8c5712d9"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../_static/toggleprompt.js?v=d7ede5d2"></script>
+      <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="mixing.video.video_subtitles" href="video_subtitles.html" />
+    <link rel="prev" title="mixing.video.video_gen" href="video_gen.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            mixing
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../mixing.html">mixing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../audio.html">mixing.audio</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../audio/audio_ops.html">mixing.audio.audio_ops</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../audio/audio_util.html">mixing.audio.audio_util</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../audio/audio_widget.html">mixing.audio.audio_widget</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../audio/demo_audio_widget.html">mixing.audio.demo_audio_widget</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../audio/test_audio_widget.html">mixing.audio.test_audio_widget</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../util.html">mixing.util</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../video.html">mixing.video</a></li>
+<li class="toctree-l1"><a class="reference internal" href="_helpers.html">mixing.video._helpers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="audio_offset_example.html">mixing.video.audio_offset_example</a></li>
+<li class="toctree-l1"><a class="reference internal" href="video_concat.html">mixing.video.video_concat</a></li>
+<li class="toctree-l1"><a class="reference internal" href="video_files.html">mixing.video.video_files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="video_gen.html">mixing.video.video_gen</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">mixing.video.video_ops</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#mixing.video.video_ops.Video"><code class="docutils literal notranslate"><span class="pre">Video</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#mixing.video.video_ops.Video.duration"><code class="docutils literal notranslate"><span class="pre">Video.duration</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mixing.video.video_ops.Video.end_time"><code class="docutils literal notranslate"><span class="pre">Video.end_time</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mixing.video.video_ops.Video.fps"><code class="docutils literal notranslate"><span class="pre">Video.fps</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mixing.video.video_ops.Video.frame_count"><code class="docutils literal notranslate"><span class="pre">Video.frame_count</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mixing.video.video_ops.Video.frames"><code class="docutils literal notranslate"><span class="pre">Video.frames</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mixing.video.video_ops.Video.full_duration"><code class="docutils literal notranslate"><span class="pre">Video.full_duration</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mixing.video.video_ops.Video.save"><code class="docutils literal notranslate"><span class="pre">Video.save()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mixing.video.video_ops.Video.save_frame"><code class="docutils literal notranslate"><span class="pre">Video.save_frame()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mixing.video.video_ops.Video.start_time"><code class="docutils literal notranslate"><span class="pre">Video.start_time</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mixing.video.video_ops.Video.to_clip"><code class="docutils literal notranslate"><span class="pre">Video.to_clip()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#mixing.video.video_ops.VideoFrames"><code class="docutils literal notranslate"><span class="pre">VideoFrames</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mixing.video.video_ops.change_speed"><code class="docutils literal notranslate"><span class="pre">change_speed()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mixing.video.video_ops.crop_video"><code class="docutils literal notranslate"><span class="pre">crop_video()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mixing.video.video_ops.ken_burns_video"><code class="docutils literal notranslate"><span class="pre">ken_burns_video()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mixing.video.video_ops.loop_video"><code class="docutils literal notranslate"><span class="pre">loop_video()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mixing.video.video_ops.normalize_audio"><code class="docutils literal notranslate"><span class="pre">normalize_audio()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mixing.video.video_ops.replace_audio"><code class="docutils literal notranslate"><span class="pre">replace_audio()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mixing.video.video_ops.save_frame"><code class="docutils literal notranslate"><span class="pre">save_frame()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="video_subtitles.html">mixing.video.video_subtitles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="video_util.html">mixing.video.video_util</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">mixing</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">mixing.video.video_ops</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../_sources/module_docs/mixing/video/video_ops.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-mixing.video.video_ops">
+<span id="mixing-video-video-ops"></span><h1>mixing.video.video_ops<a class="headerlink" href="#module-mixing.video.video_ops" title="Link to this heading"></a></h1>
+<p>Video cropping via slicing interface.</p>
+<p>Provides a lazy view into video segments without copying the underlying file.</p>
+<p>This module provides:
+- <cite>Video</cite>: A sliceable video interface using <cite>video[start:end]</cite> or <cite>video[idx]</cite> notation
+- <cite>crop_video()</cite>: Convenience function for direct cropping operations
+- Flexible time units: seconds, frames, or milliseconds
+- Integration with moviepy and cv2 for further processing
+- Frame extraction via integer indexing</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">video</span> <span class="o">=</span> <span class="n">Video</span><span class="p">(</span><span class="s2">&quot;my_video.mp4&quot;</span><span class="p">)</span>  
+<span class="gp">&gt;&gt;&gt; </span><span class="n">segment</span> <span class="o">=</span> <span class="n">video</span><span class="p">[</span><span class="mi">10</span><span class="p">:</span><span class="mi">20</span><span class="p">]</span>  <span class="c1"># Lazy view, no copying  </span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">segment</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s2">&quot;clip.mp4&quot;</span><span class="p">)</span>  <span class="c1"># Only then does it process  </span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Extract single frame</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">frame</span> <span class="o">=</span> <span class="n">video</span><span class="p">[</span><span class="mi">100</span><span class="p">]</span>  <span class="c1"># Returns numpy array (frame 100)  </span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Or as a video segment</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">frame_video</span> <span class="o">=</span> <span class="n">video</span><span class="p">[</span><span class="mf">10.5</span><span class="p">:</span><span class="mf">10.5</span><span class="p">]</span>  <span class="c1"># Single frame at 10.5s  </span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Use frame numbers instead</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">video</span> <span class="o">=</span> <span class="n">Video</span><span class="p">(</span><span class="s2">&quot;movie.mp4&quot;</span><span class="p">,</span> <span class="n">time_unit</span><span class="o">=</span><span class="s2">&quot;frames&quot;</span><span class="p">)</span>  
+<span class="gp">&gt;&gt;&gt; </span><span class="n">segment</span> <span class="o">=</span> <span class="n">video</span><span class="p">[</span><span class="mi">100</span><span class="p">:</span><span class="mi">500</span><span class="p">]</span>  <span class="c1"># Use frame numbers  </span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Get a clip for further processing</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">with</span> <span class="n">video</span><span class="p">[</span><span class="mi">5</span><span class="p">:</span><span class="mi">15</span><span class="p">]</span><span class="o">.</span><span class="n">to_clip</span><span class="p">()</span> <span class="k">as</span> <span class="n">clip</span><span class="p">:</span>  
+<span class="gp">... </span>    <span class="nb">reversed</span> <span class="o">=</span> <span class="n">clip</span><span class="o">.</span><span class="n">fx</span><span class="p">(</span><span class="n">mp</span><span class="o">.</span><span class="n">vfx</span><span class="o">.</span><span class="n">time_mirror</span><span class="p">)</span>  
+<span class="gp">... </span>    <span class="nb">reversed</span><span class="o">.</span><span class="n">write_videofile</span><span class="p">(</span><span class="s2">&quot;output.mp4&quot;</span><span class="p">)</span>  
+</pre></div>
+</div>
+<p>Design principles:
+- Lazy evaluation: Slicing creates views, not copies
+- Facade pattern: Clean interface over moviepy/cv2 complexity
+- Standard library interfaces: Uses Python’s slice notation
+- Dependency injection: Configurable time units and codecs
+- Open-closed: Extensible via keyword arguments
+- Single source of truth: One class handles both time ranges and frames</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="mixing.video.video_ops.Video">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mixing.video.video_ops.</span></span><span class="sig-name descname"><span class="pre">Video</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">video_src</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_unit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'seconds'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'frames'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'milliseconds'</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'seconds'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_time</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_time</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/mixing/video/video_ops.html#Video"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.video.video_ops.Video" title="Link to this definition"></a></dt>
+<dd><p>Sliceable interface for videos supporting both time ranges and frame extraction.</p>
+<p>Provides lazy views into video segments using slice notation, and direct frame
+access using integer indexing. Slicing returns new Video instances
+(not copies), enabling chained operations.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>video_src</strong> – Path to source video file</p></li>
+<li><p><strong>time_unit</strong> – Unit for slice indices (‘seconds’, ‘frames’, ‘milliseconds’)</p></li>
+<li><p><strong>start_time</strong> – Start time in seconds (for creating sub-views)</p></li>
+<li><p><strong>end_time</strong> – End time in seconds (for creating sub-views)</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">video</span> <span class="o">=</span> <span class="n">Video</span><span class="p">(</span><span class="s2">&quot;movie.mp4&quot;</span><span class="p">)</span>  
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Get segment from 10s to 20s (returns Video)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">segment</span> <span class="o">=</span> <span class="n">video</span><span class="p">[</span><span class="mi">10</span><span class="p">:</span><span class="mi">20</span><span class="p">]</span>  
+<span class="gp">&gt;&gt;&gt; </span><span class="n">segment</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s2">&quot;clip.mp4&quot;</span><span class="p">)</span>  
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Extract single frame (returns numpy array)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">frame</span> <span class="o">=</span> <span class="n">video</span><span class="p">[</span><span class="mi">100</span><span class="p">]</span>  <span class="c1"># Frame at 100 seconds  </span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Use frame numbers as unit</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">video_frames</span> <span class="o">=</span> <span class="n">Video</span><span class="p">(</span><span class="s2">&quot;movie.mp4&quot;</span><span class="p">,</span> <span class="n">time_unit</span><span class="o">=</span><span class="s2">&quot;frames&quot;</span><span class="p">)</span>  
+<span class="gp">&gt;&gt;&gt; </span><span class="n">segment</span> <span class="o">=</span> <span class="n">video_frames</span><span class="p">[</span><span class="mi">100</span><span class="p">:</span><span class="mi">500</span><span class="p">]</span>  <span class="c1"># Frames 100-500  </span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">single_frame</span> <span class="o">=</span> <span class="n">video_frames</span><span class="p">[</span><span class="mi">250</span><span class="p">]</span>  <span class="c1"># Single frame  </span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Get last 30 seconds</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ending</span> <span class="o">=</span> <span class="n">video</span><span class="p">[</span><span class="o">-</span><span class="mi">30</span><span class="p">:]</span>  
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Chain operations with moviepy</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">with</span> <span class="n">video</span><span class="p">[</span><span class="mi">5</span><span class="p">:</span><span class="mi">15</span><span class="p">]</span><span class="o">.</span><span class="n">to_clip</span><span class="p">()</span> <span class="k">as</span> <span class="n">clip</span><span class="p">:</span>  
+<span class="gp">... </span>    <span class="n">reversed_clip</span> <span class="o">=</span> <span class="n">clip</span><span class="o">.</span><span class="n">fx</span><span class="p">(</span><span class="n">mp</span><span class="o">.</span><span class="n">vfx</span><span class="o">.</span><span class="n">time_mirror</span><span class="p">)</span>  
+<span class="gp">... </span>    <span class="n">reversed_clip</span><span class="o">.</span><span class="n">write_videofile</span><span class="p">(</span><span class="s2">&quot;reversed.mp4&quot;</span><span class="p">)</span>  
+</pre></div>
+</div>
+<dl class="py property">
+<dt class="sig sig-object py" id="mixing.video.video_ops.Video.duration">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">duration</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#mixing.video.video_ops.Video.duration" title="Link to this definition"></a></dt>
+<dd><p>Duration of this video/segment in seconds.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mixing.video.video_ops.Video.end_time">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">end_time</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#mixing.video.video_ops.Video.end_time" title="Link to this definition"></a></dt>
+<dd><p>End time in seconds (video duration if not set).</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mixing.video.video_ops.Video.fps">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">fps</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#mixing.video.video_ops.Video.fps" title="Link to this definition"></a></dt>
+<dd><p>Frames per second of video.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mixing.video.video_ops.Video.frame_count">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">frame_count</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#mixing.video.video_ops.Video.frame_count" title="Link to this definition"></a></dt>
+<dd><p>Total number of frames in source video.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mixing.video.video_ops.Video.frames">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">frames</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#mixing.video.video_ops.VideoFrames" title="mixing.video.video_ops.VideoFrames"><span class="pre">VideoFrames</span></a></em><a class="headerlink" href="#mixing.video.video_ops.Video.frames" title="Link to this definition"></a></dt>
+<dd><p>Get frame-by-frame Mapping interface for this video/segment.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mixing.video.video_ops.Video.full_duration">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">full_duration</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#mixing.video.video_ops.Video.full_duration" title="Link to this definition"></a></dt>
+<dd><p>Duration of the source video in seconds.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mixing.video.video_ops.Video.save">
+<span class="sig-name descname"><span class="pre">save</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">saveas</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">codec</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'libx264'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">audio_codec</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'aac'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">write_kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Path</span></span></span><a class="reference internal" href="../../../_modules/mixing/video/video_ops.html#Video.save"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.video.video_ops.Video.save" title="Link to this definition"></a></dt>
+<dd><p>Save this video/segment to a new video file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>saveas</strong> – Path for output file (auto-generated if None)</p></li>
+<li><p><strong>codec</strong> – Video codec to use</p></li>
+<li><p><strong>audio_codec</strong> – Audio codec to use</p></li>
+<li><p><strong>**write_kwargs</strong> – Additional arguments for write_videofile</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Path to saved file</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mixing.video.video_ops.Video.save_frame">
+<span class="sig-name descname"><span class="pre">save_frame</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time_or_frame</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">saveas</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">image_format</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'png'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">copy_to_clipboard</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="reference internal" href="../../../_modules/mixing/video/video_ops.html#Video.save_frame"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.video.video_ops.Video.save_frame" title="Link to this definition"></a></dt>
+<dd><p>Save a single frame as an image and/or copy to clipboard.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>time_or_frame</strong> – Time/frame index (None = start of segment)</p></li>
+<li><p><strong>saveas</strong> – Path for output image (auto-generated if None,
+False = don’t save to file)</p></li>
+<li><p><strong>image_format</strong> – Image format (png, jpg, etc.)</p></li>
+<li><p><strong>copy_to_clipboard</strong> – If True, copy image to system clipboard</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Path to saved image, or None if only copied to clipboard</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">video</span> <span class="o">=</span> <span class="n">Video</span><span class="p">(</span><span class="s2">&quot;movie.mp4&quot;</span><span class="p">)</span>  
+<span class="gp">&gt;&gt;&gt; </span><span class="n">video</span><span class="o">.</span><span class="n">save_frame</span><span class="p">(</span><span class="mf">10.5</span><span class="p">)</span>  <span class="c1"># Save frame at 10.5s  </span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">video</span><span class="o">.</span><span class="n">save_frame</span><span class="p">(</span><span class="mf">10.5</span><span class="p">,</span> <span class="n">copy_to_clipboard</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>  <span class="c1"># Save and copy  </span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">video</span><span class="o">.</span><span class="n">save_frame</span><span class="p">(</span><span class="mf">10.5</span><span class="p">,</span> <span class="n">saveas</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">copy_to_clipboard</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>  <span class="c1"># Clipboard only  </span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mixing.video.video_ops.Video.start_time">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">start_time</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#mixing.video.video_ops.Video.start_time" title="Link to this definition"></a></dt>
+<dd><p>Start time in seconds (0.0 if not set).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mixing.video.video_ops.Video.to_clip">
+<span class="sig-name descname"><span class="pre">to_clip</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">VideoFileClip</span></span></span><a class="reference internal" href="../../../_modules/mixing/video/video_ops.html#Video.to_clip"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.video.video_ops.Video.to_clip" title="Link to this definition"></a></dt>
+<dd><p>Get a moviepy VideoFileClip for this segment.</p>
+<p>Note: Caller is responsible for closing the clip.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="mixing.video.video_ops.VideoFrames">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mixing.video.video_ops.</span></span><span class="sig-name descname"><span class="pre">VideoFrames</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">video_src</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_frame</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_frame</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/mixing/video/video_ops.html#VideoFrames"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.video.video_ops.VideoFrames" title="Link to this definition"></a></dt>
+<dd><p>Mapping interface to access video frames by index.</p>
+<p>Provides dictionary-like access to video frames with support for negative
+indexing and slicing. Frames are returned as numpy arrays (BGR format).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>video_src</strong> – Path to the video file</p></li>
+<li><p><strong>start_frame</strong> – Starting frame index (for segments)</p></li>
+<li><p><strong>end_frame</strong> – Ending frame index (for segments)</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">vf</span> <span class="o">=</span> <span class="n">VideoFrames</span><span class="p">(</span><span class="s2">&quot;test_video.mp4&quot;</span><span class="p">)</span>  
+<span class="gp">&gt;&gt;&gt; </span><span class="n">frame</span> <span class="o">=</span> <span class="n">vf</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>  <span class="c1"># Get first frame  </span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">last_frame</span> <span class="o">=</span> <span class="n">vf</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>  <span class="c1"># Get last frame  </span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">frames</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">vf</span><span class="p">[</span><span class="mi">10</span><span class="p">:</span><span class="mi">20</span><span class="p">])</span>  <span class="c1"># Get frames 10-19  </span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mixing.video.video_ops.change_speed">
+<span class="sig-prename descclassname"><span class="pre">mixing.video.video_ops.</span></span><span class="sig-name descname"><span class="pre">change_speed</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">video_src</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">speed_factor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">saveas</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">save_kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Path</span></span></span><a class="reference internal" href="../../../_modules/mixing/video/video_ops.html#change_speed"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.video.video_ops.change_speed" title="Link to this definition"></a></dt>
+<dd><p>Change the playback speed of a video.</p>
+<p>Creates a new video that plays faster or slower than the original while
+preserving audio pitch (audio is also sped up/slowed down proportionally).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>video_src</strong> – Path to input video file</p></li>
+<li><p><strong>speed_factor</strong> – Speed multiplier (e.g., 2.0 = 2x faster, 0.5 = half speed)
+- &gt; 1.0: speeds up the video (e.g., 2.0 = twice as fast)
+- &lt; 1.0: slows down the video (e.g., 0.5 = half speed)
+- 1.0: no change</p></li>
+<li><p><strong>saveas</strong> – Optional output path. If None, generates name with speed suffix</p></li>
+<li><p><strong>**save_kwargs</strong> – Additional arguments for write_videofile (e.g., codec, fps)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Path to the output video file</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Create slow-motion video at half speed</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">change_speed</span><span class="p">(</span><span class="s2">&quot;action.mp4&quot;</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">)</span>  
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Output: action_speed_0.5x.mp4</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Speed up video 2x</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">change_speed</span><span class="p">(</span><span class="s2">&quot;lecture.mp4&quot;</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="n">saveas</span><span class="o">=</span><span class="s2">&quot;fast_lecture.mp4&quot;</span><span class="p">)</span>  
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Extreme slow motion</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">change_speed</span><span class="p">(</span><span class="s2">&quot;jump.mp4&quot;</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">)</span>  
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Output: jump_speed_0.25x.mp4</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mixing.video.video_ops.crop_video">
+<span class="sig-prename descclassname"><span class="pre">mixing.video.video_ops.</span></span><span class="sig-name descname"><span class="pre">crop_video</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">video_src</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_unit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'seconds'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'frames'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'milliseconds'</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'seconds'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">saveas</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">save_kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Path</span></span></span><a class="reference internal" href="../../../_modules/mixing/video/video_ops.html#crop_video"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.video.video_ops.crop_video" title="Link to this definition"></a></dt>
+<dd><p>Convenience function to crop and save a video segment or frame.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>video_src</strong> – Path to source video</p></li>
+<li><p><strong>start</strong> – Start time/frame (None = beginning)</p></li>
+<li><p><strong>end</strong> – End time/frame (None = end of video)</p></li>
+<li><p><strong>time_unit</strong> – Unit for start/end values</p></li>
+<li><p><strong>saveas</strong> – Path for output (auto-generated if None or False)</p></li>
+<li><p><strong>**save_kwargs</strong> – Additional arguments for save operation</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Path to saved cropped video</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">crop_video</span><span class="p">(</span><span class="s2">&quot;video.mp4&quot;</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">30</span><span class="p">)</span>  <span class="c1"># Crop 10s-30s  </span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">crop_video</span><span class="p">(</span><span class="s2">&quot;video.mp4&quot;</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">500</span><span class="p">,</span> <span class="n">time_unit</span><span class="o">=</span><span class="s2">&quot;frames&quot;</span><span class="p">)</span>  
+<span class="gp">&gt;&gt;&gt; </span><span class="n">crop_video</span><span class="p">(</span><span class="s2">&quot;video.mp4&quot;</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>  <span class="c1"># Single frame at 10s  </span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mixing.video.video_ops.ken_burns_video">
+<span class="sig-prename descclassname"><span class="pre">mixing.video.video_ops.</span></span><span class="sig-name descname"><span class="pre">ken_burns_video</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">duration_s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">30</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_rectangle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_rectangle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">saveas</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">codec</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'libx264'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">audio_codec</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'aac'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">write_kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Path</span></span></span><a class="reference internal" href="../../../_modules/mixing/video/video_ops.html#ken_burns_video"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.video.video_ops.ken_burns_video" title="Link to this definition"></a></dt>
+<dd><p>Create a Ken Burns effect video from an image.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>image</strong> – Path to image file or image object (PIL.Image, np.ndarray)</p></li>
+<li><p><strong>duration_s</strong> – Duration of output video in seconds (default: 2)</p></li>
+<li><p><strong>fps</strong> – Frames per second (default 30)</p></li>
+<li><p><strong>start_rectangle</strong> – Ken Burns rect at start (default: standard Ken Burns start)</p></li>
+<li><p><strong>end_rectangle</strong> – Ken Burns rect at end (default: standard Ken Burns end)</p></li>
+<li><p><strong>saveas</strong> – Where to save video (default: image path with “__kenburns” appended before extension)</p></li>
+<li><p><strong>codec</strong> – Video codec (default libx264)</p></li>
+<li><p><strong>audio_codec</strong> – Audio codec (default aac)</p></li>
+<li><p><strong>**write_kwargs</strong> – Passed to write_videofile</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Path to saved video</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Rectangle parameterization:</dt><dd><p>Rect = (cx, cy, s)
+cx, cy in [0, 1], s &gt; 0
+s = 1: original size, &lt;1: zoomed out, &gt;1: zoomed in
+Standard Ken Burns: starts slightly zoomed out (s=0.85) and ends zoomed in (s=1.3)</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ken_burns_video</span><span class="p">(</span><span class="s2">&quot;photo.jpg&quot;</span><span class="p">)</span>  <span class="c1"># Standard Ken Burns, 2 seconds  </span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ken_burns_video</span><span class="p">(</span><span class="s2">&quot;photo.jpg&quot;</span><span class="p">,</span> <span class="n">duration_s</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">start_rectangle</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span> <span class="n">end_rectangle</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>  
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ken_burns_video</span><span class="p">(</span><span class="s2">&quot;photo.jpg&quot;</span><span class="p">,</span> <span class="n">duration_s</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">start_rectangle</span><span class="o">=</span><span class="p">(</span><span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="n">end_rectangle</span><span class="o">=</span><span class="p">(</span><span class="mf">0.7</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>  
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mixing.video.video_ops.loop_video">
+<span class="sig-prename descclassname"><span class="pre">mixing.video.video_ops.</span></span><span class="sig-name descname"><span class="pre">loop_video</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">video_src</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_loops</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">saveas</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">save_kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Path</span></span></span><a class="reference internal" href="../../../_modules/mixing/video/video_ops.html#loop_video"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.video.video_ops.loop_video" title="Link to this definition"></a></dt>
+<dd><p>Create a video by looping/repeating another video.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>video_src</strong> – Path to source video</p></li>
+<li><p><strong>n_loops</strong> – Number of times to repeat the video</p></li>
+<li><p><strong>saveas</strong> – Path for output (auto-generated if None)</p></li>
+<li><p><strong>**save_kwargs</strong> – Additional arguments for video export</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Path to saved looped video</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">loop_video</span><span class="p">(</span><span class="s2">&quot;intro.mp4&quot;</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>  <span class="c1"># Repeat 3 times  </span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">loop_video</span><span class="p">(</span><span class="s2">&quot;short_clip.mp4&quot;</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="n">saveas</span><span class="o">=</span><span class="s2">&quot;extended.mp4&quot;</span><span class="p">)</span>  
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mixing.video.video_ops.normalize_audio">
+<span class="sig-prename descclassname"><span class="pre">mixing.video.video_ops.</span></span><span class="sig-name descname"><span class="pre">normalize_audio</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">video_src</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">saveas</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">save_kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Path</span></span></span><a class="reference internal" href="../../../_modules/mixing/video/video_ops.html#normalize_audio"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.video.video_ops.normalize_audio" title="Link to this definition"></a></dt>
+<dd><p>Normalize audio levels in a video to reduce volume fluctuations.</p>
+<p>This function adjusts the audio so that the loudest parts reach a consistent
+level, reducing the variation between quiet and loud sections. This is
+particularly useful for videos with narration that varies in volume.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>video_src</strong> – Path to input video file</p></li>
+<li><p><strong>saveas</strong> – Optional output path. If None, generates name with suffix</p></li>
+<li><p><strong>**save_kwargs</strong> – Additional arguments for write_videofile (e.g., codec, audio_codec)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Path to the output video file with normalized audio</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Normalize audio in a video with varying narrator volume</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">normalize_audio</span><span class="p">(</span><span class="s2">&quot;lecture.mp4&quot;</span><span class="p">)</span>  
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Output: lecture_normalized.mp4</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Specify custom output path</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">normalize_audio</span><span class="p">(</span><span class="s2">&quot;interview.mp4&quot;</span><span class="p">,</span> <span class="n">saveas</span><span class="o">=</span><span class="s2">&quot;interview_fixed.mp4&quot;</span><span class="p">)</span>  
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mixing.video.video_ops.replace_audio">
+<span class="sig-prename descclassname"><span class="pre">mixing.video.video_ops.</span></span><span class="sig-name descname"><span class="pre">replace_audio</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">video_src</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">audio_src</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mix_ratio</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">saveas</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">match_duration</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">save_kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Path</span></span></span><a class="reference internal" href="../../../_modules/mixing/video/video_ops.html#replace_audio"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.video.video_ops.replace_audio" title="Link to this definition"></a></dt>
+<dd><p>Replace or mix audio in a video with new audio.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>video_src</strong> – Path to source video</p></li>
+<li><p><strong>audio_src</strong> – Path to audio file to add/mix</p></li>
+<li><p><strong>mix_ratio</strong> – Audio mixing ratio (0.0 = keep only original, 1.0 = replace completely,
+0.5 = mix both equally). Values between 0 and 1 blend the audio tracks.</p></li>
+<li><p><strong>saveas</strong> – Path for output (auto-generated if None)</p></li>
+<li><p><strong>match_duration</strong> – If True, adjust audio duration to match video</p></li>
+<li><p><strong>**save_kwargs</strong> – Additional arguments for video export</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Path to saved video with new/mixed audio</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">replace_audio</span><span class="p">(</span><span class="s2">&quot;video.mp4&quot;</span><span class="p">,</span> <span class="s2">&quot;music.mp3&quot;</span><span class="p">)</span>  <span class="c1"># Replace audio completely  </span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">replace_audio</span><span class="p">(</span><span class="s2">&quot;video.mp4&quot;</span><span class="p">,</span> <span class="s2">&quot;bgm.mp3&quot;</span><span class="p">,</span> <span class="n">mix_ratio</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>  <span class="c1"># Equal mix  </span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">replace_audio</span><span class="p">(</span><span class="s2">&quot;video.mp4&quot;</span><span class="p">,</span> <span class="s2">&quot;voice.mp3&quot;</span><span class="p">,</span> <span class="n">mix_ratio</span><span class="o">=</span><span class="mf">0.7</span><span class="p">)</span>  <span class="c1"># 70% new, 30% original  </span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mixing.video.video_ops.save_frame">
+<span class="sig-prename descclassname"><span class="pre">mixing.video.video_ops.</span></span><span class="sig-name descname"><span class="pre">save_frame</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">video_src</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_or_frame</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_unit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'seconds'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'frames'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'milliseconds'</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">saveas</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">image_format</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'png'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">copy_to_clipboard</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="reference internal" href="../../../_modules/mixing/video/video_ops.html#save_frame"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.video.video_ops.save_frame" title="Link to this definition"></a></dt>
+<dd><p>Extract and save a frame from a video file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>video_src</strong> – Path to the video file. If None, gets from clipboard.</p></li>
+<li><p><strong>time_or_frame</strong> – Time/frame index of the frame to extract (default: 0)</p></li>
+<li><p><strong>time_unit</strong> – Unit for time_or_frame (‘seconds’, ‘frames’, ‘milliseconds’).
+If None, defaults to ‘seconds’, unless time_or_frame is a negative integer,
+in which case it defaults to ‘frames’.</p></li>
+<li><p><strong>saveas</strong> – Where to save the image. If None or “”, auto-generates path.
+- None or “”: Auto-generate path based on video filename
+- Path starting with ‘.’: Use as extension (e.g., ‘.jpg’)
+- ‘/TMP’: Save to temporary directory
+- Full filepath: Use as-is
+- False: Don’t save to file (requires copy_to_clipboard=True)</p></li>
+<li><p><strong>image_format</strong> – Default image format if not specified in saveas</p></li>
+<li><p><strong>copy_to_clipboard</strong> – If True, copy image to system clipboard</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Path to the saved image file, or None if only copied to clipboard</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">save_frame</span><span class="p">(</span><span class="s2">&quot;video.mp4&quot;</span><span class="p">)</span>  <span class="c1"># Saves frame 0  </span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">save_frame</span><span class="p">(</span><span class="s2">&quot;video.mp4&quot;</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>  <span class="c1"># Saves frame at 10s  </span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">save_frame</span><span class="p">(</span><span class="s2">&quot;video.mp4&quot;</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># Saves last frame (frame-based)  </span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">save_frame</span><span class="p">(</span><span class="s2">&quot;video.mp4&quot;</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="n">time_unit</span><span class="o">=</span><span class="s2">&quot;frames&quot;</span><span class="p">)</span>  <span class="c1"># Frame 100  </span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">save_frame</span><span class="p">(</span><span class="s2">&quot;video.mp4&quot;</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="n">saveas</span><span class="o">=</span><span class="s2">&quot;.jpg&quot;</span><span class="p">)</span>  
+<span class="gp">&gt;&gt;&gt; </span><span class="n">save_frame</span><span class="p">(</span><span class="s2">&quot;video.mp4&quot;</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="n">saveas</span><span class="o">=</span><span class="s2">&quot;/TMP&quot;</span><span class="p">)</span>  
+<span class="gp">&gt;&gt;&gt; </span><span class="n">save_frame</span><span class="p">(</span><span class="n">time_or_frame</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">copy_to_clipboard</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>  <span class="c1"># From clipboard  </span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">save_frame</span><span class="p">(</span><span class="n">time_or_frame</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">saveas</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">copy_to_clipboard</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>  <span class="c1"># Clipboard only  </span>
+</pre></div>
+</div>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="video_gen.html" class="btn btn-neutral float-left" title="mixing.video.video_gen" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="video_subtitles.html" class="btn btn-neutral float-right" title="mixing.video.video_subtitles" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright NO COPYRIGHT.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

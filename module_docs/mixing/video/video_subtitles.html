@@ -1,0 +1,393 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>mixing.video.video_subtitles &mdash; mixing 0.0.4 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=8c5712d9"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../_static/toggleprompt.js?v=d7ede5d2"></script>
+      <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="mixing.video.video_util" href="video_util.html" />
+    <link rel="prev" title="mixing.video.video_ops" href="video_ops.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            mixing
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../mixing.html">mixing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../audio.html">mixing.audio</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../audio/audio_ops.html">mixing.audio.audio_ops</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../audio/audio_util.html">mixing.audio.audio_util</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../audio/audio_widget.html">mixing.audio.audio_widget</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../audio/demo_audio_widget.html">mixing.audio.demo_audio_widget</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../audio/test_audio_widget.html">mixing.audio.test_audio_widget</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../util.html">mixing.util</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../video.html">mixing.video</a></li>
+<li class="toctree-l1"><a class="reference internal" href="_helpers.html">mixing.video._helpers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="audio_offset_example.html">mixing.video.audio_offset_example</a></li>
+<li class="toctree-l1"><a class="reference internal" href="video_concat.html">mixing.video.video_concat</a></li>
+<li class="toctree-l1"><a class="reference internal" href="video_files.html">mixing.video.video_files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="video_gen.html">mixing.video.video_gen</a></li>
+<li class="toctree-l1"><a class="reference internal" href="video_ops.html">mixing.video.video_ops</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">mixing.video.video_subtitles</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#mixing.video.video_subtitles.SubtitleStyle"><code class="docutils literal notranslate"><span class="pre">SubtitleStyle</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#mixing.video.video_subtitles.SubtitleStyle.to_ffmpeg_style"><code class="docutils literal notranslate"><span class="pre">SubtitleStyle.to_ffmpeg_style()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mixing.video.video_subtitles.SubtitleStyle.to_text_clip_kwargs"><code class="docutils literal notranslate"><span class="pre">SubtitleStyle.to_text_clip_kwargs()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#mixing.video.video_subtitles.auto_shift_srt_to_start"><code class="docutils literal notranslate"><span class="pre">auto_shift_srt_to_start()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mixing.video.video_subtitles.create_test_srt"><code class="docutils literal notranslate"><span class="pre">create_test_srt()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mixing.video.video_subtitles.create_test_video"><code class="docutils literal notranslate"><span class="pre">create_test_video()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mixing.video.video_subtitles.find_audio_start_offset"><code class="docutils literal notranslate"><span class="pre">find_audio_start_offset()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mixing.video.video_subtitles.fix_srt_file"><code class="docutils literal notranslate"><span class="pre">fix_srt_file()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mixing.video.video_subtitles.generate_subtitle_clips"><code class="docutils literal notranslate"><span class="pre">generate_subtitle_clips()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mixing.video.video_subtitles.seconds_to_srt_time"><code class="docutils literal notranslate"><span class="pre">seconds_to_srt_time()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mixing.video.video_subtitles.shift_srt_timestamps"><code class="docutils literal notranslate"><span class="pre">shift_srt_timestamps()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mixing.video.video_subtitles.srt_time_to_seconds"><code class="docutils literal notranslate"><span class="pre">srt_time_to_seconds()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mixing.video.video_subtitles.test_subtitle_embedding"><code class="docutils literal notranslate"><span class="pre">test_subtitle_embedding()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mixing.video.video_subtitles.to_srt_time"><code class="docutils literal notranslate"><span class="pre">to_srt_time()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mixing.video.video_subtitles.write_subtitles_in_video"><code class="docutils literal notranslate"><span class="pre">write_subtitles_in_video()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="video_util.html">mixing.video.video_util</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">mixing</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">mixing.video.video_subtitles</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../_sources/module_docs/mixing/video/video_subtitles.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-mixing.video.video_subtitles">
+<span id="mixing-video-video-subtitles"></span><h1>mixing.video.video_subtitles<a class="headerlink" href="#module-mixing.video.video_subtitles" title="Link to this heading"></a></h1>
+<p>Video utilities for subtitle embedding and video processing.</p>
+<p>This module provides utilities for embedding subtitles into videos with two approaches:
+1. Fast FFmpeg-based approach (recommended for production)
+2. MoviePy CompositeVideoClip approach (for compatibility)</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="mixing.video.video_subtitles.SubtitleStyle">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mixing.video.video_subtitles.</span></span><span class="sig-name descname"><span class="pre">SubtitleStyle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">font_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">24</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'white'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">position</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">('center',</span> <span class="pre">'bottom')</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">font_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'Arial'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/mixing/video/video_subtitles.html#SubtitleStyle"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.video.video_subtitles.SubtitleStyle" title="Link to this definition"></a></dt>
+<dd><p>Configuration for subtitle appearance.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="mixing.video.video_subtitles.SubtitleStyle.to_ffmpeg_style">
+<span class="sig-name descname"><span class="pre">to_ffmpeg_style</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../../../_modules/mixing/video/video_subtitles.html#SubtitleStyle.to_ffmpeg_style"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.video.video_subtitles.SubtitleStyle.to_ffmpeg_style" title="Link to this definition"></a></dt>
+<dd><p>Convert to FFmpeg subtitle style string.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mixing.video.video_subtitles.SubtitleStyle.to_text_clip_kwargs">
+<span class="sig-name descname"><span class="pre">to_text_clip_kwargs</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="../../../_modules/mixing/video/video_subtitles.html#SubtitleStyle.to_text_clip_kwargs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.video.video_subtitles.SubtitleStyle.to_text_clip_kwargs" title="Link to this definition"></a></dt>
+<dd><p>Convert style to TextClip kwargs.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mixing.video.video_subtitles.auto_shift_srt_to_start">
+<span class="sig-prename descclassname"><span class="pre">mixing.video.video_subtitles.</span></span><span class="sig-name descname"><span class="pre">auto_shift_srt_to_start</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">srt_content</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">video_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">auto_detect_audio_start</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_time</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../../../_modules/mixing/video/video_subtitles.html#auto_shift_srt_to_start"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.video.video_subtitles.auto_shift_srt_to_start" title="Link to this definition"></a></dt>
+<dd><p>Automatically shift SRT timestamps to align with a target start time.</p>
+<p>By default, keeps subtitles at their original timestamps. Can optionally align
+to a specific start time, or auto-detect when audio actually begins.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>srt_content</strong> – SRT file content as string</p></li>
+<li><p><strong>video_path</strong> – Path to video file (required if auto_detect_audio_start=True or start_time=True)</p></li>
+<li><p><strong>auto_detect_audio_start</strong> – If True, detect actual audio start time (default False)</p></li>
+<li><p><strong>start_time</strong> – Target start time for first subtitle, or True for auto-detect, or callable.
+- None (default): No change, keep original subtitle timestamps
+- float: Shift subtitles so first one starts at this time (in seconds)
+- True: Auto-detect audio start and align first subtitle to that time
+- callable: Use this function to find the target start time</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Modified SRT content with shifted timestamps</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">srt</span> <span class="o">=</span> <span class="s1">&#39;&#39;&#39;1</span>
+<span class="gp">... </span><span class="s1">00:43:12,187 --&gt; 00:43:13,817</span>
+<span class="gp">... </span><span class="s1">First subtitle</span>
+<span class="gp">...</span>
+<span class="gp">... </span><span class="s1">2</span>
+<span class="gp">... </span><span class="s1">00:43:20,557 --&gt; 00:43:22,087</span>
+<span class="gp">... </span><span class="s1">Second subtitle&#39;&#39;&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">shifted</span> <span class="o">=</span> <span class="n">auto_shift_srt_to_start</span><span class="p">(</span><span class="n">srt</span><span class="p">,</span> <span class="n">start_time</span><span class="o">=</span><span class="mf">0.0</span><span class="p">)</span>  
+<span class="go">📝 Subtitles currently start at: ...s</span>
+<span class="go">⏱️  Shifting by: ...s (first subtitle → 0.00s)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="s1">&#39;00:00:00,000 --&gt; 00:00:01,630&#39;</span> <span class="ow">in</span> <span class="n">shifted</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="s1">&#39;00:00:08,370 --&gt; 00:00:09,900&#39;</span> <span class="ow">in</span> <span class="n">shifted</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The shift amount is calculated as: shift = start_time - current_first_subtitle_time
+Example: If subtitles start at 10s and start_time=3s, shift will be -7s,
+moving all timestamps back by 7 seconds so first subtitle starts at 3s.</p>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mixing.video.video_subtitles.create_test_srt">
+<span class="sig-prename descclassname"><span class="pre">mixing.video.video_subtitles.</span></span><span class="sig-name descname"><span class="pre">create_test_srt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">output_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'/tmp/test_subtitles.srt'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_subtitles</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">3</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Path</span></span></span><a class="reference internal" href="../../../_modules/mixing/video/video_subtitles.html#create_test_srt"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.video.video_subtitles.create_test_srt" title="Link to this definition"></a></dt>
+<dd><p>Create a simple test SRT subtitle file.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mixing.video.video_subtitles.create_test_video">
+<span class="sig-prename descclassname"><span class="pre">mixing.video.video_subtitles.</span></span><span class="sig-name descname"><span class="pre">create_test_video</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">output_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'/tmp/test_video.mp4'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">duration</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">24</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">(640,</span> <span class="pre">480)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">with_audio</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Path</span></span></span><a class="reference internal" href="../../../_modules/mixing/video/video_subtitles.html#create_test_video"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.video.video_subtitles.create_test_video" title="Link to this definition"></a></dt>
+<dd><p>Create a simple test video with color bars and optional audio tone.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mixing.video.video_subtitles.find_audio_start_offset">
+<span class="sig-prename descclassname"><span class="pre">mixing.video.video_subtitles.</span></span><span class="sig-name descname"><span class="pre">find_audio_start_offset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">video_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">first_n_seconds_to_sample</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">20.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">intensity_threshold</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">variation_multiplier</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">2.0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="../../../_modules/mixing/video/video_subtitles.html#find_audio_start_offset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.video.video_subtitles.find_audio_start_offset" title="Link to this definition"></a></dt>
+<dd><p>Determine when speaking/audio actually starts in a video.</p>
+<p>Analyzes audio peaks and finds the first significant audio activity,
+typically indicating when speech begins.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>video_path</strong> – Path to video file</p></li>
+<li><p><strong>first_n_seconds_to_sample</strong> – Duration to analyze (default 20 seconds)</p></li>
+<li><p><strong>intensity_threshold</strong> – Minimum intensity to consider as “audio start” (default 0.001)</p></li>
+<li><p><strong>variation_multiplier</strong> – Multiplier for variation-based detection</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Time offset in seconds where audio starts (0.0 if no audio detected)</p>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The default threshold of 0.001 is calibrated to detect speech start reliably
+across various audio levels. Adjust if needed for very quiet or loud audio.</p>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mixing.video.video_subtitles.fix_srt_file">
+<span class="sig-prename descclassname"><span class="pre">mixing.video.video_subtitles.</span></span><span class="sig-name descname"><span class="pre">fix_srt_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_srt</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_srt</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">video_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">auto_detect_audio_start</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_time</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Path</span></span></span><a class="reference internal" href="../../../_modules/mixing/video/video_subtitles.html#fix_srt_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.video.video_subtitles.fix_srt_file" title="Link to this definition"></a></dt>
+<dd><p>Fix an SRT file by shifting timestamps to align with a target start time.</p>
+<p>By default, keeps subtitles at their original timestamps. Can optionally align
+to a specific start time, or auto-detect when audio actually begins.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>input_srt</strong> – Path to input SRT file</p></li>
+<li><p><strong>output_srt</strong> – Path to output SRT file (default: add suffix based on operation)</p></li>
+<li><p><strong>video_path</strong> – Path to video file (for audio-based start time detection)</p></li>
+<li><p><strong>auto_detect_audio_start</strong> – If True, align with detected audio start (default False)</p></li>
+<li><p><strong>start_time</strong> – Target start time for first subtitle, or True for auto-detect, or callable.
+- None (default): No change, keep original subtitle timestamps
+- float: Shift subtitles so first one starts at this time (in seconds)
+- True: Auto-detect audio start and align first subtitle to that time
+- callable: Use this function to find the target start time</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Path to the fixed SRT file</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<p>Basic usage (no change): fix_srt_file(‘subtitles.srt’)
+Shift to start at 0: fix_srt_file(‘subtitles.srt’, start_time=0.0)
+With audio detection: fix_srt_file(‘subtitles.srt’, video_path=’video.mp4’,</p>
+<blockquote>
+<div><p>auto_detect_audio_start=True)</p>
+</div></blockquote>
+<p>Explicit start time: fix_srt_file(‘subtitles.srt’, start_time=3.5)</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mixing.video.video_subtitles.generate_subtitle_clips">
+<span class="sig-prename descclassname"><span class="pre">mixing.video.video_subtitles.</span></span><span class="sig-name descname"><span class="pre">generate_subtitle_clips</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subtitles</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">video_clip</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">VideoClip</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">style</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#mixing.video.video_subtitles.SubtitleStyle" title="mixing.video.video_subtitles.SubtitleStyle"><span class="pre">SubtitleStyle</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">text_clip_kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">TextClip</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/mixing/video/video_subtitles.html#generate_subtitle_clips"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.video.video_subtitles.generate_subtitle_clips" title="Link to this definition"></a></dt>
+<dd><p>Generate subtitle clips from SRT content.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mixing.video.video_subtitles.seconds_to_srt_time">
+<span class="sig-prename descclassname"><span class="pre">mixing.video.video_subtitles.</span></span><span class="sig-name descname"><span class="pre">seconds_to_srt_time</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">seconds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../../../_modules/mixing/video/video_subtitles.html#seconds_to_srt_time"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.video.video_subtitles.seconds_to_srt_time" title="Link to this definition"></a></dt>
+<dd><p>Convert seconds to SRT time format.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">seconds_to_srt_time</span><span class="p">(</span><span class="mf">2592.187</span><span class="p">)</span>
+<span class="go">&#39;00:43:12,187&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">seconds_to_srt_time</span><span class="p">(</span><span class="mf">1.5</span><span class="p">)</span>
+<span class="go">&#39;00:00:01,500&#39;</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mixing.video.video_subtitles.shift_srt_timestamps">
+<span class="sig-prename descclassname"><span class="pre">mixing.video.video_subtitles.</span></span><span class="sig-name descname"><span class="pre">shift_srt_timestamps</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">srt_content</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shift_seconds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../../../_modules/mixing/video/video_subtitles.html#shift_srt_timestamps"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.video.video_subtitles.shift_srt_timestamps" title="Link to this definition"></a></dt>
+<dd><p>Shift all timestamps in an SRT file by a given number of seconds.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>srt_content</strong> – SRT file content as string</p></li>
+<li><p><strong>shift_seconds</strong> – Number of seconds to shift (negative to shift earlier)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Modified SRT content with shifted timestamps</p>
+</dd>
+</dl>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">srt</span> <span class="o">=</span> <span class="s1">&#39;&#39;&#39;1</span>
+<span class="gp">... </span><span class="s1">00:43:12,187 --&gt; 00:43:13,817</span>
+<span class="gp">... </span><span class="s1">Hello world&#39;&#39;&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">shifted</span> <span class="o">=</span> <span class="n">shift_srt_timestamps</span><span class="p">(</span><span class="n">srt</span><span class="p">,</span> <span class="o">-</span><span class="mi">2592</span><span class="p">)</span>  <span class="c1"># Shift back 43 minutes 12 seconds</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="s1">&#39;00:00:00,187 --&gt; 00:00:01,817&#39;</span> <span class="ow">in</span> <span class="n">shifted</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mixing.video.video_subtitles.srt_time_to_seconds">
+<span class="sig-prename descclassname"><span class="pre">mixing.video.video_subtitles.</span></span><span class="sig-name descname"><span class="pre">srt_time_to_seconds</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time_str</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="../../../_modules/mixing/video/video_subtitles.html#srt_time_to_seconds"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.video.video_subtitles.srt_time_to_seconds" title="Link to this definition"></a></dt>
+<dd><p>Convert SRT time format to seconds.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">srt_time_to_seconds</span><span class="p">(</span><span class="s1">&#39;00:43:12,187&#39;</span><span class="p">)</span>
+<span class="go">2592.187</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">srt_time_to_seconds</span><span class="p">(</span><span class="s1">&#39;00:00:01,500&#39;</span><span class="p">)</span>
+<span class="go">1.5</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mixing.video.video_subtitles.test_subtitle_embedding">
+<span class="sig-prename descclassname"><span class="pre">mixing.video.video_subtitles.</span></span><span class="sig-name descname"><span class="pre">test_subtitle_embedding</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cleanup</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_ffmpeg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="../../../_modules/mixing/video/video_subtitles.html#test_subtitle_embedding"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.video.video_subtitles.test_subtitle_embedding" title="Link to this definition"></a></dt>
+<dd><p>Run a simple automated test of subtitle embedding functionality.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mixing.video.video_subtitles.to_srt_time">
+<span class="sig-prename descclassname"><span class="pre">mixing.video.video_subtitles.</span></span><span class="sig-name descname"><span class="pre">to_srt_time</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">seconds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../../../_modules/mixing/video/video_subtitles.html#to_srt_time"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.video.video_subtitles.to_srt_time" title="Link to this definition"></a></dt>
+<dd><p>Convert seconds to SRT time format.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">to_srt_time</span><span class="p">(</span><span class="mf">1.5</span><span class="p">)</span>
+<span class="go">&#39;00:00:01,500&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">to_srt_time</span><span class="p">(</span><span class="mf">65.123</span><span class="p">)</span>
+<span class="go">&#39;00:01:05,123&#39;</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mixing.video.video_subtitles.write_subtitles_in_video">
+<span class="sig-prename descclassname"><span class="pre">mixing.video.video_subtitles.</span></span><span class="sig-name descname"><span class="pre">write_subtitles_in_video</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">video</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subtitles</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_video</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">embed_subtitles</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">style</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#mixing.video.video_subtitles.SubtitleStyle" title="mixing.video.video_subtitles.SubtitleStyle"><span class="pre">SubtitleStyle</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_ffmpeg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">auto_detect_audio_start</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_time</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">subtitle_kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Path</span></span></span><a class="reference internal" href="../../../_modules/mixing/video/video_subtitles.html#write_subtitles_in_video"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.video.video_subtitles.write_subtitles_in_video" title="Link to this definition"></a></dt>
+<dd><p>Write subtitles in a video, preserving audio and video quality.</p>
+<p>Uses FFmpeg by default for 100x speedup over MoviePy’s CompositeVideoClip.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>video</strong> – Path to input video file</p></li>
+<li><p><strong>subtitles</strong> – Path to SRT file, SRT content string, or None (auto-detect)</p></li>
+<li><p><strong>output_video</strong> – Path for output video, or None (auto-generate)</p></li>
+<li><p><strong>embed_subtitles</strong> – Whether to embed subtitles (default True)</p></li>
+<li><p><strong>style</strong> – SubtitleStyle configuration (optional)</p></li>
+<li><p><strong>use_ffmpeg</strong> – Use FFmpeg directly for speed (default True, recommended)</p></li>
+<li><p><strong>auto_detect_audio_start</strong> – If True, align subtitles with detected audio start (default False)</p></li>
+<li><p><strong>start_time</strong> – Target start time for first subtitle, or True for auto-detect, or callable.
+- None (default): No change, keep original subtitle timestamps
+- float: Shift subtitles so first one starts at this time (in seconds)
+- True: Auto-detect audio start and align first subtitle to that time
+- callable: Use this function to find the target start time</p></li>
+<li><p><strong>**subtitle_kwargs</strong> – Additional kwargs for subtitle styling (MoviePy only)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Path to the output video file</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="video_ops.html" class="btn btn-neutral float-left" title="mixing.video.video_ops" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="video_util.html" class="btn btn-neutral float-right" title="mixing.video.video_util" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright NO COPYRIGHT.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -3,6 +3,19 @@
    :caption: Contents:
 
    module_docs/mixing
+   module_docs/mixing/audio
+   module_docs/mixing/audio/audio_ops
+   module_docs/mixing/audio/audio_util
+   module_docs/mixing/audio/audio_widget
+   module_docs/mixing/audio/demo_audio_widget
+   module_docs/mixing/audio/test_audio_widget
+   module_docs/mixing/util
    module_docs/mixing/video
+   module_docs/mixing/video/_helpers
+   module_docs/mixing/video/audio_offset_example
+   module_docs/mixing/video/video_concat
    module_docs/mixing/video/video_files
+   module_docs/mixing/video/video_gen
+   module_docs/mixing/video/video_ops
+   module_docs/mixing/video/video_subtitles
    module_docs/mixing/video/video_util

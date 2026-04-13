@@ -6,16 +6,16 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>mixing.video.video_util &mdash; mixing 0.0.3 documentation</title>
+  <title>mixing.video.video_util &mdash; mixing 0.0.4 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
       <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
 
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=47de8214"></script>
+      <script src="../../../_static/documentation_options.js?v=8c5712d9"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script src="../../../_static/toggleprompt.js?v=d7ede5d2"></script>
@@ -24,7 +24,7 @@
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
-    <link rel="prev" title="mixing.video.video_files" href="video_files.html" /> 
+    <link rel="prev" title="mixing.video.video_subtitles" href="video_subtitles.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -49,11 +49,25 @@
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../../mixing.html">mixing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../audio.html">mixing.audio</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../audio/audio_ops.html">mixing.audio.audio_ops</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../audio/audio_util.html">mixing.audio.audio_util</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../audio/audio_widget.html">mixing.audio.audio_widget</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../audio/demo_audio_widget.html">mixing.audio.demo_audio_widget</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../audio/test_audio_widget.html">mixing.audio.test_audio_widget</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../util.html">mixing.util</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../video.html">mixing.video</a></li>
+<li class="toctree-l1"><a class="reference internal" href="_helpers.html">mixing.video._helpers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="audio_offset_example.html">mixing.video.audio_offset_example</a></li>
+<li class="toctree-l1"><a class="reference internal" href="video_concat.html">mixing.video.video_concat</a></li>
 <li class="toctree-l1"><a class="reference internal" href="video_files.html">mixing.video.video_files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="video_gen.html">mixing.video.video_gen</a></li>
+<li class="toctree-l1"><a class="reference internal" href="video_ops.html">mixing.video.video_ops</a></li>
+<li class="toctree-l1"><a class="reference internal" href="video_subtitles.html">mixing.video.video_subtitles</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">mixing.video.video_util</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#mixing.video.video_util.to_srt_time"><code class="docutils literal notranslate"><span class="pre">to_srt_time()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="#mixing.video.video_util.write_subtitles_in_video"><code class="docutils literal notranslate"><span class="pre">write_subtitles_in_video()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mixing.video.video_util.get_video_dimensions"><code class="docutils literal notranslate"><span class="pre">get_video_dimensions()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mixing.video.video_util.normalize_video_dimensions"><code class="docutils literal notranslate"><span class="pre">normalize_video_dimensions()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mixing.video.video_util.resize_to_dimensions"><code class="docutils literal notranslate"><span class="pre">resize_to_dimensions()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -84,32 +98,92 @@
              
   <section id="module-mixing.video.video_util">
 <span id="mixing-video-video-util"></span><h1>mixing.video.video_util<a class="headerlink" href="#module-mixing.video.video_util" title="Link to this heading"></a></h1>
-<p>Video util</p>
+<p>Video utils.</p>
+<p>Utils that will be useful in multiple modules of the video package.</p>
 <dl class="py function">
-<dt class="sig sig-object py" id="mixing.video.video_util.to_srt_time">
-<span class="sig-prename descclassname"><span class="pre">mixing.video.video_util.</span></span><span class="sig-name descname"><span class="pre">to_srt_time</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">seconds</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/mixing/video/video_util.html#to_srt_time"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.video.video_util.to_srt_time" title="Link to this definition"></a></dt>
-<dd><p>Convert seconds to SRT time format.</p>
-<p>Example usage:</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">to_srt_time</span><span class="p">(</span><span class="mf">1.5</span><span class="p">)</span>
-<span class="go">&#39;00:00:01,500&#39;</span>
+<dt class="sig sig-object py" id="mixing.video.video_util.get_video_dimensions">
+<span class="sig-prename descclassname"><span class="pre">mixing.video.video_util.</span></span><span class="sig-name descname"><span class="pre">get_video_dimensions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">video</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">VideoFileClip</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/mixing/video/video_util.html#get_video_dimensions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.video.video_util.get_video_dimensions" title="Link to this definition"></a></dt>
+<dd><p>Get the (width, height) dimensions of a video.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">clip</span> <span class="o">=</span> <span class="n">VideoFileClip</span><span class="p">(</span><span class="s1">&#39;video.mp4&#39;</span><span class="p">)</span>  
+<span class="gp">&gt;&gt;&gt; </span><span class="n">width</span><span class="p">,</span> <span class="n">height</span> <span class="o">=</span> <span class="n">get_video_dimensions</span><span class="p">(</span><span class="n">clip</span><span class="p">)</span>  
 </pre></div>
 </div>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="mixing.video.video_util.write_subtitles_in_video">
-<span class="sig-prename descclassname"><span class="pre">mixing.video.video_util.</span></span><span class="sig-name descname"><span class="pre">write_subtitles_in_video</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">video</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subtitles</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_video</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/mixing/video/video_util.html#write_subtitles_in_video"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.video.video_util.write_subtitles_in_video" title="Link to this definition"></a></dt>
-<dd><p>Write subtitles in a video.</p>
-<p>Example usage:</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">output_path</span> <span class="o">=</span> <span class="n">write_subtitles_in_video</span><span class="p">(</span><span class="s2">&quot;~/Downloads/some_video.mp4&quot;</span><span class="p">)</span>  
+<dt class="sig sig-object py" id="mixing.video.video_util.normalize_video_dimensions">
+<span class="sig-prename descclassname"><span class="pre">mixing.video.video_util.</span></span><span class="sig-name descname"><span class="pre">normalize_video_dimensions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">videos</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">VideoFileClip</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reference_video</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">VideoFileClip</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_width</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_height</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'stretch'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'fit'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'fill'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'social'</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'social'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bg_color</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">(0,</span> <span class="pre">0,</span> <span class="pre">0)</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">VideoFileClip</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/mixing/video/video_util.html#normalize_video_dimensions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.video.video_util.normalize_video_dimensions" title="Link to this definition"></a></dt>
+<dd><p>Normalize all videos to the same dimensions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>videos</strong> – List of video clips to normalize</p></li>
+<li><p><strong>reference_video</strong> – Index of video to use as reference (default: 0 = first video)
+or a VideoFileClip instance to use as reference</p></li>
+<li><p><strong>target_width</strong> – Explicit target width (overrides reference_video)</p></li>
+<li><p><strong>target_height</strong> – Explicit target height (overrides reference_video)</p></li>
+<li><p><strong>method</strong> – Resizing method (‘stretch’, ‘fit’, ‘fill’, ‘social’)</p></li>
+<li><p><strong>bg_color</strong> – Background color for padding</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>List of normalized VideoFileClip instances</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Normalize all to first video&#39;s dimensions</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">normalized</span> <span class="o">=</span> <span class="n">normalize_video_dimensions</span><span class="p">(</span><span class="n">clips</span><span class="p">)</span>  
 </pre></div>
 </div>
-<p>Which is syntactic sugar for the more explicit:</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">output_path</span> <span class="o">=</span> <span class="n">write_subtitles_in_video</span><span class="p">(</span>
-<span class="gp">... </span>    <span class="s2">&quot;~/Downloads/some_video.mp4&quot;</span><span class="p">,</span>
-<span class="gp">... </span>    <span class="n">subtitles</span><span class="o">=</span><span class="s2">&quot;~/Downloads/Ssome_video.srt&quot;</span><span class="p">,</span>
-<span class="gp">... </span>    <span class="n">output_video</span><span class="o">=</span><span class="s2">&quot;~/Downloads/some_video.mp4&quot;</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Normalize all to specific dimensions with social media style</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">normalized</span> <span class="o">=</span> <span class="n">normalize_video_dimensions</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">clips</span><span class="p">,</span> <span class="n">target_width</span><span class="o">=</span><span class="mi">1920</span><span class="p">,</span> <span class="n">target_height</span><span class="o">=</span><span class="mi">1080</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;social&#39;</span>
 <span class="gp">... </span><span class="p">)</span>  
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Normalize to second video&#39;s dimensions</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">normalized</span> <span class="o">=</span> <span class="n">normalize_video_dimensions</span><span class="p">(</span><span class="n">clips</span><span class="p">,</span> <span class="n">reference_video</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>  
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mixing.video.video_util.resize_to_dimensions">
+<span class="sig-prename descclassname"><span class="pre">mixing.video.video_util.</span></span><span class="sig-name descname"><span class="pre">resize_to_dimensions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">video</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">VideoFileClip</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_width</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_height</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'stretch'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'fit'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'fill'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'social'</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'fit'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bg_color</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">(0,</span> <span class="pre">0,</span> <span class="pre">0)</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">VideoFileClip</span></span></span><a class="reference internal" href="../../../_modules/mixing/video/video_util.html#resize_to_dimensions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.video.video_util.resize_to_dimensions" title="Link to this definition"></a></dt>
+<dd><p>Resize a video to target dimensions with different methods.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>video</strong> – Input video clip</p></li>
+<li><p><strong>target_width</strong> – Target width in pixels</p></li>
+<li><p><strong>target_height</strong> – Target height in pixels</p></li>
+<li><p><strong>method</strong> – Resizing method:
+- ‘stretch’: Stretch to fit (may distort aspect ratio)
+- ‘fit’: Scale to fit inside target (maintains aspect ratio, adds padding)
+- ‘fill’: Scale to fill target (maintains aspect ratio, may crop)
+- ‘social’: Like ‘fill’ but uses blurred/zoomed background (social media style)</p></li>
+<li><p><strong>bg_color</strong> – Background color for padding (RGB tuple, 0-255)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Resized VideoFileClip</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Stretch to exact dimensions (may distort)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">resized</span> <span class="o">=</span> <span class="n">resize_to_dimensions</span><span class="p">(</span><span class="n">clip</span><span class="p">,</span> <span class="mi">1920</span><span class="p">,</span> <span class="mi">1080</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;stretch&#39;</span><span class="p">)</span>  
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Fit inside dimensions with black padding</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">resized</span> <span class="o">=</span> <span class="n">resize_to_dimensions</span><span class="p">(</span><span class="n">clip</span><span class="p">,</span> <span class="mi">1920</span><span class="p">,</span> <span class="mi">1080</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;fit&#39;</span><span class="p">)</span>  
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Fill dimensions (may crop edges)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">resized</span> <span class="o">=</span> <span class="n">resize_to_dimensions</span><span class="p">(</span><span class="n">clip</span><span class="p">,</span> <span class="mi">1920</span><span class="p">,</span> <span class="mi">1080</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;fill&#39;</span><span class="p">)</span>  
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Social media style with blurred background</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">resized</span> <span class="o">=</span> <span class="n">resize_to_dimensions</span><span class="p">(</span><span class="n">clip</span><span class="p">,</span> <span class="mi">1920</span><span class="p">,</span> <span class="mi">1080</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;social&#39;</span><span class="p">)</span>  
 </pre></div>
 </div>
 </dd></dl>
@@ -120,7 +194,7 @@
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="video_files.html" class="btn btn-neutral float-left" title="mixing.video.video_files" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="video_subtitles.html" class="btn btn-neutral float-left" title="mixing.video.video_subtitles" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
     </div>
 
   <hr/>

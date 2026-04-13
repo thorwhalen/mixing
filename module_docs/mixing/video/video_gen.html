@@ -1,0 +1,337 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>mixing.video.video_gen &mdash; mixing 0.0.4 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=8c5712d9"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../_static/toggleprompt.js?v=d7ede5d2"></script>
+      <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="mixing.video.video_ops" href="video_ops.html" />
+    <link rel="prev" title="mixing.video.video_files" href="video_files.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            mixing
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../mixing.html">mixing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../audio.html">mixing.audio</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../audio/audio_ops.html">mixing.audio.audio_ops</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../audio/audio_util.html">mixing.audio.audio_util</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../audio/audio_widget.html">mixing.audio.audio_widget</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../audio/demo_audio_widget.html">mixing.audio.demo_audio_widget</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../audio/test_audio_widget.html">mixing.audio.test_audio_widget</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../util.html">mixing.util</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../video.html">mixing.video</a></li>
+<li class="toctree-l1"><a class="reference internal" href="_helpers.html">mixing.video._helpers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="audio_offset_example.html">mixing.video.audio_offset_example</a></li>
+<li class="toctree-l1"><a class="reference internal" href="video_concat.html">mixing.video.video_concat</a></li>
+<li class="toctree-l1"><a class="reference internal" href="video_files.html">mixing.video.video_files</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">mixing.video.video_gen</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#mixing.video.video_gen.generate_video"><code class="docutils literal notranslate"><span class="pre">generate_video()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mixing.video.video_gen.save_generated_video"><code class="docutils literal notranslate"><span class="pre">save_generated_video()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mixing.video.video_gen.save_generated_videos"><code class="docutils literal notranslate"><span class="pre">save_generated_videos()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="video_ops.html">mixing.video.video_ops</a></li>
+<li class="toctree-l1"><a class="reference internal" href="video_subtitles.html">mixing.video.video_subtitles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="video_util.html">mixing.video.video_util</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">mixing</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">mixing.video.video_gen</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../_sources/module_docs/mixing/video/video_gen.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-mixing.video.video_gen">
+<span id="mixing-video-video-gen"></span><h1>mixing.video.video_gen<a class="headerlink" href="#module-mixing.video.video_gen" title="Link to this heading"></a></h1>
+<p>AI Video Generation with Google Vertex AI Veo</p>
+<p>This module provides tools for generating videos using Google’s Veo models on Vertex AI.
+The main workflow is simple: <strong>generate and get a file path</strong> to your video.</p>
+<p>Key features include:</p>
+<ul class="simple">
+<li><p><strong>One-Step Generation</strong>: Generate videos and get file paths in one call</p></li>
+<li><p><strong>Flexible Egress</strong>: Control how videos are saved with the <cite>save_video</cite> parameter</p></li>
+<li><p><strong>Multiple Input Formats</strong>: Generate from text prompts, images, or video frames</p></li>
+<li><p><strong>Smart Authentication</strong>: Automatic environment variable detection and helpful error messages</p></li>
+<li><p><strong>Multiple Video Support</strong>: Handle models that generate multiple video variations</p></li>
+</ul>
+<p>Quick Start (Generate and Save):
+<a href="#id1"><span class="problematic" id="id2">``</span></a><a href="#id3"><span class="problematic" id="id4">`</span></a>python
+from mixing.video.video_gen import generate_video</p>
+<p># Generate video and get file path in one call
+video_path = generate_video(“A serene forest at dawn with mist”)
+print(f”Video saved to: {video_path}”)
+<a href="#id5"><span class="problematic" id="id6">``</span></a><a href="#id7"><span class="problematic" id="id8">`</span></a></p>
+<p>Flexible Egress Options:
+<a href="#id9"><span class="problematic" id="id10">``</span></a><a href="#id11"><span class="problematic" id="id12">`</span></a>python
+# Default: Auto-save to temp files and return path(s)
+path = generate_video(“prompt”)</p>
+<p># Save to specific location
+path = generate_video(“prompt”, save_video=”/path/to/my_video.mp4”)</p>
+<p># Save to directory with auto-naming
+path = generate_video(“prompt”, save_video=”/path/to/output_dir/”)</p>
+<p># Just return the operation (no saving)
+op = generate_video(“prompt”, save_video=False)
+# or: op = generate_video(“prompt”, save_video=lambda x: x)</p>
+<p># Custom processing function
+def my_processor(operation):</p>
+<blockquote>
+<div><p>paths = save_generated_videos(operation, prefix=”<a href="#id17"><span class="problematic" id="id18">custom_</span></a>”)
+print(f”Saved {len(paths)} videos”)
+return paths</p>
+</div></blockquote>
+<p>result = generate_video(“prompt”, save_video=my_processor)
+<a href="#id13"><span class="problematic" id="id14">``</span></a><a href="#id15"><span class="problematic" id="id16">`</span></a></p>
+<p>Authentication Setup:
+Set environment variables for automatic authentication:
+<code class="docutils literal notranslate"><span class="pre">`bash</span>
+<span class="pre">export</span> <span class="pre">GOOGLE_APPLICATION_CREDENTIALS=&quot;/path/to/service-account.json&quot;</span>
+<span class="pre">export</span> <span class="pre">GOOGLE_CLOUD_PROJECT=&quot;your-project-id&quot;</span>
+<span class="pre">`</span></code></p>
+<p>Main Functions:
+- generate_video(): Generate videos with flexible egress options
+- save_generated_videos(): Standalone video saving utility
+- Frame extraction utilities for using video frames as inputs</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="mixing.video.video_gen.generate_video">
+<span class="sig-prename descclassname"><span class="pre">mixing.video.video_gen.</span></span><span class="sig-name descname"><span class="pre">generate_video</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prompt:</span> <span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">first_frame:</span> <span class="pre">str</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">last_frame:</span> <span class="pre">str</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_video:</span> <span class="pre">~collections.abc.Callable</span> <span class="pre">|</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">&lt;function</span> <span class="pre">save_generated_videos&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'veo-2.0-generate-001'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aspect_ratio:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'16:9'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">duration_seconds:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_gcs_uri:</span> <span class="pre">str</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">service_account_file:</span> <span class="pre">str</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">project_id:</span> <span class="pre">str</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">location:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'us-central1'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/mixing/video/video_gen.html#generate_video"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.video.video_gen.generate_video" title="Link to this definition"></a></dt>
+<dd><p>Generate a video using Veo (Vertex AI) and get the file path(s).</p>
+<p>This function provides a complete workflow: generate video(s) and get downloadable file(s).
+By default, videos are automatically saved to temporary files and you get the path(s).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>prompt</strong> – Text prompt for video generation</p></li>
+<li><p><strong>first_frame</strong> – Path to image/video file for first frame</p></li>
+<li><p><strong>last_frame</strong> – Path to image/video file for last frame</p></li>
+<li><p><strong>save_video</strong> – Egress function or path specification. Controls how generated videos are processed:
+- save_generated_videos (default): Auto-save to temp files, return path(s)
+- “/path/to/file.mp4”: Save to specific file path
+- “/path/to/directory/”: Save to directory with auto-generated names
+- “.mp4”: Save to temp files with specific extension
+- False or lambda x: x: Return raw operation without saving
+- Custom function: Process operation and return your desired result</p></li>
+<li><p><strong>model</strong> – Model to use for generation</p></li>
+<li><p><strong>aspect_ratio</strong> – Video aspect ratio</p></li>
+<li><p><strong>duration_seconds</strong> – Video duration</p></li>
+<li><p><strong>output_gcs_uri</strong> – GCS URI for output</p></li>
+<li><p><strong>service_account_file</strong> – Path to service account JSON file</p></li>
+<li><p><strong>project_id</strong> – Google Cloud project ID</p></li>
+<li><p><strong>location</strong> – Google Cloud location</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p>Default: File path(s) where video(s) were saved</p></li>
+<li><p>save_video=False: Raw operation object</p></li>
+<li><p>Custom function: Whatever your function returns</p></li>
+</ul>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Depends on save_video parameter</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<p>Basic usage (generate and get file path):
+&gt;&gt;&gt; path = generate_video(“A serene forest at dawn”)  # doctest: +SKIP
+&gt;&gt;&gt; print(f”Video saved to: {path}”)  # doctest: +SKIP</p>
+<p>Save to specific location:
+&gt;&gt;&gt; path = generate_video(“Forest scene”, save_video=”/my/video.mp4”)  # doctest: +SKIP</p>
+<p>Save to directory:
+&gt;&gt;&gt; path = generate_video(“Forest scene”, save_video=”/output/dir/”)  # doctest: +SKIP</p>
+<p>Just get the operation (no saving):
+&gt;&gt;&gt; op = generate_video(“Forest scene”, save_video=False)  # doctest: +SKIP
+&gt;&gt;&gt; # Process op.response.generated_videos yourself</p>
+<p>Custom processing:
+&gt;&gt;&gt; def my_saver(op):
+…     return save_generated_videos(op, prefix=”<a href="#id19"><span class="problematic" id="id20">custom_</span></a>”, extension_fallback=”webm”)
+&gt;&gt;&gt; paths = generate_video(“Forest scene”, save_video=my_saver)  # doctest: +SKIP</p>
+<dl class="simple">
+<dt>Environment Variables:</dt><dd><p>VEO_SERVICE_ACCOUNT_FILE or GOOGLE_APPLICATION_CREDENTIALS: Service account JSON path
+VEO_PROJECT_ID, GOOGLE_CLOUD_PROJECT, or GCLOUD_PROJECT: Project ID
+VEO_LOCATION or GOOGLE_CLOUD_LOCATION: Cloud location (default: us-central1)</p>
+</dd>
+<dt>Authentication Setup:</dt><dd><p>For automatic authentication, set these environment variables:
+<code class="docutils literal notranslate"><span class="pre">`bash</span>
+<span class="pre">export</span> <span class="pre">GOOGLE_APPLICATION_CREDENTIALS=&quot;/path/to/service-account.json&quot;</span>
+<span class="pre">export</span> <span class="pre">GOOGLE_CLOUD_PROJECT=&quot;your-project-id&quot;</span>
+<span class="pre">`</span></code></p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>Authentication errors with helpful setup instructions</strong> – </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mixing.video.video_gen.save_generated_video">
+<span class="sig-prename descclassname"><span class="pre">mixing.video.video_gen.</span></span><span class="sig-name descname"><span class="pre">save_generated_video</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">video_input</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_filepath</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prefix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'generated_video_'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">directory_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'generated_video_'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extension_fallback</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'mp4'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#mixing.video.video_gen.save_generated_video" title="Link to this definition"></a></dt>
+<dd><p>Save generated video(s) to file(s). Handles single videos, lists of videos,
+operation responses, or full operations.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>video_input</strong> – Can be one of:
+- A single google.genai.types.GeneratedVideo object
+- A list of GeneratedVideo objects (from op.response.generated_videos)
+- An operation response object (op.response)
+- A full operation object (op)</p></li>
+<li><p><strong>save_filepath</strong> – Output path specification. Can be:
+- None: Auto-generate temp file(s) with appropriate extension
+- Path starting with ‘.’: Use as extension (e.g., ‘.mp4’)
+- Full filepath: Use as-is (for single video) or add index for multiple
+- Directory path: Use directory with generated names</p></li>
+<li><p><strong>prefix</strong> – Prefix for auto-generated filenames (keyword-only)</p></li>
+<li><p><strong>directory_name</strong> – Name to use when save_filepath is directory (keyword-only)</p></li>
+<li><p><strong>extension_fallback</strong> – Default extension if MIME type can’t be determined (keyword-only)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Single path (str) for one video, or list of paths for multiple videos</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Save single video to temp file</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">path</span> <span class="o">=</span> <span class="n">save_generated_videos</span><span class="p">(</span><span class="n">video_obj</span><span class="p">)</span>  
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Save multiple videos with index</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">paths</span> <span class="o">=</span> <span class="n">save_generated_videos</span><span class="p">(</span><span class="n">op</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">generated_videos</span><span class="p">)</span>  
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Save from full operation</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">paths</span> <span class="o">=</span> <span class="n">save_generated_videos</span><span class="p">(</span><span class="n">op</span><span class="p">,</span> <span class="s1">&#39;/path/to/videos/&#39;</span><span class="p">)</span>  
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Save with specific extension</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">path</span> <span class="o">=</span> <span class="n">save_generated_videos</span><span class="p">(</span><span class="n">video_obj</span><span class="p">,</span> <span class="s1">&#39;.mp4&#39;</span><span class="p">)</span>  
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mixing.video.video_gen.save_generated_videos">
+<span class="sig-prename descclassname"><span class="pre">mixing.video.video_gen.</span></span><span class="sig-name descname"><span class="pre">save_generated_videos</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">video_input</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_filepath</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prefix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'generated_video_'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">directory_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'generated_video_'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extension_fallback</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'mp4'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/mixing/video/video_gen.html#save_generated_videos"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.video.video_gen.save_generated_videos" title="Link to this definition"></a></dt>
+<dd><p>Save generated video(s) to file(s). Handles single videos, lists of videos,
+operation responses, or full operations.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>video_input</strong> – Can be one of:
+- A single google.genai.types.GeneratedVideo object
+- A list of GeneratedVideo objects (from op.response.generated_videos)
+- An operation response object (op.response)
+- A full operation object (op)</p></li>
+<li><p><strong>save_filepath</strong> – Output path specification. Can be:
+- None: Auto-generate temp file(s) with appropriate extension
+- Path starting with ‘.’: Use as extension (e.g., ‘.mp4’)
+- Full filepath: Use as-is (for single video) or add index for multiple
+- Directory path: Use directory with generated names</p></li>
+<li><p><strong>prefix</strong> – Prefix for auto-generated filenames (keyword-only)</p></li>
+<li><p><strong>directory_name</strong> – Name to use when save_filepath is directory (keyword-only)</p></li>
+<li><p><strong>extension_fallback</strong> – Default extension if MIME type can’t be determined (keyword-only)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Single path (str) for one video, or list of paths for multiple videos</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Save single video to temp file</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">path</span> <span class="o">=</span> <span class="n">save_generated_videos</span><span class="p">(</span><span class="n">video_obj</span><span class="p">)</span>  
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Save multiple videos with index</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">paths</span> <span class="o">=</span> <span class="n">save_generated_videos</span><span class="p">(</span><span class="n">op</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">generated_videos</span><span class="p">)</span>  
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Save from full operation</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">paths</span> <span class="o">=</span> <span class="n">save_generated_videos</span><span class="p">(</span><span class="n">op</span><span class="p">,</span> <span class="s1">&#39;/path/to/videos/&#39;</span><span class="p">)</span>  
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Save with specific extension</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">path</span> <span class="o">=</span> <span class="n">save_generated_videos</span><span class="p">(</span><span class="n">video_obj</span><span class="p">,</span> <span class="s1">&#39;.mp4&#39;</span><span class="p">)</span>  
+</pre></div>
+</div>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="video_files.html" class="btn btn-neutral float-left" title="mixing.video.video_files" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="video_ops.html" class="btn btn-neutral float-right" title="mixing.video.video_ops" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright NO COPYRIGHT.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

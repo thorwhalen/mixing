@@ -1,0 +1,4 @@
+mixing.util
+===========
+.. automodule:: mixing.util
+   :members:

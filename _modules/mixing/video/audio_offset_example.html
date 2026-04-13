@@ -1,0 +1,262 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>mixing.video.audio_offset_example &mdash; mixing 0.0.4 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=8c5712d9"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../_static/toggleprompt.js?v=d7ede5d2"></script>
+      <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            mixing
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing.html">mixing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/audio.html">mixing.audio</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/audio/audio_ops.html">mixing.audio.audio_ops</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/audio/audio_util.html">mixing.audio.audio_util</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/audio/audio_widget.html">mixing.audio.audio_widget</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/audio/demo_audio_widget.html">mixing.audio.demo_audio_widget</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/audio/test_audio_widget.html">mixing.audio.test_audio_widget</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/util.html">mixing.util</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video.html">mixing.video</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/_helpers.html">mixing.video._helpers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/audio_offset_example.html">mixing.video.audio_offset_example</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/video_concat.html">mixing.video.video_concat</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/video_files.html">mixing.video.video_files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/video_gen.html">mixing.video.video_gen</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/video_ops.html">mixing.video.video_ops</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/video_subtitles.html">mixing.video.video_subtitles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/video_util.html">mixing.video.video_util</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">mixing</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">mixing.video.audio_offset_example</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for mixing.video.audio_offset_example</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Example demonstrating audio-based subtitle alignment.</span>
+
+<span class="sd">This shows how to use the new audio detection features to automatically</span>
+<span class="sd">align subtitles with when speech actually starts in a video.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">mixing.video.video_subtitles</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">fix_srt_file</span><span class="p">,</span>
+    <span class="n">auto_shift_srt_to_start</span><span class="p">,</span>
+    <span class="n">find_audio_start_offset</span><span class="p">,</span>
+    <span class="n">_find_audio_peaks</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<div class="viewcode-block" id="example_basic_shift">
+<a class="viewcode-back" href="../../../module_docs/mixing/video/audio_offset_example.html#mixing.video.audio_offset_example.example_basic_shift">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">example_basic_shift</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Basic usage: shift subtitles to start at 0.&quot;&quot;&quot;</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">60</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Example 1: Basic shift to 0&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">60</span><span class="p">)</span>
+
+    <span class="n">srt_content</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;1</span>
+<span class="s2">00:00:10,000 --&gt; 00:00:12,000</span>
+<span class="s2">Hello world</span>
+
+<span class="s2">2</span>
+<span class="s2">00:00:15,000 --&gt; 00:00:17,000</span>
+<span class="s2">Second subtitle&quot;&quot;&quot;</span>
+
+    <span class="n">shifted</span> <span class="o">=</span> <span class="n">auto_shift_srt_to_start</span><span class="p">(</span><span class="n">srt_content</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Original first subtitle: 00:00:10,000&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Shifted first subtitle: 00:00:00,000&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">()</span></div>
+
+
+
+<div class="viewcode-block" id="example_audio_based_shift">
+<a class="viewcode-back" href="../../../module_docs/mixing/video/audio_offset_example.html#mixing.video.audio_offset_example.example_audio_based_shift">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">example_audio_based_shift</span><span class="p">(</span><span class="n">video_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Audio-based shift: align with detected speech start.&quot;&quot;&quot;</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">60</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Example 2: Audio-based alignment&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">60</span><span class="p">)</span>
+
+    <span class="c1"># First, let&#39;s see what the audio analysis finds</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Analyzing audio...&quot;</span><span class="p">)</span>
+    <span class="n">audio_start</span> <span class="o">=</span> <span class="n">find_audio_start_offset</span><span class="p">(</span><span class="n">video_path</span><span class="p">,</span> <span class="n">first_n_seconds_to_sample</span><span class="o">=</span><span class="mf">20.0</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Detected audio starts at: </span><span class="si">{</span><span class="n">audio_start</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">s&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">()</span>
+
+    <span class="c1"># Now align subtitles with the detected audio start</span>
+    <span class="n">srt_content</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;1</span>
+<span class="s2">00:00:10,000 --&gt; 00:00:12,000</span>
+<span class="s2">Hello world</span>
+
+<span class="s2">2</span>
+<span class="s2">00:00:15,000 --&gt; 00:00:17,000</span>
+<span class="s2">Second subtitle&quot;&quot;&quot;</span>
+
+    <span class="n">shifted</span> <span class="o">=</span> <span class="n">auto_shift_srt_to_start</span><span class="p">(</span>
+        <span class="n">srt_content</span><span class="p">,</span>
+        <span class="n">video_path</span><span class="o">=</span><span class="n">video_path</span><span class="p">,</span>
+        <span class="n">auto_detect_audio_start</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Result: Subtitles now aligned with audio start!&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">()</span></div>
+
+
+
+<div class="viewcode-block" id="example_analyze_audio_peaks">
+<a class="viewcode-back" href="../../../module_docs/mixing/video/audio_offset_example.html#mixing.video.audio_offset_example.example_analyze_audio_peaks">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">example_analyze_audio_peaks</span><span class="p">(</span><span class="n">video_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Detailed analysis: examine audio peaks directly.&quot;&quot;&quot;</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">60</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Example 3: Detailed audio peak analysis&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">60</span><span class="p">)</span>
+
+    <span class="n">peaks</span> <span class="o">=</span> <span class="n">_find_audio_peaks</span><span class="p">(</span>
+        <span class="n">video_path</span><span class="p">,</span>
+        <span class="n">first_n_seconds_to_sample</span><span class="o">=</span><span class="mf">10.0</span><span class="p">,</span>
+        <span class="n">window_size</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
+        <span class="n">min_peak_threshold</span><span class="o">=</span><span class="mf">0.02</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Found </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">peaks</span><span class="p">)</span><span class="si">}</span><span class="s2"> audio peaks in first 10 seconds:&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">()</span>
+
+    <span class="c1"># Show first few peaks</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">peak</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">peaks</span><span class="p">[:</span><span class="mi">5</span><span class="p">]):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Peak </span><span class="si">{</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s2">:&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Time: </span><span class="si">{</span><span class="n">peak</span><span class="p">[</span><span class="s1">&#39;time&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">s&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Intensity: </span><span class="si">{</span><span class="n">peak</span><span class="p">[</span><span class="s1">&#39;intensity&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Variation: </span><span class="si">{</span><span class="n">peak</span><span class="p">[</span><span class="s1">&#39;variation&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">peaks</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">5</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;... and </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">peaks</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">5</span><span class="si">}</span><span class="s2"> more peaks&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">()</span></div>
+
+
+
+<div class="viewcode-block" id="example_fix_srt_file_with_audio">
+<a class="viewcode-back" href="../../../module_docs/mixing/video/audio_offset_example.html#mixing.video.audio_offset_example.example_fix_srt_file_with_audio">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">example_fix_srt_file_with_audio</span><span class="p">(</span><span class="n">video_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">srt_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Complete workflow: fix SRT file with audio detection.&quot;&quot;&quot;</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">60</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Example 4: Fix SRT file with audio detection&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">60</span><span class="p">)</span>
+
+    <span class="c1"># Option 1: Basic fix (shift to 0)</span>
+    <span class="n">output_path</span> <span class="o">=</span> <span class="n">fix_srt_file</span><span class="p">(</span><span class="n">srt_path</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Basic fix saved to: </span><span class="si">{</span><span class="n">output_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">()</span>
+
+    <span class="c1"># Option 2: Audio-based alignment</span>
+    <span class="n">output_path</span> <span class="o">=</span> <span class="n">fix_srt_file</span><span class="p">(</span>
+        <span class="n">srt_path</span><span class="p">,</span>
+        <span class="n">video_path</span><span class="o">=</span><span class="n">video_path</span><span class="p">,</span>
+        <span class="n">auto_detect_audio_start</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Audio-aligned version saved to: </span><span class="si">{</span><span class="n">output_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">()</span></div>
+
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="c1"># Basic examples that don&#39;t need a video file</span>
+    <span class="n">example_basic_shift</span><span class="p">()</span>
+
+    <span class="c1"># To run audio-based examples, provide your video path:</span>
+    <span class="c1"># video_path = &quot;/path/to/your/video.mp4&quot;</span>
+    <span class="c1"># srt_path = &quot;/path/to/your/subtitles.srt&quot;</span>
+    <span class="c1">#</span>
+    <span class="c1"># example_audio_based_shift(video_path)</span>
+    <span class="c1"># example_analyze_audio_peaks(video_path)</span>
+    <span class="c1"># example_fix_srt_file_with_audio(video_path, srt_path)</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">ℹ️  To run audio-based examples, uncomment the code above&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;   and provide paths to your video and SRT files.&quot;</span><span class="p">)</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright NO COPYRIGHT.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,576 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>mixing.audio.audio_ops &mdash; mixing 0.0.4 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=8c5712d9"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../_static/toggleprompt.js?v=d7ede5d2"></script>
+      <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="mixing.audio.audio_util" href="audio_util.html" />
+    <link rel="prev" title="mixing.audio" href="../audio.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            mixing
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../mixing.html">mixing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../audio.html">mixing.audio</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">mixing.audio.audio_ops</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#mixing.audio.audio_ops.Audio"><code class="docutils literal notranslate"><span class="pre">Audio</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#mixing.audio.audio_ops.Audio.channels"><code class="docutils literal notranslate"><span class="pre">Audio.channels</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mixing.audio.audio_ops.Audio.duration"><code class="docutils literal notranslate"><span class="pre">Audio.duration</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mixing.audio.audio_ops.Audio.end_time"><code class="docutils literal notranslate"><span class="pre">Audio.end_time</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mixing.audio.audio_ops.Audio.fade_in"><code class="docutils literal notranslate"><span class="pre">Audio.fade_in()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mixing.audio.audio_ops.Audio.fade_out"><code class="docutils literal notranslate"><span class="pre">Audio.fade_out()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mixing.audio.audio_ops.Audio.full_duration"><code class="docutils literal notranslate"><span class="pre">Audio.full_duration</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mixing.audio.audio_ops.Audio.overlay"><code class="docutils literal notranslate"><span class="pre">Audio.overlay()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mixing.audio.audio_ops.Audio.sample_count"><code class="docutils literal notranslate"><span class="pre">Audio.sample_count</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mixing.audio.audio_ops.Audio.sample_rate"><code class="docutils literal notranslate"><span class="pre">Audio.sample_rate</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mixing.audio.audio_ops.Audio.samples"><code class="docutils literal notranslate"><span class="pre">Audio.samples</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mixing.audio.audio_ops.Audio.save"><code class="docutils literal notranslate"><span class="pre">Audio.save()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mixing.audio.audio_ops.Audio.start_time"><code class="docutils literal notranslate"><span class="pre">Audio.start_time</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#mixing.audio.audio_ops.AudioSamples"><code class="docutils literal notranslate"><span class="pre">AudioSamples</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mixing.audio.audio_ops.concatenate_audio"><code class="docutils literal notranslate"><span class="pre">concatenate_audio()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mixing.audio.audio_ops.crop_audio"><code class="docutils literal notranslate"><span class="pre">crop_audio()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mixing.audio.audio_ops.fade_in"><code class="docutils literal notranslate"><span class="pre">fade_in()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mixing.audio.audio_ops.fade_out"><code class="docutils literal notranslate"><span class="pre">fade_out()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mixing.audio.audio_ops.find_audio_offset"><code class="docutils literal notranslate"><span class="pre">find_audio_offset()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mixing.audio.audio_ops.overlay_audio"><code class="docutils literal notranslate"><span class="pre">overlay_audio()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mixing.audio.audio_ops.save_audio_clip"><code class="docutils literal notranslate"><span class="pre">save_audio_clip()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="audio_util.html">mixing.audio.audio_util</a></li>
+<li class="toctree-l1"><a class="reference internal" href="audio_widget.html">mixing.audio.audio_widget</a></li>
+<li class="toctree-l1"><a class="reference internal" href="demo_audio_widget.html">mixing.audio.demo_audio_widget</a></li>
+<li class="toctree-l1"><a class="reference internal" href="test_audio_widget.html">mixing.audio.test_audio_widget</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../util.html">mixing.util</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../video.html">mixing.video</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../video/_helpers.html">mixing.video._helpers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../video/audio_offset_example.html">mixing.video.audio_offset_example</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../video/video_concat.html">mixing.video.video_concat</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../video/video_files.html">mixing.video.video_files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../video/video_gen.html">mixing.video.video_gen</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../video/video_ops.html">mixing.video.video_ops</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../video/video_subtitles.html">mixing.video.video_subtitles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../video/video_util.html">mixing.video.video_util</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">mixing</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">mixing.audio.audio_ops</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../_sources/module_docs/mixing/audio/audio_ops.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-mixing.audio.audio_ops">
+<span id="mixing-audio-audio-ops"></span><h1>mixing.audio.audio_ops<a class="headerlink" href="#module-mixing.audio.audio_ops" title="Link to this heading"></a></h1>
+<p>Audio editing via slicing interface.</p>
+<p>Provides lazy views into audio segments and comprehensive audio editing operations.</p>
+<p>This module provides:
+- <cite>Audio</cite>: A sliceable audio interface using <cite>audio[start:end]</cite> notation
+- <cite>fade_in()</cite>, <cite>fade_out()</cite>: Apply fade effects
+- <cite>crop_audio()</cite>: Trim audio segments
+- <cite>concatenate_audio()</cite>: Join multiple audio files
+- <cite>overlay_audio()</cite>: Mix audio tracks
+- Flexible time units: seconds, samples, or milliseconds
+- Integration with pydub for audio processing
+- Clipboard support for audio file paths</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">audio</span> <span class="o">=</span> <span class="n">Audio</span><span class="p">(</span><span class="s2">&quot;my_audio.mp3&quot;</span><span class="p">)</span>  
+<span class="gp">&gt;&gt;&gt; </span><span class="n">segment</span> <span class="o">=</span> <span class="n">audio</span><span class="p">[</span><span class="mi">10</span><span class="p">:</span><span class="mi">20</span><span class="p">]</span>  <span class="c1"># Lazy view, no copying  </span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">segment</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s2">&quot;clip.mp3&quot;</span><span class="p">)</span>  <span class="c1"># Only then does it process  </span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Apply fade effects</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">faded</span> <span class="o">=</span> <span class="n">fade_in</span><span class="p">(</span><span class="n">audio</span><span class="p">,</span> <span class="n">duration</span><span class="o">=</span><span class="mf">2.0</span><span class="p">)</span>  <span class="c1"># 2 second fade in  </span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">faded</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s2">&quot;faded.mp3&quot;</span><span class="p">)</span>  
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Concatenate audio files</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">combined</span> <span class="o">=</span> <span class="n">concatenate_audio</span><span class="p">([</span><span class="s2">&quot;intro.mp3&quot;</span><span class="p">,</span> <span class="s2">&quot;main.mp3&quot;</span><span class="p">,</span> <span class="s2">&quot;outro.mp3&quot;</span><span class="p">])</span>  
+<span class="gp">&gt;&gt;&gt; </span><span class="n">combined</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s2">&quot;full.mp3&quot;</span><span class="p">)</span>  
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Overlay/mix audio</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mixed</span> <span class="o">=</span> <span class="n">overlay_audio</span><span class="p">(</span><span class="s2">&quot;background.mp3&quot;</span><span class="p">,</span> <span class="s2">&quot;voice.mp3&quot;</span><span class="p">,</span> <span class="n">position</span><span class="o">=</span><span class="mf">5.0</span><span class="p">)</span>  
+</pre></div>
+</div>
+<p>Design principles:
+- Lazy evaluation: Operations create views, not copies
+- Facade pattern: Clean interface over pydub complexity
+- Standard library interfaces: Uses Python’s slice notation
+- Dependency injection: Configurable time units and formats
+- Open-closed: Extensible via keyword arguments</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="mixing.audio.audio_ops.Audio">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mixing.audio.audio_ops.</span></span><span class="sig-name descname"><span class="pre">Audio</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">src_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">AudioSegment</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_unit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'seconds'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'samples'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'milliseconds'</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'seconds'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_time</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_time</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/mixing/audio/audio_ops.html#Audio"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.audio.audio_ops.Audio" title="Link to this definition"></a></dt>
+<dd><p>Sliceable interface for audio supporting time-based operations.</p>
+<p>Provides lazy views into audio segments using slice notation. Slicing returns
+new Audio instances (not copies), enabling chained operations.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>src_path</strong> – Path to source audio file or AudioSegment</p></li>
+<li><p><strong>time_unit</strong> – Unit for slice indices (‘seconds’, ‘samples’, ‘milliseconds’)</p></li>
+<li><p><strong>start_time</strong> – Start time in seconds (for creating sub-views)</p></li>
+<li><p><strong>end_time</strong> – End time in seconds (for creating sub-views)</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">audio</span> <span class="o">=</span> <span class="n">Audio</span><span class="p">(</span><span class="s2">&quot;song.mp3&quot;</span><span class="p">)</span>  
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Get segment from 10s to 20s (returns Audio)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">segment</span> <span class="o">=</span> <span class="n">audio</span><span class="p">[</span><span class="mi">10</span><span class="p">:</span><span class="mi">20</span><span class="p">]</span>  
+<span class="gp">&gt;&gt;&gt; </span><span class="n">segment</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s2">&quot;clip.mp3&quot;</span><span class="p">)</span>  
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Use sample numbers as unit</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">audio_samples</span> <span class="o">=</span> <span class="n">Audio</span><span class="p">(</span><span class="s2">&quot;song.mp3&quot;</span><span class="p">,</span> <span class="n">time_unit</span><span class="o">=</span><span class="s2">&quot;samples&quot;</span><span class="p">)</span>  
+<span class="gp">&gt;&gt;&gt; </span><span class="n">segment</span> <span class="o">=</span> <span class="n">audio_samples</span><span class="p">[</span><span class="mi">44100</span><span class="p">:</span><span class="mi">88200</span><span class="p">]</span>  <span class="c1"># 1 second at 44.1kHz  </span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Get last 30 seconds</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ending</span> <span class="o">=</span> <span class="n">audio</span><span class="p">[</span><span class="o">-</span><span class="mi">30</span><span class="p">:]</span>  
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Chain operations</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">trimmed</span> <span class="o">=</span> <span class="n">audio</span><span class="p">[</span><span class="mi">5</span><span class="p">:</span><span class="mi">120</span><span class="p">]</span>  <span class="c1"># Trim to 5s-120s  </span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">faded</span> <span class="o">=</span> <span class="n">trimmed</span><span class="o">.</span><span class="n">fade_in</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">fade_out</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>  <span class="c1"># Apply fades  </span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">faded</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s2">&quot;final.mp3&quot;</span><span class="p">)</span>  
+</pre></div>
+</div>
+<dl class="py property">
+<dt class="sig sig-object py" id="mixing.audio.audio_ops.Audio.channels">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">channels</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#mixing.audio.audio_ops.Audio.channels" title="Link to this definition"></a></dt>
+<dd><p>Number of audio channels.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mixing.audio.audio_ops.Audio.duration">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">duration</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#mixing.audio.audio_ops.Audio.duration" title="Link to this definition"></a></dt>
+<dd><p>Duration of this audio/segment in seconds.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mixing.audio.audio_ops.Audio.end_time">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">end_time</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#mixing.audio.audio_ops.Audio.end_time" title="Link to this definition"></a></dt>
+<dd><p>End time in seconds (audio duration if not set).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mixing.audio.audio_ops.Audio.fade_in">
+<span class="sig-name descname"><span class="pre">fade_in</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">duration</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#mixing.audio.audio_ops.Audio" title="mixing.audio.audio_ops.Audio"><span class="pre">Audio</span></a></span></span><a class="reference internal" href="../../../_modules/mixing/audio/audio_ops.html#Audio.fade_in"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.audio.audio_ops.Audio.fade_in" title="Link to this definition"></a></dt>
+<dd><p>Apply fade-in effect.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>duration</strong> – Fade duration in seconds</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>New Audio with fade applied</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">audio</span> <span class="o">=</span> <span class="n">Audio</span><span class="p">(</span><span class="s2">&quot;song.mp3&quot;</span><span class="p">)</span>  
+<span class="gp">&gt;&gt;&gt; </span><span class="n">faded</span> <span class="o">=</span> <span class="n">audio</span><span class="o">.</span><span class="n">fade_in</span><span class="p">(</span><span class="mf">2.0</span><span class="p">)</span>  <span class="c1"># 2 second fade in  </span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mixing.audio.audio_ops.Audio.fade_out">
+<span class="sig-name descname"><span class="pre">fade_out</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">duration</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#mixing.audio.audio_ops.Audio" title="mixing.audio.audio_ops.Audio"><span class="pre">Audio</span></a></span></span><a class="reference internal" href="../../../_modules/mixing/audio/audio_ops.html#Audio.fade_out"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.audio.audio_ops.Audio.fade_out" title="Link to this definition"></a></dt>
+<dd><p>Apply fade-out effect.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>duration</strong> – Fade duration in seconds</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>New Audio with fade applied</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">audio</span> <span class="o">=</span> <span class="n">Audio</span><span class="p">(</span><span class="s2">&quot;song.mp3&quot;</span><span class="p">)</span>  
+<span class="gp">&gt;&gt;&gt; </span><span class="n">faded</span> <span class="o">=</span> <span class="n">audio</span><span class="o">.</span><span class="n">fade_out</span><span class="p">(</span><span class="mf">3.0</span><span class="p">)</span>  <span class="c1"># 3 second fade out  </span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mixing.audio.audio_ops.Audio.full_duration">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">full_duration</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#mixing.audio.audio_ops.Audio.full_duration" title="Link to this definition"></a></dt>
+<dd><p>Duration of the source audio in seconds.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mixing.audio.audio_ops.Audio.overlay">
+<span class="sig-name descname"><span class="pre">overlay</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#mixing.audio.audio_ops.Audio" title="mixing.audio.audio_ops.Audio"><span class="pre">Audio</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">position</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gain_during_overlay</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#mixing.audio.audio_ops.Audio" title="mixing.audio.audio_ops.Audio"><span class="pre">Audio</span></a></span></span><a class="reference internal" href="../../../_modules/mixing/audio/audio_ops.html#Audio.overlay"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.audio.audio_ops.Audio.overlay" title="Link to this definition"></a></dt>
+<dd><p>Overlay another audio on top of this one.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>other</strong> – Audio to overlay</p></li>
+<li><p><strong>position</strong> – Position in seconds where overlay starts</p></li>
+<li><p><strong>gain_during_overlay</strong> – Volume adjustment in dB during overlay</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>New Audio with overlay applied</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">bg</span> <span class="o">=</span> <span class="n">Audio</span><span class="p">(</span><span class="s2">&quot;background.mp3&quot;</span><span class="p">)</span>  
+<span class="gp">&gt;&gt;&gt; </span><span class="n">voice</span> <span class="o">=</span> <span class="n">Audio</span><span class="p">(</span><span class="s2">&quot;voice.mp3&quot;</span><span class="p">)</span>  
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mixed</span> <span class="o">=</span> <span class="n">bg</span><span class="o">.</span><span class="n">overlay</span><span class="p">(</span><span class="n">voice</span><span class="p">,</span> <span class="n">position</span><span class="o">=</span><span class="mf">5.0</span><span class="p">,</span> <span class="n">gain_during_overlay</span><span class="o">=-</span><span class="mi">6</span><span class="p">)</span>  
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mixing.audio.audio_ops.Audio.sample_count">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">sample_count</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#mixing.audio.audio_ops.Audio.sample_count" title="Link to this definition"></a></dt>
+<dd><p>Total number of samples in this segment.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mixing.audio.audio_ops.Audio.sample_rate">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">sample_rate</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#mixing.audio.audio_ops.Audio.sample_rate" title="Link to this definition"></a></dt>
+<dd><p>Sample rate in Hz.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mixing.audio.audio_ops.Audio.samples">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">samples</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#mixing.audio.audio_ops.AudioSamples" title="mixing.audio.audio_ops.AudioSamples"><span class="pre">AudioSamples</span></a></em><a class="headerlink" href="#mixing.audio.audio_ops.Audio.samples" title="Link to this definition"></a></dt>
+<dd><p>Get sample-by-sample Mapping interface for this audio.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mixing.audio.audio_ops.Audio.save">
+<span class="sig-name descname"><span class="pre">save</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">output_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">format</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bitrate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'192k'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">export_kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Path</span></span></span><a class="reference internal" href="../../../_modules/mixing/audio/audio_ops.html#Audio.save"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.audio.audio_ops.Audio.save" title="Link to this definition"></a></dt>
+<dd><p>Save this audio/segment to a new audio file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>output_path</strong> – Path for output file (auto-generated if None)</p></li>
+<li><p><strong>format</strong> – Audio format (mp3, wav, etc.). Auto-detected from extension if None.</p></li>
+<li><p><strong>bitrate</strong> – Bitrate for compressed formats</p></li>
+<li><p><strong>**export_kwargs</strong> – Additional arguments for pydub export</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Path to saved file</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">audio</span> <span class="o">=</span> <span class="n">Audio</span><span class="p">(</span><span class="s2">&quot;song.mp3&quot;</span><span class="p">)</span>  
+<span class="gp">&gt;&gt;&gt; </span><span class="n">audio</span><span class="p">[</span><span class="mi">10</span><span class="p">:</span><span class="mi">30</span><span class="p">]</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s2">&quot;clip.mp3&quot;</span><span class="p">)</span>  
+<span class="gp">&gt;&gt;&gt; </span><span class="n">audio</span><span class="p">[</span><span class="mi">10</span><span class="p">:</span><span class="mi">30</span><span class="p">]</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s2">&quot;clip.wav&quot;</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;wav&quot;</span><span class="p">)</span>  
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mixing.audio.audio_ops.Audio.start_time">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">start_time</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#mixing.audio.audio_ops.Audio.start_time" title="Link to this definition"></a></dt>
+<dd><p>Start time in seconds (0.0 if not set).</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="mixing.audio.audio_ops.AudioSamples">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mixing.audio.audio_ops.</span></span><span class="sig-name descname"><span class="pre">AudioSamples</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">audio_src</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">AudioSegment</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_sample</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_sample</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/mixing/audio/audio_ops.html#AudioSamples"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.audio.audio_ops.AudioSamples" title="Link to this definition"></a></dt>
+<dd><p>Mapping interface to access audio samples by index.</p>
+<p>Provides dictionary-like access to audio samples with support for negative
+indexing and slicing. Samples are returned as normalized float values.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>audio_src</strong> – Path to audio file or AudioSegment</p></li>
+<li><p><strong>start_sample</strong> – Starting sample index (for segments)</p></li>
+<li><p><strong>end_sample</strong> – Ending sample index (for segments)</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">audio_samples</span> <span class="o">=</span> <span class="n">AudioSamples</span><span class="p">(</span><span class="s2">&quot;test_audio.mp3&quot;</span><span class="p">)</span>  
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sample</span> <span class="o">=</span> <span class="n">audio_samples</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>  <span class="c1"># Get first sample  </span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">last_sample</span> <span class="o">=</span> <span class="n">audio_samples</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>  <span class="c1"># Get last sample  </span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">samples</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">audio_samples</span><span class="p">[</span><span class="mi">1000</span><span class="p">:</span><span class="mi">2000</span><span class="p">])</span>  <span class="c1"># Get samples 1000-1999  </span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mixing.audio.audio_ops.concatenate_audio">
+<span class="sig-prename descclassname"><span class="pre">mixing.audio.audio_ops.</span></span><span class="sig-name descname"><span class="pre">concatenate_audio</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">sources</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#mixing.audio.audio_ops.Audio" title="mixing.audio.audio_ops.Audio"><span class="pre">Audio</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">crossfade</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">save_kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#mixing.audio.audio_ops.Audio" title="mixing.audio.audio_ops.Audio"><span class="pre">Audio</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span></span></span><a class="reference internal" href="../../../_modules/mixing/audio/audio_ops.html#concatenate_audio"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.audio.audio_ops.concatenate_audio" title="Link to this definition"></a></dt>
+<dd><p>Concatenate multiple audio files/segments.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>*sources</strong> – Audio sources (filepaths or Audio instances)</p></li>
+<li><p><strong>output_path</strong> – If provided, saves to file and returns Path. Otherwise returns Audio.</p></li>
+<li><p><strong>crossfade</strong> – Crossfade duration in seconds between segments</p></li>
+<li><p><strong>**save_kwargs</strong> – Additional save arguments</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Audio instance or Path to saved file</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">concatenate_audio</span><span class="p">(</span><span class="s2">&quot;intro.mp3&quot;</span><span class="p">,</span> <span class="s2">&quot;main.mp3&quot;</span><span class="p">,</span> <span class="s2">&quot;outro.mp3&quot;</span><span class="p">)</span>  
+<span class="gp">&gt;&gt;&gt; </span><span class="n">concatenate_audio</span><span class="p">(</span><span class="s2">&quot;a.mp3&quot;</span><span class="p">,</span> <span class="s2">&quot;b.mp3&quot;</span><span class="p">,</span> <span class="n">output_path</span><span class="o">=</span><span class="s2">&quot;combined.mp3&quot;</span><span class="p">)</span>  
+<span class="gp">&gt;&gt;&gt; </span><span class="n">concatenate_audio</span><span class="p">(</span><span class="s2">&quot;a.mp3&quot;</span><span class="p">,</span> <span class="s2">&quot;b.mp3&quot;</span><span class="p">,</span> <span class="n">crossfade</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>  <span class="c1"># 500ms crossfade  </span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mixing.audio.audio_ops.crop_audio">
+<span class="sig-prename descclassname"><span class="pre">mixing.audio.audio_ops.</span></span><span class="sig-name descname"><span class="pre">crop_audio</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">src_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_unit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'seconds'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'samples'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'milliseconds'</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'seconds'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">save_kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Path</span></span></span><a class="reference internal" href="../../../_modules/mixing/audio/audio_ops.html#crop_audio"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.audio.audio_ops.crop_audio" title="Link to this definition"></a></dt>
+<dd><p>Convenience function to crop and save an audio segment.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>src_path</strong> – Path to source audio</p></li>
+<li><p><strong>start</strong> – Start time (None = beginning)</p></li>
+<li><p><strong>end</strong> – End time (None = end of audio)</p></li>
+<li><p><strong>time_unit</strong> – Unit for start/end values</p></li>
+<li><p><strong>output_path</strong> – Path for output (auto-generated if None)</p></li>
+<li><p><strong>**save_kwargs</strong> – Additional arguments for save operation</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Path to saved cropped audio</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">crop_audio</span><span class="p">(</span><span class="s2">&quot;song.mp3&quot;</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">30</span><span class="p">)</span>  <span class="c1"># Crop 10s-30s  </span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">crop_audio</span><span class="p">(</span><span class="s2">&quot;song.mp3&quot;</span><span class="p">,</span> <span class="mi">44100</span><span class="p">,</span> <span class="mi">88200</span><span class="p">,</span> <span class="n">time_unit</span><span class="o">=</span><span class="s2">&quot;samples&quot;</span><span class="p">)</span>  
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mixing.audio.audio_ops.fade_in">
+<span class="sig-prename descclassname"><span class="pre">mixing.audio.audio_ops.</span></span><span class="sig-name descname"><span class="pre">fade_in</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">src</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#mixing.audio.audio_ops.Audio" title="mixing.audio.audio_ops.Audio"><span class="pre">Audio</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">duration</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">save_kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#mixing.audio.audio_ops.Audio" title="mixing.audio.audio_ops.Audio"><span class="pre">Audio</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span></span></span><a class="reference internal" href="../../../_modules/mixing/audio/audio_ops.html#fade_in"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.audio.audio_ops.fade_in" title="Link to this definition"></a></dt>
+<dd><p>Apply fade-in effect to audio.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>src</strong> – Audio source (filepath or Audio instance)</p></li>
+<li><p><strong>duration</strong> – Fade duration in seconds</p></li>
+<li><p><strong>output_path</strong> – If provided, saves to file and returns Path. Otherwise returns Audio.</p></li>
+<li><p><strong>**save_kwargs</strong> – Additional save arguments</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Audio instance or Path to saved file</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">fade_in</span><span class="p">(</span><span class="s2">&quot;song.mp3&quot;</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="n">output_path</span><span class="o">=</span><span class="s2">&quot;faded.mp3&quot;</span><span class="p">)</span>  
+<span class="gp">&gt;&gt;&gt; </span><span class="n">audio</span> <span class="o">=</span> <span class="n">fade_in</span><span class="p">(</span><span class="s2">&quot;song.mp3&quot;</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">)</span>  <span class="c1"># Returns Audio instance  </span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mixing.audio.audio_ops.fade_out">
+<span class="sig-prename descclassname"><span class="pre">mixing.audio.audio_ops.</span></span><span class="sig-name descname"><span class="pre">fade_out</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">src</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#mixing.audio.audio_ops.Audio" title="mixing.audio.audio_ops.Audio"><span class="pre">Audio</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">duration</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">save_kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#mixing.audio.audio_ops.Audio" title="mixing.audio.audio_ops.Audio"><span class="pre">Audio</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span></span></span><a class="reference internal" href="../../../_modules/mixing/audio/audio_ops.html#fade_out"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.audio.audio_ops.fade_out" title="Link to this definition"></a></dt>
+<dd><p>Apply fade-out effect to audio.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>src</strong> – Audio source (filepath or Audio instance)</p></li>
+<li><p><strong>duration</strong> – Fade duration in seconds</p></li>
+<li><p><strong>output_path</strong> – If provided, saves to file and returns Path. Otherwise returns Audio.</p></li>
+<li><p><strong>**save_kwargs</strong> – Additional save arguments</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Audio instance or Path to saved file</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">fade_out</span><span class="p">(</span><span class="s2">&quot;song.mp3&quot;</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">,</span> <span class="n">output_path</span><span class="o">=</span><span class="s2">&quot;faded.mp3&quot;</span><span class="p">)</span>  
+<span class="gp">&gt;&gt;&gt; </span><span class="n">audio</span> <span class="o">=</span> <span class="n">fade_out</span><span class="p">(</span><span class="s2">&quot;song.mp3&quot;</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">)</span>  <span class="c1"># Returns Audio instance  </span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mixing.audio.audio_ops.find_audio_offset">
+<span class="sig-prename descclassname"><span class="pre">mixing.audio.audio_ops.</span></span><span class="sig-name descname"><span class="pre">find_audio_offset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reference_audio</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">AudioSegment</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">query_audio</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">AudioSegment</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_rate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">16000</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="../../../_modules/mixing/audio/audio_ops.html#find_audio_offset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.audio.audio_ops.find_audio_offset" title="Link to this definition"></a></dt>
+<dd><p>Find the time offset where query_audio best aligns within reference_audio.</p>
+<p>Uses FFT-based cross-correlation to find the position in reference_audio
+where query_audio starts. This is useful for aligning different recordings
+of the same performance — for example, aligning a studio recording (voice
++ instruments) with a camera recording (voice only).</p>
+<p>The two audio signals don’t need to be identical; they just need to share
+a correlated component (e.g., the same voice in both).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>reference_audio</strong> – The longer audio to search within (e.g., extracted
+from a video). Accepts a file path, numpy array, or AudioSegment.</p></li>
+<li><p><strong>query_audio</strong> – The shorter audio to align (e.g., a studio recording).
+Accepts a file path, numpy array, or AudioSegment.</p></li>
+<li><p><strong>sample_rate</strong> – Sample rate for analysis. Lower values are faster but
+less precise. Default 16000 Hz gives ~0.06ms precision, which is
+more than sufficient for alignment purposes.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Offset in seconds — the position in reference_audio where query_audio
+starts. Positive means query begins after the start of reference.</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">mixing.audio</span><span class="w"> </span><span class="kn">import</span> <span class="n">find_audio_offset</span>  
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Find where a studio recording aligns with a camera recording</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">offset</span> <span class="o">=</span> <span class="n">find_audio_offset</span><span class="p">(</span><span class="s2">&quot;camera_audio.wav&quot;</span><span class="p">,</span> <span class="s2">&quot;studio.mp3&quot;</span><span class="p">)</span>  
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Studio recording starts at </span><span class="si">{</span><span class="n">offset</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">s in the camera audio&quot;</span><span class="p">)</span>  
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mixing.audio.audio_ops.overlay_audio">
+<span class="sig-prename descclassname"><span class="pre">mixing.audio.audio_ops.</span></span><span class="sig-name descname"><span class="pre">overlay_audio</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">background</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#mixing.audio.audio_ops.Audio" title="mixing.audio.audio_ops.Audio"><span class="pre">Audio</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">overlay</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#mixing.audio.audio_ops.Audio" title="mixing.audio.audio_ops.Audio"><span class="pre">Audio</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">position</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mix_ratio</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">save_kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#mixing.audio.audio_ops.Audio" title="mixing.audio.audio_ops.Audio"><span class="pre">Audio</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span></span></span><a class="reference internal" href="../../../_modules/mixing/audio/audio_ops.html#overlay_audio"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.audio.audio_ops.overlay_audio" title="Link to this definition"></a></dt>
+<dd><p>Overlay/mix two audio sources.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>background</strong> – Background audio (filepath or Audio instance)</p></li>
+<li><p><strong>overlay</strong> – Audio to overlay (filepath or Audio instance)</p></li>
+<li><p><strong>position</strong> – Position in seconds where overlay starts</p></li>
+<li><p><strong>mix_ratio</strong> – Mix ratio (0.0 = only background, 1.0 = only overlay, 0.5 = equal mix)</p></li>
+<li><p><strong>output_path</strong> – If provided, saves to file and returns Path. Otherwise returns Audio.</p></li>
+<li><p><strong>**save_kwargs</strong> – Additional save arguments</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Audio instance or Path to saved file</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">overlay_audio</span><span class="p">(</span><span class="s2">&quot;music.mp3&quot;</span><span class="p">,</span> <span class="s2">&quot;voice.mp3&quot;</span><span class="p">,</span> <span class="n">position</span><span class="o">=</span><span class="mf">5.0</span><span class="p">)</span>  
+<span class="gp">&gt;&gt;&gt; </span><span class="n">overlay_audio</span><span class="p">(</span><span class="s2">&quot;bg.mp3&quot;</span><span class="p">,</span> <span class="s2">&quot;sfx.mp3&quot;</span><span class="p">,</span> <span class="n">mix_ratio</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span>  <span class="c1"># 30% overlay, 70% bg  </span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mixing.audio.audio_ops.save_audio_clip">
+<span class="sig-prename descclassname"><span class="pre">mixing.audio.audio_ops.</span></span><span class="sig-name descname"><span class="pre">save_audio_clip</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">audio_src</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_unit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'seconds'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'samples'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'milliseconds'</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">saveas</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">format</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'mp3'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Path</span></span></span><a class="reference internal" href="../../../_modules/mixing/audio/audio_ops.html#save_audio_clip"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.audio.audio_ops.save_audio_clip" title="Link to this definition"></a></dt>
+<dd><p>Extract and save an audio clip.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>audio_src</strong> – Path to audio file. If None, gets from clipboard.</p></li>
+<li><p><strong>start</strong> – Start time/sample (default: 0)</p></li>
+<li><p><strong>end</strong> – End time/sample (None = end of audio)</p></li>
+<li><p><strong>time_unit</strong> – Unit for start/end (‘seconds’, ‘samples’, ‘milliseconds’)</p></li>
+<li><p><strong>saveas</strong> – Output path (auto-generated if None)</p></li>
+<li><p><strong>format</strong> – Output format</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Path to saved audio file</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">save_audio_clip</span><span class="p">(</span><span class="s2">&quot;song.mp3&quot;</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">30</span><span class="p">)</span>  <span class="c1"># Save 10s-30s  </span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">save_audio_clip</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mi">15</span><span class="p">)</span>  <span class="c1"># From clipboard  </span>
+</pre></div>
+</div>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../audio.html" class="btn btn-neutral float-left" title="mixing.audio" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="audio_util.html" class="btn btn-neutral float-right" title="mixing.audio.audio_util" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright NO COPYRIGHT.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

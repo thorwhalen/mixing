@@ -1,0 +1,267 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>mixing.util &mdash; mixing 0.0.4 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=8c5712d9"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../_static/toggleprompt.js?v=d7ede5d2"></script>
+      <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            mixing
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/mixing.html">mixing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/mixing/audio.html">mixing.audio</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/mixing/audio/audio_ops.html">mixing.audio.audio_ops</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/mixing/audio/audio_util.html">mixing.audio.audio_util</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/mixing/audio/audio_widget.html">mixing.audio.audio_widget</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/mixing/audio/demo_audio_widget.html">mixing.audio.demo_audio_widget</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/mixing/audio/test_audio_widget.html">mixing.audio.test_audio_widget</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/mixing/util.html">mixing.util</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/mixing/video.html">mixing.video</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/mixing/video/_helpers.html">mixing.video._helpers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/mixing/video/audio_offset_example.html">mixing.video.audio_offset_example</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/mixing/video/video_concat.html">mixing.video.video_concat</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/mixing/video/video_files.html">mixing.video.video_files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/mixing/video/video_gen.html">mixing.video.video_gen</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/mixing/video/video_ops.html">mixing.video.video_ops</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/mixing/video/video_subtitles.html">mixing.video.video_subtitles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/mixing/video/video_util.html">mixing.video.video_util</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">mixing</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">mixing.util</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for mixing.util</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;General utilities for mixing video, audio, etc.&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Literal</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">importlib</span>
+
+<span class="n">TimeUnit</span> <span class="o">=</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;seconds&quot;</span><span class="p">,</span> <span class="s2">&quot;frames&quot;</span><span class="p">,</span> <span class="s2">&quot;milliseconds&quot;</span><span class="p">]</span>
+<span class="n">AudioTimeUnit</span> <span class="o">=</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;seconds&quot;</span><span class="p">,</span> <span class="s2">&quot;samples&quot;</span><span class="p">,</span> <span class="s2">&quot;milliseconds&quot;</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="require_package">
+<a class="viewcode-back" href="../../module_docs/mixing/video/video_files.html#mixing.util.require_package">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">require_package</span><span class="p">(</span><span class="n">package_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Import a package, raising an informative error if not installed.</span>
+
+<span class="sd">    &gt;&gt;&gt; math = require_package(&#39;math&#39;)  # doctest: +SKIP</span>
+<span class="sd">    &gt;&gt;&gt; math.pi  # doctest: +SKIP</span>
+<span class="sd">    3.141592653589793</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="n">package_name</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">ImportError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ImportError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Package &#39;</span><span class="si">{</span><span class="n">package_name</span><span class="si">}</span><span class="s2">&#39; is required for this functionality. &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;Please install it via &#39;pip install </span><span class="si">{</span><span class="n">package_name</span><span class="si">}</span><span class="s2">&#39;.&quot;</span>
+        <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span></div>
+
+
+
+<div class="viewcode-block" id="to_seconds">
+<a class="viewcode-back" href="../../module_docs/mixing/util.html#mixing.util.to_seconds">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">to_seconds</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">unit</span><span class="p">:</span> <span class="n">TimeUnit</span> <span class="o">|</span> <span class="n">AudioTimeUnit</span><span class="p">,</span> <span class="n">rate</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convert time value to seconds based on unit.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        value: Time value to convert</span>
+<span class="sd">        unit: Unit of the value (&#39;seconds&#39;, &#39;frames&#39;, &#39;milliseconds&#39;, &#39;samples&#39;)</span>
+<span class="sd">        rate: Frame rate (fps) for &#39;frames&#39; or sample rate (Hz) for &#39;samples&#39;</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Time in seconds</span>
+
+<span class="sd">    Examples:</span>
+<span class="sd">        &gt;&gt;&gt; to_seconds(10, unit=&quot;seconds&quot;, rate=24)  # doctest: +SKIP</span>
+<span class="sd">        10.0</span>
+<span class="sd">        &gt;&gt;&gt; to_seconds(240, unit=&quot;frames&quot;, rate=24)  # doctest: +SKIP</span>
+<span class="sd">        10.0</span>
+<span class="sd">        &gt;&gt;&gt; to_seconds(10000, unit=&quot;milliseconds&quot;, rate=24)  # doctest: +SKIP</span>
+<span class="sd">        10.0</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">unit</span> <span class="o">==</span> <span class="s2">&quot;seconds&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">value</span>
+    <span class="k">elif</span> <span class="n">unit</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;frames&quot;</span><span class="p">,</span> <span class="s2">&quot;samples&quot;</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">value</span> <span class="o">/</span> <span class="n">rate</span>
+    <span class="k">elif</span> <span class="n">unit</span> <span class="o">==</span> <span class="s2">&quot;milliseconds&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">value</span> <span class="o">/</span> <span class="mf">1000.0</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid time unit: </span><span class="si">{</span><span class="n">unit</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="get_path_from_clipboard">
+<a class="viewcode-back" href="../../module_docs/mixing/util.html#mixing.util.get_path_from_clipboard">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_path_from_clipboard</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get file path from clipboard and validate it.</span>
+
+<span class="sd">    Intelligently extracts file paths from various clipboard contents including:</span>
+<span class="sd">    - Direct file paths</span>
+<span class="sd">    - File paths within error messages or tracebacks</span>
+<span class="sd">    - Quoted paths</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Getting file path from clipboard...&quot;</span><span class="p">)</span>
+    <span class="n">clipboard_content</span> <span class="o">=</span> <span class="n">require_package</span><span class="p">(</span><span class="s2">&quot;pyclip&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">paste</span><span class="p">()</span>
+
+    <span class="c1"># Validate it&#39;s text, not binary data</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">clipboard_content</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">file_path</span> <span class="o">=</span> <span class="n">clipboard_content</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">UnicodeDecodeError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;Clipboard contains binary data that cannot be decoded as text. &quot;</span>
+                <span class="s2">&quot;Expected a file path string.&quot;</span>
+            <span class="p">)</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">clipboard_content</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">file_path</span> <span class="o">=</span> <span class="n">clipboard_content</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Clipboard content is not a valid string or bytes. &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;Got </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">clipboard_content</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+
+    <span class="c1"># Clean up the path</span>
+    <span class="n">file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">expanduser</span><span class="p">(</span><span class="n">file_path</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+
+    <span class="c1"># Try the path as-is first</span>
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">file_path</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;... File path: </span><span class="si">{</span><span class="n">file_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">file_path</span>
+
+    <span class="c1"># If that didn&#39;t work, try to extract paths from the text</span>
+    <span class="c1"># Look for quoted paths or paths in error messages</span>
+    <span class="n">patterns</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="sa">r</span><span class="s2">&quot;&#39;([^&#39;]+\.(?:mp4|mov|avi|mkv|m4v|webm|flv|wmv|mpg|mpeg))&#39;&quot;</span><span class="p">,</span>  <span class="c1"># Single quoted paths</span>
+        <span class="sa">r</span><span class="s1">&#39;&quot;([^&quot;]+\.(?:mp4|mov|avi|mkv|m4v|webm|flv|wmv|mpg|mpeg))&quot;&#39;</span><span class="p">,</span>  <span class="c1"># Double quoted paths</span>
+        <span class="sa">r</span><span class="s2">&quot;([/~][^\s&#39;</span><span class="se">\&quot;</span><span class="s2">]+\.(?:mp4|mov|avi|mkv|m4v|webm|flv|wmv|mpg|mpeg))&quot;</span><span class="p">,</span>  <span class="c1"># Unquoted absolute paths</span>
+    <span class="p">]</span>
+
+    <span class="k">for</span> <span class="n">pattern</span> <span class="ow">in</span> <span class="n">patterns</span><span class="p">:</span>
+        <span class="n">matches</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">pattern</span><span class="p">,</span> <span class="n">file_path</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">IGNORECASE</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">match</span> <span class="ow">in</span> <span class="n">matches</span><span class="p">:</span>
+            <span class="n">candidate</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">expanduser</span><span class="p">(</span><span class="n">match</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">candidate</span><span class="p">):</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;... Extracted file path from clipboard text: </span><span class="si">{</span><span class="n">candidate</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">candidate</span>
+
+    <span class="c1"># If still not found, give helpful error</span>
+    <span class="c1"># Truncate long strings to avoid printing huge binary garbage</span>
+    <span class="n">display_content</span> <span class="o">=</span> <span class="n">file_path</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">100</span> <span class="k">else</span> <span class="n">file_path</span><span class="p">[:</span><span class="mi">100</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;...&quot;</span>
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;Clipboard content is not a valid (existing) file path: </span><span class="si">{</span><span class="n">display_content</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="sa">f</span><span class="s2">&quot;Tip: Copy the file path directly, not an error message containing it.&quot;</span>
+    <span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;... File path: </span><span class="si">{</span><span class="n">file_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">file_path</span></div>
+
+
+
+<div class="viewcode-block" id="copy_to_clipboard">
+<a class="viewcode-back" href="../../module_docs/mixing/util.html#mixing.util.copy_to_clipboard">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">copy_to_clipboard</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="nb">bytes</span> <span class="o">|</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Copy data to system clipboard.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        data: Bytes (for binary data like images) or string to copy</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">pyclip</span> <span class="o">=</span> <span class="n">require_package</span><span class="p">(</span><span class="s2">&quot;pyclip&quot;</span><span class="p">)</span>
+    <span class="n">pyclip</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">data</span><span class="p">)</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright NO COPYRIGHT.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
