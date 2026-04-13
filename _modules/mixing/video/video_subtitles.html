@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>mixing.video.video_subtitles &mdash; mixing 0.0.4 documentation</title>
+  <title>mixing.video.video_subtitles &mdash; mixing 0.0.5 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
@@ -14,7 +14,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=8c5712d9"></script>
+      <script src="../../../_static/documentation_options.js?v=282f96c0"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script src="../../../_static/toggleprompt.js?v=d7ede5d2"></script>
@@ -122,7 +122,7 @@
 <span class="sd">    1.5</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># Parse HH:MM:SS,mmm format</span>
-    <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;(\d+):(\d+):(\d+),(\d+)&#39;</span><span class="p">,</span> <span class="n">time_str</span><span class="p">)</span>
+    <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;(\d+):(\d+):(\d+),(\d+)&quot;</span><span class="p">,</span> <span class="n">time_str</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">match</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid time format: </span><span class="si">{</span><span class="n">time_str</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
@@ -181,7 +181,7 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">_shift_timestamp_line</span><span class="p">(</span><span class="n">line</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Shift a single timestamp line.&quot;&quot;&quot;</span>
         <span class="c1"># Match the timestamp line format: &quot;00:43:12,187 --&gt; 00:43:13,817&quot;</span>
-        <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;(\d+:\d+:\d+,\d+)\s+--&gt;\s+(\d+:\d+:\d+,\d+)&#39;</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span>
+        <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;(\d+:\d+:\d+,\d+)\s+--&gt;\s+(\d+:\d+:\d+,\d+)&quot;</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">match</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">line</span>
 
@@ -197,16 +197,16 @@
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">new_start</span><span class="si">}</span><span class="s2"> --&gt; </span><span class="si">{</span><span class="n">new_end</span><span class="si">}</span><span class="s2">&quot;</span>
 
     <span class="c1"># Process line by line</span>
-    <span class="n">lines</span> <span class="o">=</span> <span class="n">srt_content</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="n">lines</span> <span class="o">=</span> <span class="n">srt_content</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
     <span class="n">shifted_lines</span> <span class="o">=</span> <span class="p">[]</span>
 
     <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">:</span>
-        <span class="k">if</span> <span class="s1">&#39;--&gt;&#39;</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s2">&quot;--&gt;&quot;</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
             <span class="n">shifted_lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_shift_timestamp_line</span><span class="p">(</span><span class="n">line</span><span class="p">))</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">shifted_lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
 
-    <span class="k">return</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">shifted_lines</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">shifted_lines</span><span class="p">)</span></div>
 
 
 
@@ -275,9 +275,9 @@
             <span class="k">if</span> <span class="n">intensity</span> <span class="o">&gt;=</span> <span class="n">min_peak_threshold</span><span class="p">:</span>
                 <span class="n">peaks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
                     <span class="p">{</span>
-                        <span class="s1">&#39;time&#39;</span><span class="p">:</span> <span class="n">time_offset</span><span class="p">,</span>
-                        <span class="s1">&#39;intensity&#39;</span><span class="p">:</span> <span class="n">intensity</span><span class="p">,</span>
-                        <span class="s1">&#39;variation&#39;</span><span class="p">:</span> <span class="n">variation</span><span class="p">,</span>
+                        <span class="s2">&quot;time&quot;</span><span class="p">:</span> <span class="n">time_offset</span><span class="p">,</span>
+                        <span class="s2">&quot;intensity&quot;</span><span class="p">:</span> <span class="n">intensity</span><span class="p">,</span>
+                        <span class="s2">&quot;variation&quot;</span><span class="p">:</span> <span class="n">variation</span><span class="p">,</span>
                     <span class="p">}</span>
                 <span class="p">)</span>
 
@@ -325,8 +325,8 @@
         <span class="k">return</span> <span class="mf">0.0</span>
 
     <span class="c1"># Calculate statistics</span>
-    <span class="n">intensities</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span><span class="p">[</span><span class="s1">&#39;intensity&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">peaks</span><span class="p">]</span>
-    <span class="n">variations</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span><span class="p">[</span><span class="s1">&#39;variation&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">peaks</span><span class="p">]</span>
+    <span class="n">intensities</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span><span class="p">[</span><span class="s2">&quot;intensity&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">peaks</span><span class="p">]</span>
+    <span class="n">variations</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span><span class="p">[</span><span class="s2">&quot;variation&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">peaks</span><span class="p">]</span>
 
     <span class="n">mean_intensity</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">intensities</span><span class="p">)</span>
     <span class="n">std_intensity</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">intensities</span><span class="p">)</span>
@@ -337,18 +337,18 @@
     <span class="c1"># Look for intensity above threshold AND significant variation</span>
     <span class="k">for</span> <span class="n">peak</span> <span class="ow">in</span> <span class="n">peaks</span><span class="p">:</span>
         <span class="c1"># Strong intensity signal</span>
-        <span class="n">intensity_significant</span> <span class="o">=</span> <span class="n">peak</span><span class="p">[</span><span class="s1">&#39;intensity&#39;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">intensity_threshold</span>
+        <span class="n">intensity_significant</span> <span class="o">=</span> <span class="n">peak</span><span class="p">[</span><span class="s2">&quot;intensity&quot;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">intensity_threshold</span>
 
         <span class="c1"># Or significant jump in variation (sudden increase)</span>
         <span class="n">variation_significant</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="n">peak</span><span class="p">[</span><span class="s1">&#39;variation&#39;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">mean_variation</span> <span class="o">+</span> <span class="n">variation_multiplier</span> <span class="o">*</span> <span class="n">std_variation</span>
+            <span class="n">peak</span><span class="p">[</span><span class="s2">&quot;variation&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">mean_variation</span> <span class="o">+</span> <span class="n">variation_multiplier</span> <span class="o">*</span> <span class="n">std_variation</span>
         <span class="p">)</span>
 
         <span class="k">if</span> <span class="n">intensity_significant</span> <span class="ow">or</span> <span class="n">variation_significant</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">peak</span><span class="p">[</span><span class="s1">&#39;time&#39;</span><span class="p">]</span>
+            <span class="k">return</span> <span class="n">peak</span><span class="p">[</span><span class="s2">&quot;time&quot;</span><span class="p">]</span>
 
     <span class="c1"># Fallback: return time of first peak</span>
-    <span class="k">return</span> <span class="n">peaks</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;time&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="n">peaks</span> <span class="k">else</span> <span class="mf">0.0</span></div>
+    <span class="k">return</span> <span class="n">peaks</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;time&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="n">peaks</span> <span class="k">else</span> <span class="mf">0.0</span></div>
 
 
 
@@ -402,11 +402,11 @@
 <span class="sd">        moving all timestamps back by 7 seconds so first subtitle starts at 3s.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># Find first subtitle timestamp</span>
-    <span class="n">lines</span> <span class="o">=</span> <span class="n">srt_content</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="n">lines</span> <span class="o">=</span> <span class="n">srt_content</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
     <span class="n">first_subtitle_time</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">:</span>
-        <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;(\d+:\d+:\d+,\d+)\s+--&gt;&#39;</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span>
+        <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;(\d+:\d+:\d+,\d+)\s+--&gt;&quot;</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">match</span><span class="p">:</span>
             <span class="n">first_timestamp</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
             <span class="n">first_subtitle_time</span> <span class="o">=</span> <span class="n">srt_time_to_seconds</span><span class="p">(</span><span class="n">first_timestamp</span><span class="p">)</span>
@@ -501,7 +501,7 @@
 
     <span class="k">if</span> <span class="n">output_srt</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">has_adjustment</span> <span class="o">=</span> <span class="n">auto_detect_audio_start</span> <span class="ow">or</span> <span class="n">start_time</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-        <span class="n">suffix</span> <span class="o">=</span> <span class="s1">&#39;_audio_aligned&#39;</span> <span class="k">if</span> <span class="n">has_adjustment</span> <span class="k">else</span> <span class="s1">&#39;_fixed&#39;</span>
+        <span class="n">suffix</span> <span class="o">=</span> <span class="s2">&quot;_audio_aligned&quot;</span> <span class="k">if</span> <span class="n">has_adjustment</span> <span class="k">else</span> <span class="s2">&quot;_fixed&quot;</span>
         <span class="n">output_path</span> <span class="o">=</span> <span class="n">input_path</span><span class="o">.</span><span class="n">with_stem</span><span class="p">(</span><span class="n">input_path</span><span class="o">.</span><span class="n">stem</span> <span class="o">+</span> <span class="n">suffix</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">output_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">output_srt</span><span class="p">)</span>
@@ -530,8 +530,8 @@
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_get_first_timestamp</span><span class="p">(</span><span class="n">srt_content</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Get the first timestamp from SRT content.&quot;&quot;&quot;</span>
-    <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">srt_content</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">):</span>
-        <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;(\d+:\d+:\d+,\d+)\s+--&gt;&#39;</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">srt_content</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">):</span>
+        <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;(\d+:\d+:\d+,\d+)\s+--&gt;&quot;</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">match</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
     <span class="k">return</span> <span class="s2">&quot;Not found&quot;</span>
@@ -544,17 +544,17 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Configuration for subtitle appearance.&quot;&quot;&quot;</span>
 
     <span class="n">font_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">24</span>
-    <span class="n">color</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;white&#39;</span>
-    <span class="n">position</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;center&#39;</span><span class="p">,</span> <span class="s1">&#39;bottom&#39;</span><span class="p">)</span>
-    <span class="n">font_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;Arial&#39;</span>
+    <span class="n">color</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;white&quot;</span>
+    <span class="n">position</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;center&quot;</span><span class="p">,</span> <span class="s2">&quot;bottom&quot;</span><span class="p">)</span>
+    <span class="n">font_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;Arial&quot;</span>
 
 <div class="viewcode-block" id="SubtitleStyle.to_text_clip_kwargs">
 <a class="viewcode-back" href="../../../module_docs/mixing/video/video_subtitles.html#mixing.video.video_subtitles.SubtitleStyle.to_text_clip_kwargs">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">to_text_clip_kwargs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Convert style to TextClip kwargs.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">{</span>
-            <span class="s1">&#39;font_size&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">font_size</span><span class="p">,</span>
-            <span class="s1">&#39;color&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">color</span><span class="p">,</span>
+            <span class="s2">&quot;font_size&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">font_size</span><span class="p">,</span>
+            <span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">color</span><span class="p">,</span>
         <span class="p">}</span></div>
 
 
@@ -563,23 +563,23 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">to_ffmpeg_style</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Convert to FFmpeg subtitle style string.&quot;&quot;&quot;</span>
         <span class="n">alignment_map</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="p">(</span><span class="s1">&#39;center&#39;</span><span class="p">,</span> <span class="s1">&#39;bottom&#39;</span><span class="p">):</span> <span class="mi">2</span><span class="p">,</span>
-            <span class="p">(</span><span class="s1">&#39;center&#39;</span><span class="p">,</span> <span class="s1">&#39;top&#39;</span><span class="p">):</span> <span class="mi">8</span><span class="p">,</span>
-            <span class="p">(</span><span class="s1">&#39;center&#39;</span><span class="p">,</span> <span class="s1">&#39;center&#39;</span><span class="p">):</span> <span class="mi">5</span><span class="p">,</span>
-            <span class="p">(</span><span class="s1">&#39;left&#39;</span><span class="p">,</span> <span class="s1">&#39;bottom&#39;</span><span class="p">):</span> <span class="mi">1</span><span class="p">,</span>
-            <span class="p">(</span><span class="s1">&#39;right&#39;</span><span class="p">,</span> <span class="s1">&#39;bottom&#39;</span><span class="p">):</span> <span class="mi">3</span><span class="p">,</span>
+            <span class="p">(</span><span class="s2">&quot;center&quot;</span><span class="p">,</span> <span class="s2">&quot;bottom&quot;</span><span class="p">):</span> <span class="mi">2</span><span class="p">,</span>
+            <span class="p">(</span><span class="s2">&quot;center&quot;</span><span class="p">,</span> <span class="s2">&quot;top&quot;</span><span class="p">):</span> <span class="mi">8</span><span class="p">,</span>
+            <span class="p">(</span><span class="s2">&quot;center&quot;</span><span class="p">,</span> <span class="s2">&quot;center&quot;</span><span class="p">):</span> <span class="mi">5</span><span class="p">,</span>
+            <span class="p">(</span><span class="s2">&quot;left&quot;</span><span class="p">,</span> <span class="s2">&quot;bottom&quot;</span><span class="p">):</span> <span class="mi">1</span><span class="p">,</span>
+            <span class="p">(</span><span class="s2">&quot;right&quot;</span><span class="p">,</span> <span class="s2">&quot;bottom&quot;</span><span class="p">):</span> <span class="mi">3</span><span class="p">,</span>
         <span class="p">}</span>
         <span class="n">alignment</span> <span class="o">=</span> <span class="n">alignment_map</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">position</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
 
         <span class="n">color_map</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s1">&#39;white&#39;</span><span class="p">:</span> <span class="s1">&#39;FFFFFF&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;yellow&#39;</span><span class="p">:</span> <span class="s1">&#39;FFFF00&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;black&#39;</span><span class="p">:</span> <span class="s1">&#39;000000&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;red&#39;</span><span class="p">:</span> <span class="s1">&#39;FF0000&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;green&#39;</span><span class="p">:</span> <span class="s1">&#39;00FF00&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;blue&#39;</span><span class="p">:</span> <span class="s1">&#39;0000FF&#39;</span><span class="p">,</span>
+            <span class="s2">&quot;white&quot;</span><span class="p">:</span> <span class="s2">&quot;FFFFFF&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;yellow&quot;</span><span class="p">:</span> <span class="s2">&quot;FFFF00&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;black&quot;</span><span class="p">:</span> <span class="s2">&quot;000000&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;red&quot;</span><span class="p">:</span> <span class="s2">&quot;FF0000&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;green&quot;</span><span class="p">:</span> <span class="s2">&quot;00FF00&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;blue&quot;</span><span class="p">:</span> <span class="s2">&quot;0000FF&quot;</span><span class="p">,</span>
         <span class="p">}</span>
-        <span class="n">color_hex</span> <span class="o">=</span> <span class="n">color_map</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">color</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span> <span class="s1">&#39;FFFFFF&#39;</span><span class="p">)</span>
+        <span class="n">color_hex</span> <span class="o">=</span> <span class="n">color_map</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">color</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span> <span class="s2">&quot;FFFFFF&quot;</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;FontSize=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">font_size</span><span class="si">}</span><span class="s2">,FontName=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">font_name</span><span class="si">}</span><span class="s2">,PrimaryColour=&amp;H</span><span class="si">{</span><span class="n">color_hex</span><span class="si">}</span><span class="s2">&amp;,Alignment=</span><span class="si">{</span><span class="n">alignment</span><span class="si">}</span><span class="s2">&quot;</span></div>
 </div>
@@ -611,7 +611,7 @@
 <span class="sd">    &gt;&gt;&gt; _parse_srt_timestamp(&#39;00:00:01,500&#39;)</span>
 <span class="sd">    &#39;00:00:01.500&#39;</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">timestamp</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">,</span> <span class="s1">&#39;.&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">timestamp</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">,</span> <span class="s2">&quot;.&quot;</span><span class="p">)</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_parse_srt_subtitle</span><span class="p">(</span><span class="n">subtitle_block</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]:</span>
@@ -626,17 +626,17 @@
 <span class="sd">    &gt;&gt;&gt; _parse_srt_subtitle(block)</span>
 <span class="sd">    (&#39;00:00:01.000&#39;, &#39;00:00:03.000&#39;, &#39;Hello, world!&#39;)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">lines</span> <span class="o">=</span> <span class="n">subtitle_block</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="n">lines</span> <span class="o">=</span> <span class="n">subtitle_block</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">None</span>
 
     <span class="k">try</span><span class="p">:</span>
-        <span class="n">time_info</span> <span class="o">=</span> <span class="n">lines</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; --&gt; &#39;</span><span class="p">)</span>
+        <span class="n">time_info</span> <span class="o">=</span> <span class="n">lines</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot; --&gt; &quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">time_info</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">None</span>
         <span class="n">start_time</span> <span class="o">=</span> <span class="n">_parse_srt_timestamp</span><span class="p">(</span><span class="n">time_info</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
         <span class="n">end_time</span> <span class="o">=</span> <span class="n">_parse_srt_timestamp</span><span class="p">(</span><span class="n">time_info</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
-        <span class="n">text</span> <span class="o">=</span> <span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">[</span><span class="mi">2</span><span class="p">:])</span>
+        <span class="n">text</span> <span class="o">=</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">[</span><span class="mi">2</span><span class="p">:])</span>
         <span class="k">return</span> <span class="n">start_time</span><span class="p">,</span> <span class="n">end_time</span><span class="p">,</span> <span class="n">text</span>
     <span class="k">except</span> <span class="p">(</span><span class="ne">IndexError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">):</span>
         <span class="k">return</span> <span class="kc">None</span>
@@ -658,7 +658,7 @@
     <span class="n">text_kwargs</span> <span class="o">=</span> <span class="p">{</span><span class="o">**</span><span class="n">style</span><span class="o">.</span><span class="n">to_text_clip_kwargs</span><span class="p">(),</span> <span class="o">**</span><span class="n">text_clip_kwargs</span><span class="p">}</span>
 
     <span class="n">subtitle_clips</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">subtitle_block</span> <span class="ow">in</span> <span class="n">subtitles</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n\n</span><span class="s1">&#39;</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">subtitle_block</span> <span class="ow">in</span> <span class="n">subtitles</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">&quot;</span><span class="p">):</span>
         <span class="n">parsed</span> <span class="o">=</span> <span class="n">_parse_srt_subtitle</span><span class="p">(</span><span class="n">subtitle_block</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">parsed</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">continue</span>
@@ -667,7 +667,7 @@
 
         <span class="k">try</span><span class="p">:</span>
             <span class="n">txt_clip</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">TextClip</span><span class="p">(</span>
-                <span class="n">text</span><span class="o">=</span><span class="n">text</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="n">video_clip</span><span class="o">.</span><span class="n">w</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;caption&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">text_kwargs</span>
+                <span class="n">text</span><span class="o">=</span><span class="n">text</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="n">video_clip</span><span class="o">.</span><span class="n">w</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;caption&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">text_kwargs</span>
             <span class="p">)</span>
             <span class="n">txt_clip</span> <span class="o">=</span> <span class="p">(</span>
                 <span class="n">txt_clip</span><span class="o">.</span><span class="n">with_start</span><span class="p">(</span><span class="n">start_time</span><span class="p">)</span>
@@ -726,7 +726,7 @@
     <span class="n">video_path</span> <span class="o">=</span> <span class="n">process_path</span><span class="p">(</span><span class="n">video</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="n">embed_subtitles</span><span class="p">:</span>
-        <span class="n">output_video_path</span> <span class="o">=</span> <span class="n">_get_output_path</span><span class="p">(</span><span class="n">output_video</span><span class="p">,</span> <span class="n">video_path</span><span class="p">,</span> <span class="n">suffix</span><span class="o">=</span><span class="s1">&#39;_copy&#39;</span><span class="p">)</span>
+        <span class="n">output_video_path</span> <span class="o">=</span> <span class="n">_get_output_path</span><span class="p">(</span><span class="n">output_video</span><span class="p">,</span> <span class="n">video_path</span><span class="p">,</span> <span class="n">suffix</span><span class="o">=</span><span class="s2">&quot;_copy&quot;</span><span class="p">)</span>
         <span class="kn">import</span><span class="w"> </span><span class="nn">shutil</span>
 
         <span class="n">shutil</span><span class="o">.</span><span class="n">copy2</span><span class="p">(</span><span class="n">video_path</span><span class="p">,</span> <span class="n">output_video_path</span><span class="p">)</span>
@@ -768,7 +768,7 @@
     <span class="k">if</span> <span class="n">style</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">style</span> <span class="o">=</span> <span class="n">SubtitleStyle</span><span class="p">()</span>
 
-    <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">NamedTemporaryFile</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s1">&#39;w&#39;</span><span class="p">,</span> <span class="n">suffix</span><span class="o">=</span><span class="s1">&#39;.srt&#39;</span><span class="p">,</span> <span class="n">delete</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">NamedTemporaryFile</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">suffix</span><span class="o">=</span><span class="s2">&quot;.srt&quot;</span><span class="p">,</span> <span class="n">delete</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
         <span class="n">temp_srt_path</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">name</span>
         <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">srt_content</span><span class="p">)</span>
 
@@ -776,14 +776,14 @@
         <span class="n">style_str</span> <span class="o">=</span> <span class="n">style</span><span class="o">.</span><span class="n">to_ffmpeg_style</span><span class="p">()</span>
 
         <span class="n">cmd</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="s1">&#39;ffmpeg&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;-i&#39;</span><span class="p">,</span>
+            <span class="s2">&quot;ffmpeg&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;-i&quot;</span><span class="p">,</span>
             <span class="nb">str</span><span class="p">(</span><span class="n">video_path</span><span class="p">),</span>
-            <span class="s1">&#39;-vf&#39;</span><span class="p">,</span>
+            <span class="s2">&quot;-vf&quot;</span><span class="p">,</span>
             <span class="sa">f</span><span class="s2">&quot;subtitles=&#39;</span><span class="si">{</span><span class="n">temp_srt_path</span><span class="si">}</span><span class="s2">&#39;:force_style=&#39;</span><span class="si">{</span><span class="n">style_str</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">,</span>
-            <span class="s1">&#39;-c:a&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;copy&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;-y&#39;</span><span class="p">,</span>
+            <span class="s2">&quot;-c:a&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;copy&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;-y&quot;</span><span class="p">,</span>
             <span class="nb">str</span><span class="p">(</span><span class="n">output_path</span><span class="p">),</span>
         <span class="p">]</span>
 
@@ -827,7 +827,7 @@
     <span class="n">video_with_subtitles</span> <span class="o">=</span> <span class="n">video_with_subtitles</span><span class="o">.</span><span class="n">with_audio</span><span class="p">(</span><span class="n">video_clip</span><span class="o">.</span><span class="n">audio</span><span class="p">)</span>
 
     <span class="n">video_with_subtitles</span><span class="o">.</span><span class="n">write_videofile</span><span class="p">(</span>
-        <span class="nb">str</span><span class="p">(</span><span class="n">output_path</span><span class="p">),</span> <span class="n">codec</span><span class="o">=</span><span class="s1">&#39;libx264&#39;</span><span class="p">,</span> <span class="n">audio_codec</span><span class="o">=</span><span class="s1">&#39;aac&#39;</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="n">video_clip</span><span class="o">.</span><span class="n">fps</span>
+        <span class="nb">str</span><span class="p">(</span><span class="n">output_path</span><span class="p">),</span> <span class="n">codec</span><span class="o">=</span><span class="s2">&quot;libx264&quot;</span><span class="p">,</span> <span class="n">audio_codec</span><span class="o">=</span><span class="s2">&quot;aac&quot;</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="n">video_clip</span><span class="o">.</span><span class="n">fps</span>
     <span class="p">)</span>
 
     <span class="n">video_clip</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
@@ -840,7 +840,7 @@
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Process subtitle and output video path inputs.&quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">subtitles</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">subtitles_path</span> <span class="o">=</span> <span class="n">video_path</span><span class="o">.</span><span class="n">with_suffix</span><span class="p">(</span><span class="s1">&#39;.srt&#39;</span><span class="p">)</span>
+        <span class="n">subtitles_path</span> <span class="o">=</span> <span class="n">video_path</span><span class="o">.</span><span class="n">with_suffix</span><span class="p">(</span><span class="s2">&quot;.srt&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">subtitles_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
             <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s2">&quot;No subtitle file found at </span><span class="si">{</span><span class="n">subtitles_path</span><span class="si">}</span><span class="s2">. &quot;</span>
@@ -859,7 +859,7 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_get_output_path</span><span class="p">(</span>
-    <span class="n">output_video</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">video_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">suffix</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;_with_subtitles&#39;</span>
+    <span class="n">output_video</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">video_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">suffix</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;_with_subtitles&quot;</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Generate output video path.&quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">output_video</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -878,7 +878,7 @@
 <div class="viewcode-block" id="create_test_video">
 <a class="viewcode-back" href="../../../module_docs/mixing/video/video_subtitles.html#mixing.video.video_subtitles.create_test_video">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">create_test_video</span><span class="p">(</span>
-    <span class="n">output_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;/tmp/test_video.mp4&#39;</span><span class="p">,</span>
+    <span class="n">output_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;/tmp/test_video.mp4&quot;</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
     <span class="n">duration</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">5.0</span><span class="p">,</span>
     <span class="n">fps</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">24</span><span class="p">,</span>
@@ -918,10 +918,10 @@
             <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Warning: Could not add audio to test video: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
     <span class="n">output_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">output_path</span><span class="p">)</span>
-    <span class="n">write_kwargs</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;codec&#39;</span><span class="p">:</span> <span class="s1">&#39;libx264&#39;</span><span class="p">,</span> <span class="s1">&#39;fps&#39;</span><span class="p">:</span> <span class="n">fps</span><span class="p">,</span> <span class="s1">&#39;logger&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">}</span>
+    <span class="n">write_kwargs</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;codec&quot;</span><span class="p">:</span> <span class="s2">&quot;libx264&quot;</span><span class="p">,</span> <span class="s2">&quot;fps&quot;</span><span class="p">:</span> <span class="n">fps</span><span class="p">,</span> <span class="s2">&quot;logger&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">}</span>
 
     <span class="k">if</span> <span class="n">video</span><span class="o">.</span><span class="n">audio</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">write_kwargs</span><span class="p">[</span><span class="s1">&#39;audio_codec&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;aac&#39;</span>
+        <span class="n">write_kwargs</span><span class="p">[</span><span class="s2">&quot;audio_codec&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;aac&quot;</span>
 
     <span class="n">video</span><span class="o">.</span><span class="n">write_videofile</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">output_path</span><span class="p">),</span> <span class="o">**</span><span class="n">write_kwargs</span><span class="p">)</span>
     <span class="n">video</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
@@ -933,7 +933,7 @@
 <div class="viewcode-block" id="create_test_srt">
 <a class="viewcode-back" href="../../../module_docs/mixing/video/video_subtitles.html#mixing.video.video_subtitles.create_test_srt">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">create_test_srt</span><span class="p">(</span>
-    <span class="n">output_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;/tmp/test_subtitles.srt&#39;</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">num_subtitles</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">3</span>
+    <span class="n">output_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;/tmp/test_subtitles.srt&quot;</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">num_subtitles</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">3</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a simple test SRT subtitle file.&quot;&quot;&quot;</span>
     <span class="n">srt_content</span> <span class="o">=</span> <span class="p">[]</span>
@@ -946,7 +946,7 @@
         <span class="n">srt_content</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
 
     <span class="n">output_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">output_path</span><span class="p">)</span>
-    <span class="n">output_path</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">srt_content</span><span class="p">))</span>
+    <span class="n">output_path</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">srt_content</span><span class="p">))</span>
 
     <span class="k">return</span> <span class="n">output_path</span></div>
 
@@ -960,9 +960,9 @@
 
     <span class="k">try</span><span class="p">:</span>
         <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">tmpdir</span><span class="p">:</span>
-            <span class="n">video_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">tmpdir</span><span class="p">)</span> <span class="o">/</span> <span class="s1">&#39;test_video.mp4&#39;</span>
-            <span class="n">srt_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">tmpdir</span><span class="p">)</span> <span class="o">/</span> <span class="s1">&#39;test_subtitles.srt&#39;</span>
-            <span class="n">output_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">tmpdir</span><span class="p">)</span> <span class="o">/</span> <span class="s1">&#39;output_video.mp4&#39;</span>
+            <span class="n">video_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">tmpdir</span><span class="p">)</span> <span class="o">/</span> <span class="s2">&quot;test_video.mp4&quot;</span>
+            <span class="n">srt_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">tmpdir</span><span class="p">)</span> <span class="o">/</span> <span class="s2">&quot;test_subtitles.srt&quot;</span>
+            <span class="n">output_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">tmpdir</span><span class="p">)</span> <span class="o">/</span> <span class="s2">&quot;output_video.mp4&quot;</span>
 
             <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Creating test video...&quot;</span><span class="p">)</span>
             <span class="n">create_test_video</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">video_path</span><span class="p">),</span> <span class="n">duration</span><span class="o">=</span><span class="mf">5.0</span><span class="p">,</span> <span class="n">with_audio</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
