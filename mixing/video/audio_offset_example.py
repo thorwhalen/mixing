@@ -81,7 +81,7 @@ def example_analyze_audio_peaks(video_path: str):
 
     # Show first few peaks
     for i, peak in enumerate(peaks[:5]):
-        print(f"Peak {i+1}:")
+        print(f"Peak {i + 1}:")
         print(f"  Time: {peak['time']:.2f}s")
         print(f"  Intensity: {peak['intensity']:.4f}")
         print(f"  Variation: {peak['variation']:.4f}")

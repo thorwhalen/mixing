@@ -107,20 +107,20 @@ def _print_auth_help():
 def _get_auth_from_env():
     """Get authentication info from environment variables."""
     # Check for service account file
-    service_account_file = os.getenv('VEO_SERVICE_ACCOUNT_FILE') or os.getenv(
-        'GOOGLE_APPLICATION_CREDENTIALS'
+    service_account_file = os.getenv("VEO_SERVICE_ACCOUNT_FILE") or os.getenv(
+        "GOOGLE_APPLICATION_CREDENTIALS"
     )
 
     # Check for project ID
     project_id = (
-        os.getenv('VEO_PROJECT_ID')
-        or os.getenv('GOOGLE_CLOUD_PROJECT')
-        or os.getenv('GCLOUD_PROJECT')
+        os.getenv("VEO_PROJECT_ID")
+        or os.getenv("GOOGLE_CLOUD_PROJECT")
+        or os.getenv("GCLOUD_PROJECT")
     )
 
     # Check for location
     location = (
-        os.getenv('VEO_LOCATION') or os.getenv('GOOGLE_CLOUD_LOCATION') or 'us-central1'
+        os.getenv("VEO_LOCATION") or os.getenv("GOOGLE_CLOUD_LOCATION") or "us-central1"
     )
 
     return service_account_file, project_id, location
@@ -176,28 +176,28 @@ def _setup_genai_client(
 def _get_video_extension_from_mime(mime_type: str) -> str:
     """Get video file extension from MIME type."""
     mime_to_ext = {
-        'video/mp4': 'mp4',
-        'video/avi': 'avi',
-        'video/mkv': 'mkv',
-        'video/mov': 'mov',
-        'video/quicktime': 'mov',
-        'video/webm': 'webm',
-        'video/wmv': 'wmv',
-        'video/flv': 'flv',
-        'video/3gpp': '3gp',
-        'video/mpeg': 'mpg',
-        'video/x-msvideo': 'avi',
+        "video/mp4": "mp4",
+        "video/avi": "avi",
+        "video/mkv": "mkv",
+        "video/mov": "mov",
+        "video/quicktime": "mov",
+        "video/webm": "webm",
+        "video/wmv": "wmv",
+        "video/flv": "flv",
+        "video/3gpp": "3gp",
+        "video/mpeg": "mpg",
+        "video/x-msvideo": "avi",
     }
-    return mime_to_ext.get(mime_type.lower(), 'mp4')  # Default to mp4
+    return mime_to_ext.get(mime_type.lower(), "mp4")  # Default to mp4
 
 
 def _generate_output_paths(
     generated_videos,
     save_filepath: str | None = None,
     *,
-    prefix: str = 'generated_video_',
-    directory_name: str = 'generated_video_',
-    extension_fallback: str = 'mp4',
+    prefix: str = "generated_video_",
+    directory_name: str = "generated_video_",
+    extension_fallback: str = "mp4",
 ) -> list[str]:
     """
     Generate output file paths for video saving, ensuring no conflicts with existing files.
@@ -221,41 +221,41 @@ def _generate_output_paths(
         for i, video in enumerate(generated_videos):
             # Get extension from MIME type if available (handle both new and legacy API)
             if (
-                hasattr(video, 'video')
+                hasattr(video, "video")
                 and video.video
-                and hasattr(video.video, 'mime_type')
+                and hasattr(video.video, "mime_type")
             ):
                 mime_type = video.video.mime_type
             else:
-                mime_type = getattr(video, 'mime_type', f'video/{extension_fallback}')
+                mime_type = getattr(video, "mime_type", f"video/{extension_fallback}")
             ext = _get_video_extension_from_mime(mime_type)
 
             if is_single_video:
-                temp_fd, output_path = tempfile.mkstemp(suffix=f'.{ext}', prefix=prefix)
+                temp_fd, output_path = tempfile.mkstemp(suffix=f".{ext}", prefix=prefix)
             else:
                 temp_fd, output_path = tempfile.mkstemp(
-                    suffix=f'.{ext}', prefix=f'{prefix}{i:02d}_'
+                    suffix=f".{ext}", prefix=f"{prefix}{i:02d}_"
                 )
             os.close(temp_fd)  # Close the file descriptor since we'll write separately
             output_paths.append(output_path)
 
-    elif save_filepath.startswith('.'):
+    elif save_filepath.startswith("."):
         # Extension provided
         ext = save_filepath[1:]  # Remove the leading dot
 
         # Validate it's a video extension
         video_extensions = {
-            'mp4',
-            'avi',
-            'mkv',
-            'mov',
-            'wmv',
-            'flv',
-            'webm',
-            'm4v',
-            '3gp',
-            'mpg',
-            'mpeg',
+            "mp4",
+            "avi",
+            "mkv",
+            "mov",
+            "wmv",
+            "flv",
+            "webm",
+            "m4v",
+            "3gp",
+            "mpg",
+            "mpeg",
         }
         if ext.lower() not in video_extensions:
             raise ValueError(
@@ -264,10 +264,10 @@ def _generate_output_paths(
 
         for i in range(num_videos):
             if is_single_video:
-                temp_fd, output_path = tempfile.mkstemp(suffix=f'.{ext}', prefix=prefix)
+                temp_fd, output_path = tempfile.mkstemp(suffix=f".{ext}", prefix=prefix)
             else:
                 temp_fd, output_path = tempfile.mkstemp(
-                    suffix=f'.{ext}', prefix=f'{prefix}{i:02d}_'
+                    suffix=f".{ext}", prefix=f"{prefix}{i:02d}_"
                 )
             os.close(temp_fd)
             output_paths.append(output_path)
@@ -283,19 +283,19 @@ def _generate_output_paths(
         for i, video in enumerate(generated_videos):
             # Get extension from MIME type if available (handle both new and legacy API)
             if (
-                hasattr(video, 'video')
+                hasattr(video, "video")
                 and video.video
-                and hasattr(video.video, 'mime_type')
+                and hasattr(video.video, "mime_type")
             ):
                 mime_type = video.video.mime_type
             else:
-                mime_type = getattr(video, 'mime_type', f'video/{extension_fallback}')
+                mime_type = getattr(video, "mime_type", f"video/{extension_fallback}")
             ext = _get_video_extension_from_mime(mime_type)
 
             if is_single_video:
-                base_filename = f'{directory_name}.{ext}'
+                base_filename = f"{directory_name}.{ext}"
             else:
-                base_filename = f'{directory_name}_{i:02d}.{ext}'
+                base_filename = f"{directory_name}_{i:02d}.{ext}"
 
             # Use non_colliding_key to ensure we don't overwrite existing files
             safe_filename = non_colliding_key(base_filename, existing_files)
@@ -316,7 +316,7 @@ def _generate_output_paths(
                     existing_files = (
                         set(os.listdir(directory))
                         if directory
-                        else set(os.listdir('.'))
+                        else set(os.listdir("."))
                     )
                 except OSError:
                     existing_files = set()
@@ -333,19 +333,19 @@ def _generate_output_paths(
             # Multiple videos - generate indexed paths using non_colliding_key
             base_path, ext = os.path.splitext(save_filepath)
             if not ext:
-                ext = f'.{extension_fallback}'
+                ext = f".{extension_fallback}"
 
             directory = os.path.dirname(save_filepath)
             try:
                 existing_files = (
-                    set(os.listdir(directory)) if directory else set(os.listdir('.'))
+                    set(os.listdir(directory)) if directory else set(os.listdir("."))
                 )
             except OSError:
                 existing_files = set()
 
             for i in range(num_videos):
                 # Generate base indexed filename
-                base_filename = os.path.basename(f'{base_path}__{i:02d}{ext}')
+                base_filename = os.path.basename(f"{base_path}__{i:02d}{ext}")
                 # Use non_colliding_key to ensure uniqueness
                 safe_filename = non_colliding_key(base_filename, existing_files)
                 output_path = (
@@ -365,9 +365,9 @@ def save_generated_videos(
     video_input,  # Can be: GeneratedVideo, list[GeneratedVideo], operation.response, or operation
     save_filepath: str | None = None,
     *,
-    prefix: str = 'generated_video_',
-    directory_name: str = 'generated_video_',
-    extension_fallback: str = 'mp4',
+    prefix: str = "generated_video_",
+    directory_name: str = "generated_video_",
+    extension_fallback: str = "mp4",
 ) -> str | list[str]:
     """
     Save generated video(s) to file(s). Handles single videos, lists of videos,
@@ -405,28 +405,28 @@ def save_generated_videos(
     generated_videos = []
 
     # Check for operation object first (most specific)
-    if hasattr(video_input, 'response') and hasattr(
-        video_input.response, 'generated_videos'
+    if hasattr(video_input, "response") and hasattr(
+        video_input.response, "generated_videos"
     ):
         # It's a full operation (op)
         generated_videos = list(video_input.response.generated_videos)
-    elif hasattr(video_input, 'generated_videos'):
+    elif hasattr(video_input, "generated_videos"):
         # It's an operation response (op.response)
         generated_videos = list(video_input.generated_videos)
-    elif hasattr(video_input, 'video') and video_input.video:
+    elif hasattr(video_input, "video") and video_input.video:
         # It's a single GeneratedVideo object (new API format)
         generated_videos = [video_input]
-    elif hasattr(video_input, 'video_bytes') or hasattr(video_input, 'uri'):
+    elif hasattr(video_input, "video_bytes") or hasattr(video_input, "uri"):
         # It's a single GeneratedVideo object (legacy format)
         generated_videos = [video_input]
-    elif hasattr(video_input, '__iter__') and not isinstance(video_input, str):
+    elif hasattr(video_input, "__iter__") and not isinstance(video_input, str):
         # It's a list or iterable of videos (check this last to avoid catching operation objects)
         video_list = list(video_input)
         # Verify that the first item is actually a video object
         if video_list and (
-            hasattr(video_list[0], 'video')
-            or hasattr(video_list[0], 'video_bytes')
-            or hasattr(video_list[0], 'uri')
+            hasattr(video_list[0], "video")
+            or hasattr(video_list[0], "video_bytes")
+            or hasattr(video_list[0], "uri")
         ):
             generated_videos = video_list
         else:
@@ -450,21 +450,21 @@ def save_generated_videos(
         mime_type = None
 
         # New API format: video data is nested in generated_video.video
-        if hasattr(generated_video, 'video') and generated_video.video:
+        if hasattr(generated_video, "video") and generated_video.video:
             video_obj = generated_video.video
-            if hasattr(video_obj, 'video_bytes') and video_obj.video_bytes:
+            if hasattr(video_obj, "video_bytes") and video_obj.video_bytes:
                 video_bytes = video_obj.video_bytes
                 mime_type = getattr(
-                    video_obj, 'mime_type', f'video/{extension_fallback}'
+                    video_obj, "mime_type", f"video/{extension_fallback}"
                 )
-            elif hasattr(video_obj, 'uri') and video_obj.uri:
+            elif hasattr(video_obj, "uri") and video_obj.uri:
                 # Handle case where video is stored as URI (would need to download)
                 raise NotImplementedError(
                     "URI-based videos not yet supported. Video should have video_bytes."
                 )
 
         # Legacy API format: video data is directly on generated_video
-        elif hasattr(generated_video, 'video_bytes') and generated_video.video_bytes:
+        elif hasattr(generated_video, "video_bytes") and generated_video.video_bytes:
             if isinstance(generated_video.video_bytes, str):
                 # Base64 encoded string
                 video_bytes = base64.b64decode(generated_video.video_bytes)
@@ -472,9 +472,9 @@ def save_generated_videos(
                 # Already bytes
                 video_bytes = generated_video.video_bytes
             mime_type = getattr(
-                generated_video, 'mime_type', f'video/{extension_fallback}'
+                generated_video, "mime_type", f"video/{extension_fallback}"
             )
-        elif hasattr(generated_video, 'uri') and generated_video.uri:
+        elif hasattr(generated_video, "uri") and generated_video.uri:
             # Handle case where video is stored as URI (would need to download)
             raise NotImplementedError(
                 "URI-based videos not yet supported. Video should have video_bytes."
@@ -484,13 +484,13 @@ def save_generated_videos(
         if video_bytes is None:
             # Provide helpful error message with what we found
             available_attrs = [
-                attr for attr in dir(generated_video) if not attr.startswith('_')
+                attr for attr in dir(generated_video) if not attr.startswith("_")
             ]
-            if hasattr(generated_video, 'video'):
+            if hasattr(generated_video, "video"):
                 video_attrs = [
                     attr
                     for attr in dir(generated_video.video)
-                    if not attr.startswith('_')
+                    if not attr.startswith("_")
                 ]
                 error_msg = (
                     f"GeneratedVideo object doesn't contain video data. "
@@ -508,7 +508,7 @@ def save_generated_videos(
         os.makedirs(os.path.dirname(os.path.abspath(output_path)), exist_ok=True)
 
         # Write video bytes to file
-        with open(output_path, 'wb') as f:
+        with open(output_path, "wb") as f:
             f.write(video_bytes)
 
         return output_path
@@ -546,17 +546,17 @@ save_generated_video = save_generated_videos
 def _is_video_file(path: str) -> bool:
     """Check if a file has a video extension."""
     video_extensions = {
-        '.mp4',
-        '.avi',
-        '.mkv',
-        '.mov',
-        '.wmv',
-        '.flv',
-        '.webm',
-        '.m4v',
-        '.3gp',
-        '.mpg',
-        '.mpeg',
+        ".mp4",
+        ".avi",
+        ".mkv",
+        ".mov",
+        ".wmv",
+        ".flv",
+        ".webm",
+        ".m4v",
+        ".3gp",
+        ".mpg",
+        ".mpeg",
     }
     return os.path.splitext(path.lower())[1] in video_extensions
 
@@ -569,7 +569,7 @@ def _get_frame_path(media_path: str, frame_idx: int = 0) -> str:
     if _is_video_file(media_path):
         from .video_files import save_frame
 
-        return save_frame(media_path, frame_idx, saveas='/TMP')
+        return save_frame(media_path, frame_idx, saveas="/TMP")
     else:
         return media_path
 
@@ -745,7 +745,7 @@ def generate_video(
         error_str = str(e).lower()
         if any(
             term in error_str
-            for term in ['unauthenticated', 'unauthorized', '401', '403']
+            for term in ["unauthenticated", "unauthorized", "401", "403"]
         ):
             print("\n" + "=" * 80)
             print("❌ API AUTHENTICATION/PERMISSION ERROR")

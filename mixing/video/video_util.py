@@ -23,7 +23,7 @@ def resize_to_dimensions(
     target_width: int,
     target_height: int,
     *,
-    method: Literal['stretch', 'fit', 'fill', 'social'] = 'fit',
+    method: Literal["stretch", "fit", "fill", "social"] = "fit",
     bg_color: Tuple[int, int, int] = (0, 0, 0),
 ) -> VideoFileClip:
     """
@@ -60,11 +60,11 @@ def resize_to_dimensions(
     target_aspect = target_width / target_height
     current_aspect = current_width / current_height
 
-    if method == 'stretch':
+    if method == "stretch":
         # Simple stretch - may distort aspect ratio
         return video.resized(new_size=(target_width, target_height))
 
-    elif method == 'fit':
+    elif method == "fit":
         # Scale to fit inside target dimensions, add padding if needed
         if current_aspect > target_aspect:
             # Video is wider - scale by width
@@ -101,7 +101,7 @@ def resize_to_dimensions(
 
         return resized
 
-    elif method == 'fill':
+    elif method == "fill":
         # Scale to fill target dimensions, may crop edges
         if current_aspect > target_aspect:
             # Video is wider - scale by height (will crop sides)
@@ -126,7 +126,7 @@ def resize_to_dimensions(
             y2=y_offset + target_height,
         )
 
-    elif method == 'social':
+    elif method == "social":
         # Social media style: blurred/zoomed background with video on top
         # Scale video to fit inside target
         if current_aspect > target_aspect:
@@ -166,7 +166,7 @@ def resize_to_dimensions(
             import numpy as np
 
             # Convert numpy array to PIL Image
-            img = Image.fromarray(frame.astype('uint8'))
+            img = Image.fromarray(frame.astype("uint8"))
             # Apply Gaussian blur
             blurred = img.filter(ImageFilter.GaussianBlur(radius=15))
             # Convert back to numpy array
@@ -204,7 +204,7 @@ def normalize_video_dimensions(
     reference_video: Optional[int | VideoFileClip] = 0,
     target_width: Optional[int] = None,
     target_height: Optional[int] = None,
-    method: Literal['stretch', 'fit', 'fill', 'social'] = 'social',
+    method: Literal["stretch", "fit", "fill", "social"] = "social",
     bg_color: Tuple[int, int, int] = (0, 0, 0),
 ) -> list[VideoFileClip]:
     """

@@ -52,7 +52,7 @@ def temp_audio_file(sample_waveform):
         pytest.skip("soundfile not installed")
 
     wf, sr = sample_waveform
-    with tempfile.NamedTemporaryFile(suffix='.wav', delete=False) as f:
+    with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as f:
         sf.write(f.name, wf, sr)
         yield Path(f.name)
 
@@ -198,15 +198,12 @@ class TestAudioWidget:
         """Test widget properties are set correctly."""
         wf, sr = sample_waveform
         widget = AudioWidget(
-            (wf, sr),
-            height=200,
-            waveform_color='#FF0000',
-            progress_color='#00FF00'
+            (wf, sr), height=200, waveform_color="#FF0000", progress_color="#00FF00"
         )
 
         assert widget.height == 200
-        assert widget.waveform_color == '#FF0000'
-        assert widget.progress_color == '#00FF00'
+        assert widget.waveform_color == "#FF0000"
+        assert widget.progress_color == "#00FF00"
 
     def test_widget_get_waveform(self, sample_waveform):
         """Test get_waveform method returns correct data."""
@@ -391,7 +388,9 @@ class TestAudioWidget:
     def test_widget_edge_case_very_short_audio(self):
         """Test widget with very short audio."""
         sr = 44100
-        wf = np.sin(2 * np.pi * 440 * np.linspace(0, 0.01, int(sr * 0.01))).astype(np.float32)
+        wf = np.sin(2 * np.pi * 440 * np.linspace(0, 0.01, int(sr * 0.01))).astype(
+            np.float32
+        )
 
         widget = AudioWidget((wf, sr))
 
@@ -424,14 +423,15 @@ class TestEdgeCasesAndErrors:
         """Test graceful handling when soundfile is not installed."""
         # Mock the import to raise ImportError
         import builtins
+
         original_import = builtins.__import__
 
         def mock_import(name, *args, **kwargs):
-            if name == 'soundfile':
+            if name == "soundfile":
                 raise ImportError("No module named 'soundfile'")
             return original_import(name, *args, **kwargs)
 
-        monkeypatch.setattr(builtins, '__import__', mock_import)
+        monkeypatch.setattr(builtins, "__import__", mock_import)
 
         with pytest.raises(ImportError, match="soundfile is required"):
             # This should trigger the ImportError
@@ -520,5 +520,5 @@ class TestIntegration:
         assert len(widget.wf) > 0
 
 
-if __name__ == '__main__':
-    pytest.main([__file__, '-v'])
+if __name__ == "__main__":
+    pytest.main([__file__, "-v"])

@@ -28,7 +28,7 @@ def srt_time_to_seconds(time_str: str) -> float:
     1.5
     """
     # Parse HH:MM:SS,mmm format
-    match = re.match(r'(\d+):(\d+):(\d+),(\d+)', time_str)
+    match = re.match(r"(\d+):(\d+):(\d+),(\d+)", time_str)
     if not match:
         raise ValueError(f"Invalid time format: {time_str}")
 
@@ -81,7 +81,7 @@ def shift_srt_timestamps(srt_content: str, shift_seconds: float = 0.0) -> str:
     def _shift_timestamp_line(line: str) -> str:
         """Shift a single timestamp line."""
         # Match the timestamp line format: "00:43:12,187 --> 00:43:13,817"
-        match = re.match(r'(\d+:\d+:\d+,\d+)\s+-->\s+(\d+:\d+:\d+,\d+)', line)
+        match = re.match(r"(\d+:\d+:\d+,\d+)\s+-->\s+(\d+:\d+:\d+,\d+)", line)
         if not match:
             return line
 
@@ -97,16 +97,16 @@ def shift_srt_timestamps(srt_content: str, shift_seconds: float = 0.0) -> str:
         return f"{new_start} --> {new_end}"
 
     # Process line by line
-    lines = srt_content.split('\n')
+    lines = srt_content.split("\n")
     shifted_lines = []
 
     for line in lines:
-        if '-->' in line:
+        if "-->" in line:
             shifted_lines.append(_shift_timestamp_line(line))
         else:
             shifted_lines.append(line)
 
-    return '\n'.join(shifted_lines)
+    return "\n".join(shifted_lines)
 
 
 def _find_audio_peaks(
@@ -174,9 +174,9 @@ def _find_audio_peaks(
             if intensity >= min_peak_threshold:
                 peaks.append(
                     {
-                        'time': time_offset,
-                        'intensity': intensity,
-                        'variation': variation,
+                        "time": time_offset,
+                        "intensity": intensity,
+                        "variation": variation,
                     }
                 )
 
@@ -222,8 +222,8 @@ def find_audio_start_offset(
         return 0.0
 
     # Calculate statistics
-    intensities = [p['intensity'] for p in peaks]
-    variations = [p['variation'] for p in peaks]
+    intensities = [p["intensity"] for p in peaks]
+    variations = [p["variation"] for p in peaks]
 
     mean_intensity = np.mean(intensities)
     std_intensity = np.std(intensities)
@@ -234,18 +234,18 @@ def find_audio_start_offset(
     # Look for intensity above threshold AND significant variation
     for peak in peaks:
         # Strong intensity signal
-        intensity_significant = peak['intensity'] >= intensity_threshold
+        intensity_significant = peak["intensity"] >= intensity_threshold
 
         # Or significant jump in variation (sudden increase)
         variation_significant = (
-            peak['variation'] > mean_variation + variation_multiplier * std_variation
+            peak["variation"] > mean_variation + variation_multiplier * std_variation
         )
 
         if intensity_significant or variation_significant:
-            return peak['time']
+            return peak["time"]
 
     # Fallback: return time of first peak
-    return peaks[0]['time'] if peaks else 0.0
+    return peaks[0]["time"] if peaks else 0.0
 
 
 def auto_shift_srt_to_start(
@@ -296,11 +296,11 @@ def auto_shift_srt_to_start(
         moving all timestamps back by 7 seconds so first subtitle starts at 3s.
     """
     # Find first subtitle timestamp
-    lines = srt_content.split('\n')
+    lines = srt_content.split("\n")
     first_subtitle_time = None
 
     for line in lines:
-        match = re.match(r'(\d+:\d+:\d+,\d+)\s+-->', line)
+        match = re.match(r"(\d+:\d+:\d+,\d+)\s+-->", line)
         if match:
             first_timestamp = match.group(1)
             first_subtitle_time = srt_time_to_seconds(first_timestamp)
@@ -392,7 +392,7 @@ def fix_srt_file(
 
     if output_srt is None:
         has_adjustment = auto_detect_audio_start or start_time is not None
-        suffix = '_audio_aligned' if has_adjustment else '_fixed'
+        suffix = "_audio_aligned" if has_adjustment else "_fixed"
         output_path = input_path.with_stem(input_path.stem + suffix)
     else:
         output_path = Path(output_srt)
@@ -420,8 +420,8 @@ def fix_srt_file(
 
 def _get_first_timestamp(srt_content: str) -> str:
     """Get the first timestamp from SRT content."""
-    for line in srt_content.split('\n'):
-        match = re.match(r'(\d+:\d+:\d+,\d+)\s+-->', line)
+    for line in srt_content.split("\n"):
+        match = re.match(r"(\d+:\d+:\d+,\d+)\s+-->", line)
         if match:
             return match.group(1)
     return "Not found"
@@ -432,37 +432,37 @@ class SubtitleStyle:
     """Configuration for subtitle appearance."""
 
     font_size: int = 24
-    color: str = 'white'
-    position: tuple[str, str] = ('center', 'bottom')
-    font_name: str = 'Arial'
+    color: str = "white"
+    position: tuple[str, str] = ("center", "bottom")
+    font_name: str = "Arial"
 
     def to_text_clip_kwargs(self) -> dict:
         """Convert style to TextClip kwargs."""
         return {
-            'font_size': self.font_size,
-            'color': self.color,
+            "font_size": self.font_size,
+            "color": self.color,
         }
 
     def to_ffmpeg_style(self) -> str:
         """Convert to FFmpeg subtitle style string."""
         alignment_map = {
-            ('center', 'bottom'): 2,
-            ('center', 'top'): 8,
-            ('center', 'center'): 5,
-            ('left', 'bottom'): 1,
-            ('right', 'bottom'): 3,
+            ("center", "bottom"): 2,
+            ("center", "top"): 8,
+            ("center", "center"): 5,
+            ("left", "bottom"): 1,
+            ("right", "bottom"): 3,
         }
         alignment = alignment_map.get(self.position, 2)
 
         color_map = {
-            'white': 'FFFFFF',
-            'yellow': 'FFFF00',
-            'black': '000000',
-            'red': 'FF0000',
-            'green': '00FF00',
-            'blue': '0000FF',
+            "white": "FFFFFF",
+            "yellow": "FFFF00",
+            "black": "000000",
+            "red": "FF0000",
+            "green": "00FF00",
+            "blue": "0000FF",
         }
-        color_hex = color_map.get(self.color.lower(), 'FFFFFF')
+        color_hex = color_map.get(self.color.lower(), "FFFFFF")
 
         return f"FontSize={self.font_size},FontName={self.font_name},PrimaryColour=&H{color_hex}&,Alignment={alignment}"
 
@@ -489,7 +489,7 @@ def _parse_srt_timestamp(timestamp: str) -> str:
     >>> _parse_srt_timestamp('00:00:01,500')
     '00:00:01.500'
     """
-    return timestamp.replace(',', '.')
+    return timestamp.replace(",", ".")
 
 
 def _parse_srt_subtitle(subtitle_block: str) -> Optional[tuple[str, str, str]]:
@@ -504,17 +504,17 @@ def _parse_srt_subtitle(subtitle_block: str) -> Optional[tuple[str, str, str]]:
     >>> _parse_srt_subtitle(block)
     ('00:00:01.000', '00:00:03.000', 'Hello, world!')
     """
-    lines = subtitle_block.strip().split('\n')
+    lines = subtitle_block.strip().split("\n")
     if len(lines) < 3:
         return None
 
     try:
-        time_info = lines[1].split(' --> ')
+        time_info = lines[1].split(" --> ")
         if len(time_info) != 2:
             return None
         start_time = _parse_srt_timestamp(time_info[0])
         end_time = _parse_srt_timestamp(time_info[1])
-        text = ' '.join(lines[2:])
+        text = " ".join(lines[2:])
         return start_time, end_time, text
     except (IndexError, ValueError):
         return None
@@ -534,7 +534,7 @@ def generate_subtitle_clips(
     text_kwargs = {**style.to_text_clip_kwargs(), **text_clip_kwargs}
 
     subtitle_clips = []
-    for subtitle_block in subtitles.split('\n\n'):
+    for subtitle_block in subtitles.split("\n\n"):
         parsed = _parse_srt_subtitle(subtitle_block)
         if parsed is None:
             continue
@@ -543,7 +543,7 @@ def generate_subtitle_clips(
 
         try:
             txt_clip = mp.TextClip(
-                text=text, size=(video_clip.w, None), method='caption', **text_kwargs
+                text=text, size=(video_clip.w, None), method="caption", **text_kwargs
             )
             txt_clip = (
                 txt_clip.with_start(start_time)
@@ -599,7 +599,7 @@ def write_subtitles_in_video(
     video_path = process_path(video)
 
     if not embed_subtitles:
-        output_video_path = _get_output_path(output_video, video_path, suffix='_copy')
+        output_video_path = _get_output_path(output_video, video_path, suffix="_copy")
         import shutil
 
         shutil.copy2(video_path, output_video_path)
@@ -640,7 +640,7 @@ def _embed_subtitles_ffmpeg(
     if style is None:
         style = SubtitleStyle()
 
-    with tempfile.NamedTemporaryFile(mode='w', suffix='.srt', delete=False) as f:
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".srt", delete=False) as f:
         temp_srt_path = f.name
         f.write(srt_content)
 
@@ -648,14 +648,14 @@ def _embed_subtitles_ffmpeg(
         style_str = style.to_ffmpeg_style()
 
         cmd = [
-            'ffmpeg',
-            '-i',
+            "ffmpeg",
+            "-i",
             str(video_path),
-            '-vf',
+            "-vf",
             f"subtitles='{temp_srt_path}':force_style='{style_str}'",
-            '-c:a',
-            'copy',
-            '-y',
+            "-c:a",
+            "copy",
+            "-y",
             str(output_path),
         ]
 
@@ -699,7 +699,7 @@ def _embed_subtitles_moviepy(
     video_with_subtitles = video_with_subtitles.with_audio(video_clip.audio)
 
     video_with_subtitles.write_videofile(
-        str(output_path), codec='libx264', audio_codec='aac', fps=video_clip.fps
+        str(output_path), codec="libx264", audio_codec="aac", fps=video_clip.fps
     )
 
     video_clip.close()
@@ -712,7 +712,7 @@ def _process_subtitle_inputs(
 ) -> tuple[str, Path]:
     """Process subtitle and output video path inputs."""
     if subtitles is None:
-        subtitles_path = video_path.with_suffix('.srt')
+        subtitles_path = video_path.with_suffix(".srt")
         if not subtitles_path.exists():
             raise FileNotFoundError(
                 f"No subtitle file found at {subtitles_path}. "
@@ -731,7 +731,7 @@ def _process_subtitle_inputs(
 
 
 def _get_output_path(
-    output_video: str | None, video_path: Path, suffix: str = '_with_subtitles'
+    output_video: str | None, video_path: Path, suffix: str = "_with_subtitles"
 ) -> Path:
     """Generate output video path."""
     if output_video is None:
@@ -748,7 +748,7 @@ def _get_output_path(
 
 
 def create_test_video(
-    output_path: str = '/tmp/test_video.mp4',
+    output_path: str = "/tmp/test_video.mp4",
     *,
     duration: float = 5.0,
     fps: int = 24,
@@ -788,10 +788,10 @@ def create_test_video(
             print(f"Warning: Could not add audio to test video: {e}")
 
     output_path = Path(output_path)
-    write_kwargs = {'codec': 'libx264', 'fps': fps, 'logger': None}
+    write_kwargs = {"codec": "libx264", "fps": fps, "logger": None}
 
     if video.audio is not None:
-        write_kwargs['audio_codec'] = 'aac'
+        write_kwargs["audio_codec"] = "aac"
 
     video.write_videofile(str(output_path), **write_kwargs)
     video.close()
@@ -800,7 +800,7 @@ def create_test_video(
 
 
 def create_test_srt(
-    output_path: str = '/tmp/test_subtitles.srt', *, num_subtitles: int = 3
+    output_path: str = "/tmp/test_subtitles.srt", *, num_subtitles: int = 3
 ) -> Path:
     """Create a simple test SRT subtitle file."""
     srt_content = []
@@ -813,7 +813,7 @@ def create_test_srt(
         srt_content.append("")
 
     output_path = Path(output_path)
-    output_path.write_text('\n'.join(srt_content))
+    output_path.write_text("\n".join(srt_content))
 
     return output_path
 
@@ -824,9 +824,9 @@ def test_subtitle_embedding(cleanup: bool = True, *, use_ffmpeg: bool = True) ->
 
     try:
         with tempfile.TemporaryDirectory() as tmpdir:
-            video_path = Path(tmpdir) / 'test_video.mp4'
-            srt_path = Path(tmpdir) / 'test_subtitles.srt'
-            output_path = Path(tmpdir) / 'output_video.mp4'
+            video_path = Path(tmpdir) / "test_video.mp4"
+            srt_path = Path(tmpdir) / "test_subtitles.srt"
+            output_path = Path(tmpdir) / "output_video.mp4"
 
             print("Creating test video...")
             create_test_video(str(video_path), duration=5.0, with_audio=True)

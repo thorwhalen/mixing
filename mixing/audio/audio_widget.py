@@ -9,7 +9,9 @@ from IPython.display import display, HTML
 
 
 # Type aliases
-WaveformArray = np.ndarray  # Shape: (n_samples,) for mono or (n_samples, n_channels) for stereo
+WaveformArray = (
+    np.ndarray
+)  # Shape: (n_samples,) for mono or (n_samples, n_channels) for stereo
 SampleRate = int
 WfSr = Tuple[WaveformArray, SampleRate]
 AudioInput = Union[str, Path, bytes, WfSr]
@@ -105,12 +107,12 @@ def wf_to_base64_wav(wf: WaveformArray, sr: SampleRate) -> str:
 
     # Write to bytes buffer
     buffer = io.BytesIO()
-    sf.write(buffer, wf, sr, format='WAV')
+    sf.write(buffer, wf, sr, format="WAV")
     buffer.seek(0)
 
     # Encode to base64
     audio_bytes = buffer.read()
-    b64_audio = base64.b64encode(audio_bytes).decode('utf-8')
+    b64_audio = base64.b64encode(audio_bytes).decode("utf-8")
 
     return f"data:audio/wav;base64,{b64_audio}"
 
@@ -140,6 +142,7 @@ def wf_to_json_array(wf: WaveformArray, max_points: int = 2000) -> str:
         wf = wf / max(abs(wf.min()), abs(wf.max()))
 
     import json
+
     return json.dumps(wf.tolist())
 
 
@@ -173,8 +176,8 @@ class AudioWidget:
         self,
         audio_input: AudioInput,
         height: float = 128,
-        waveform_color: str = '#4A90E2',
-        progress_color: str = '#FF6B6B',
+        waveform_color: str = "#4A90E2",
+        progress_color: str = "#FF6B6B",
     ):
         """Initialize the audio widget with audio data."""
         # Convert input to standard format
@@ -196,6 +199,7 @@ class AudioWidget:
 
         # Generate unique ID for this widget instance
         import random
+
         self._id = f"aw_{random.randint(10000, 99999)}"
 
         # Create the HTML widget
@@ -441,6 +445,7 @@ class AudioWidget:
     def _get_js_selection(self):
         """Try to get selection from JavaScript."""
         from IPython.display import Javascript
+
         js_code = f"""
         (function() {{
             const sel = window.{self._id}_selection;
@@ -457,17 +462,18 @@ __temp_sel_end = ${{sel.end}}
 
         # Wait briefly for execution
         import time
+
         time.sleep(0.15)
 
         # Try to retrieve from globals
         try:
-            if '__temp_sel_start' in globals() and '__temp_sel_end' in globals():
-                self.selection_start = globals()['__temp_sel_start']
-                self.selection_end = globals()['__temp_sel_end']
+            if "__temp_sel_start" in globals() and "__temp_sel_end" in globals():
+                self.selection_start = globals()["__temp_sel_start"]
+                self.selection_end = globals()["__temp_sel_end"]
                 self.has_selection = self.selection_start < self.selection_end
                 # Clean up
-                del globals()['__temp_sel_start']
-                del globals()['__temp_sel_end']
+                del globals()["__temp_sel_start"]
+                del globals()["__temp_sel_end"]
                 return True
         except:
             pass
@@ -560,8 +566,10 @@ __temp_sel_end = ${{sel.end}}
         self._create_widget()
         self.display()
 
-        print(f"✓ Cropped to {(end_sample - start_sample) / self.sr:.2f}s segment "
-              f"({end_sample - start_sample:,} samples)")
+        print(
+            f"✓ Cropped to {(end_sample - start_sample) / self.sr:.2f}s segment "
+            f"({end_sample - start_sample:,} samples)"
+        )
 
     def set_selection(self, start: float, end: float):
         """
@@ -575,10 +583,14 @@ __temp_sel_end = ${{sel.end}}
             Self for method chaining
         """
         if start >= end:
-            raise ValueError(f"Start time ({start}s) must be less than end time ({end}s)")
+            raise ValueError(
+                f"Start time ({start}s) must be less than end time ({end}s)"
+            )
 
         if start < 0 or end > self.duration:
-            raise ValueError(f"Selection must be within audio duration (0s - {self.duration:.2f}s)")
+            raise ValueError(
+                f"Selection must be within audio duration (0s - {self.duration:.2f}s)"
+            )
 
         self.selection_start = start
         self.selection_end = end
@@ -646,7 +658,7 @@ __temp_sel_end = ${{sel.end}}
 
         # Auto-detect format
         if format is None:
-            format = filepath.suffix[1:] if filepath.suffix else 'WAV'
+            format = filepath.suffix[1:] if filepath.suffix else "WAV"
 
         # Ensure directory exists
         filepath.parent.mkdir(parents=True, exist_ok=True)

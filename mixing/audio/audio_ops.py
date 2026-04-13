@@ -297,8 +297,7 @@ class Audio:
             )
         else:
             raise TypeError(
-                f"Audio indexing requires int/float or slice, "
-                f"got {type(key).__name__}"
+                f"Audio indexing requires int/float or slice, got {type(key).__name__}"
             )
 
     def _get_segment(self) -> "AudioSegment":

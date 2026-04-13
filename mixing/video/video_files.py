@@ -33,9 +33,9 @@ from mixing.video.video_ops import (
 
 # Make available for backward compatibility
 __all__ = [
-    'VideoFrames',
-    'save_frame',
-    'require_package',
+    "VideoFrames",
+    "save_frame",
+    "require_package",
 ]
 
 

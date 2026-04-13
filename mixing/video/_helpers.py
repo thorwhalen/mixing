@@ -75,8 +75,8 @@ def _set_default_codecs(
         >>> _set_default_codecs(kwargs, bitrate='5000k')
         {'codec': 'libx265', 'audio_codec': 'aac', 'bitrate': '5000k'}
     """
-    kwargs.setdefault('codec', codec)
-    kwargs.setdefault('audio_codec', audio_codec)
+    kwargs.setdefault("codec", codec)
+    kwargs.setdefault("audio_codec", audio_codec)
     for key, value in extras.items():
         kwargs.setdefault(key, value)
     return kwargs

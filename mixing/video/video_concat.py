@@ -38,16 +38,16 @@ VideoSource = Union[str, Path, VideoFileClip, bytes, BytesIO]
 
 # Common video file extensions
 _VIDEO_EXTENSIONS = {
-    '.mp4',
-    '.avi',
-    '.mov',
-    '.mkv',
-    '.wmv',
-    '.flv',
-    '.webm',
-    '.m4v',
-    '.mpg',
-    '.mpeg',
+    ".mp4",
+    ".avi",
+    ".mov",
+    ".mkv",
+    ".wmv",
+    ".flv",
+    ".webm",
+    ".m4v",
+    ".mpg",
+    ".mpeg",
 }
 
 
@@ -217,11 +217,11 @@ def _save_frame_comparison(
     # Calculate absolute difference and create heatmap
     diff = np.abs(frame1.astype(float) - frame2.astype(float))
     diff_gray = np.mean(diff, axis=2).astype(np.uint8)  # Average across RGB
-    diff_img = Image.fromarray(diff_gray).convert('RGB')
+    diff_img = Image.fromarray(diff_gray).convert("RGB")
 
     # Create side-by-side composite
     width, height = img1.size
-    composite = Image.new('RGB', (width * 3, height + 40))
+    composite = Image.new("RGB", (width * 3, height + 40))
     composite.paste(img1, (0, 40))
     composite.paste(img2, (width, 40))
     composite.paste(diff_img, (width * 2, 40))
@@ -234,10 +234,10 @@ def _save_frame_comparison(
     except Exception:
         font = ImageFont.load_default()
 
-    draw.text((10, 10), "Last Frame (Video 1)", fill='white', font=font)
-    draw.text((width + 10, 10), "First Frame (Video 2)", fill='white', font=font)
+    draw.text((10, 10), "Last Frame (Video 1)", fill="white", font=font)
+    draw.text((width + 10, 10), "First Frame (Video 2)", fill="white", font=font)
     draw.text(
-        (width * 2 + 10, 10), f"Diff: {difference_score:.1%}", fill='white', font=font
+        (width * 2 + 10, 10), f"Diff: {difference_score:.1%}", fill="white", font=font
     )
 
     composite.save(output_path)
@@ -247,15 +247,14 @@ def _save_frame_comparison(
 def concatenate_videos(
     videos: Union[str, Path, Iterable[VideoSource]],
     *,
-    transform_clips: None | (
-        Callable[[list[VideoFileClip]], Iterable[VideoFileClip]]
-    ) = None,
-    normalize_dimensions: bool | Literal['stretch', 'fit', 'fill', 'social'] = 'social',
+    transform_clips: None
+    | (Callable[[list[VideoFileClip]], Iterable[VideoFileClip]]) = None,
+    normalize_dimensions: bool | Literal["stretch", "fit", "fill", "social"] = "social",
     target_width: int | None = None,
     target_height: int | None = None,
     output_path: str | bool | None = None,
-    codec: str = 'libx264',
-    audio_codec: str = 'aac',
+    codec: str = "libx264",
+    audio_codec: str = "aac",
     **concat_kwargs,
 ) -> VideoFileClip:
     """
@@ -345,7 +344,7 @@ def concatenate_videos(
             from mixing.video.video_util import normalize_video_dimensions
 
             # Handle normalize_dimensions=True -> 'social'
-            method = 'social' if normalize_dimensions is True else normalize_dimensions
+            method = "social" if normalize_dimensions is True else normalize_dimensions
 
             normalized_clips = normalize_video_dimensions(
                 clips,

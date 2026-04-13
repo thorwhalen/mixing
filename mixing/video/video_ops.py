@@ -78,7 +78,7 @@ def _copy_frame_to_clipboard(frame: np.ndarray) -> None:
     """
     from ..util import copy_to_clipboard
 
-    PIL_Image = require_package('PIL.Image')
+    PIL_Image = require_package("PIL.Image")
 
     # Convert BGR (OpenCV) to RGB (PIL)
     rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
@@ -86,7 +86,7 @@ def _copy_frame_to_clipboard(frame: np.ndarray) -> None:
 
     # Convert PIL Image to bytes for clipboard
     buffer = io.BytesIO()
-    image.save(buffer, format='PNG')
+    image.save(buffer, format="PNG")
     image_bytes = buffer.getvalue()
 
     copy_to_clipboard(image_bytes)
@@ -445,8 +445,7 @@ class Video:
 
         else:
             raise TypeError(
-                f"Video indexing requires int/float or slice, "
-                f"got {type(key).__name__}"
+                f"Video indexing requires int/float or slice, got {type(key).__name__}"
             )
 
     def save(
@@ -577,7 +576,7 @@ class Video:
             )
 
     @property
-    def frames(self) -> 'VideoFrames':
+    def frames(self) -> "VideoFrames":
         """Get frame-by-frame Mapping interface for this video/segment."""
         return VideoFrames(
             self.video_src,
@@ -1057,7 +1056,7 @@ def ken_burns_video(
     from dol import non_colliding_key
 
     # Accept image as path, PIL.Image, or np.ndarray
-    PIL_Image = require_package('PIL.Image')
+    PIL_Image = require_package("PIL.Image")
 
     # Track the original image path for output path generation
     image_path = None
@@ -1066,7 +1065,7 @@ def ken_burns_video(
         img = PIL_Image.open(str(image)).convert("RGB")
     elif isinstance(image, np.ndarray):
         img = PIL_Image.fromarray(image)
-    elif hasattr(image, 'convert'):
+    elif hasattr(image, "convert"):
         img = image.convert("RGB")
     else:
         raise ValueError(f"Unsupported image type: {type(image)}")
@@ -1118,12 +1117,12 @@ def ken_burns_video(
         output_path = _ensure_output_path(saveas)
         # Ensure it has a video extension
         if not output_path.suffix or output_path.suffix.lower() not in [
-            '.mp4',
-            '.mov',
-            '.avi',
-            '.mkv',
+            ".mp4",
+            ".mov",
+            ".avi",
+            ".mkv",
         ]:
-            output_path = output_path.with_suffix('.mp4')
+            output_path = output_path.with_suffix(".mp4")
 
     # Use non_colliding_key to avoid overwriting (only if auto-generated path)
     if saveas is None:
@@ -1131,7 +1130,7 @@ def ken_burns_video(
         filename = output_path.name
         try:
             existing_files = (
-                set(os.listdir(directory)) if directory else set(os.listdir('.'))
+                set(os.listdir(directory)) if directory else set(os.listdir("."))
             )
         except OSError:
             existing_files = set()
@@ -1144,9 +1143,9 @@ def ken_burns_video(
     clip = mp.ImageSequenceClip(frames, fps=fps)
 
     # Set default kwargs for better compatibility
-    write_kwargs.setdefault('bitrate', '5000k')
-    write_kwargs.setdefault('preset', 'medium')
-    write_kwargs.setdefault('logger', None)  # Suppress verbose output
+    write_kwargs.setdefault("bitrate", "5000k")
+    write_kwargs.setdefault("preset", "medium")
+    write_kwargs.setdefault("logger", None)  # Suppress verbose output
 
     clip.write_videofile(
         str(output_path), codec=codec, audio_codec=audio_codec, **write_kwargs
