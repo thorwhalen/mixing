@@ -145,12 +145,12 @@ def _write_outputs(
     transcript_md.write_text(scribe_data.get("text", ""))
     transcript_srt.write_text(words_to_srt(words))
     cleaned_md.write_text(
-        words_to_prose(words, drop_fillers=True, fillers=fillers, audio_events=audio_events)
+        words_to_prose(
+            words, drop_fillers=True, fillers=fillers, audio_events=audio_events
+        )
     )
     cleaned_srt.write_text(
-        words_to_srt_remapped(
-            words, cuts, fillers=fillers, audio_events=audio_events
-        )
+        words_to_srt_remapped(words, cuts, fillers=fillers, audio_events=audio_events)
     )
     return {
         "scribe_json": scribe_json,

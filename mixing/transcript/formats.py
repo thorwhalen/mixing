@@ -30,7 +30,9 @@ def words_to_srt(
     sentence_endings: str = _SENTENCE_ENDINGS_DEFAULT,
 ) -> str:
     """Render an SRT from a Scribe word list (no filler removal, no remapping)."""
-    chunks = list(_chunkify(words, max_chars=max_chars, sentence_endings=sentence_endings))
+    chunks = list(
+        _chunkify(words, max_chars=max_chars, sentence_endings=sentence_endings)
+    )
     return _chunks_to_srt(chunks)
 
 

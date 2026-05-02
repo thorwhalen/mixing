@@ -56,9 +56,7 @@ def transcribe(
     """
     api_key = api_key or os.environ.get(ENV_KEY)
     if not api_key:
-        raise RuntimeError(
-            f"No ElevenLabs API key. Pass api_key= or set {ENV_KEY}."
-        )
+        raise RuntimeError(f"No ElevenLabs API key. Pass api_key= or set {ENV_KEY}.")
 
     if isinstance(audio, (str, Path)):
         path = Path(audio)

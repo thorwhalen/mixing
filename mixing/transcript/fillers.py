@@ -15,8 +15,19 @@ from typing import Iterable, Sequence
 
 DEFAULT_FILLER_TOKENS: frozenset[str] = frozenset(
     {
-        "uh", "um", "umm", "mm", "mmm", "mhm",
-        "hmm", "ah", "er", "erm", "eh", "uhh", "uhm",
+        "uh",
+        "um",
+        "umm",
+        "mm",
+        "mmm",
+        "mhm",
+        "hmm",
+        "ah",
+        "er",
+        "erm",
+        "eh",
+        "uhh",
+        "uhm",
     }
 )
 """Default filler tokens (lowercased, alpha-only, see :func:`normalize_token`)."""
