@@ -1,0 +1,203 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>mixing.transcript.fillers &mdash; mixing 0.0.6 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=1fd71caa"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../_static/toggleprompt.js?v=d7ede5d2"></script>
+      <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="mixing.transcript.formats" href="formats.html" />
+    <link rel="prev" title="mixing.transcript" href="../transcript.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            mixing
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../mixing.html">mixing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../audio.html">mixing.audio</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../audio/audio_ops.html">mixing.audio.audio_ops</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../audio/audio_util.html">mixing.audio.audio_util</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../audio/audio_widget.html">mixing.audio.audio_widget</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../audio/demo_audio_widget.html">mixing.audio.demo_audio_widget</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../audio/test_audio_widget.html">mixing.audio.test_audio_widget</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../transcript.html">mixing.transcript</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">mixing.transcript.fillers</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#mixing.transcript.fillers.DEFAULT_AUDIO_EVENTS_TO_CUT"><code class="docutils literal notranslate"><span class="pre">DEFAULT_AUDIO_EVENTS_TO_CUT</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mixing.transcript.fillers.DEFAULT_FILLER_TOKENS"><code class="docutils literal notranslate"><span class="pre">DEFAULT_FILLER_TOKENS</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mixing.transcript.fillers.build_cuts"><code class="docutils literal notranslate"><span class="pre">build_cuts()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mixing.transcript.fillers.is_filler"><code class="docutils literal notranslate"><span class="pre">is_filler()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mixing.transcript.fillers.keeps_from_cuts"><code class="docutils literal notranslate"><span class="pre">keeps_from_cuts()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mixing.transcript.fillers.normalize_token"><code class="docutils literal notranslate"><span class="pre">normalize_token()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="formats.html">mixing.transcript.formats</a></li>
+<li class="toctree-l1"><a class="reference internal" href="media.html">mixing.transcript.media</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pipeline.html">mixing.transcript.pipeline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scribe.html">mixing.transcript.scribe</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../util.html">mixing.util</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../video.html">mixing.video</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../video/_helpers.html">mixing.video._helpers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../video/audio_offset_example.html">mixing.video.audio_offset_example</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../video/video_concat.html">mixing.video.video_concat</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../video/video_files.html">mixing.video.video_files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../video/video_gen.html">mixing.video.video_gen</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../video/video_ops.html">mixing.video.video_ops</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../video/video_subtitles.html">mixing.video.video_subtitles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../video/video_util.html">mixing.video.video_util</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">mixing</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">mixing.transcript.fillers</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../_sources/module_docs/mixing/transcript/fillers.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-mixing.transcript.fillers">
+<span id="mixing-transcript-fillers"></span><h1>mixing.transcript.fillers<a class="headerlink" href="#module-mixing.transcript.fillers" title="Link to this heading"></a></h1>
+<p>Filler-word detection over Scribe-shaped word lists.</p>
+<p>A “word list” here is the <code class="docutils literal notranslate"><span class="pre">words</span></code> array in the ElevenLabs Scribe JSON
+response — each entry has <code class="docutils literal notranslate"><span class="pre">text</span></code>, <code class="docutils literal notranslate"><span class="pre">start</span></code>, <code class="docutils literal notranslate"><span class="pre">end</span></code>, and <code class="docutils literal notranslate"><span class="pre">type</span></code>
+(one of <code class="docutils literal notranslate"><span class="pre">&quot;word&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;spacing&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;audio_event&quot;</span></code>).</p>
+<p>The two main outputs are:
+- <a class="reference internal" href="#mixing.transcript.fillers.build_cuts" title="mixing.transcript.fillers.build_cuts"><code class="xref py py-func docutils literal notranslate"><span class="pre">build_cuts()</span></code></a>: time ranges to REMOVE (fillers + optional audio events).
+- <a class="reference internal" href="#mixing.transcript.fillers.keeps_from_cuts" title="mixing.transcript.fillers.keeps_from_cuts"><code class="xref py py-func docutils literal notranslate"><span class="pre">keeps_from_cuts()</span></code></a>: complementary KEEP ranges, suitable for ffmpeg.</p>
+<dl class="py data">
+<dt class="sig sig-object py" id="mixing.transcript.fillers.DEFAULT_AUDIO_EVENTS_TO_CUT">
+<span class="sig-prename descclassname"><span class="pre">mixing.transcript.fillers.</span></span><span class="sig-name descname"><span class="pre">DEFAULT_AUDIO_EVENTS_TO_CUT</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">frozenset</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">frozenset({'(coughs)'})</span></em><a class="headerlink" href="#mixing.transcript.fillers.DEFAULT_AUDIO_EVENTS_TO_CUT" title="Link to this definition"></a></dt>
+<dd><p>Default audio-event tags to remove. <code class="docutils literal notranslate"><span class="pre">(laughs)</span></code> is intentionally kept.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="mixing.transcript.fillers.DEFAULT_FILLER_TOKENS">
+<span class="sig-prename descclassname"><span class="pre">mixing.transcript.fillers.</span></span><span class="sig-name descname"><span class="pre">DEFAULT_FILLER_TOKENS</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">frozenset</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">frozenset({'ah',</span> <span class="pre">'eh',</span> <span class="pre">'er',</span> <span class="pre">'erm',</span> <span class="pre">'hmm',</span> <span class="pre">'mhm',</span> <span class="pre">'mm',</span> <span class="pre">'mmm',</span> <span class="pre">'uh',</span> <span class="pre">'uhh',</span> <span class="pre">'uhm',</span> <span class="pre">'um',</span> <span class="pre">'umm'})</span></em><a class="headerlink" href="#mixing.transcript.fillers.DEFAULT_FILLER_TOKENS" title="Link to this definition"></a></dt>
+<dd><p>Default filler tokens (lowercased, alpha-only, see <a class="reference internal" href="#mixing.transcript.fillers.normalize_token" title="mixing.transcript.fillers.normalize_token"><code class="xref py py-func docutils literal notranslate"><span class="pre">normalize_token()</span></code></a>).</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mixing.transcript.fillers.build_cuts">
+<span class="sig-prename descclassname"><span class="pre">mixing.transcript.fillers.</span></span><span class="sig-name descname"><span class="pre">build_cuts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">words</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fillers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">frozenset({'ah',</span> <span class="pre">'eh',</span> <span class="pre">'er',</span> <span class="pre">'erm',</span> <span class="pre">'hmm',</span> <span class="pre">'mhm',</span> <span class="pre">'mm',</span> <span class="pre">'mmm',</span> <span class="pre">'uh',</span> <span class="pre">'uhh',</span> <span class="pre">'uhm',</span> <span class="pre">'um',</span> <span class="pre">'umm'})</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">audio_events</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">frozenset({'(coughs)'})</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">absorb_trailing_space</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">merge_gap</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.08</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/mixing/transcript/fillers.html#build_cuts"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.transcript.fillers.build_cuts" title="Link to this definition"></a></dt>
+<dd><p>Compute time ranges to REMOVE.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>words</strong> – Scribe <code class="docutils literal notranslate"><span class="pre">words</span></code> array.</p></li>
+<li><p><strong>fillers</strong> – Override the default filler set.</p></li>
+<li><p><strong>audio_events</strong> – Override the default audio-event set.</p></li>
+<li><p><strong>absorb_trailing_space</strong> – Extend each cut to the end of the trailing
+<code class="docutils literal notranslate"><span class="pre">&quot;spacing&quot;</span></code> token, which avoids leaving a stranded pause.</p></li>
+<li><p><strong>merge_gap</strong> – Merge adjacent cuts when their gap is below this many seconds.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>List of <code class="docutils literal notranslate"><span class="pre">{&quot;start&quot;:</span> <span class="pre">float,</span> <span class="pre">&quot;end&quot;:</span> <span class="pre">float,</span> <span class="pre">&quot;label&quot;:</span> <span class="pre">str}</span></code> dicts,
+sorted by start time and non-overlapping.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mixing.transcript.fillers.is_filler">
+<span class="sig-prename descclassname"><span class="pre">mixing.transcript.fillers.</span></span><span class="sig-name descname"><span class="pre">is_filler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">item</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fillers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">frozenset({'ah',</span> <span class="pre">'eh',</span> <span class="pre">'er',</span> <span class="pre">'erm',</span> <span class="pre">'hmm',</span> <span class="pre">'mhm',</span> <span class="pre">'mm',</span> <span class="pre">'mmm',</span> <span class="pre">'uh',</span> <span class="pre">'uhh',</span> <span class="pre">'uhm',</span> <span class="pre">'um',</span> <span class="pre">'umm'})</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">audio_events</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">frozenset({'(coughs)'})</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="../../../_modules/mixing/transcript/fillers.html#is_filler"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.transcript.fillers.is_filler" title="Link to this definition"></a></dt>
+<dd><p>Return <code class="docutils literal notranslate"><span class="pre">True</span></code> if <code class="docutils literal notranslate"><span class="pre">item</span></code> is a filler word or a removable audio event.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mixing.transcript.fillers.keeps_from_cuts">
+<span class="sig-prename descclassname"><span class="pre">mixing.transcript.fillers.</span></span><span class="sig-name descname"><span class="pre">keeps_from_cuts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cuts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">duration</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/mixing/transcript/fillers.html#keeps_from_cuts"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.transcript.fillers.keeps_from_cuts" title="Link to this definition"></a></dt>
+<dd><p>Return ranges to KEEP given the cut ranges and total duration.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mixing.transcript.fillers.normalize_token">
+<span class="sig-prename descclassname"><span class="pre">mixing.transcript.fillers.</span></span><span class="sig-name descname"><span class="pre">normalize_token</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../../../_modules/mixing/transcript/fillers.html#normalize_token"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.transcript.fillers.normalize_token" title="Link to this definition"></a></dt>
+<dd><p>Lowercase and strip non-alpha so <code class="docutils literal notranslate"><span class="pre">&quot;Uh,&quot;</span></code> -&gt; <code class="docutils literal notranslate"><span class="pre">&quot;uh&quot;</span></code>.</p>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../transcript.html" class="btn btn-neutral float-left" title="mixing.transcript" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="formats.html" class="btn btn-neutral float-right" title="mixing.transcript.formats" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright NO COPYRIGHT.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

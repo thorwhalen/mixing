@@ -1,0 +1,354 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>mixing.transcript &mdash; mixing 0.0.6 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=1fd71caa"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../_static/toggleprompt.js?v=d7ede5d2"></script>
+      <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="mixing.transcript.fillers" href="transcript/fillers.html" />
+    <link rel="prev" title="mixing.audio.test_audio_widget" href="audio/test_audio_widget.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            mixing
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../mixing.html">mixing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="audio.html">mixing.audio</a></li>
+<li class="toctree-l1"><a class="reference internal" href="audio/audio_ops.html">mixing.audio.audio_ops</a></li>
+<li class="toctree-l1"><a class="reference internal" href="audio/audio_util.html">mixing.audio.audio_util</a></li>
+<li class="toctree-l1"><a class="reference internal" href="audio/audio_widget.html">mixing.audio.audio_widget</a></li>
+<li class="toctree-l1"><a class="reference internal" href="audio/demo_audio_widget.html">mixing.audio.demo_audio_widget</a></li>
+<li class="toctree-l1"><a class="reference internal" href="audio/test_audio_widget.html">mixing.audio.test_audio_widget</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">mixing.transcript</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#mixing.transcript.FillerRemovalResult"><code class="docutils literal notranslate"><span class="pre">FillerRemovalResult</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mixing.transcript.apply_keeps"><code class="docutils literal notranslate"><span class="pre">apply_keeps()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mixing.transcript.build_cuts"><code class="docutils literal notranslate"><span class="pre">build_cuts()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mixing.transcript.extract_audio"><code class="docutils literal notranslate"><span class="pre">extract_audio()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mixing.transcript.fmt_srt_time"><code class="docutils literal notranslate"><span class="pre">fmt_srt_time()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mixing.transcript.is_filler"><code class="docutils literal notranslate"><span class="pre">is_filler()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mixing.transcript.keeps_from_cuts"><code class="docutils literal notranslate"><span class="pre">keeps_from_cuts()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mixing.transcript.normalize_token"><code class="docutils literal notranslate"><span class="pre">normalize_token()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mixing.transcript.remap_time_after_cuts"><code class="docutils literal notranslate"><span class="pre">remap_time_after_cuts()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mixing.transcript.remove_fillers"><code class="docutils literal notranslate"><span class="pre">remove_fillers()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mixing.transcript.transcribe"><code class="docutils literal notranslate"><span class="pre">transcribe()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mixing.transcript.words_to_prose"><code class="docutils literal notranslate"><span class="pre">words_to_prose()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mixing.transcript.words_to_srt"><code class="docutils literal notranslate"><span class="pre">words_to_srt()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mixing.transcript.words_to_srt_remapped"><code class="docutils literal notranslate"><span class="pre">words_to_srt_remapped()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="transcript/fillers.html">mixing.transcript.fillers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transcript/formats.html">mixing.transcript.formats</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transcript/media.html">mixing.transcript.media</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transcript/pipeline.html">mixing.transcript.pipeline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transcript/scribe.html">mixing.transcript.scribe</a></li>
+<li class="toctree-l1"><a class="reference internal" href="util.html">mixing.util</a></li>
+<li class="toctree-l1"><a class="reference internal" href="video.html">mixing.video</a></li>
+<li class="toctree-l1"><a class="reference internal" href="video/_helpers.html">mixing.video._helpers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="video/audio_offset_example.html">mixing.video.audio_offset_example</a></li>
+<li class="toctree-l1"><a class="reference internal" href="video/video_concat.html">mixing.video.video_concat</a></li>
+<li class="toctree-l1"><a class="reference internal" href="video/video_files.html">mixing.video.video_files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="video/video_gen.html">mixing.video.video_gen</a></li>
+<li class="toctree-l1"><a class="reference internal" href="video/video_ops.html">mixing.video.video_ops</a></li>
+<li class="toctree-l1"><a class="reference internal" href="video/video_subtitles.html">mixing.video.video_subtitles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="video/video_util.html">mixing.video.video_util</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">mixing</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">mixing.transcript</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/module_docs/mixing/transcript.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-mixing.transcript">
+<span id="mixing-transcript"></span><h1>mixing.transcript<a class="headerlink" href="#module-mixing.transcript" title="Link to this heading"></a></h1>
+<p>Transcript-driven media editing.</p>
+<p>Speech-to-text via ElevenLabs Scribe, filler-word detection, and
+timeline-aware cuts of audio/video. Produces editable transcripts
+(plain prose, SRT, word-level JSON) and applies cuts via ffmpeg.</p>
+<p>The HTTP client uses stdlib only (no <cite>requests</cite> or <cite>elevenlabs</cite> SDK
+dependency), so the package adds no required deps. The runtime needs
+ffmpeg on PATH for media operations, and an ElevenLabs API key (env
+var <cite>ELEVENLABS_API_KEY</cite> or explicit <cite>api_key=</cite>) for transcription.</p>
+<dl>
+<dt>Quick start:</dt><dd><div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">mixing.transcript</span><span class="w"> </span><span class="kn">import</span> <span class="n">remove_fillers</span>  
+<span class="gp">&gt;&gt;&gt; </span><span class="n">result</span> <span class="o">=</span> <span class="n">remove_fillers</span><span class="p">(</span><span class="s2">&quot;input.mov&quot;</span><span class="p">,</span> <span class="s2">&quot;out/&quot;</span><span class="p">)</span>  
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">cleaned_media</span><span class="p">)</span>  
+</pre></div>
+</div>
+</dd>
+<dt>Lower-level building blocks:</dt><dd><div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">mixing.transcript</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>  
+<span class="gp">... </span>    <span class="n">transcribe</span><span class="p">,</span> <span class="n">build_cuts</span><span class="p">,</span> <span class="n">keeps_from_cuts</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">words_to_srt</span><span class="p">,</span> <span class="n">words_to_prose</span><span class="p">,</span> <span class="n">apply_keeps</span><span class="p">,</span>
+<span class="gp">... </span><span class="p">)</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="mixing.transcript.FillerRemovalResult">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mixing.transcript.</span></span><span class="sig-name descname"><span class="pre">FillerRemovalResult</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cleaned_media:</span> <span class="pre">~pathlib.Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transcript_md:</span> <span class="pre">~pathlib.Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transcript_srt:</span> <span class="pre">~pathlib.Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cleaned_md:</span> <span class="pre">~pathlib.Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cleaned_srt:</span> <span class="pre">~pathlib.Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scribe_json:</span> <span class="pre">~pathlib.Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cuts_json:</span> <span class="pre">~pathlib.Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">keeps_json:</span> <span class="pre">~pathlib.Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">duration:</span> <span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cuts:</span> <span class="pre">list[dict]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">keeps:</span> <span class="pre">list[dict]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/mixing/transcript/pipeline.html#FillerRemovalResult"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.transcript.FillerRemovalResult" title="Link to this definition"></a></dt>
+<dd><p>Paths and computed ranges produced by <a class="reference internal" href="#mixing.transcript.remove_fillers" title="mixing.transcript.remove_fillers"><code class="xref py py-func docutils literal notranslate"><span class="pre">remove_fillers()</span></code></a>.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mixing.transcript.apply_keeps">
+<span class="sig-prename descclassname"><span class="pre">mixing.transcript.</span></span><span class="sig-name descname"><span class="pre">apply_keeps</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">keeps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">video_codec</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'libx264'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">audio_codec</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'aac'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">crf</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">preset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'medium'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">audio_bitrate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'160k'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">faststart</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overwrite</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Path</span></span></span><a class="reference internal" href="../../_modules/mixing/transcript/media.html#apply_keeps"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.transcript.apply_keeps" title="Link to this definition"></a></dt>
+<dd><p>Re-encode <code class="docutils literal notranslate"><span class="pre">input_path</span></code> keeping only the listed time ranges.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>input_path</strong> – Input audio/video file.</p></li>
+<li><p><strong>output_path</strong> – Output file (extension picks the container).</p></li>
+<li><p><strong>keeps</strong> – <code class="docutils literal notranslate"><span class="pre">[{&quot;start&quot;:</span> <span class="pre">float,</span> <span class="pre">&quot;end&quot;:</span> <span class="pre">float},</span> <span class="pre">...]</span></code> time ranges in seconds.</p></li>
+<li><p><strong>audio_bitrate</strong> (<em>video_codec / audio_codec / crf / preset /</em>) – Re-encode
+knobs forwarded to ffmpeg.</p></li>
+<li><p><strong>faststart</strong> – Add <code class="docutils literal notranslate"><span class="pre">-movflags</span> <span class="pre">+faststart</span></code> (mp4 web-streaming).</p></li>
+<li><p><strong>overwrite</strong> – Pass <code class="docutils literal notranslate"><span class="pre">-y</span></code> to ffmpeg.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The output path.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mixing.transcript.build_cuts">
+<span class="sig-prename descclassname"><span class="pre">mixing.transcript.</span></span><span class="sig-name descname"><span class="pre">build_cuts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">words</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fillers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">frozenset({'ah',</span> <span class="pre">'eh',</span> <span class="pre">'er',</span> <span class="pre">'erm',</span> <span class="pre">'hmm',</span> <span class="pre">'mhm',</span> <span class="pre">'mm',</span> <span class="pre">'mmm',</span> <span class="pre">'uh',</span> <span class="pre">'uhh',</span> <span class="pre">'uhm',</span> <span class="pre">'um',</span> <span class="pre">'umm'})</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">audio_events</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">frozenset({'(coughs)'})</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">absorb_trailing_space</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">merge_gap</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.08</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/mixing/transcript/fillers.html#build_cuts"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.transcript.build_cuts" title="Link to this definition"></a></dt>
+<dd><p>Compute time ranges to REMOVE.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>words</strong> – Scribe <code class="docutils literal notranslate"><span class="pre">words</span></code> array.</p></li>
+<li><p><strong>fillers</strong> – Override the default filler set.</p></li>
+<li><p><strong>audio_events</strong> – Override the default audio-event set.</p></li>
+<li><p><strong>absorb_trailing_space</strong> – Extend each cut to the end of the trailing
+<code class="docutils literal notranslate"><span class="pre">&quot;spacing&quot;</span></code> token, which avoids leaving a stranded pause.</p></li>
+<li><p><strong>merge_gap</strong> – Merge adjacent cuts when their gap is below this many seconds.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>List of <code class="docutils literal notranslate"><span class="pre">{&quot;start&quot;:</span> <span class="pre">float,</span> <span class="pre">&quot;end&quot;:</span> <span class="pre">float,</span> <span class="pre">&quot;label&quot;:</span> <span class="pre">str}</span></code> dicts,
+sorted by start time and non-overlapping.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mixing.transcript.extract_audio">
+<span class="sig-prename descclassname"><span class="pre">mixing.transcript.</span></span><span class="sig-name descname"><span class="pre">extract_audio</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_rate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">16000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channels</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bitrate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'96k'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overwrite</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Path</span></span></span><a class="reference internal" href="../../_modules/mixing/transcript/media.html#extract_audio"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.transcript.extract_audio" title="Link to this definition"></a></dt>
+<dd><p>Extract a mono mp3 from <code class="docutils literal notranslate"><span class="pre">input_path</span></code> (suitable for STT).</p>
+<p>Returns the output path.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mixing.transcript.fmt_srt_time">
+<span class="sig-prename descclassname"><span class="pre">mixing.transcript.</span></span><span class="sig-name descname"><span class="pre">fmt_srt_time</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../../_modules/mixing/transcript/formats.html#fmt_srt_time"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.transcript.fmt_srt_time" title="Link to this definition"></a></dt>
+<dd><p>Format a time in seconds as an SRT timestamp <code class="docutils literal notranslate"><span class="pre">HH:MM:SS,mmm</span></code>.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mixing.transcript.is_filler">
+<span class="sig-prename descclassname"><span class="pre">mixing.transcript.</span></span><span class="sig-name descname"><span class="pre">is_filler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">item</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fillers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">frozenset({'ah',</span> <span class="pre">'eh',</span> <span class="pre">'er',</span> <span class="pre">'erm',</span> <span class="pre">'hmm',</span> <span class="pre">'mhm',</span> <span class="pre">'mm',</span> <span class="pre">'mmm',</span> <span class="pre">'uh',</span> <span class="pre">'uhh',</span> <span class="pre">'uhm',</span> <span class="pre">'um',</span> <span class="pre">'umm'})</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">audio_events</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">frozenset({'(coughs)'})</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="../../_modules/mixing/transcript/fillers.html#is_filler"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.transcript.is_filler" title="Link to this definition"></a></dt>
+<dd><p>Return <code class="docutils literal notranslate"><span class="pre">True</span></code> if <code class="docutils literal notranslate"><span class="pre">item</span></code> is a filler word or a removable audio event.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mixing.transcript.keeps_from_cuts">
+<span class="sig-prename descclassname"><span class="pre">mixing.transcript.</span></span><span class="sig-name descname"><span class="pre">keeps_from_cuts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cuts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">duration</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/mixing/transcript/fillers.html#keeps_from_cuts"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.transcript.keeps_from_cuts" title="Link to this definition"></a></dt>
+<dd><p>Return ranges to KEEP given the cut ranges and total duration.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mixing.transcript.normalize_token">
+<span class="sig-prename descclassname"><span class="pre">mixing.transcript.</span></span><span class="sig-name descname"><span class="pre">normalize_token</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../../_modules/mixing/transcript/fillers.html#normalize_token"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.transcript.normalize_token" title="Link to this definition"></a></dt>
+<dd><p>Lowercase and strip non-alpha so <code class="docutils literal notranslate"><span class="pre">&quot;Uh,&quot;</span></code> -&gt; <code class="docutils literal notranslate"><span class="pre">&quot;uh&quot;</span></code>.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mixing.transcript.remap_time_after_cuts">
+<span class="sig-prename descclassname"><span class="pre">mixing.transcript.</span></span><span class="sig-name descname"><span class="pre">remap_time_after_cuts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cuts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="../../_modules/mixing/transcript/formats.html#remap_time_after_cuts"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.transcript.remap_time_after_cuts" title="Link to this definition"></a></dt>
+<dd><p>Map <code class="docutils literal notranslate"><span class="pre">t</span></code> from the original timeline onto the post-cut timeline.</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">t</span></code> falls inside a cut, snaps to the moment that cut would have
+started in the post-cut timeline.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mixing.transcript.remove_fillers">
+<span class="sig-prename descclassname"><span class="pre">mixing.transcript.</span></span><span class="sig-name descname"><span class="pre">remove_fillers</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_media</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_media</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fillers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">frozenset({'ah',</span> <span class="pre">'eh',</span> <span class="pre">'er',</span> <span class="pre">'erm',</span> <span class="pre">'hmm',</span> <span class="pre">'mhm',</span> <span class="pre">'mm',</span> <span class="pre">'mmm',</span> <span class="pre">'uh',</span> <span class="pre">'uhh',</span> <span class="pre">'uhm',</span> <span class="pre">'um',</span> <span class="pre">'umm'})</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">audio_events</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">frozenset({'(coughs)'})</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">api_key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scribe_kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">object</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">apply_keeps_kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">object</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">keep_intermediate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scribe_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="transcript/pipeline.html#mixing.transcript.pipeline.FillerRemovalResult" title="mixing.transcript.pipeline.FillerRemovalResult"><span class="pre">FillerRemovalResult</span></a></span></span><a class="reference internal" href="../../_modules/mixing/transcript/pipeline.html#remove_fillers"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.transcript.remove_fillers" title="Link to this definition"></a></dt>
+<dd><p>End-to-end filler removal.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>input_media</strong> – Video or audio file to clean.</p></li>
+<li><p><strong>output_dir</strong> – Directory to write transcripts and intermediate files into.
+Created if missing.</p></li>
+<li><p><strong>output_media</strong> – Output cleaned media path. Defaults to
+<code class="docutils literal notranslate"><span class="pre">output_dir</span> <span class="pre">/</span> <span class="pre">f&quot;{stem}.cleaned.mp4&quot;</span></code>.</p></li>
+<li><p><strong>audio_events</strong> (<em>fillers /</em>) – Override the default filler / event sets.</p></li>
+<li><p><strong>api_key</strong> – ElevenLabs API key (else env <code class="docutils literal notranslate"><span class="pre">ELEVENLABS_API_KEY</span></code>).</p></li>
+<li><p><strong>scribe_kwargs</strong> – Extra kwargs forwarded to <a class="reference internal" href="#mixing.transcript.transcribe" title="mixing.transcript.transcribe"><code class="xref py py-func docutils literal notranslate"><span class="pre">transcribe()</span></code></a>.</p></li>
+<li><p><strong>apply_keeps_kwargs</strong> – Extra kwargs forwarded to <a class="reference internal" href="#mixing.transcript.apply_keeps" title="mixing.transcript.apply_keeps"><code class="xref py py-func docutils literal notranslate"><span class="pre">apply_keeps()</span></code></a>.</p></li>
+<li><p><strong>keep_intermediate</strong> – If <code class="docutils literal notranslate"><span class="pre">False</span></code>, delete the extracted audio file.</p></li>
+<li><p><strong>scribe_data</strong> – If provided, skip the network call and use this dict
+(must match Scribe’s response shape). Useful for tests / replays.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A <a class="reference internal" href="#mixing.transcript.FillerRemovalResult" title="mixing.transcript.FillerRemovalResult"><code class="xref py py-class docutils literal notranslate"><span class="pre">FillerRemovalResult</span></code></a> with file paths and the computed
+cut/keep ranges.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mixing.transcript.transcribe">
+<span class="sig-prename descclassname"><span class="pre">mixing.transcript.</span></span><span class="sig-name descname"><span class="pre">transcribe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">audio</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">bytes</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">api_key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'scribe_v1'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timestamps_granularity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'word'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tag_audio_events</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diarize</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">language_code</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extra_fields</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">600.0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/mixing/transcript/scribe.html#transcribe"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.transcript.transcribe" title="Link to this definition"></a></dt>
+<dd><p>Transcribe <code class="docutils literal notranslate"><span class="pre">audio</span></code> with ElevenLabs Scribe.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>audio</strong> – Path to an audio/video file, or raw bytes.</p></li>
+<li><p><strong>api_key</strong> – API key. Falls back to env var <code class="docutils literal notranslate"><span class="pre">ELEVENLABS_API_KEY</span></code>.</p></li>
+<li><p><strong>model_id</strong> – Scribe model id (currently <code class="docutils literal notranslate"><span class="pre">scribe_v1</span></code>).</p></li>
+<li><p><strong>timestamps_granularity</strong> – <code class="docutils literal notranslate"><span class="pre">&quot;word&quot;</span></code> (default), <code class="docutils literal notranslate"><span class="pre">&quot;character&quot;</span></code>, or <code class="docutils literal notranslate"><span class="pre">&quot;none&quot;</span></code>.</p></li>
+<li><p><strong>tag_audio_events</strong> – Whether to surface <code class="docutils literal notranslate"><span class="pre">(laughs)</span></code> / <code class="docutils literal notranslate"><span class="pre">(coughs)</span></code> etc.</p></li>
+<li><p><strong>diarize</strong> – Speaker diarization on/off.</p></li>
+<li><p><strong>language_code</strong> – Optional BCP-47 hint to skip language detection.</p></li>
+<li><p><strong>extra_fields</strong> – Additional multipart fields to send (forward compatible).</p></li>
+<li><p><strong>timeout</strong> – Total request timeout in seconds.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The raw JSON response from ElevenLabs (a dict).</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>RuntimeError</strong> – No API key supplied and <code class="docutils literal notranslate"><span class="pre">ELEVENLABS_API_KEY</span></code> unset.</p></li>
+<li><p><strong>urllib.error.HTTPError</strong> – Request failed (4xx/5xx).</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mixing.transcript.words_to_prose">
+<span class="sig-prename descclassname"><span class="pre">mixing.transcript.</span></span><span class="sig-name descname"><span class="pre">words_to_prose</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">words</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">paragraph_pause</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">drop_fillers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fillers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">frozenset({'ah',</span> <span class="pre">'eh',</span> <span class="pre">'er',</span> <span class="pre">'erm',</span> <span class="pre">'hmm',</span> <span class="pre">'mhm',</span> <span class="pre">'mm',</span> <span class="pre">'mmm',</span> <span class="pre">'uh',</span> <span class="pre">'uhh',</span> <span class="pre">'uhm',</span> <span class="pre">'um',</span> <span class="pre">'umm'})</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">audio_events</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">frozenset({'(coughs)'})</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../../_modules/mixing/transcript/formats.html#words_to_prose"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.transcript.words_to_prose" title="Link to this definition"></a></dt>
+<dd><p>Render a Scribe word list as plain prose, with paragraph breaks on long pauses.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>words</strong> – Scribe <code class="docutils literal notranslate"><span class="pre">words</span></code> array.</p></li>
+<li><p><strong>paragraph_pause</strong> – Insert a blank line when the gap between two
+consecutive non-filler words exceeds this many seconds.</p></li>
+<li><p><strong>drop_fillers</strong> – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, omit filler words and removable audio events.</p></li>
+<li><p><strong>audio_events</strong> (<em>fillers /</em>) – Override the default filler / event sets.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mixing.transcript.words_to_srt">
+<span class="sig-prename descclassname"><span class="pre">mixing.transcript.</span></span><span class="sig-name descname"><span class="pre">words_to_srt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">words</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_chars</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">80</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sentence_endings</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'.?!'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../../_modules/mixing/transcript/formats.html#words_to_srt"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.transcript.words_to_srt" title="Link to this definition"></a></dt>
+<dd><p>Render an SRT from a Scribe word list (no filler removal, no remapping).</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mixing.transcript.words_to_srt_remapped">
+<span class="sig-prename descclassname"><span class="pre">mixing.transcript.</span></span><span class="sig-name descname"><span class="pre">words_to_srt_remapped</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">words</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cuts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_chars</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">80</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sentence_endings</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'.?!'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">drop_fillers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fillers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">frozenset({'ah',</span> <span class="pre">'eh',</span> <span class="pre">'er',</span> <span class="pre">'erm',</span> <span class="pre">'hmm',</span> <span class="pre">'mhm',</span> <span class="pre">'mm',</span> <span class="pre">'mmm',</span> <span class="pre">'uh',</span> <span class="pre">'uhh',</span> <span class="pre">'uhm',</span> <span class="pre">'um',</span> <span class="pre">'umm'})</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">audio_events</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">frozenset({'(coughs)'})</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../../_modules/mixing/transcript/formats.html#words_to_srt_remapped"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.transcript.words_to_srt_remapped" title="Link to this definition"></a></dt>
+<dd><p>SRT aligned to a post-cut timeline.</p>
+<p>Each word’s timestamp is shifted earlier by the cumulative duration
+of all cuts that ended before it, so the resulting SRT drops in over
+the cleaned media.</p>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="audio/test_audio_widget.html" class="btn btn-neutral float-left" title="mixing.audio.test_audio_widget" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="transcript/fillers.html" class="btn btn-neutral float-right" title="mixing.transcript.fillers" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright NO COPYRIGHT.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

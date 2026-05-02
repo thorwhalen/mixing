@@ -1,0 +1,4 @@
+mixing.transcript.media
+=======================
+.. automodule:: mixing.transcript.media
+   :members:

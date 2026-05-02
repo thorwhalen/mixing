@@ -1,0 +1,4 @@
+mixing.transcript.scribe
+========================
+.. automodule:: mixing.transcript.scribe
+   :members:

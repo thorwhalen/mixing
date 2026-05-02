@@ -1,0 +1,4 @@
+mixing.transcript.pipeline
+==========================
+.. automodule:: mixing.transcript.pipeline
+   :members:
