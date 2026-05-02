@@ -22,6 +22,13 @@ video = Video("clip.mp4")
 trimmed = video[5:15]  # Get 5s-15s segment
 looped = loop_video("intro.mp4", n_loops=3)  # Repeat 3 times
 mixed = replace_audio("video.mp4", "music.mp3", mix_ratio=0.7)  # Mix audio
+
+# Filler removal (uh, um, ...) via ElevenLabs Scribe + ffmpeg
+from mixing.transcript import remove_fillers
+
+result = remove_fillers("talk.mov", "out/")  # uses $ELEVENLABS_API_KEY
+print(result.cleaned_media)        # out/talk.cleaned.mp4
+print(result.cleaned_md.read_text())   # filler-free transcript
 ```
 
 # Examples
@@ -458,4 +465,61 @@ The audio editing features require:
 Install audio extras:
 ```bash
 pip install mixing[audio]
+```
+
+## Filler removal: `mixing.transcript`
+
+Removes filler words (`uh`, `um`, `mm`, ...) from a video by transcribing it
+with ElevenLabs Scribe, identifying filler tokens via word-level timestamps,
+and cutting them out with `ffmpeg`. Produces an editable transcript and an
+SRT aligned to the cleaned timeline.
+
+**Requirements**
+
+- `ffmpeg` on PATH (existing system dependency for `mixing`).
+- An ElevenLabs API key. Pass `api_key=` or set `ELEVENLABS_API_KEY`.
+- No new Python dependencies — the Scribe HTTP client uses the stdlib only.
+
+**One-shot pipeline**
+
+```python
+from mixing.transcript import remove_fillers
+
+result = remove_fillers("talk.mov", "out/")
+# out/talk.cleaned.mp4         — video with fillers removed
+# out/transcript.md            — original verbatim text
+# out/transcript.srt           — SRT aligned to original media
+# out/transcript.cleaned.md    — filler-free prose, paragraphs on long pauses
+# out/transcript.cleaned.srt   — SRT aligned to the cleaned media
+# out/scribe.json              — raw Scribe response (word-level timestamps)
+# out/cuts.json / keeps.json   — exact ranges removed / kept
+```
+
+Override the filler list, or replay against a saved Scribe response (no
+network call):
+
+```python
+result = remove_fillers(
+    "talk.mov", "out/",
+    fillers={"uh", "um", "like", "you-know"},
+    audio_events={"(coughs)", "(sighs)"},
+)
+
+# Or, replay against a saved Scribe JSON (skips the API entirely)
+import json
+result = remove_fillers(
+    "talk.mov", "out/",
+    scribe_data=json.load(open("out/scribe.json")),
+)
+```
+
+**Lower-level building blocks**
+
+```python
+from mixing.transcript import (
+    transcribe,                  # ElevenLabs Scribe HTTP call
+    build_cuts, keeps_from_cuts, # filler -> cut/keep ranges
+    words_to_srt, words_to_prose, words_to_srt_remapped,
+    extract_audio, apply_keeps,  # ffmpeg wrappers
+)
 ```
