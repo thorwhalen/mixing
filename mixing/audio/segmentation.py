@@ -182,7 +182,9 @@ def _frame_rms(
     frame_len = max(1, int(frame_seconds * sr))
     hop_len = max(1, int(hop_seconds * sr))
     if len(samples) < frame_len:
-        return np.array([np.sqrt(np.mean(samples**2)) if len(samples) else 0.0]), np.array([0.0])
+        return np.array(
+            [np.sqrt(np.mean(samples**2)) if len(samples) else 0.0]
+        ), np.array([0.0])
     n_frames = (len(samples) - frame_len) // hop_len + 1
     # Vectorized framing via stride tricks
     shape = (n_frames, frame_len)
@@ -299,9 +301,7 @@ def segment_by_energy(
 
     boundary_times = times[peaks].tolist()
     # Score = how deep the valley is, normalized
-    scores = (
-        ((rms_max - rms[peaks]) / rms_max).tolist() if len(peaks) else []
-    )
+    scores = ((rms_max - rms[peaks]) / rms_max).tolist() if len(peaks) else []
     return _boundaries_to_segments(
         boundary_times,
         total_duration=len(samples) / sr,
@@ -370,14 +370,15 @@ def _log_spectrogram_features(
         feats = log_mag
     else:
         # Log-spaced bin edges, skipping DC.
-        edges = np.unique(
-            np.geomspace(2, n_freq, num=n_bands + 1).astype(int)
-        )
+        edges = np.unique(np.geomspace(2, n_freq, num=n_bands + 1).astype(int))
         if len(edges) < n_bands + 1:
             # Fallback to linear if log-spacing collapses (very small n_freq)
             edges = np.linspace(1, n_freq, num=n_bands + 1).astype(int)
         feats = np.stack(
-            [log_mag[edges[i] : edges[i + 1]].mean(axis=0) for i in range(len(edges) - 1)],
+            [
+                log_mag[edges[i] : edges[i + 1]].mean(axis=0)
+                for i in range(len(edges) - 1)
+            ],
             axis=0,
         )
 
@@ -498,9 +499,7 @@ def _zero_crossing_rate(framed: np.ndarray) -> np.ndarray:
     return np.mean(np.abs(np.diff(signs, axis=1)), axis=1) / 2.0
 
 
-def _frame_signal(
-    samples: np.ndarray, *, frame_len: int, hop_len: int
-) -> np.ndarray:
+def _frame_signal(samples: np.ndarray, *, frame_len: int, hop_len: int) -> np.ndarray:
     """Frame a 1-D signal into a 2-D array of overlapping frames."""
     if len(samples) < frame_len:
         return samples[np.newaxis, :].astype(np.float64)
@@ -638,9 +637,7 @@ def segment_by_speech_music(
 # ----------------------------------------------------------------------------
 
 
-def _merge_close_segments(
-    segments: list[Segment], merge_gap: float
-) -> list[Segment]:
+def _merge_close_segments(segments: list[Segment], merge_gap: float) -> list[Segment]:
     """Merge consecutive segments whose gap is < merge_gap and whose label matches."""
     if not segments:
         return segments
@@ -664,9 +661,7 @@ def _merge_close_segments(
     return merged
 
 
-def _split_long_segments(
-    segments: list[Segment], max_duration: float
-) -> list[Segment]:
+def _split_long_segments(segments: list[Segment], max_duration: float) -> list[Segment]:
     """Split any segment longer than ``max_duration`` into equal pieces."""
     out = []
     for s in segments:
@@ -705,9 +700,7 @@ def _absorb_short_segments(
             right = work[i + 1] if i + 1 < len(work) else None
             if left is None and right is None:
                 break
-            if left is not None and (
-                right is None or left.duration >= right.duration
-            ):
+            if left is not None and (right is None or left.duration >= right.duration):
                 merged = Segment(
                     start=left.start,
                     end=s.end,
