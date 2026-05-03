@@ -8,6 +8,7 @@
    module_docs/mixing/audio/audio_util
    module_docs/mixing/audio/audio_widget
    module_docs/mixing/audio/demo_audio_widget
+   module_docs/mixing/audio/segmentation
    module_docs/mixing/audio/test_audio_widget
    module_docs/mixing/transcript
    module_docs/mixing/transcript/fillers

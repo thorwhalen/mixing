@@ -1,0 +1,1067 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>mixing.audio.segmentation &mdash; mixing 0.0.7 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=bbaf98b3"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../_static/toggleprompt.js?v=d7ede5d2"></script>
+      <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            mixing
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing.html">mixing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/audio.html">mixing.audio</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/audio/audio_ops.html">mixing.audio.audio_ops</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/audio/audio_util.html">mixing.audio.audio_util</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/audio/audio_widget.html">mixing.audio.audio_widget</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/audio/demo_audio_widget.html">mixing.audio.demo_audio_widget</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/audio/segmentation.html">mixing.audio.segmentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/audio/test_audio_widget.html">mixing.audio.test_audio_widget</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/transcript.html">mixing.transcript</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/transcript/fillers.html">mixing.transcript.fillers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/transcript/formats.html">mixing.transcript.formats</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/transcript/media.html">mixing.transcript.media</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/transcript/pipeline.html">mixing.transcript.pipeline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/transcript/scribe.html">mixing.transcript.scribe</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/util.html">mixing.util</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video.html">mixing.video</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/_helpers.html">mixing.video._helpers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/audio_offset_example.html">mixing.video.audio_offset_example</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/video_concat.html">mixing.video.video_concat</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/video_files.html">mixing.video.video_files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/video_gen.html">mixing.video.video_gen</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/video_ops.html">mixing.video.video_ops</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/video_subtitles.html">mixing.video.video_subtitles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/video_util.html">mixing.video.video_util</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">mixing</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">mixing.audio.segmentation</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for mixing.audio.segmentation</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Split a long audio into segments — for example, the individual songs in a</span>
+<span class="sd">concert recording, a DJ mix, or a radio show.</span>
+
+<span class="sd">Three things make this hard in practice:</span>
+
+<span class="sd">1. Sometimes the boundaries are obvious (silence between tracks).</span>
+<span class="sd">2. Sometimes there&#39;s continuous background noise (audience, room tone),</span>
+<span class="sd">   so the energy never really drops.</span>
+<span class="sd">3. Sometimes the boundaries are between different *kinds* of audio</span>
+<span class="sd">   (speech vs music on the radio).</span>
+
+<span class="sd">This module offers a small family of pluggable strategies that cover those</span>
+<span class="sd">three regimes, plus a single entry point ``find_segments`` that you can</span>
+<span class="sd">parametrize for your particular case. It is not magic — it is a toolbox</span>
+<span class="sd">with sensible defaults. Tuning the keyword arguments matters.</span>
+
+<span class="sd">The strategies, in increasing order of sophistication:</span>
+
+<span class="sd">- ``&quot;silence&quot;`` — pydub silence detection. Good for clean track separations.</span>
+<span class="sd">- ``&quot;energy_novelty&quot;`` — adaptive RMS valley detection. Catches fade-outs and</span>
+<span class="sd">  quiet inter-track moments that aren&#39;t quite silence.</span>
+<span class="sd">- ``&quot;self_similarity&quot;`` — Foote&#39;s checkerboard novelty (ICME 2000) on</span>
+<span class="sd">  log-spectrogram features. The standard tool for concert recordings where</span>
+<span class="sd">  amplitude is roughly constant: it detects boundaries where the *spectral</span>
+<span class="sd">  content* changes abruptly. See Foote, &quot;Automatic audio segmentation using</span>
+<span class="sd">  a measure of audio novelty&quot; (ICME 2000).</span>
+<span class="sd">- ``&quot;speech_music&quot;`` — low-energy frame ratio + 4 Hz modulation energy</span>
+<span class="sd">  (Scheirer &amp; Slaney 1997-style features). Splits radio audio into spoken</span>
+<span class="sd">  and musical regions.</span>
+
+<span class="sd">You can also pass your own callable as ``strategy`` for custom logic.</span>
+
+<span class="sd">Output:</span>
+<span class="sd">- ``find_segments`` returns a list of ``Segment`` dataclasses (start/end in</span>
+<span class="sd">  seconds), which you can hand to a player, a transcript tool, or whatever.</span>
+<span class="sd">- ``extract_segments`` does the same plus exports each segment as a file.</span>
+<span class="sd">- ``Segment.as_offset_duration()`` and ``.as_start_end()`` give the two</span>
+<span class="sd">  common timestamp representations.</span>
+
+<span class="sd">Examples:</span>
+<span class="sd">    &gt;&gt;&gt; from mixing.audio import find_segments, extract_segments  # doctest: +SKIP</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; # DJ mix with silences between tracks</span>
+<span class="sd">    &gt;&gt;&gt; segs = find_segments(&quot;mix.mp3&quot;, strategy=&quot;silence&quot;,</span>
+<span class="sd">    ...                       silence_thresh_db=-40, min_silence_len=1.5)  # doctest: +SKIP</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; # Concert: continuous audience noise, songs differ in spectral content</span>
+<span class="sd">    &gt;&gt;&gt; segs = find_segments(&quot;concert.wav&quot;, strategy=&quot;self_similarity&quot;,</span>
+<span class="sd">    ...                       kernel_seconds=12.0,</span>
+<span class="sd">    ...                       min_peak_distance_seconds=60.0)  # doctest: +SKIP</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; # Radio show: tag speech vs music regions</span>
+<span class="sd">    &gt;&gt;&gt; segs = find_segments(&quot;radio.mp3&quot;, strategy=&quot;speech_music&quot;)  # doctest: +SKIP</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; # Save them to disk</span>
+<span class="sd">    &gt;&gt;&gt; paths = extract_segments(&quot;concert.wav&quot;, segs, output_dir=&quot;songs/&quot;)  # doctest: +SKIP</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">TYPE_CHECKING</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">..util</span><span class="w"> </span><span class="kn">import</span> <span class="n">require_package</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.audio_util</span><span class="w"> </span><span class="kn">import</span> <span class="n">AudioSource</span><span class="p">,</span> <span class="n">_normalize_audio_source</span>
+
+<span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">pydub</span><span class="w"> </span><span class="kn">import</span> <span class="n">AudioSegment</span>
+
+
+<span class="n">SegmentationStrategyName</span> <span class="o">=</span> <span class="n">Literal</span><span class="p">[</span>
+    <span class="s2">&quot;silence&quot;</span><span class="p">,</span> <span class="s2">&quot;energy_novelty&quot;</span><span class="p">,</span> <span class="s2">&quot;self_similarity&quot;</span><span class="p">,</span> <span class="s2">&quot;speech_music&quot;</span>
+<span class="p">]</span>
+
+
+<div class="viewcode-block" id="Segment">
+<a class="viewcode-back" href="../../../module_docs/mixing/audio/segmentation.html#mixing.audio.Segment">[docs]</a>
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Segment</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A time-bounded slice of an audio file.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        start: Segment start in seconds.</span>
+<span class="sd">        end: Segment end in seconds.</span>
+<span class="sd">        label: Optional tag (e.g. ``&quot;speech&quot;``, ``&quot;music&quot;``, ``&quot;song&quot;``).</span>
+<span class="sd">        score: Optional confidence/novelty value. Higher = stronger boundary.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">start</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">end</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">label</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">score</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">duration</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Segment duration in seconds.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">end</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">start</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">offset</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Alias for ``start`` — read-only.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">start</span>
+
+<div class="viewcode-block" id="Segment.as_start_end">
+<a class="viewcode-back" href="../../../module_docs/mixing/audio/segmentation.html#mixing.audio.Segment.as_start_end">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">as_start_end</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return ``(start, end)`` in seconds.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">start</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">end</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Segment.as_offset_duration">
+<a class="viewcode-back" href="../../../module_docs/mixing/audio/segmentation.html#mixing.audio.Segment.as_offset_duration">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">as_offset_duration</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return ``(offset, duration)`` in seconds.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">start</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">duration</span><span class="p">)</span></div>
+</div>
+
+
+
+<span class="c1"># ----------------------------------------------------------------------------</span>
+<span class="c1"># Strategy: silence-based</span>
+<span class="c1"># ----------------------------------------------------------------------------</span>
+
+
+<div class="viewcode-block" id="segment_by_silence">
+<a class="viewcode-back" href="../../../module_docs/mixing/audio/segmentation.html#mixing.audio.segment_by_silence">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">segment_by_silence</span><span class="p">(</span>
+    <span class="n">audio</span><span class="p">:</span> <span class="s2">&quot;AudioSegment&quot;</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">silence_thresh_db</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="o">-</span><span class="mf">40.0</span><span class="p">,</span>
+    <span class="n">min_silence_len</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>
+    <span class="n">seek_step</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.01</span><span class="p">,</span>
+    <span class="n">keep_silence</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
+    <span class="n">label</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;non_silent&quot;</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Segment</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Find non-silent regions using pydub&#39;s silence detector.</span>
+
+<span class="sd">    Best for cleanly separated tracks (DJ mixes, audiobooks, voicemails) where</span>
+<span class="sd">    there&#39;s a real silence gap between segments.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        audio: pydub ``AudioSegment``.</span>
+<span class="sd">        silence_thresh_db: dBFS threshold below which audio counts as silence.</span>
+<span class="sd">            More negative = stricter silence requirement. Tune downward for</span>
+<span class="sd">            noisy recordings (e.g. -50 dBFS).</span>
+<span class="sd">        min_silence_len: Minimum silence duration in seconds to count as a</span>
+<span class="sd">            boundary. Tracks separated by less than this are merged.</span>
+<span class="sd">        seek_step: Search granularity in seconds.</span>
+<span class="sd">        keep_silence: Seconds of surrounding silence to include with each</span>
+<span class="sd">            non-silent segment.</span>
+<span class="sd">        label: Label assigned to each returned segment.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        List of ``Segment`` covering the non-silent regions.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">silence_mod</span> <span class="o">=</span> <span class="n">require_package</span><span class="p">(</span><span class="s2">&quot;pydub.silence&quot;</span><span class="p">)</span>
+    <span class="n">duration_ms</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">audio</span><span class="p">)</span>
+    <span class="n">nonsilent_ranges</span> <span class="o">=</span> <span class="n">silence_mod</span><span class="o">.</span><span class="n">detect_nonsilent</span><span class="p">(</span>
+        <span class="n">audio</span><span class="p">,</span>
+        <span class="n">min_silence_len</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">min_silence_len</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">),</span>
+        <span class="n">silence_thresh</span><span class="o">=</span><span class="n">silence_thresh_db</span><span class="p">,</span>
+        <span class="n">seek_step</span><span class="o">=</span><span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">seek_step</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">)),</span>
+    <span class="p">)</span>
+    <span class="n">keep_ms</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">keep_silence</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">)</span>
+    <span class="n">segments</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">start_ms</span><span class="p">,</span> <span class="n">end_ms</span> <span class="ow">in</span> <span class="n">nonsilent_ranges</span><span class="p">:</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">start_ms</span> <span class="o">-</span> <span class="n">keep_ms</span><span class="p">)</span>
+        <span class="n">e</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">duration_ms</span><span class="p">,</span> <span class="n">end_ms</span> <span class="o">+</span> <span class="n">keep_ms</span><span class="p">)</span>
+        <span class="n">segments</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Segment</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="n">s</span> <span class="o">/</span> <span class="mf">1000.0</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="n">e</span> <span class="o">/</span> <span class="mf">1000.0</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">segments</span></div>
+
+
+
+<span class="c1"># ----------------------------------------------------------------------------</span>
+<span class="c1"># Shared signal helpers</span>
+<span class="c1"># ----------------------------------------------------------------------------</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_to_mono_floats</span><span class="p">(</span>
+    <span class="n">audio</span><span class="p">:</span> <span class="s2">&quot;AudioSegment&quot;</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">sample_rate</span><span class="p">:</span> <span class="nb">int</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Downmix to mono, resample, return float64 in [-1, 1] and the sample rate.&quot;&quot;&quot;</span>
+    <span class="n">seg</span> <span class="o">=</span> <span class="n">audio</span><span class="o">.</span><span class="n">set_channels</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">set_frame_rate</span><span class="p">(</span><span class="n">sample_rate</span><span class="p">)</span>
+    <span class="n">samples</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">seg</span><span class="o">.</span><span class="n">get_array_of_samples</span><span class="p">(),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+    <span class="n">samples</span> <span class="o">/=</span> <span class="nb">float</span><span class="p">(</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="p">(</span><span class="mi">8</span> <span class="o">*</span> <span class="n">seg</span><span class="o">.</span><span class="n">sample_width</span> <span class="o">-</span> <span class="mi">1</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">samples</span><span class="p">,</span> <span class="n">sample_rate</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_frame_rms</span><span class="p">(</span>
+    <span class="n">samples</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">sr</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">frame_seconds</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">hop_seconds</span><span class="p">:</span> <span class="nb">float</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return (rms_per_frame, frame_center_times_in_seconds).&quot;&quot;&quot;</span>
+    <span class="n">frame_len</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">frame_seconds</span> <span class="o">*</span> <span class="n">sr</span><span class="p">))</span>
+    <span class="n">hop_len</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">hop_seconds</span> <span class="o">*</span> <span class="n">sr</span><span class="p">))</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">samples</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">frame_len</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">samples</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">samples</span><span class="p">)</span> <span class="k">else</span> <span class="mf">0.0</span><span class="p">]),</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.0</span><span class="p">])</span>
+    <span class="n">n_frames</span> <span class="o">=</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">samples</span><span class="p">)</span> <span class="o">-</span> <span class="n">frame_len</span><span class="p">)</span> <span class="o">//</span> <span class="n">hop_len</span> <span class="o">+</span> <span class="mi">1</span>
+    <span class="c1"># Vectorized framing via stride tricks</span>
+    <span class="n">shape</span> <span class="o">=</span> <span class="p">(</span><span class="n">n_frames</span><span class="p">,</span> <span class="n">frame_len</span><span class="p">)</span>
+    <span class="n">strides</span> <span class="o">=</span> <span class="p">(</span><span class="n">samples</span><span class="o">.</span><span class="n">strides</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">hop_len</span><span class="p">,</span> <span class="n">samples</span><span class="o">.</span><span class="n">strides</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">framed</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">lib</span><span class="o">.</span><span class="n">stride_tricks</span><span class="o">.</span><span class="n">as_strided</span><span class="p">(</span><span class="n">samples</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="n">shape</span><span class="p">,</span> <span class="n">strides</span><span class="o">=</span><span class="n">strides</span><span class="p">)</span>
+    <span class="n">rms</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">framed</span><span class="o">**</span><span class="mi">2</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
+    <span class="n">times</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n_frames</span><span class="p">)</span> <span class="o">*</span> <span class="n">hop_seconds</span> <span class="o">+</span> <span class="n">frame_seconds</span> <span class="o">/</span> <span class="mf">2.0</span>
+    <span class="k">return</span> <span class="n">rms</span><span class="p">,</span> <span class="n">times</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_smooth</span><span class="p">(</span><span class="n">signal</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">window_n</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Hanning-window smoothing. Returns ``signal`` unchanged if window_n &lt; 3.</span>
+
+<span class="sd">    ``np.hanning`` yields all zeros for window sizes &lt; 3, so smoothing with</span>
+<span class="sd">    such a window would produce NaNs.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">window_n</span> <span class="o">&lt;</span> <span class="mi">3</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">signal</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">signal</span>
+    <span class="n">window</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hanning</span><span class="p">(</span><span class="n">window_n</span><span class="p">)</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">window</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">s</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">signal</span>
+    <span class="n">window</span> <span class="o">=</span> <span class="n">window</span> <span class="o">/</span> <span class="n">s</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">convolve</span><span class="p">(</span><span class="n">signal</span><span class="p">,</span> <span class="n">window</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;same&quot;</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_boundaries_to_segments</span><span class="p">(</span>
+    <span class="n">boundary_times</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">total_duration</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">label</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">scores</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Segment</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert sorted boundary timestamps to back-to-back segments.&quot;&quot;&quot;</span>
+    <span class="n">bounds</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">]</span> <span class="o">+</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">boundary_times</span><span class="p">)</span> <span class="o">+</span> <span class="p">[</span><span class="n">total_duration</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">scores</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">scores_seq</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">bounds</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># Pad scores to match number of segments (first segment has no leading boundary)</span>
+        <span class="n">scores_seq</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">scores</span><span class="p">)</span> <span class="o">+</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span>
+        <span class="n">scores_seq</span> <span class="o">=</span> <span class="n">scores_seq</span><span class="p">[:</span> <span class="nb">len</span><span class="p">(</span><span class="n">bounds</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
+    <span class="n">segs</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">bounds</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">bounds</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">bounds</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">segs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="n">Segment</span><span class="p">(</span>
+                <span class="n">start</span><span class="o">=</span><span class="n">bounds</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">end</span><span class="o">=</span><span class="n">bounds</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">,</span> <span class="n">score</span><span class="o">=</span><span class="n">scores_seq</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">segs</span>
+
+
+<span class="c1"># ----------------------------------------------------------------------------</span>
+<span class="c1"># Strategy: energy novelty (RMS valley detection)</span>
+<span class="c1"># ----------------------------------------------------------------------------</span>
+
+
+<div class="viewcode-block" id="segment_by_energy">
+<a class="viewcode-back" href="../../../module_docs/mixing/audio/segmentation.html#mixing.audio.segment_by_energy">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">segment_by_energy</span><span class="p">(</span>
+    <span class="n">audio</span><span class="p">:</span> <span class="s2">&quot;AudioSegment&quot;</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">sample_rate</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">16000</span><span class="p">,</span>
+    <span class="n">frame_seconds</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span>
+    <span class="n">hop_seconds</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.1</span><span class="p">,</span>
+    <span class="n">smooth_seconds</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">2.0</span><span class="p">,</span>
+    <span class="n">valley_threshold_factor</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span>
+    <span class="n">min_peak_distance_seconds</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">30.0</span><span class="p">,</span>
+    <span class="n">label</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;segment&quot;</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Segment</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Split audio at local energy valleys (fade-outs and quiet moments).</span>
+
+<span class="sd">    Computes frame-wise RMS, smooths it, and finds local minima that fall</span>
+<span class="sd">    below a fraction of the local maximum. Useful when tracks fade into each</span>
+<span class="sd">    other without true silence.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        audio: pydub ``AudioSegment``.</span>
+<span class="sd">        sample_rate: Analysis sample rate (Hz). Lower is faster.</span>
+<span class="sd">        frame_seconds: RMS frame length in seconds.</span>
+<span class="sd">        hop_seconds: RMS hop length in seconds.</span>
+<span class="sd">        smooth_seconds: Smoothing window length in seconds. Bigger smooths</span>
+<span class="sd">            out within-song dynamics.</span>
+<span class="sd">        valley_threshold_factor: A frame is a valley candidate only if its</span>
+<span class="sd">            RMS is below ``factor * max(RMS)``. ``0.5`` = halfway down from</span>
+<span class="sd">            the peak. Lower this for cleaner tracks, raise it for messier ones.</span>
+<span class="sd">        min_peak_distance_seconds: Minimum spacing between valleys. Prevents</span>
+<span class="sd">            multiple boundaries inside one inter-track pause and acts as a</span>
+<span class="sd">            crude minimum-song-length filter.</span>
+<span class="sd">        label: Label assigned to every returned segment.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        List of back-to-back ``Segment``s covering the whole audio.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">find_peaks</span> <span class="o">=</span> <span class="n">require_package</span><span class="p">(</span><span class="s2">&quot;scipy.signal&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">find_peaks</span>
+
+    <span class="n">samples</span><span class="p">,</span> <span class="n">sr</span> <span class="o">=</span> <span class="n">_to_mono_floats</span><span class="p">(</span><span class="n">audio</span><span class="p">,</span> <span class="n">sample_rate</span><span class="o">=</span><span class="n">sample_rate</span><span class="p">)</span>
+    <span class="n">rms</span><span class="p">,</span> <span class="n">times</span> <span class="o">=</span> <span class="n">_frame_rms</span><span class="p">(</span>
+        <span class="n">samples</span><span class="p">,</span> <span class="n">sr</span><span class="o">=</span><span class="n">sr</span><span class="p">,</span> <span class="n">frame_seconds</span><span class="o">=</span><span class="n">frame_seconds</span><span class="p">,</span> <span class="n">hop_seconds</span><span class="o">=</span><span class="n">hop_seconds</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">rms</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">Segment</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">samples</span><span class="p">)</span> <span class="o">/</span> <span class="n">sr</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">)]</span>
+
+    <span class="n">smooth_n</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">smooth_seconds</span> <span class="o">/</span> <span class="n">hop_seconds</span><span class="p">))</span>
+    <span class="n">rms</span> <span class="o">=</span> <span class="n">_smooth</span><span class="p">(</span><span class="n">rms</span><span class="p">,</span> <span class="n">smooth_n</span><span class="p">)</span>
+
+    <span class="c1"># Find valleys = peaks of -RMS, capped by threshold factor</span>
+    <span class="n">rms_max</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">rms</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">rms_max</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">Segment</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">samples</span><span class="p">)</span> <span class="o">/</span> <span class="n">sr</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">)]</span>
+    <span class="n">inverted</span> <span class="o">=</span> <span class="o">-</span><span class="n">rms</span>
+    <span class="n">height_threshold</span> <span class="o">=</span> <span class="o">-</span><span class="n">valley_threshold_factor</span> <span class="o">*</span> <span class="n">rms_max</span>
+    <span class="n">distance</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">min_peak_distance_seconds</span> <span class="o">/</span> <span class="n">hop_seconds</span><span class="p">))</span>
+    <span class="n">peaks</span><span class="p">,</span> <span class="n">props</span> <span class="o">=</span> <span class="n">find_peaks</span><span class="p">(</span><span class="n">inverted</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="n">height_threshold</span><span class="p">,</span> <span class="n">distance</span><span class="o">=</span><span class="n">distance</span><span class="p">)</span>
+
+    <span class="n">boundary_times</span> <span class="o">=</span> <span class="n">times</span><span class="p">[</span><span class="n">peaks</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+    <span class="c1"># Score = how deep the valley is, normalized</span>
+    <span class="n">scores</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="p">((</span><span class="n">rms_max</span> <span class="o">-</span> <span class="n">rms</span><span class="p">[</span><span class="n">peaks</span><span class="p">])</span> <span class="o">/</span> <span class="n">rms_max</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">peaks</span><span class="p">)</span> <span class="k">else</span> <span class="p">[]</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">_boundaries_to_segments</span><span class="p">(</span>
+        <span class="n">boundary_times</span><span class="p">,</span>
+        <span class="n">total_duration</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">samples</span><span class="p">)</span> <span class="o">/</span> <span class="n">sr</span><span class="p">,</span>
+        <span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">,</span>
+        <span class="n">scores</span><span class="o">=</span><span class="n">scores</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
+
+
+<span class="c1"># ----------------------------------------------------------------------------</span>
+<span class="c1"># Strategy: self-similarity matrix novelty (Foote&#39;s checkerboard)</span>
+<span class="c1"># ----------------------------------------------------------------------------</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_foote_checkerboard_kernel</span><span class="p">(</span><span class="n">half_size</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Foote&#39;s Gaussian-tapered checkerboard kernel of size (2*L)x(2*L).</span>
+
+<span class="sd">    Quadrants: top-left and bottom-right are positive (intra-segment</span>
+<span class="sd">    coherence), top-right and bottom-left are negative (cross-segment</span>
+<span class="sd">    contrast). Tapered with a 2-D Gaussian (std = L/3) so frames near the</span>
+<span class="sd">    boundary contribute most.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">L</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">half_size</span><span class="p">))</span>
+    <span class="n">M</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">L</span>
+    <span class="c1"># Sign vector: -1 for first half, +1 for second half</span>
+    <span class="n">sign</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">L</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">L</span><span class="p">)])</span>
+    <span class="n">sign_kernel</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">outer</span><span class="p">(</span><span class="n">sign</span><span class="p">,</span> <span class="n">sign</span><span class="p">)</span>
+    <span class="c1"># Gaussian taper</span>
+    <span class="n">grid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">M</span><span class="p">)</span> <span class="o">-</span> <span class="p">(</span><span class="n">M</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="mf">2.0</span>
+    <span class="n">sigma</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">L</span> <span class="o">/</span> <span class="mf">3.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+    <span class="n">g</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="p">(</span><span class="n">grid</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">sigma</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span>
+    <span class="n">taper</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">outer</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="n">g</span><span class="p">)</span>
+    <span class="n">kernel</span> <span class="o">=</span> <span class="n">sign_kernel</span> <span class="o">*</span> <span class="n">taper</span>
+    <span class="k">return</span> <span class="n">kernel</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">kernel</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_log_spectrogram_features</span><span class="p">(</span>
+    <span class="n">samples</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">sr</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">n_fft</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">hop_seconds</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">n_bands</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">40</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute a simple log-magnitude spectrogram with band-averaging.</span>
+
+<span class="sd">    Returns features of shape ``(n_bands, n_frames)`` and the actual hop</span>
+<span class="sd">    in seconds.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">stft</span> <span class="o">=</span> <span class="n">require_package</span><span class="p">(</span><span class="s2">&quot;scipy.signal&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">stft</span>
+    <span class="n">hop_len</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">hop_seconds</span> <span class="o">*</span> <span class="n">sr</span><span class="p">))</span>
+    <span class="n">noverlap</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">n_fft</span> <span class="o">-</span> <span class="n">hop_len</span><span class="p">)</span>
+    <span class="n">f</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">Z</span> <span class="o">=</span> <span class="n">stft</span><span class="p">(</span>
+        <span class="n">samples</span><span class="p">,</span>
+        <span class="n">fs</span><span class="o">=</span><span class="n">sr</span><span class="p">,</span>
+        <span class="n">nperseg</span><span class="o">=</span><span class="n">n_fft</span><span class="p">,</span>
+        <span class="n">noverlap</span><span class="o">=</span><span class="n">noverlap</span><span class="p">,</span>
+        <span class="n">boundary</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">padded</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">log_mag</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log1p</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">Z</span><span class="p">))</span>  <span class="c1"># (n_freq, n_frames)</span>
+
+    <span class="c1"># Average into n_bands log-spaced frequency bands. Avoids needing a real</span>
+    <span class="c1"># mel filterbank while still giving timbre-sensitive features.</span>
+    <span class="n">n_freq</span> <span class="o">=</span> <span class="n">log_mag</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">n_bands</span> <span class="o">&gt;=</span> <span class="n">n_freq</span><span class="p">:</span>
+        <span class="n">feats</span> <span class="o">=</span> <span class="n">log_mag</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># Log-spaced bin edges, skipping DC.</span>
+        <span class="n">edges</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">geomspace</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">n_freq</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="n">n_bands</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">edges</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">n_bands</span> <span class="o">+</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="c1"># Fallback to linear if log-spacing collapses (very small n_freq)</span>
+            <span class="n">edges</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">n_freq</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="n">n_bands</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+        <span class="n">feats</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">log_mag</span><span class="p">[</span><span class="n">edges</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="p">:</span> <span class="n">edges</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]]</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">edges</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)],</span>
+            <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="c1"># Z-score each band across time so loud bands don&#39;t dominate the SSM.</span>
+    <span class="n">mean</span> <span class="o">=</span> <span class="n">feats</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">keepdims</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">std</span> <span class="o">=</span> <span class="n">feats</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">keepdims</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">+</span> <span class="mf">1e-9</span>
+    <span class="n">feats</span> <span class="o">=</span> <span class="p">(</span><span class="n">feats</span> <span class="o">-</span> <span class="n">mean</span><span class="p">)</span> <span class="o">/</span> <span class="n">std</span>
+    <span class="n">actual_hop</span> <span class="o">=</span> <span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">t</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="k">else</span> <span class="n">hop_seconds</span>
+    <span class="k">return</span> <span class="n">feats</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">actual_hop</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="segment_by_self_similarity">
+<a class="viewcode-back" href="../../../module_docs/mixing/audio/segmentation.html#mixing.audio.segment_by_self_similarity">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">segment_by_self_similarity</span><span class="p">(</span>
+    <span class="n">audio</span><span class="p">:</span> <span class="s2">&quot;AudioSegment&quot;</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">sample_rate</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">11025</span><span class="p">,</span>
+    <span class="n">n_fft</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2048</span><span class="p">,</span>
+    <span class="n">hop_seconds</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.25</span><span class="p">,</span>
+    <span class="n">n_bands</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">40</span><span class="p">,</span>
+    <span class="n">kernel_seconds</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">12.0</span><span class="p">,</span>
+    <span class="n">novelty_smooth_seconds</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">4.0</span><span class="p">,</span>
+    <span class="n">peak_threshold_factor</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>
+    <span class="n">min_peak_distance_seconds</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">30.0</span><span class="p">,</span>
+    <span class="n">label</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;song&quot;</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Segment</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Find boundaries via Foote&#39;s checkerboard novelty on the SSM.</span>
+
+<span class="sd">    This is the standard approach for finding song boundaries in a recording</span>
+<span class="sd">    where amplitude is roughly constant (concerts, live sets, continuous</span>
+<span class="sd">    radio with steady levels). It looks at *what* the audio sounds like</span>
+<span class="sd">    rather than *how loud* it is, so it works when energy-based methods fail.</span>
+
+<span class="sd">    Pipeline:</span>
+<span class="sd">      1. log-magnitude spectrogram, averaged into log-spaced bands, z-scored</span>
+<span class="sd">      2. cosine self-similarity matrix</span>
+<span class="sd">      3. correlate the SSM diagonal with a Gaussian-tapered checkerboard</span>
+<span class="sd">         kernel — this measures how much frame ``t`` is &quot;the end of one</span>
+<span class="sd">         block and the start of another&quot;</span>
+<span class="sd">      4. peaks in the resulting novelty curve are segment boundaries</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        audio: pydub ``AudioSegment``.</span>
+<span class="sd">        sample_rate: Analysis sample rate (Hz). 11025 is plenty for novelty.</span>
+<span class="sd">        n_fft: STFT window length in samples.</span>
+<span class="sd">        hop_seconds: STFT hop length in seconds.</span>
+<span class="sd">        n_bands: Number of log-spaced frequency bands. 20-60 is reasonable.</span>
+<span class="sd">        kernel_seconds: Half-width of the checkerboard kernel times 2, i.e.</span>
+<span class="sd">            roughly how much context (in seconds) is used on each side of a</span>
+<span class="sd">            candidate boundary. Section-level boundaries (songs) usually</span>
+<span class="sd">            want 8-20 s.</span>
+<span class="sd">        novelty_smooth_seconds: Smoothing applied to the novelty curve</span>
+<span class="sd">            before peak picking. Reduces jitter from beat-level changes.</span>
+<span class="sd">        peak_threshold_factor: Adaptive threshold = mean + factor * std of</span>
+<span class="sd">            the novelty curve. Raise to be stricter, lower to find more</span>
+<span class="sd">            boundaries.</span>
+<span class="sd">        min_peak_distance_seconds: Minimum spacing between detected</span>
+<span class="sd">            boundaries. Acts as a minimum-song-length filter.</span>
+<span class="sd">        label: Label assigned to every returned segment.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        List of back-to-back ``Segment``s covering the whole audio. Each</span>
+<span class="sd">        segment&#39;s ``score`` is the novelty value at its trailing boundary.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">find_peaks</span> <span class="o">=</span> <span class="n">require_package</span><span class="p">(</span><span class="s2">&quot;scipy.signal&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">find_peaks</span>
+
+    <span class="n">samples</span><span class="p">,</span> <span class="n">sr</span> <span class="o">=</span> <span class="n">_to_mono_floats</span><span class="p">(</span><span class="n">audio</span><span class="p">,</span> <span class="n">sample_rate</span><span class="o">=</span><span class="n">sample_rate</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">samples</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[]</span>
+    <span class="n">feats</span><span class="p">,</span> <span class="n">actual_hop</span> <span class="o">=</span> <span class="n">_log_spectrogram_features</span><span class="p">(</span>
+        <span class="n">samples</span><span class="p">,</span> <span class="n">sr</span><span class="o">=</span><span class="n">sr</span><span class="p">,</span> <span class="n">n_fft</span><span class="o">=</span><span class="n">n_fft</span><span class="p">,</span> <span class="n">hop_seconds</span><span class="o">=</span><span class="n">hop_seconds</span><span class="p">,</span> <span class="n">n_bands</span><span class="o">=</span><span class="n">n_bands</span>
+    <span class="p">)</span>
+    <span class="n">n_frames</span> <span class="o">=</span> <span class="n">feats</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">n_frames</span> <span class="o">&lt;</span> <span class="mi">4</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">Segment</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">samples</span><span class="p">)</span> <span class="o">/</span> <span class="n">sr</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">)]</span>
+
+    <span class="c1"># Cosine similarity = dot-product of L2-normalized columns</span>
+    <span class="n">norms</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">feats</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">keepdims</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">+</span> <span class="mf">1e-12</span>
+    <span class="n">feats_n</span> <span class="o">=</span> <span class="n">feats</span> <span class="o">/</span> <span class="n">norms</span>
+    <span class="n">S</span> <span class="o">=</span> <span class="n">feats_n</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="n">feats_n</span>  <span class="c1"># (n_frames, n_frames)</span>
+
+    <span class="c1"># Foote kernel</span>
+    <span class="n">L</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">kernel_seconds</span> <span class="o">/</span> <span class="mf">2.0</span> <span class="o">/</span> <span class="n">actual_hop</span><span class="p">)))</span>
+    <span class="n">kernel</span> <span class="o">=</span> <span class="n">_foote_checkerboard_kernel</span><span class="p">(</span><span class="n">L</span><span class="p">)</span>
+    <span class="n">M</span> <span class="o">=</span> <span class="n">kernel</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>  <span class="c1"># = 2L</span>
+
+    <span class="c1"># Slide kernel along the diagonal. Cheap loop: novelty length is small.</span>
+    <span class="n">novelty</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">n_frames</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">L</span><span class="p">,</span> <span class="n">n_frames</span> <span class="o">-</span> <span class="n">L</span><span class="p">):</span>
+        <span class="n">novelty</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">kernel</span> <span class="o">*</span> <span class="n">S</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="n">L</span> <span class="p">:</span> <span class="n">i</span> <span class="o">+</span> <span class="n">L</span><span class="p">,</span> <span class="n">i</span> <span class="o">-</span> <span class="n">L</span> <span class="p">:</span> <span class="n">i</span> <span class="o">+</span> <span class="n">L</span><span class="p">])</span>
+
+    <span class="c1"># Smooth and pick peaks</span>
+    <span class="n">smooth_n</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">novelty_smooth_seconds</span> <span class="o">/</span> <span class="n">actual_hop</span><span class="p">))</span>
+    <span class="n">novelty</span> <span class="o">=</span> <span class="n">_smooth</span><span class="p">(</span><span class="n">novelty</span><span class="p">,</span> <span class="n">smooth_n</span><span class="p">)</span>
+    <span class="n">nov_mean</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">novelty</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span>
+    <span class="n">nov_std</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">novelty</span><span class="o">.</span><span class="n">std</span><span class="p">())</span>
+    <span class="n">height</span> <span class="o">=</span> <span class="n">nov_mean</span> <span class="o">+</span> <span class="n">peak_threshold_factor</span> <span class="o">*</span> <span class="n">nov_std</span>
+    <span class="n">distance</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">min_peak_distance_seconds</span> <span class="o">/</span> <span class="n">actual_hop</span><span class="p">))</span>
+    <span class="n">peak_idx</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">find_peaks</span><span class="p">(</span><span class="n">novelty</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="n">height</span><span class="p">,</span> <span class="n">distance</span><span class="o">=</span><span class="n">distance</span><span class="p">)</span>
+
+    <span class="n">boundary_times</span> <span class="o">=</span> <span class="p">(</span><span class="n">peak_idx</span> <span class="o">*</span> <span class="n">actual_hop</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+    <span class="n">scores</span> <span class="o">=</span> <span class="n">novelty</span><span class="p">[</span><span class="n">peak_idx</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">_boundaries_to_segments</span><span class="p">(</span>
+        <span class="n">boundary_times</span><span class="p">,</span>
+        <span class="n">total_duration</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">samples</span><span class="p">)</span> <span class="o">/</span> <span class="n">sr</span><span class="p">,</span>
+        <span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">,</span>
+        <span class="n">scores</span><span class="o">=</span><span class="n">scores</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
+
+
+<span class="c1"># ----------------------------------------------------------------------------</span>
+<span class="c1"># Strategy: speech vs music classification</span>
+<span class="c1"># ----------------------------------------------------------------------------</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_zero_crossing_rate</span><span class="p">(</span><span class="n">framed</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;ZCR per frame, shape (n_frames,).&quot;&quot;&quot;</span>
+    <span class="n">signs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">framed</span><span class="p">)</span>
+    <span class="n">signs</span><span class="p">[</span><span class="n">signs</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">signs</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="mf">2.0</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_frame_signal</span><span class="p">(</span>
+    <span class="n">samples</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">frame_len</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">hop_len</span><span class="p">:</span> <span class="nb">int</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Frame a 1-D signal into a 2-D array of overlapping frames.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">samples</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">frame_len</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">samples</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,</span> <span class="p">:]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+    <span class="n">n_frames</span> <span class="o">=</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">samples</span><span class="p">)</span> <span class="o">-</span> <span class="n">frame_len</span><span class="p">)</span> <span class="o">//</span> <span class="n">hop_len</span> <span class="o">+</span> <span class="mi">1</span>
+    <span class="n">shape</span> <span class="o">=</span> <span class="p">(</span><span class="n">n_frames</span><span class="p">,</span> <span class="n">frame_len</span><span class="p">)</span>
+    <span class="n">strides</span> <span class="o">=</span> <span class="p">(</span><span class="n">samples</span><span class="o">.</span><span class="n">strides</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">hop_len</span><span class="p">,</span> <span class="n">samples</span><span class="o">.</span><span class="n">strides</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">lib</span><span class="o">.</span><span class="n">stride_tricks</span><span class="o">.</span><span class="n">as_strided</span><span class="p">(</span><span class="n">samples</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="n">shape</span><span class="p">,</span> <span class="n">strides</span><span class="o">=</span><span class="n">strides</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="segment_by_speech_music">
+<a class="viewcode-back" href="../../../module_docs/mixing/audio/segmentation.html#mixing.audio.segment_by_speech_music">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">segment_by_speech_music</span><span class="p">(</span>
+    <span class="n">audio</span><span class="p">:</span> <span class="s2">&quot;AudioSegment&quot;</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">sample_rate</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">16000</span><span class="p">,</span>
+    <span class="n">frame_seconds</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.05</span><span class="p">,</span>
+    <span class="n">hop_seconds</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.025</span><span class="p">,</span>
+    <span class="n">window_seconds</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.5</span><span class="p">,</span>
+    <span class="n">low_energy_threshold</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span>
+    <span class="n">speech_decision_threshold</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span>
+    <span class="n">smooth_seconds</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">5.0</span><span class="p">,</span>
+    <span class="n">min_segment_duration</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">3.0</span><span class="p">,</span>
+    <span class="n">speech_label</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;speech&quot;</span><span class="p">,</span>
+    <span class="n">music_label</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;music&quot;</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Segment</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Tag regions of audio as ``&quot;speech&quot;`` or ``&quot;music&quot;``.</span>
+
+<span class="sd">    Useful for radio shows and podcasts with musical interludes. Implements</span>
+<span class="sd">    a simplified version of Scheirer &amp; Slaney (ICASSP 1997) using two of</span>
+<span class="sd">    their most discriminative features:</span>
+
+<span class="sd">    - **Low-energy frame ratio (LEFR)**: fraction of short frames in a</span>
+<span class="sd">      ~1-2 s window with RMS below half the window mean. Speech has</span>
+<span class="sd">      bursts of silence between syllables, so its LEFR is high; music</span>
+<span class="sd">      stays loud, so its LEFR is low.</span>
+<span class="sd">    - **ZCR variance**: speech alternates voiced/unvoiced (low/high ZCR);</span>
+<span class="sd">      music&#39;s ZCR is steadier.</span>
+
+<span class="sd">    These are combined into a soft speech score, smoothed, and thresholded.</span>
+<span class="sd">    Consecutive frames with the same class become a single segment.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        audio: pydub ``AudioSegment``.</span>
+<span class="sd">        sample_rate: Analysis sample rate (Hz).</span>
+<span class="sd">        frame_seconds: Short-frame length for RMS/ZCR (e.g. 50 ms).</span>
+<span class="sd">        hop_seconds: Short-frame hop length.</span>
+<span class="sd">        window_seconds: Long-window length over which LEFR and ZCR-variance</span>
+<span class="sd">            are aggregated. ~1-2 s is the canonical choice.</span>
+<span class="sd">        low_energy_threshold: A short frame counts as &quot;low energy&quot; if its</span>
+<span class="sd">            RMS is below ``low_energy_threshold * mean RMS in window``.</span>
+<span class="sd">            Scheirer &amp; Slaney used 0.5; lower values (~0.1) only count true</span>
+<span class="sd">            silence frames, raise it for noisier recordings.</span>
+<span class="sd">        speech_decision_threshold: Speech score threshold in [0, 1] above</span>
+<span class="sd">            which a window is tagged as speech. Raise to make speech-tagging</span>
+<span class="sd">            stricter.</span>
+<span class="sd">        smooth_seconds: Smoothing applied to the soft speech score before</span>
+<span class="sd">            thresholding. Larger = fewer, longer segments.</span>
+<span class="sd">        min_segment_duration: Drop or merge segments shorter than this.</span>
+<span class="sd">        speech_label, music_label: Labels assigned to each region.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        List of back-to-back ``Segment``s tagging speech and music regions.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">samples</span><span class="p">,</span> <span class="n">sr</span> <span class="o">=</span> <span class="n">_to_mono_floats</span><span class="p">(</span><span class="n">audio</span><span class="p">,</span> <span class="n">sample_rate</span><span class="o">=</span><span class="n">sample_rate</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">samples</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[]</span>
+    <span class="n">total_duration</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">samples</span><span class="p">)</span> <span class="o">/</span> <span class="n">sr</span>
+
+    <span class="n">frame_len</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">frame_seconds</span> <span class="o">*</span> <span class="n">sr</span><span class="p">))</span>
+    <span class="n">hop_len</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">hop_seconds</span> <span class="o">*</span> <span class="n">sr</span><span class="p">))</span>
+    <span class="n">framed</span> <span class="o">=</span> <span class="n">_frame_signal</span><span class="p">(</span><span class="n">samples</span><span class="p">,</span> <span class="n">frame_len</span><span class="o">=</span><span class="n">frame_len</span><span class="p">,</span> <span class="n">hop_len</span><span class="o">=</span><span class="n">hop_len</span><span class="p">)</span>
+    <span class="n">short_rms</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">framed</span><span class="o">**</span><span class="mi">2</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="mf">1e-20</span><span class="p">)</span>
+    <span class="n">short_zcr</span> <span class="o">=</span> <span class="n">_zero_crossing_rate</span><span class="p">(</span><span class="n">framed</span><span class="p">)</span>
+    <span class="n">n_short</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">short_rms</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">n_short</span> <span class="o">&lt;</span> <span class="mi">4</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">Segment</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">total_duration</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">music_label</span><span class="p">)]</span>
+
+    <span class="c1"># Aggregate over long windows: LEFR + ZCR variance.</span>
+    <span class="n">win_n</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">window_seconds</span> <span class="o">/</span> <span class="n">hop_seconds</span><span class="p">))</span>
+    <span class="n">step_n</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">win_n</span> <span class="o">//</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="n">n_long</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="p">(</span><span class="n">n_short</span> <span class="o">-</span> <span class="n">win_n</span><span class="p">)</span> <span class="o">//</span> <span class="n">step_n</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+
+    <span class="n">speech_score</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">n_long</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+    <span class="n">long_times</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">n_long</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_long</span><span class="p">):</span>
+        <span class="n">a</span> <span class="o">=</span> <span class="n">i</span> <span class="o">*</span> <span class="n">step_n</span>
+        <span class="n">b</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">n_short</span><span class="p">,</span> <span class="n">a</span> <span class="o">+</span> <span class="n">win_n</span><span class="p">)</span>
+        <span class="n">rms_win</span> <span class="o">=</span> <span class="n">short_rms</span><span class="p">[</span><span class="n">a</span><span class="p">:</span><span class="n">b</span><span class="p">]</span>
+        <span class="n">zcr_win</span> <span class="o">=</span> <span class="n">short_zcr</span><span class="p">[</span><span class="n">a</span><span class="p">:</span><span class="n">b</span><span class="p">]</span>
+        <span class="n">mean_rms</span> <span class="o">=</span> <span class="n">rms_win</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span> <span class="o">+</span> <span class="mf">1e-12</span>
+        <span class="n">lefr</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">rms_win</span> <span class="o">&lt;</span> <span class="n">low_energy_threshold</span> <span class="o">*</span> <span class="n">mean_rms</span><span class="p">))</span>
+        <span class="c1"># ZCR variance, scaled into ~[0, 1] empirically (speech ~0.01-0.05).</span>
+        <span class="n">zcr_var</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">zcr_win</span><span class="o">.</span><span class="n">var</span><span class="p">())</span>
+        <span class="n">zcr_var_norm</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">zcr_var</span> <span class="o">/</span> <span class="mf">0.005</span><span class="p">)</span>
+        <span class="c1"># Soft speech score: average of the two cues.</span>
+        <span class="n">speech_score</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.6</span> <span class="o">*</span> <span class="n">lefr</span> <span class="o">+</span> <span class="mf">0.4</span> <span class="o">*</span> <span class="n">zcr_var_norm</span>
+        <span class="n">long_times</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">a</span> <span class="o">+</span> <span class="n">b</span><span class="p">)</span> <span class="o">/</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">hop_seconds</span>
+
+    <span class="c1"># Smooth and threshold.</span>
+    <span class="n">smooth_steps</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">smooth_seconds</span> <span class="o">/</span> <span class="p">(</span><span class="n">step_n</span> <span class="o">*</span> <span class="n">hop_seconds</span><span class="p">)))</span>
+    <span class="n">speech_score</span> <span class="o">=</span> <span class="n">_smooth</span><span class="p">(</span><span class="n">speech_score</span><span class="p">,</span> <span class="n">smooth_steps</span><span class="p">)</span>
+    <span class="n">is_speech</span> <span class="o">=</span> <span class="n">speech_score</span> <span class="o">&gt;</span> <span class="n">speech_decision_threshold</span>
+
+    <span class="c1"># Walk the labels and emit segments at every class change.</span>
+    <span class="n">segments</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Segment</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">cur_class</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">is_speech</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">cur_start</span> <span class="o">=</span> <span class="mf">0.0</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">n_long</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">bool</span><span class="p">(</span><span class="n">is_speech</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="o">!=</span> <span class="n">cur_class</span><span class="p">:</span>
+            <span class="n">boundary</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">long_times</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+            <span class="n">segments</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">Segment</span><span class="p">(</span>
+                    <span class="n">start</span><span class="o">=</span><span class="n">cur_start</span><span class="p">,</span>
+                    <span class="n">end</span><span class="o">=</span><span class="n">boundary</span><span class="p">,</span>
+                    <span class="n">label</span><span class="o">=</span><span class="n">speech_label</span> <span class="k">if</span> <span class="n">cur_class</span> <span class="k">else</span> <span class="n">music_label</span><span class="p">,</span>
+                    <span class="n">score</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">speech_score</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]),</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+            <span class="n">cur_start</span> <span class="o">=</span> <span class="n">boundary</span>
+            <span class="n">cur_class</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">is_speech</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+    <span class="n">segments</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+        <span class="n">Segment</span><span class="p">(</span>
+            <span class="n">start</span><span class="o">=</span><span class="n">cur_start</span><span class="p">,</span>
+            <span class="n">end</span><span class="o">=</span><span class="n">total_duration</span><span class="p">,</span>
+            <span class="n">label</span><span class="o">=</span><span class="n">speech_label</span> <span class="k">if</span> <span class="n">cur_class</span> <span class="k">else</span> <span class="n">music_label</span><span class="p">,</span>
+            <span class="n">score</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">speech_score</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]),</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">min_segment_duration</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">segments</span> <span class="o">=</span> <span class="n">_absorb_short_segments</span><span class="p">(</span><span class="n">segments</span><span class="p">,</span> <span class="n">min_segment_duration</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">segments</span></div>
+
+
+
+<span class="c1"># ----------------------------------------------------------------------------</span>
+<span class="c1"># Post-processing</span>
+<span class="c1"># ----------------------------------------------------------------------------</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_merge_close_segments</span><span class="p">(</span>
+    <span class="n">segments</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Segment</span><span class="p">],</span> <span class="n">merge_gap</span><span class="p">:</span> <span class="nb">float</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Segment</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Merge consecutive segments whose gap is &lt; merge_gap and whose label matches.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">segments</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">segments</span>
+    <span class="n">merged</span> <span class="o">=</span> <span class="p">[</span><span class="n">segments</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+    <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">segments</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
+        <span class="n">prev</span> <span class="o">=</span> <span class="n">merged</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">s</span><span class="o">.</span><span class="n">start</span> <span class="o">-</span> <span class="n">prev</span><span class="o">.</span><span class="n">end</span> <span class="o">&lt;=</span> <span class="n">merge_gap</span> <span class="ow">and</span> <span class="n">s</span><span class="o">.</span><span class="n">label</span> <span class="o">==</span> <span class="n">prev</span><span class="o">.</span><span class="n">label</span><span class="p">:</span>
+            <span class="n">merged</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">Segment</span><span class="p">(</span>
+                <span class="n">start</span><span class="o">=</span><span class="n">prev</span><span class="o">.</span><span class="n">start</span><span class="p">,</span>
+                <span class="n">end</span><span class="o">=</span><span class="n">s</span><span class="o">.</span><span class="n">end</span><span class="p">,</span>
+                <span class="n">label</span><span class="o">=</span><span class="n">prev</span><span class="o">.</span><span class="n">label</span><span class="p">,</span>
+                <span class="n">score</span><span class="o">=</span><span class="nb">max</span><span class="p">(</span>
+                    <span class="n">prev</span><span class="o">.</span><span class="n">score</span> <span class="k">if</span> <span class="n">prev</span><span class="o">.</span><span class="n">score</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;-inf&quot;</span><span class="p">),</span>
+                    <span class="n">s</span><span class="o">.</span><span class="n">score</span> <span class="k">if</span> <span class="n">s</span><span class="o">.</span><span class="n">score</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;-inf&quot;</span><span class="p">),</span>
+                <span class="p">)</span>
+                <span class="k">if</span> <span class="p">(</span><span class="n">prev</span><span class="o">.</span><span class="n">score</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">s</span><span class="o">.</span><span class="n">score</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span>
+                <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">merged</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">merged</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_split_long_segments</span><span class="p">(</span>
+    <span class="n">segments</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Segment</span><span class="p">],</span> <span class="n">max_duration</span><span class="p">:</span> <span class="nb">float</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Segment</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Split any segment longer than ``max_duration`` into equal pieces.&quot;&quot;&quot;</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">segments</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">s</span><span class="o">.</span><span class="n">duration</span> <span class="o">&lt;=</span> <span class="n">max_duration</span><span class="p">:</span>
+            <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+            <span class="k">continue</span>
+        <span class="n">n_pieces</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">duration</span> <span class="o">/</span> <span class="n">max_duration</span><span class="p">))</span>
+        <span class="n">piece_dur</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">duration</span> <span class="o">/</span> <span class="n">n_pieces</span>
+        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_pieces</span><span class="p">):</span>
+            <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">Segment</span><span class="p">(</span>
+                    <span class="n">start</span><span class="o">=</span><span class="n">s</span><span class="o">.</span><span class="n">start</span> <span class="o">+</span> <span class="n">k</span> <span class="o">*</span> <span class="n">piece_dur</span><span class="p">,</span>
+                    <span class="n">end</span><span class="o">=</span><span class="n">s</span><span class="o">.</span><span class="n">start</span> <span class="o">+</span> <span class="p">(</span><span class="n">k</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">piece_dur</span><span class="p">,</span>
+                    <span class="n">label</span><span class="o">=</span><span class="n">s</span><span class="o">.</span><span class="n">label</span><span class="p">,</span>
+                    <span class="n">score</span><span class="o">=</span><span class="n">s</span><span class="o">.</span><span class="n">score</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+    <span class="k">return</span> <span class="n">out</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_absorb_short_segments</span><span class="p">(</span>
+    <span class="n">segments</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Segment</span><span class="p">],</span> <span class="n">min_duration</span><span class="p">:</span> <span class="nb">float</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Segment</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Merge any segment shorter than ``min_duration`` into its longer neighbor.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">segments</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">segments</span>
+    <span class="n">work</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">segments</span><span class="p">)</span>
+    <span class="n">changed</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="k">while</span> <span class="n">changed</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">work</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">changed</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">s</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">work</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">s</span><span class="o">.</span><span class="n">duration</span> <span class="o">&gt;=</span> <span class="n">min_duration</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="c1"># Pick the neighbor to merge into.</span>
+            <span class="n">left</span> <span class="o">=</span> <span class="n">work</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="n">i</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="kc">None</span>
+            <span class="n">right</span> <span class="o">=</span> <span class="n">work</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">work</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span>
+            <span class="k">if</span> <span class="n">left</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">right</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">break</span>
+            <span class="k">if</span> <span class="n">left</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="p">(</span>
+                <span class="n">right</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">left</span><span class="o">.</span><span class="n">duration</span> <span class="o">&gt;=</span> <span class="n">right</span><span class="o">.</span><span class="n">duration</span>
+            <span class="p">):</span>
+                <span class="n">merged</span> <span class="o">=</span> <span class="n">Segment</span><span class="p">(</span>
+                    <span class="n">start</span><span class="o">=</span><span class="n">left</span><span class="o">.</span><span class="n">start</span><span class="p">,</span>
+                    <span class="n">end</span><span class="o">=</span><span class="n">s</span><span class="o">.</span><span class="n">end</span><span class="p">,</span>
+                    <span class="n">label</span><span class="o">=</span><span class="n">left</span><span class="o">.</span><span class="n">label</span><span class="p">,</span>
+                    <span class="n">score</span><span class="o">=</span><span class="n">left</span><span class="o">.</span><span class="n">score</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="n">work</span> <span class="o">=</span> <span class="n">work</span><span class="p">[:</span> <span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="n">merged</span><span class="p">]</span> <span class="o">+</span> <span class="n">work</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span> <span class="p">:]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">merged</span> <span class="o">=</span> <span class="n">Segment</span><span class="p">(</span>
+                    <span class="n">start</span><span class="o">=</span><span class="n">s</span><span class="o">.</span><span class="n">start</span><span class="p">,</span>
+                    <span class="n">end</span><span class="o">=</span><span class="n">right</span><span class="o">.</span><span class="n">end</span><span class="p">,</span>
+                    <span class="n">label</span><span class="o">=</span><span class="n">right</span><span class="o">.</span><span class="n">label</span><span class="p">,</span>
+                    <span class="n">score</span><span class="o">=</span><span class="n">right</span><span class="o">.</span><span class="n">score</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="n">work</span> <span class="o">=</span> <span class="n">work</span><span class="p">[:</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="n">merged</span><span class="p">]</span> <span class="o">+</span> <span class="n">work</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">2</span> <span class="p">:]</span>
+            <span class="n">changed</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">break</span>
+    <span class="k">return</span> <span class="n">work</span>
+
+
+<span class="c1"># ----------------------------------------------------------------------------</span>
+<span class="c1"># Strategy registry and top-level entry points</span>
+<span class="c1"># ----------------------------------------------------------------------------</span>
+
+
+<span class="n">SegmentationStrategy</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span>
+    <span class="n">SegmentationStrategyName</span><span class="p">,</span>
+    <span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="n">Segment</span><span class="p">]],</span>
+<span class="p">]</span>
+
+<span class="n">_STRATEGIES</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="n">Segment</span><span class="p">]]]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;silence&quot;</span><span class="p">:</span> <span class="n">segment_by_silence</span><span class="p">,</span>
+    <span class="s2">&quot;energy_novelty&quot;</span><span class="p">:</span> <span class="n">segment_by_energy</span><span class="p">,</span>
+    <span class="s2">&quot;self_similarity&quot;</span><span class="p">:</span> <span class="n">segment_by_self_similarity</span><span class="p">,</span>
+    <span class="s2">&quot;speech_music&quot;</span><span class="p">:</span> <span class="n">segment_by_speech_music</span><span class="p">,</span>
+<span class="p">}</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_resolve_strategy</span><span class="p">(</span>
+    <span class="n">strategy</span><span class="p">:</span> <span class="n">SegmentationStrategy</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="n">Segment</span><span class="p">]]:</span>
+    <span class="k">if</span> <span class="nb">callable</span><span class="p">(</span><span class="n">strategy</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">strategy</span>
+    <span class="k">if</span> <span class="n">strategy</span> <span class="ow">in</span> <span class="n">_STRATEGIES</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">_STRATEGIES</span><span class="p">[</span><span class="n">strategy</span><span class="p">]</span>
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;Unknown segmentation strategy: </span><span class="si">{</span><span class="n">strategy</span><span class="si">!r}</span><span class="s2">. &quot;</span>
+        <span class="sa">f</span><span class="s2">&quot;Choose one of </span><span class="si">{</span><span class="nb">sorted</span><span class="p">(</span><span class="n">_STRATEGIES</span><span class="p">)</span><span class="si">}</span><span class="s2"> or pass a callable.&quot;</span>
+    <span class="p">)</span>
+
+
+<div class="viewcode-block" id="find_segments">
+<a class="viewcode-back" href="../../../module_docs/mixing/audio/segmentation.html#mixing.audio.find_segments">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">find_segments</span><span class="p">(</span>
+    <span class="n">audio</span><span class="p">:</span> <span class="n">AudioSource</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">strategy</span><span class="p">:</span> <span class="n">SegmentationStrategy</span> <span class="o">=</span> <span class="s2">&quot;silence&quot;</span><span class="p">,</span>
+    <span class="n">min_segment_duration</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
+    <span class="n">max_segment_duration</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">merge_gap</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
+    <span class="n">pad_start</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
+    <span class="n">pad_end</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">strategy_kwargs</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Segment</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Find segment boundaries in ``audio`` using a chosen strategy.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        audio: File path, numpy array, or pydub ``AudioSegment``.</span>
+<span class="sd">        strategy: Strategy name (``&quot;silence&quot;``, ``&quot;energy_novelty&quot;``,</span>
+<span class="sd">            ``&quot;self_similarity&quot;``, ``&quot;speech_music&quot;``) or a callable</span>
+<span class="sd">            ``(AudioSegment, **kwargs) -&gt; list[Segment]``.</span>
+<span class="sd">        min_segment_duration: Drop or merge segments shorter than this.</span>
+<span class="sd">        max_segment_duration: Split segments longer than this into equal pieces.</span>
+<span class="sd">        merge_gap: Merge consecutive same-label segments separated by less</span>
+<span class="sd">            than this gap (seconds).</span>
+<span class="sd">        pad_start: Extend each segment backwards by this many seconds.</span>
+<span class="sd">        pad_end: Extend each segment forwards by this many seconds.</span>
+<span class="sd">        **strategy_kwargs: Forwarded to the chosen strategy.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        List of ``Segment`` instances. Use ``.as_start_end()`` or</span>
+<span class="sd">        ``.as_offset_duration()`` to get plain timestamp tuples.</span>
+
+<span class="sd">    Examples:</span>
+<span class="sd">        &gt;&gt;&gt; from mixing.audio import find_segments  # doctest: +SKIP</span>
+<span class="sd">        &gt;&gt;&gt; segs = find_segments(&quot;mix.mp3&quot;, strategy=&quot;silence&quot;,</span>
+<span class="sd">        ...                       silence_thresh_db=-45)  # doctest: +SKIP</span>
+<span class="sd">        &gt;&gt;&gt; [s.as_offset_duration() for s in segs]  # doctest: +SKIP</span>
+<span class="sd">        [(0.0, 245.3), (247.1, 198.4), ...]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">audio_seg</span> <span class="o">=</span> <span class="n">_normalize_audio_source</span><span class="p">(</span><span class="n">audio</span><span class="p">,</span> <span class="n">target_type</span><span class="o">=</span><span class="s2">&quot;AudioSegment&quot;</span><span class="p">)</span>
+    <span class="n">total_duration</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">audio_seg</span><span class="p">)</span> <span class="o">/</span> <span class="mf">1000.0</span>
+
+    <span class="n">fn</span> <span class="o">=</span> <span class="n">_resolve_strategy</span><span class="p">(</span><span class="n">strategy</span><span class="p">)</span>
+    <span class="n">segments</span> <span class="o">=</span> <span class="n">fn</span><span class="p">(</span><span class="n">audio_seg</span><span class="p">,</span> <span class="o">**</span><span class="n">strategy_kwargs</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">merge_gap</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">segments</span> <span class="o">=</span> <span class="n">_merge_close_segments</span><span class="p">(</span><span class="n">segments</span><span class="p">,</span> <span class="n">merge_gap</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">min_segment_duration</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">segments</span> <span class="o">=</span> <span class="n">_absorb_short_segments</span><span class="p">(</span><span class="n">segments</span><span class="p">,</span> <span class="n">min_segment_duration</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">max_segment_duration</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">max_segment_duration</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">segments</span> <span class="o">=</span> <span class="n">_split_long_segments</span><span class="p">(</span><span class="n">segments</span><span class="p">,</span> <span class="n">max_segment_duration</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">pad_start</span> <span class="ow">or</span> <span class="n">pad_end</span><span class="p">:</span>
+        <span class="n">segments</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">Segment</span><span class="p">(</span>
+                <span class="n">start</span><span class="o">=</span><span class="nb">max</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">s</span><span class="o">.</span><span class="n">start</span> <span class="o">-</span> <span class="n">pad_start</span><span class="p">),</span>
+                <span class="n">end</span><span class="o">=</span><span class="nb">min</span><span class="p">(</span><span class="n">total_duration</span><span class="p">,</span> <span class="n">s</span><span class="o">.</span><span class="n">end</span> <span class="o">+</span> <span class="n">pad_end</span><span class="p">),</span>
+                <span class="n">label</span><span class="o">=</span><span class="n">s</span><span class="o">.</span><span class="n">label</span><span class="p">,</span>
+                <span class="n">score</span><span class="o">=</span><span class="n">s</span><span class="o">.</span><span class="n">score</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">segments</span>
+        <span class="p">]</span>
+    <span class="k">return</span> <span class="n">segments</span></div>
+
+
+
+<div class="viewcode-block" id="extract_segments">
+<a class="viewcode-back" href="../../../module_docs/mixing/audio/segmentation.html#mixing.audio.extract_segments">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">extract_segments</span><span class="p">(</span>
+    <span class="n">audio</span><span class="p">:</span> <span class="n">AudioSource</span><span class="p">,</span>
+    <span class="n">segments</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Segment</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">output_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">name_template</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{stem}</span><span class="s2">_</span><span class="si">{idx:03d}{ext}</span><span class="s2">&quot;</span><span class="p">,</span>
+    <span class="nb">format</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;mp3&quot;</span><span class="p">,</span>
+    <span class="n">bitrate</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;192k&quot;</span><span class="p">,</span>
+    <span class="n">strategy</span><span class="p">:</span> <span class="n">SegmentationStrategy</span> <span class="o">=</span> <span class="s2">&quot;silence&quot;</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">strategy_kwargs</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Path</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Save each segment as its own audio file.</span>
+
+<span class="sd">    If ``segments`` is ``None``, this calls :func:`find_segments` first using</span>
+<span class="sd">    ``strategy`` and ``strategy_kwargs``.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        audio: File path, numpy array, or pydub ``AudioSegment``.</span>
+<span class="sd">        segments: Either a list of ``Segment`` objects, or a list of</span>
+<span class="sd">            ``(start, end)`` tuples in seconds. If ``None``, segments are</span>
+<span class="sd">            discovered automatically.</span>
+<span class="sd">        output_dir: Directory to write files to (created if missing).</span>
+<span class="sd">            Defaults to the source file&#39;s parent, or the current directory</span>
+<span class="sd">            if ``audio`` isn&#39;t a path.</span>
+<span class="sd">        name_template: Filename template. Available fields: ``{stem}``,</span>
+<span class="sd">            ``{idx}``, ``{label}``, ``{start}``, ``{end}``, ``{ext}``.</span>
+<span class="sd">        format: Output audio format (e.g. ``&quot;mp3&quot;``, ``&quot;wav&quot;``).</span>
+<span class="sd">        bitrate: Bitrate for compressed formats.</span>
+<span class="sd">        strategy, **strategy_kwargs: Used only when ``segments`` is ``None``.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        List of paths to the saved files, in segment order.</span>
+
+<span class="sd">    Examples:</span>
+<span class="sd">        &gt;&gt;&gt; from mixing.audio import extract_segments  # doctest: +SKIP</span>
+<span class="sd">        &gt;&gt;&gt; # Auto-detect and save in one call</span>
+<span class="sd">        &gt;&gt;&gt; paths = extract_segments(</span>
+<span class="sd">        ...     &quot;concert.wav&quot;, strategy=&quot;self_similarity&quot;,</span>
+<span class="sd">        ...     output_dir=&quot;songs/&quot;, format=&quot;mp3&quot;,</span>
+<span class="sd">        ...     kernel_seconds=14.0,</span>
+<span class="sd">        ... )  # doctest: +SKIP</span>
+<span class="sd">        &gt;&gt;&gt;</span>
+<span class="sd">        &gt;&gt;&gt; # Or pass timestamps you already have</span>
+<span class="sd">        &gt;&gt;&gt; paths = extract_segments(</span>
+<span class="sd">        ...     &quot;mix.mp3&quot;,</span>
+<span class="sd">        ...     segments=[(0, 245), (247, 445), (445, 600)],</span>
+<span class="sd">        ...     output_dir=&quot;tracks/&quot;,</span>
+<span class="sd">        ... )  # doctest: +SKIP</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">audio_seg</span> <span class="o">=</span> <span class="n">_normalize_audio_source</span><span class="p">(</span><span class="n">audio</span><span class="p">,</span> <span class="n">target_type</span><span class="o">=</span><span class="s2">&quot;AudioSegment&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">segments</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">segs</span> <span class="o">=</span> <span class="n">find_segments</span><span class="p">(</span><span class="n">audio_seg</span><span class="p">,</span> <span class="n">strategy</span><span class="o">=</span><span class="n">strategy</span><span class="p">,</span> <span class="o">**</span><span class="n">strategy_kwargs</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">segs</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">s</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">Segment</span><span class="p">)</span> <span class="k">else</span> <span class="n">Segment</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="n">end</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+            <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">segments</span>
+        <span class="p">]</span>
+
+    <span class="c1"># Resolve output directory and filename stem.</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">audio</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">)):</span>
+        <span class="n">src_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">audio</span><span class="p">)</span>
+        <span class="n">stem</span> <span class="o">=</span> <span class="n">src_path</span><span class="o">.</span><span class="n">stem</span>
+        <span class="n">out_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">output_dir</span><span class="p">)</span> <span class="k">if</span> <span class="n">output_dir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">src_path</span><span class="o">.</span><span class="n">parent</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">stem</span> <span class="o">=</span> <span class="s2">&quot;audio&quot;</span>
+        <span class="n">out_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">output_dir</span><span class="p">)</span> <span class="k">if</span> <span class="n">output_dir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">Path</span><span class="o">.</span><span class="n">cwd</span><span class="p">()</span>
+    <span class="n">out_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">ext</span> <span class="o">=</span> <span class="s2">&quot;.&quot;</span> <span class="o">+</span> <span class="nb">format</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)</span>
+    <span class="n">paths</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">seg</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">segs</span><span class="p">):</span>
+        <span class="n">start_ms</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">seg</span><span class="o">.</span><span class="n">start</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">)</span>
+        <span class="n">end_ms</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">seg</span><span class="o">.</span><span class="n">end</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">)</span>
+        <span class="n">clip</span> <span class="o">=</span> <span class="n">audio_seg</span><span class="p">[</span><span class="n">start_ms</span><span class="p">:</span><span class="n">end_ms</span><span class="p">]</span>
+        <span class="n">filename</span> <span class="o">=</span> <span class="n">name_template</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="n">stem</span><span class="o">=</span><span class="n">stem</span><span class="p">,</span>
+            <span class="n">idx</span><span class="o">=</span><span class="n">idx</span><span class="p">,</span>
+            <span class="n">label</span><span class="o">=</span><span class="n">seg</span><span class="o">.</span><span class="n">label</span> <span class="ow">or</span> <span class="s2">&quot;segment&quot;</span><span class="p">,</span>
+            <span class="n">start</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">seg</span><span class="o">.</span><span class="n">start</span><span class="p">),</span>
+            <span class="n">end</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">seg</span><span class="o">.</span><span class="n">end</span><span class="p">),</span>
+            <span class="n">ext</span><span class="o">=</span><span class="n">ext</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">out_path</span> <span class="o">=</span> <span class="n">out_dir</span> <span class="o">/</span> <span class="n">filename</span>
+        <span class="n">clip</span><span class="o">.</span><span class="n">export</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">out_path</span><span class="p">),</span> <span class="nb">format</span><span class="o">=</span><span class="nb">format</span><span class="p">,</span> <span class="n">bitrate</span><span class="o">=</span><span class="n">bitrate</span><span class="p">)</span>
+        <span class="n">paths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">out_path</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">paths</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright NO COPYRIGHT.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

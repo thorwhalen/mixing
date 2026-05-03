@@ -1,0 +1,4 @@
+mixing.audio.segmentation
+=========================
+.. automodule:: mixing.audio.segmentation
+   :members:

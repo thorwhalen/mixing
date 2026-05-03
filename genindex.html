@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Index &mdash; mixing 0.0.6 documentation</title>
+  <title>Index &mdash; mixing 0.0.7 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
@@ -14,7 +14,7 @@
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=1fd71caa"></script>
+      <script src="_static/documentation_options.js?v=bbaf98b3"></script>
       <script src="_static/doctools.js?v=9bcbadda"></script>
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
       <script src="_static/toggleprompt.js?v=d7ede5d2"></script>
@@ -52,6 +52,7 @@
 <li class="toctree-l1"><a class="reference internal" href="module_docs/mixing/audio/audio_util.html">mixing.audio.audio_util</a></li>
 <li class="toctree-l1"><a class="reference internal" href="module_docs/mixing/audio/audio_widget.html">mixing.audio.audio_widget</a></li>
 <li class="toctree-l1"><a class="reference internal" href="module_docs/mixing/audio/demo_audio_widget.html">mixing.audio.demo_audio_widget</a></li>
+<li class="toctree-l1"><a class="reference internal" href="module_docs/mixing/audio/segmentation.html">mixing.audio.segmentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="module_docs/mixing/audio/test_audio_widget.html">mixing.audio.test_audio_widget</a></li>
 <li class="toctree-l1"><a class="reference internal" href="module_docs/mixing/transcript.html">mixing.transcript</a></li>
 <li class="toctree-l1"><a class="reference internal" href="module_docs/mixing/transcript/fillers.html">mixing.transcript.fillers</a></li>
@@ -127,14 +128,26 @@
         <li><a href="module_docs/mixing/transcript/media.html#mixing.transcript.media.apply_keeps">(in module mixing.transcript.media)</a>
 </li>
       </ul></li>
+      <li><a href="module_docs/mixing/audio.html#mixing.audio.Segment.as_offset_duration">as_offset_duration() (mixing.audio.Segment method)</a>
+
+      <ul>
+        <li><a href="module_docs/mixing/audio/segmentation.html#mixing.audio.segmentation.Segment.as_offset_duration">(mixing.audio.segmentation.Segment method)</a>
+</li>
+      </ul></li>
+      <li><a href="module_docs/mixing/audio.html#mixing.audio.Segment.as_start_end">as_start_end() (mixing.audio.Segment method)</a>
+
+      <ul>
+        <li><a href="module_docs/mixing/audio/segmentation.html#mixing.audio.segmentation.Segment.as_start_end">(mixing.audio.segmentation.Segment method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="module_docs/mixing/audio.html#mixing.audio.Audio">Audio (class in mixing.audio)</a>
 
       <ul>
         <li><a href="module_docs/mixing/audio/audio_ops.html#mixing.audio.audio_ops.Audio">(class in mixing.audio.audio_ops)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="module_docs/mixing/audio.html#mixing.audio.AudioSamples">AudioSamples (class in mixing.audio)</a>
 
       <ul>
@@ -205,12 +218,14 @@
 </li>
       <li><a href="module_docs/mixing/transcript/fillers.html#mixing.transcript.fillers.DEFAULT_FILLER_TOKENS">DEFAULT_FILLER_TOKENS (in module mixing.transcript.fillers)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="module_docs/mixing/audio.html#mixing.audio.Audio.duration">duration (mixing.audio.Audio property)</a>
 
       <ul>
         <li><a href="module_docs/mixing/audio/audio_ops.html#mixing.audio.audio_ops.Audio.duration">(mixing.audio.audio_ops.Audio property)</a>
+</li>
+        <li><a href="module_docs/mixing/audio.html#mixing.audio.Segment.duration">(mixing.audio.Segment property)</a>
+</li>
+        <li><a href="module_docs/mixing/audio/segmentation.html#mixing.audio.segmentation.Segment.duration">(mixing.audio.segmentation.Segment property)</a>
 </li>
         <li><a href="module_docs/mixing/video/video_ops.html#mixing.video.video_ops.Video.duration">(mixing.video.video_ops.Video property)</a>
 </li>
@@ -221,6 +236,12 @@
 <h2 id="E">E</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="module_docs/mixing/audio.html#mixing.audio.Segment.end">end (mixing.audio.Segment attribute)</a>
+
+      <ul>
+        <li><a href="module_docs/mixing/audio/segmentation.html#mixing.audio.segmentation.Segment.end">(mixing.audio.segmentation.Segment attribute)</a>
+</li>
+      </ul></li>
       <li><a href="module_docs/mixing/audio.html#mixing.audio.Audio.end_time">end_time (mixing.audio.Audio property)</a>
 
       <ul>
@@ -245,6 +266,12 @@
 
       <ul>
         <li><a href="module_docs/mixing/transcript/media.html#mixing.transcript.media.extract_audio">(in module mixing.transcript.media)</a>
+</li>
+      </ul></li>
+      <li><a href="module_docs/mixing/audio.html#mixing.audio.extract_segments">extract_segments() (in module mixing.audio)</a>
+
+      <ul>
+        <li><a href="module_docs/mixing/audio/segmentation.html#mixing.audio.segmentation.extract_segments">(in module mixing.audio.segmentation)</a>
 </li>
       </ul></li>
   </ul></td>
@@ -281,16 +308,22 @@
         <li><a href="module_docs/mixing/transcript/pipeline.html#mixing.transcript.pipeline.FillerRemovalResult">(class in mixing.transcript.pipeline)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="module_docs/mixing/audio.html#mixing.audio.find_audio_offset">find_audio_offset() (in module mixing.audio)</a>
 
       <ul>
         <li><a href="module_docs/mixing/audio/audio_ops.html#mixing.audio.audio_ops.find_audio_offset">(in module mixing.audio.audio_ops)</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="module_docs/mixing/video/video_subtitles.html#mixing.video.video_subtitles.find_audio_start_offset">find_audio_start_offset() (in module mixing.video.video_subtitles)</a>
 </li>
+      <li><a href="module_docs/mixing/audio.html#mixing.audio.find_segments">find_segments() (in module mixing.audio)</a>
+
+      <ul>
+        <li><a href="module_docs/mixing/audio/segmentation.html#mixing.audio.segmentation.find_segments">(in module mixing.audio.segmentation)</a>
+</li>
+      </ul></li>
       <li><a href="module_docs/mixing/video/video_subtitles.html#mixing.video.video_subtitles.fix_srt_file">fix_srt_file() (in module mixing.video.video_subtitles)</a>
 </li>
       <li><a href="module_docs/mixing/transcript.html#mixing.transcript.fmt_srt_time">fmt_srt_time() (in module mixing.transcript)</a>
@@ -365,6 +398,14 @@
 <h2 id="L">L</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="module_docs/mixing/audio.html#mixing.audio.Segment.label">label (mixing.audio.Segment attribute)</a>
+
+      <ul>
+        <li><a href="module_docs/mixing/audio/segmentation.html#mixing.audio.segmentation.Segment.label">(mixing.audio.segmentation.Segment attribute)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="module_docs/mixing/video/video_ops.html#mixing.video.video_ops.loop_video">loop_video() (in module mixing.video.video_ops)</a>
 </li>
   </ul></td>
@@ -399,6 +440,13 @@
 
       <ul>
         <li><a href="module_docs/mixing/audio/audio_util.html#module-mixing.audio.audio_util">module</a>
+</li>
+      </ul></li>
+      <li>
+    mixing.audio.segmentation
+
+      <ul>
+        <li><a href="module_docs/mixing/audio/segmentation.html#module-mixing.audio.segmentation">module</a>
 </li>
       </ul></li>
       <li>
@@ -527,6 +575,8 @@
 </li>
         <li><a href="module_docs/mixing/audio/audio_util.html#module-mixing.audio.audio_util">mixing.audio.audio_util</a>
 </li>
+        <li><a href="module_docs/mixing/audio/segmentation.html#module-mixing.audio.segmentation">mixing.audio.segmentation</a>
+</li>
         <li><a href="module_docs/mixing/transcript.html#module-mixing.transcript">mixing.transcript</a>
 </li>
         <li><a href="module_docs/mixing/transcript/fillers.html#module-mixing.transcript.fillers">mixing.transcript.fillers</a>
@@ -584,16 +634,22 @@
 <h2 id="O">O</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="module_docs/mixing/audio.html#mixing.audio.Segment.offset">offset (mixing.audio.Segment property)</a>
+
+      <ul>
+        <li><a href="module_docs/mixing/audio/segmentation.html#mixing.audio.segmentation.Segment.offset">(mixing.audio.segmentation.Segment property)</a>
+</li>
+      </ul></li>
       <li><a href="module_docs/mixing/video/video_concat.html#mixing.video.video_concat.overlap_blend">overlap_blend() (in module mixing.video.video_concat)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="module_docs/mixing/audio.html#mixing.audio.Audio.overlay">overlay() (mixing.audio.Audio method)</a>
 
       <ul>
         <li><a href="module_docs/mixing/audio/audio_ops.html#mixing.audio.audio_ops.Audio.overlay">(mixing.audio.audio_ops.Audio method)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="module_docs/mixing/audio.html#mixing.audio.overlay_audio">overlay_audio() (in module mixing.audio)</a>
 
       <ul>
@@ -676,20 +732,62 @@
         <li><a href="module_docs/mixing/video/video_ops.html#mixing.video.video_ops.Video.save_frame">(mixing.video.video_ops.Video method)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="module_docs/mixing/video/video_gen.html#mixing.video.video_gen.save_generated_video">save_generated_video() (in module mixing.video.video_gen)</a>
 </li>
       <li><a href="module_docs/mixing/video/video_gen.html#mixing.video.video_gen.save_generated_videos">save_generated_videos() (in module mixing.video.video_gen)</a>
 </li>
+      <li><a href="module_docs/mixing/audio.html#mixing.audio.Segment.score">score (mixing.audio.Segment attribute)</a>
+
+      <ul>
+        <li><a href="module_docs/mixing/audio/segmentation.html#mixing.audio.segmentation.Segment.score">(mixing.audio.segmentation.Segment attribute)</a>
+</li>
+      </ul></li>
       <li><a href="module_docs/mixing/video/video_subtitles.html#mixing.video.video_subtitles.seconds_to_srt_time">seconds_to_srt_time() (in module mixing.video.video_subtitles)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="module_docs/mixing/audio.html#mixing.audio.Segment">Segment (class in mixing.audio)</a>
+
+      <ul>
+        <li><a href="module_docs/mixing/audio/segmentation.html#mixing.audio.segmentation.Segment">(class in mixing.audio.segmentation)</a>
+</li>
+      </ul></li>
+      <li><a href="module_docs/mixing/audio.html#mixing.audio.segment_by_energy">segment_by_energy() (in module mixing.audio)</a>
+
+      <ul>
+        <li><a href="module_docs/mixing/audio/segmentation.html#mixing.audio.segmentation.segment_by_energy">(in module mixing.audio.segmentation)</a>
+</li>
+      </ul></li>
+      <li><a href="module_docs/mixing/audio.html#mixing.audio.segment_by_self_similarity">segment_by_self_similarity() (in module mixing.audio)</a>
+
+      <ul>
+        <li><a href="module_docs/mixing/audio/segmentation.html#mixing.audio.segmentation.segment_by_self_similarity">(in module mixing.audio.segmentation)</a>
+</li>
+      </ul></li>
+      <li><a href="module_docs/mixing/audio.html#mixing.audio.segment_by_silence">segment_by_silence() (in module mixing.audio)</a>
+
+      <ul>
+        <li><a href="module_docs/mixing/audio/segmentation.html#mixing.audio.segmentation.segment_by_silence">(in module mixing.audio.segmentation)</a>
+</li>
+      </ul></li>
+      <li><a href="module_docs/mixing/audio.html#mixing.audio.segment_by_speech_music">segment_by_speech_music() (in module mixing.audio)</a>
+
+      <ul>
+        <li><a href="module_docs/mixing/audio/segmentation.html#mixing.audio.segmentation.segment_by_speech_music">(in module mixing.audio.segmentation)</a>
+</li>
+      </ul></li>
       <li><a href="module_docs/mixing/video/video_subtitles.html#mixing.video.video_subtitles.shift_srt_timestamps">shift_srt_timestamps() (in module mixing.video.video_subtitles)</a>
 </li>
       <li><a href="module_docs/mixing/video/video_concat.html#mixing.video.video_concat.slow_motion_blend">slow_motion_blend() (in module mixing.video.video_concat)</a>
 </li>
       <li><a href="module_docs/mixing/video/video_subtitles.html#mixing.video.video_subtitles.srt_time_to_seconds">srt_time_to_seconds() (in module mixing.video.video_subtitles)</a>
 </li>
+      <li><a href="module_docs/mixing/audio.html#mixing.audio.Segment.start">start (mixing.audio.Segment attribute)</a>
+
+      <ul>
+        <li><a href="module_docs/mixing/audio/segmentation.html#mixing.audio.segmentation.Segment.start">(mixing.audio.segmentation.Segment attribute)</a>
+</li>
+      </ul></li>
       <li><a href="module_docs/mixing/audio.html#mixing.audio.Audio.start_time">start_time (mixing.audio.Audio property)</a>
 
       <ul>

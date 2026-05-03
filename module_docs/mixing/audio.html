@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>mixing.audio &mdash; mixing 0.0.6 documentation</title>
+  <title>mixing.audio &mdash; mixing 0.0.7 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
@@ -15,7 +15,7 @@
   
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../_static/documentation_options.js?v=1fd71caa"></script>
+      <script src="../../_static/documentation_options.js?v=bbaf98b3"></script>
       <script src="../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script src="../../_static/toggleprompt.js?v=d7ede5d2"></script>
@@ -67,19 +67,37 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#mixing.audio.AudioSamples"><code class="docutils literal notranslate"><span class="pre">AudioSamples</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mixing.audio.Segment"><code class="docutils literal notranslate"><span class="pre">Segment</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#mixing.audio.Segment.start"><code class="docutils literal notranslate"><span class="pre">Segment.start</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mixing.audio.Segment.end"><code class="docutils literal notranslate"><span class="pre">Segment.end</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mixing.audio.Segment.label"><code class="docutils literal notranslate"><span class="pre">Segment.label</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mixing.audio.Segment.score"><code class="docutils literal notranslate"><span class="pre">Segment.score</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mixing.audio.Segment.as_offset_duration"><code class="docutils literal notranslate"><span class="pre">Segment.as_offset_duration()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mixing.audio.Segment.as_start_end"><code class="docutils literal notranslate"><span class="pre">Segment.as_start_end()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mixing.audio.Segment.duration"><code class="docutils literal notranslate"><span class="pre">Segment.duration</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mixing.audio.Segment.offset"><code class="docutils literal notranslate"><span class="pre">Segment.offset</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="#mixing.audio.concatenate_audio"><code class="docutils literal notranslate"><span class="pre">concatenate_audio()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#mixing.audio.crop_audio"><code class="docutils literal notranslate"><span class="pre">crop_audio()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mixing.audio.extract_segments"><code class="docutils literal notranslate"><span class="pre">extract_segments()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#mixing.audio.fade_in"><code class="docutils literal notranslate"><span class="pre">fade_in()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#mixing.audio.fade_out"><code class="docutils literal notranslate"><span class="pre">fade_out()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#mixing.audio.find_audio_offset"><code class="docutils literal notranslate"><span class="pre">find_audio_offset()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mixing.audio.find_segments"><code class="docutils literal notranslate"><span class="pre">find_segments()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#mixing.audio.overlay_audio"><code class="docutils literal notranslate"><span class="pre">overlay_audio()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#mixing.audio.save_audio_clip"><code class="docutils literal notranslate"><span class="pre">save_audio_clip()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mixing.audio.segment_by_energy"><code class="docutils literal notranslate"><span class="pre">segment_by_energy()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mixing.audio.segment_by_self_similarity"><code class="docutils literal notranslate"><span class="pre">segment_by_self_similarity()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mixing.audio.segment_by_silence"><code class="docutils literal notranslate"><span class="pre">segment_by_silence()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mixing.audio.segment_by_speech_music"><code class="docutils literal notranslate"><span class="pre">segment_by_speech_music()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="audio/audio_ops.html">mixing.audio.audio_ops</a></li>
 <li class="toctree-l1"><a class="reference internal" href="audio/audio_util.html">mixing.audio.audio_util</a></li>
 <li class="toctree-l1"><a class="reference internal" href="audio/audio_widget.html">mixing.audio.audio_widget</a></li>
 <li class="toctree-l1"><a class="reference internal" href="audio/demo_audio_widget.html">mixing.audio.demo_audio_widget</a></li>
+<li class="toctree-l1"><a class="reference internal" href="audio/segmentation.html">mixing.audio.segmentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="audio/test_audio_widget.html">mixing.audio.test_audio_widget</a></li>
 <li class="toctree-l1"><a class="reference internal" href="transcript.html">mixing.transcript</a></li>
 <li class="toctree-l1"><a class="reference internal" href="transcript/fillers.html">mixing.transcript.fillers</a></li>
@@ -133,7 +151,11 @@
 - concatenate_audio: Join multiple audio files
 - overlay_audio: Mix/overlay audio tracks
 - save_audio_clip: Extract and save audio segments
-- find_audio_offset: Align two recordings via cross-correlation</p>
+- find_audio_offset: Align two recordings via cross-correlation
+- find_segments, extract_segments: Split a long audio into pieces (songs,</p>
+<blockquote>
+<div><p>speech vs music, etc.) using pluggable strategies</p>
+</div></blockquote>
 <p class="rubric">Examples</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">mixing.audio</span><span class="w"> </span><span class="kn">import</span> <span class="n">Audio</span><span class="p">,</span> <span class="n">fade_in</span><span class="p">,</span> <span class="n">concatenate_audio</span>  
 <span class="gp">&gt;&gt;&gt; </span><span class="n">audio</span> <span class="o">=</span> <span class="n">Audio</span><span class="p">(</span><span class="s2">&quot;song.mp3&quot;</span><span class="p">)</span>  
@@ -143,6 +165,11 @@
 </div>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">faded</span> <span class="o">=</span> <span class="n">fade_in</span><span class="p">(</span><span class="s2">&quot;intro.mp3&quot;</span><span class="p">,</span> <span class="n">duration</span><span class="o">=</span><span class="mf">2.0</span><span class="p">)</span>  
 <span class="gp">&gt;&gt;&gt; </span><span class="n">combined</span> <span class="o">=</span> <span class="n">concatenate_audio</span><span class="p">(</span><span class="s2">&quot;part1.mp3&quot;</span><span class="p">,</span> <span class="s2">&quot;part2.mp3&quot;</span><span class="p">,</span> <span class="s2">&quot;part3.mp3&quot;</span><span class="p">)</span>  
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">mixing.audio</span><span class="w"> </span><span class="kn">import</span> <span class="n">find_segments</span><span class="p">,</span> <span class="n">extract_segments</span>  
+<span class="gp">&gt;&gt;&gt; </span><span class="n">segs</span> <span class="o">=</span> <span class="n">find_segments</span><span class="p">(</span><span class="s2">&quot;concert.wav&quot;</span><span class="p">,</span> <span class="n">strategy</span><span class="o">=</span><span class="s2">&quot;self_similarity&quot;</span><span class="p">)</span>  
+<span class="gp">&gt;&gt;&gt; </span><span class="n">paths</span> <span class="o">=</span> <span class="n">extract_segments</span><span class="p">(</span><span class="s2">&quot;concert.wav&quot;</span><span class="p">,</span> <span class="n">segs</span><span class="p">,</span> <span class="n">output_dir</span><span class="o">=</span><span class="s2">&quot;songs/&quot;</span><span class="p">)</span>  
 </pre></div>
 </div>
 <dl class="py class">
@@ -342,6 +369,80 @@ indexing and slicing. Samples are returned as normalized float values.</p>
 </div>
 </dd></dl>
 
+<dl class="py class">
+<dt class="sig sig-object py" id="mixing.audio.Segment">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mixing.audio.</span></span><span class="sig-name descname"><span class="pre">Segment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">score</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/mixing/audio/segmentation.html#Segment"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.audio.Segment" title="Link to this definition"></a></dt>
+<dd><p>A time-bounded slice of an audio file.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mixing.audio.Segment.start">
+<span class="sig-name descname"><span class="pre">start</span></span><a class="headerlink" href="#mixing.audio.Segment.start" title="Link to this definition"></a></dt>
+<dd><p>Segment start in seconds.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mixing.audio.Segment.end">
+<span class="sig-name descname"><span class="pre">end</span></span><a class="headerlink" href="#mixing.audio.Segment.end" title="Link to this definition"></a></dt>
+<dd><p>Segment end in seconds.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mixing.audio.Segment.label">
+<span class="sig-name descname"><span class="pre">label</span></span><a class="headerlink" href="#mixing.audio.Segment.label" title="Link to this definition"></a></dt>
+<dd><p>Optional tag (e.g. <code class="docutils literal notranslate"><span class="pre">&quot;speech&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;music&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;song&quot;</span></code>).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str | None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mixing.audio.Segment.score">
+<span class="sig-name descname"><span class="pre">score</span></span><a class="headerlink" href="#mixing.audio.Segment.score" title="Link to this definition"></a></dt>
+<dd><p>Optional confidence/novelty value. Higher = stronger boundary.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float | None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mixing.audio.Segment.as_offset_duration">
+<span class="sig-name descname"><span class="pre">as_offset_duration</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/mixing/audio/segmentation.html#Segment.as_offset_duration"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.audio.Segment.as_offset_duration" title="Link to this definition"></a></dt>
+<dd><p>Return <code class="docutils literal notranslate"><span class="pre">(offset,</span> <span class="pre">duration)</span></code> in seconds.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mixing.audio.Segment.as_start_end">
+<span class="sig-name descname"><span class="pre">as_start_end</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/mixing/audio/segmentation.html#Segment.as_start_end"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.audio.Segment.as_start_end" title="Link to this definition"></a></dt>
+<dd><p>Return <code class="docutils literal notranslate"><span class="pre">(start,</span> <span class="pre">end)</span></code> in seconds.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mixing.audio.Segment.duration">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">duration</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#mixing.audio.Segment.duration" title="Link to this definition"></a></dt>
+<dd><p>Segment duration in seconds.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mixing.audio.Segment.offset">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">offset</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#mixing.audio.Segment.offset" title="Link to this definition"></a></dt>
+<dd><p>Alias for <code class="docutils literal notranslate"><span class="pre">start</span></code> — read-only.</p>
+</dd></dl>
+
+</dd></dl>
+
 <dl class="py function">
 <dt class="sig sig-object py" id="mixing.audio.concatenate_audio">
 <span class="sig-prename descclassname"><span class="pre">mixing.audio.</span></span><span class="sig-name descname"><span class="pre">concatenate_audio</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">sources</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="audio/audio_ops.html#mixing.audio.audio_ops.Audio" title="mixing.audio.audio_ops.Audio"><span class="pre">Audio</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">crossfade</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">save_kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="audio/audio_ops.html#mixing.audio.audio_ops.Audio" title="mixing.audio.audio_ops.Audio"><span class="pre">Audio</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span></span></span><a class="reference internal" href="../../_modules/mixing/audio/audio_ops.html#concatenate_audio"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.audio.concatenate_audio" title="Link to this definition"></a></dt>
@@ -389,6 +490,54 @@ indexing and slicing. Samples are returned as normalized float values.</p>
 <p class="rubric">Examples</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">crop_audio</span><span class="p">(</span><span class="s2">&quot;song.mp3&quot;</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">30</span><span class="p">)</span>  <span class="c1"># Crop 10s-30s  </span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">crop_audio</span><span class="p">(</span><span class="s2">&quot;song.mp3&quot;</span><span class="p">,</span> <span class="mi">44100</span><span class="p">,</span> <span class="mi">88200</span><span class="p">,</span> <span class="n">time_unit</span><span class="o">=</span><span class="s2">&quot;samples&quot;</span><span class="p">)</span>  
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mixing.audio.extract_segments">
+<span class="sig-prename descclassname"><span class="pre">mixing.audio.</span></span><span class="sig-name descname"><span class="pre">extract_segments</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">audio</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">AudioSegment</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">segments</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="audio/segmentation.html#mixing.audio.segmentation.Segment" title="mixing.audio.segmentation.Segment"><span class="pre">Segment</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name_template</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'{stem}_{idx:03d}{ext}'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">format</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'mp3'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bitrate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'192k'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strategy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'silence'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'energy_novelty'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'self_similarity'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'speech_music'</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="audio/segmentation.html#mixing.audio.segmentation.Segment" title="mixing.audio.segmentation.Segment"><span class="pre">Segment</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'silence'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">strategy_kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">Path</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/mixing/audio/segmentation.html#extract_segments"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.audio.extract_segments" title="Link to this definition"></a></dt>
+<dd><p>Save each segment as its own audio file.</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">segments</span></code> is <code class="docutils literal notranslate"><span class="pre">None</span></code>, this calls <a class="reference internal" href="#mixing.audio.find_segments" title="mixing.audio.find_segments"><code class="xref py py-func docutils literal notranslate"><span class="pre">find_segments()</span></code></a> first using
+<code class="docutils literal notranslate"><span class="pre">strategy</span></code> and <code class="docutils literal notranslate"><span class="pre">strategy_kwargs</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>audio</strong> – File path, numpy array, or pydub <code class="docutils literal notranslate"><span class="pre">AudioSegment</span></code>.</p></li>
+<li><p><strong>segments</strong> – Either a list of <code class="docutils literal notranslate"><span class="pre">Segment</span></code> objects, or a list of
+<code class="docutils literal notranslate"><span class="pre">(start,</span> <span class="pre">end)</span></code> tuples in seconds. If <code class="docutils literal notranslate"><span class="pre">None</span></code>, segments are
+discovered automatically.</p></li>
+<li><p><strong>output_dir</strong> – Directory to write files to (created if missing).
+Defaults to the source file’s parent, or the current directory
+if <code class="docutils literal notranslate"><span class="pre">audio</span></code> isn’t a path.</p></li>
+<li><p><strong>name_template</strong> – Filename template. Available fields: <code class="docutils literal notranslate"><span class="pre">{stem}</span></code>,
+<code class="docutils literal notranslate"><span class="pre">{idx}</span></code>, <code class="docutils literal notranslate"><span class="pre">{label}</span></code>, <code class="docutils literal notranslate"><span class="pre">{start}</span></code>, <code class="docutils literal notranslate"><span class="pre">{end}</span></code>, <code class="docutils literal notranslate"><span class="pre">{ext}</span></code>.</p></li>
+<li><p><strong>format</strong> – Output audio format (e.g. <code class="docutils literal notranslate"><span class="pre">&quot;mp3&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;wav&quot;</span></code>).</p></li>
+<li><p><strong>bitrate</strong> – Bitrate for compressed formats.</p></li>
+<li><p><strong>strategy</strong> – Used only when <code class="docutils literal notranslate"><span class="pre">segments</span></code> is <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p></li>
+<li><p><strong>**strategy_kwargs</strong> – <p>Used only when <code class="docutils literal notranslate"><span class="pre">segments</span></code> is <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p>
+</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>List of paths to the saved files, in segment order.</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">mixing.audio</span><span class="w"> </span><span class="kn">import</span> <span class="n">extract_segments</span>  
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Auto-detect and save in one call</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">paths</span> <span class="o">=</span> <span class="n">extract_segments</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="s2">&quot;concert.wav&quot;</span><span class="p">,</span> <span class="n">strategy</span><span class="o">=</span><span class="s2">&quot;self_similarity&quot;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">output_dir</span><span class="o">=</span><span class="s2">&quot;songs/&quot;</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;mp3&quot;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">kernel_seconds</span><span class="o">=</span><span class="mf">14.0</span><span class="p">,</span>
+<span class="gp">... </span><span class="p">)</span>  
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Or pass timestamps you already have</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">paths</span> <span class="o">=</span> <span class="n">extract_segments</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="s2">&quot;mix.mp3&quot;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">segments</span><span class="o">=</span><span class="p">[(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">245</span><span class="p">),</span> <span class="p">(</span><span class="mi">247</span><span class="p">,</span> <span class="mi">445</span><span class="p">),</span> <span class="p">(</span><span class="mi">445</span><span class="p">,</span> <span class="mi">600</span><span class="p">)],</span>
+<span class="gp">... </span>    <span class="n">output_dir</span><span class="o">=</span><span class="s2">&quot;tracks/&quot;</span><span class="p">,</span>
+<span class="gp">... </span><span class="p">)</span>  
 </pre></div>
 </div>
 </dd></dl>
@@ -478,6 +627,41 @@ starts. Positive means query begins after the start of reference.</p>
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="mixing.audio.find_segments">
+<span class="sig-prename descclassname"><span class="pre">mixing.audio.</span></span><span class="sig-name descname"><span class="pre">find_segments</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">audio</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">AudioSegment</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strategy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'silence'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'energy_novelty'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'self_similarity'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'speech_music'</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="audio/segmentation.html#mixing.audio.segmentation.Segment" title="mixing.audio.segmentation.Segment"><span class="pre">Segment</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'silence'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_segment_duration</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_segment_duration</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">merge_gap</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pad_start</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pad_end</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">strategy_kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="audio/segmentation.html#mixing.audio.segmentation.Segment" title="mixing.audio.segmentation.Segment"><span class="pre">Segment</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/mixing/audio/segmentation.html#find_segments"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.audio.find_segments" title="Link to this definition"></a></dt>
+<dd><p>Find segment boundaries in <code class="docutils literal notranslate"><span class="pre">audio</span></code> using a chosen strategy.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>audio</strong> – File path, numpy array, or pydub <code class="docutils literal notranslate"><span class="pre">AudioSegment</span></code>.</p></li>
+<li><p><strong>strategy</strong> – Strategy name (<code class="docutils literal notranslate"><span class="pre">&quot;silence&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;energy_novelty&quot;</span></code>,
+<code class="docutils literal notranslate"><span class="pre">&quot;self_similarity&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;speech_music&quot;</span></code>) or a callable
+<code class="docutils literal notranslate"><span class="pre">(AudioSegment,</span> <span class="pre">**kwargs)</span> <span class="pre">-&gt;</span> <span class="pre">list[Segment]</span></code>.</p></li>
+<li><p><strong>min_segment_duration</strong> – Drop or merge segments shorter than this.</p></li>
+<li><p><strong>max_segment_duration</strong> – Split segments longer than this into equal pieces.</p></li>
+<li><p><strong>merge_gap</strong> – Merge consecutive same-label segments separated by less
+than this gap (seconds).</p></li>
+<li><p><strong>pad_start</strong> – Extend each segment backwards by this many seconds.</p></li>
+<li><p><strong>pad_end</strong> – Extend each segment forwards by this many seconds.</p></li>
+<li><p><strong>**strategy_kwargs</strong> – Forwarded to the chosen strategy.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>List of <code class="docutils literal notranslate"><span class="pre">Segment</span></code> instances. Use <code class="docutils literal notranslate"><span class="pre">.as_start_end()</span></code> or
+<code class="docutils literal notranslate"><span class="pre">.as_offset_duration()</span></code> to get plain timestamp tuples.</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">mixing.audio</span><span class="w"> </span><span class="kn">import</span> <span class="n">find_segments</span>  
+<span class="gp">&gt;&gt;&gt; </span><span class="n">segs</span> <span class="o">=</span> <span class="n">find_segments</span><span class="p">(</span><span class="s2">&quot;mix.mp3&quot;</span><span class="p">,</span> <span class="n">strategy</span><span class="o">=</span><span class="s2">&quot;silence&quot;</span><span class="p">,</span>
+<span class="gp">... </span>                      <span class="n">silence_thresh_db</span><span class="o">=-</span><span class="mi">45</span><span class="p">)</span>  
+<span class="gp">&gt;&gt;&gt; </span><span class="p">[</span><span class="n">s</span><span class="o">.</span><span class="n">as_offset_duration</span><span class="p">()</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">segs</span><span class="p">]</span>  
+<span class="go">[(0.0, 245.3), (247.1, 198.4), ...]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="mixing.audio.overlay_audio">
 <span class="sig-prename descclassname"><span class="pre">mixing.audio.</span></span><span class="sig-name descname"><span class="pre">overlay_audio</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">background</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="audio/audio_ops.html#mixing.audio.audio_ops.Audio" title="mixing.audio.audio_ops.Audio"><span class="pre">Audio</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">overlay</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="audio/audio_ops.html#mixing.audio.audio_ops.Audio" title="mixing.audio.audio_ops.Audio"><span class="pre">Audio</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">position</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mix_ratio</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">save_kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="audio/audio_ops.html#mixing.audio.audio_ops.Audio" title="mixing.audio.audio_ops.Audio"><span class="pre">Audio</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span></span></span><a class="reference internal" href="../../_modules/mixing/audio/audio_ops.html#overlay_audio"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.audio.overlay_audio" title="Link to this definition"></a></dt>
 <dd><p>Overlay/mix two audio sources.</p>
@@ -527,6 +711,158 @@ starts. Positive means query begins after the start of reference.</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">save_audio_clip</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mi">15</span><span class="p">)</span>  <span class="c1"># From clipboard  </span>
 </pre></div>
 </div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mixing.audio.segment_by_energy">
+<span class="sig-prename descclassname"><span class="pre">mixing.audio.</span></span><span class="sig-name descname"><span class="pre">segment_by_energy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">audio</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">AudioSegment</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_rate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">16000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frame_seconds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hop_seconds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">smooth_seconds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">2.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">valley_threshold_factor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_peak_distance_seconds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">30.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'segment'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="audio/segmentation.html#mixing.audio.segmentation.Segment" title="mixing.audio.segmentation.Segment"><span class="pre">Segment</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/mixing/audio/segmentation.html#segment_by_energy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.audio.segment_by_energy" title="Link to this definition"></a></dt>
+<dd><p>Split audio at local energy valleys (fade-outs and quiet moments).</p>
+<p>Computes frame-wise RMS, smooths it, and finds local minima that fall
+below a fraction of the local maximum. Useful when tracks fade into each
+other without true silence.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>audio</strong> – pydub <code class="docutils literal notranslate"><span class="pre">AudioSegment</span></code>.</p></li>
+<li><p><strong>sample_rate</strong> – Analysis sample rate (Hz). Lower is faster.</p></li>
+<li><p><strong>frame_seconds</strong> – RMS frame length in seconds.</p></li>
+<li><p><strong>hop_seconds</strong> – RMS hop length in seconds.</p></li>
+<li><p><strong>smooth_seconds</strong> – Smoothing window length in seconds. Bigger smooths
+out within-song dynamics.</p></li>
+<li><p><strong>valley_threshold_factor</strong> – A frame is a valley candidate only if its
+RMS is below <code class="docutils literal notranslate"><span class="pre">factor</span> <span class="pre">*</span> <span class="pre">max(RMS)</span></code>. <code class="docutils literal notranslate"><span class="pre">0.5</span></code> = halfway down from
+the peak. Lower this for cleaner tracks, raise it for messier ones.</p></li>
+<li><p><strong>min_peak_distance_seconds</strong> – Minimum spacing between valleys. Prevents
+multiple boundaries inside one inter-track pause and acts as a
+crude minimum-song-length filter.</p></li>
+<li><p><strong>label</strong> – Label assigned to every returned segment.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>List of back-to-back <a href="#id3"><span class="problematic" id="id4">``</span></a>Segment``s covering the whole audio.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mixing.audio.segment_by_self_similarity">
+<span class="sig-prename descclassname"><span class="pre">mixing.audio.</span></span><span class="sig-name descname"><span class="pre">segment_by_self_similarity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">audio</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">AudioSegment</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_rate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">11025</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_fft</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">2048</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hop_seconds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.25</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_bands</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">40</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kernel_seconds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">12.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">novelty_smooth_seconds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">4.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">peak_threshold_factor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_peak_distance_seconds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">30.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'song'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="audio/segmentation.html#mixing.audio.segmentation.Segment" title="mixing.audio.segmentation.Segment"><span class="pre">Segment</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/mixing/audio/segmentation.html#segment_by_self_similarity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.audio.segment_by_self_similarity" title="Link to this definition"></a></dt>
+<dd><p>Find boundaries via Foote’s checkerboard novelty on the SSM.</p>
+<p>This is the standard approach for finding song boundaries in a recording
+where amplitude is roughly constant (concerts, live sets, continuous
+radio with steady levels). It looks at <em>what</em> the audio sounds like
+rather than <em>how loud</em> it is, so it works when energy-based methods fail.</p>
+<dl class="simple">
+<dt>Pipeline:</dt><dd><ol class="arabic simple">
+<li><p>log-magnitude spectrogram, averaged into log-spaced bands, z-scored</p></li>
+<li><p>cosine self-similarity matrix</p></li>
+<li><p>correlate the SSM diagonal with a Gaussian-tapered checkerboard
+kernel — this measures how much frame <code class="docutils literal notranslate"><span class="pre">t</span></code> is “the end of one
+block and the start of another”</p></li>
+<li><p>peaks in the resulting novelty curve are segment boundaries</p></li>
+</ol>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>audio</strong> – pydub <code class="docutils literal notranslate"><span class="pre">AudioSegment</span></code>.</p></li>
+<li><p><strong>sample_rate</strong> – Analysis sample rate (Hz). 11025 is plenty for novelty.</p></li>
+<li><p><strong>n_fft</strong> – STFT window length in samples.</p></li>
+<li><p><strong>hop_seconds</strong> – STFT hop length in seconds.</p></li>
+<li><p><strong>n_bands</strong> – Number of log-spaced frequency bands. 20-60 is reasonable.</p></li>
+<li><p><strong>kernel_seconds</strong> – Half-width of the checkerboard kernel times 2, i.e.
+roughly how much context (in seconds) is used on each side of a
+candidate boundary. Section-level boundaries (songs) usually
+want 8-20 s.</p></li>
+<li><p><strong>novelty_smooth_seconds</strong> – Smoothing applied to the novelty curve
+before peak picking. Reduces jitter from beat-level changes.</p></li>
+<li><p><strong>peak_threshold_factor</strong> – Adaptive threshold = mean + factor * std of
+the novelty curve. Raise to be stricter, lower to find more
+boundaries.</p></li>
+<li><p><strong>min_peak_distance_seconds</strong> – Minimum spacing between detected
+boundaries. Acts as a minimum-song-length filter.</p></li>
+<li><p><strong>label</strong> – Label assigned to every returned segment.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>List of back-to-back <code class="docutils literal notranslate"><span class="pre">Segment``s</span> <span class="pre">covering</span> <span class="pre">the</span> <span class="pre">whole</span> <span class="pre">audio.</span> <span class="pre">Each</span>
+<span class="pre">segment's</span> <span class="pre">``score</span></code> is the novelty value at its trailing boundary.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mixing.audio.segment_by_silence">
+<span class="sig-prename descclassname"><span class="pre">mixing.audio.</span></span><span class="sig-name descname"><span class="pre">segment_by_silence</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">audio</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">AudioSegment</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">silence_thresh_db</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">-40.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_silence_len</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seek_step</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.01</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">keep_silence</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'non_silent'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="audio/segmentation.html#mixing.audio.segmentation.Segment" title="mixing.audio.segmentation.Segment"><span class="pre">Segment</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/mixing/audio/segmentation.html#segment_by_silence"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.audio.segment_by_silence" title="Link to this definition"></a></dt>
+<dd><p>Find non-silent regions using pydub’s silence detector.</p>
+<p>Best for cleanly separated tracks (DJ mixes, audiobooks, voicemails) where
+there’s a real silence gap between segments.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>audio</strong> – pydub <code class="docutils literal notranslate"><span class="pre">AudioSegment</span></code>.</p></li>
+<li><p><strong>silence_thresh_db</strong> – dBFS threshold below which audio counts as silence.
+More negative = stricter silence requirement. Tune downward for
+noisy recordings (e.g. -50 dBFS).</p></li>
+<li><p><strong>min_silence_len</strong> – Minimum silence duration in seconds to count as a
+boundary. Tracks separated by less than this are merged.</p></li>
+<li><p><strong>seek_step</strong> – Search granularity in seconds.</p></li>
+<li><p><strong>keep_silence</strong> – Seconds of surrounding silence to include with each
+non-silent segment.</p></li>
+<li><p><strong>label</strong> – Label assigned to each returned segment.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>List of <code class="docutils literal notranslate"><span class="pre">Segment</span></code> covering the non-silent regions.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mixing.audio.segment_by_speech_music">
+<span class="sig-prename descclassname"><span class="pre">mixing.audio.</span></span><span class="sig-name descname"><span class="pre">segment_by_speech_music</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">audio</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">AudioSegment</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_rate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">16000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frame_seconds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hop_seconds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.025</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">window_seconds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">low_energy_threshold</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">speech_decision_threshold</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">smooth_seconds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_segment_duration</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">3.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">speech_label</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'speech'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">music_label</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'music'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="audio/segmentation.html#mixing.audio.segmentation.Segment" title="mixing.audio.segmentation.Segment"><span class="pre">Segment</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/mixing/audio/segmentation.html#segment_by_speech_music"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.audio.segment_by_speech_music" title="Link to this definition"></a></dt>
+<dd><p>Tag regions of audio as <code class="docutils literal notranslate"><span class="pre">&quot;speech&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">&quot;music&quot;</span></code>.</p>
+<p>Useful for radio shows and podcasts with musical interludes. Implements
+a simplified version of Scheirer &amp; Slaney (ICASSP 1997) using two of
+their most discriminative features:</p>
+<ul class="simple">
+<li><p><strong>Low-energy frame ratio (LEFR)</strong>: fraction of short frames in a
+~1-2 s window with RMS below half the window mean. Speech has
+bursts of silence between syllables, so its LEFR is high; music
+stays loud, so its LEFR is low.</p></li>
+<li><p><strong>ZCR variance</strong>: speech alternates voiced/unvoiced (low/high ZCR);
+music’s ZCR is steadier.</p></li>
+</ul>
+<p>These are combined into a soft speech score, smoothed, and thresholded.
+Consecutive frames with the same class become a single segment.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>audio</strong> – pydub <code class="docutils literal notranslate"><span class="pre">AudioSegment</span></code>.</p></li>
+<li><p><strong>sample_rate</strong> – Analysis sample rate (Hz).</p></li>
+<li><p><strong>frame_seconds</strong> – Short-frame length for RMS/ZCR (e.g. 50 ms).</p></li>
+<li><p><strong>hop_seconds</strong> – Short-frame hop length.</p></li>
+<li><p><strong>window_seconds</strong> – Long-window length over which LEFR and ZCR-variance
+are aggregated. ~1-2 s is the canonical choice.</p></li>
+<li><p><strong>low_energy_threshold</strong> – A short frame counts as “low energy” if its
+RMS is below <code class="docutils literal notranslate"><span class="pre">low_energy_threshold</span> <span class="pre">*</span> <span class="pre">mean</span> <span class="pre">RMS</span> <span class="pre">in</span> <span class="pre">window</span></code>.
+Scheirer &amp; Slaney used 0.5; lower values (~0.1) only count true
+silence frames, raise it for noisier recordings.</p></li>
+<li><p><strong>speech_decision_threshold</strong> – Speech score threshold in [0, 1] above
+which a window is tagged as speech. Raise to make speech-tagging
+stricter.</p></li>
+<li><p><strong>smooth_seconds</strong> – Smoothing applied to the soft speech score before
+thresholding. Larger = fewer, longer segments.</p></li>
+<li><p><strong>min_segment_duration</strong> – Drop or merge segments shorter than this.</p></li>
+<li><p><strong>speech_label</strong> – Labels assigned to each region.</p></li>
+<li><p><strong>music_label</strong> – Labels assigned to each region.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>List of back-to-back <a href="#id5"><span class="problematic" id="id6">``</span></a>Segment``s tagging speech and music regions.</p>
+</dd>
+</dl>
 </dd></dl>
 
 </section>

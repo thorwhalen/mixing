@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>mixing.transcript.media &mdash; mixing 0.0.6 documentation</title>
+  <title>mixing.transcript.media &mdash; mixing 0.0.7 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
@@ -14,7 +14,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=1fd71caa"></script>
+      <script src="../../../_static/documentation_options.js?v=bbaf98b3"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script src="../../../_static/toggleprompt.js?v=d7ede5d2"></script>
@@ -52,6 +52,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/audio/audio_util.html">mixing.audio.audio_util</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/audio/audio_widget.html">mixing.audio.audio_widget</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/audio/demo_audio_widget.html">mixing.audio.demo_audio_widget</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/audio/segmentation.html">mixing.audio.segmentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/audio/test_audio_widget.html">mixing.audio.test_audio_widget</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/transcript.html">mixing.transcript</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/transcript/fillers.html">mixing.transcript.fillers</a></li>
@@ -129,10 +130,19 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">ffmpeg</span> <span class="o">=</span> <span class="n">_ffmpeg_required</span><span class="p">()</span>
     <span class="n">cmd</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="n">ffmpeg</span><span class="p">,</span> <span class="s2">&quot;-y&quot;</span> <span class="k">if</span> <span class="n">overwrite</span> <span class="k">else</span> <span class="s2">&quot;-n&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;-i&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">input_path</span><span class="p">),</span>
-        <span class="s2">&quot;-vn&quot;</span><span class="p">,</span> <span class="s2">&quot;-ac&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">channels</span><span class="p">),</span> <span class="s2">&quot;-ar&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">sample_rate</span><span class="p">),</span>
-        <span class="s2">&quot;-c:a&quot;</span><span class="p">,</span> <span class="s2">&quot;libmp3lame&quot;</span><span class="p">,</span> <span class="s2">&quot;-b:a&quot;</span><span class="p">,</span> <span class="n">bitrate</span><span class="p">,</span>
+        <span class="n">ffmpeg</span><span class="p">,</span>
+        <span class="s2">&quot;-y&quot;</span> <span class="k">if</span> <span class="n">overwrite</span> <span class="k">else</span> <span class="s2">&quot;-n&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;-i&quot;</span><span class="p">,</span>
+        <span class="nb">str</span><span class="p">(</span><span class="n">input_path</span><span class="p">),</span>
+        <span class="s2">&quot;-vn&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;-ac&quot;</span><span class="p">,</span>
+        <span class="nb">str</span><span class="p">(</span><span class="n">channels</span><span class="p">),</span>
+        <span class="s2">&quot;-ar&quot;</span><span class="p">,</span>
+        <span class="nb">str</span><span class="p">(</span><span class="n">sample_rate</span><span class="p">),</span>
+        <span class="s2">&quot;-c:a&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;libmp3lame&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;-b:a&quot;</span><span class="p">,</span>
+        <span class="n">bitrate</span><span class="p">,</span>
         <span class="nb">str</span><span class="p">(</span><span class="n">output_path</span><span class="p">),</span>
     <span class="p">]</span>
     <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="n">check</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">capture_output</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -172,17 +182,28 @@
     <span class="k">if</span> <span class="ow">not</span> <span class="n">keeps</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;keeps must contain at least one range&quot;</span><span class="p">)</span>
     <span class="n">ffmpeg</span> <span class="o">=</span> <span class="n">_ffmpeg_required</span><span class="p">()</span>
-    <span class="n">expr</span> <span class="o">=</span> <span class="s2">&quot;+&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-        <span class="sa">f</span><span class="s2">&quot;between(t,</span><span class="si">{</span><span class="n">k</span><span class="p">[</span><span class="s1">&#39;start&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">,</span><span class="si">{</span><span class="n">k</span><span class="p">[</span><span class="s1">&#39;end&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">)&quot;</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">keeps</span>
-    <span class="p">)</span>
+    <span class="n">expr</span> <span class="o">=</span> <span class="s2">&quot;+&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;between(t,</span><span class="si">{</span><span class="n">k</span><span class="p">[</span><span class="s1">&#39;start&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">,</span><span class="si">{</span><span class="n">k</span><span class="p">[</span><span class="s1">&#39;end&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">)&quot;</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">keeps</span><span class="p">)</span>
     <span class="n">vf</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;select=&#39;</span><span class="si">{</span><span class="n">expr</span><span class="si">}</span><span class="s2">&#39;,setpts=N/FRAME_RATE/TB&quot;</span>
     <span class="n">af</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;aselect=&#39;</span><span class="si">{</span><span class="n">expr</span><span class="si">}</span><span class="s2">&#39;,asetpts=N/SR/TB&quot;</span>
     <span class="n">cmd</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="n">ffmpeg</span><span class="p">,</span> <span class="s2">&quot;-y&quot;</span> <span class="k">if</span> <span class="n">overwrite</span> <span class="k">else</span> <span class="s2">&quot;-n&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;-i&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">input_path</span><span class="p">),</span>
-        <span class="s2">&quot;-vf&quot;</span><span class="p">,</span> <span class="n">vf</span><span class="p">,</span> <span class="s2">&quot;-af&quot;</span><span class="p">,</span> <span class="n">af</span><span class="p">,</span>
-        <span class="s2">&quot;-c:v&quot;</span><span class="p">,</span> <span class="n">video_codec</span><span class="p">,</span> <span class="s2">&quot;-preset&quot;</span><span class="p">,</span> <span class="n">preset</span><span class="p">,</span> <span class="s2">&quot;-crf&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">crf</span><span class="p">),</span>
-        <span class="s2">&quot;-c:a&quot;</span><span class="p">,</span> <span class="n">audio_codec</span><span class="p">,</span> <span class="s2">&quot;-b:a&quot;</span><span class="p">,</span> <span class="n">audio_bitrate</span><span class="p">,</span>
+        <span class="n">ffmpeg</span><span class="p">,</span>
+        <span class="s2">&quot;-y&quot;</span> <span class="k">if</span> <span class="n">overwrite</span> <span class="k">else</span> <span class="s2">&quot;-n&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;-i&quot;</span><span class="p">,</span>
+        <span class="nb">str</span><span class="p">(</span><span class="n">input_path</span><span class="p">),</span>
+        <span class="s2">&quot;-vf&quot;</span><span class="p">,</span>
+        <span class="n">vf</span><span class="p">,</span>
+        <span class="s2">&quot;-af&quot;</span><span class="p">,</span>
+        <span class="n">af</span><span class="p">,</span>
+        <span class="s2">&quot;-c:v&quot;</span><span class="p">,</span>
+        <span class="n">video_codec</span><span class="p">,</span>
+        <span class="s2">&quot;-preset&quot;</span><span class="p">,</span>
+        <span class="n">preset</span><span class="p">,</span>
+        <span class="s2">&quot;-crf&quot;</span><span class="p">,</span>
+        <span class="nb">str</span><span class="p">(</span><span class="n">crf</span><span class="p">),</span>
+        <span class="s2">&quot;-c:a&quot;</span><span class="p">,</span>
+        <span class="n">audio_codec</span><span class="p">,</span>
+        <span class="s2">&quot;-b:a&quot;</span><span class="p">,</span>
+        <span class="n">audio_bitrate</span><span class="p">,</span>
     <span class="p">]</span>
     <span class="k">if</span> <span class="n">faststart</span><span class="p">:</span>
         <span class="n">cmd</span> <span class="o">+=</span> <span class="p">[</span><span class="s2">&quot;-movflags&quot;</span><span class="p">,</span> <span class="s2">&quot;+faststart&quot;</span><span class="p">]</span>
