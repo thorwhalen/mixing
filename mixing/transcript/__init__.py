@@ -21,7 +21,11 @@ Lower-level building blocks:
     ... )
 """
 
-from mixing.transcript.scribe import transcribe, ELEVENLABS_STT_URL
+from mixing.transcript.scribe import (
+    ELEVENLABS_STT_URL,
+    default_cache_dir,
+    transcribe,
+)
 from mixing.transcript.fillers import (
     DEFAULT_FILLER_TOKENS,
     DEFAULT_AUDIO_EVENTS_TO_CUT,
@@ -42,6 +46,7 @@ from mixing.transcript.pipeline import remove_fillers, FillerRemovalResult
 
 __all__ = [
     "transcribe",
+    "default_cache_dir",
     "ELEVENLABS_STT_URL",
     "DEFAULT_FILLER_TOKENS",
     "DEFAULT_AUDIO_EVENTS_TO_CUT",
