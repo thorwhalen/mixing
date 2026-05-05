@@ -518,8 +518,26 @@ result = remove_fillers(
 ```python
 from mixing.transcript import (
     transcribe,                  # ElevenLabs Scribe HTTP call
+    default_cache_dir,           # default on-disk cache for Scribe responses
     build_cuts, keeps_from_cuts, # filler -> cut/keep ranges
     words_to_srt, words_to_prose, words_to_srt_remapped,
     extract_audio, apply_keeps,  # ffmpeg wrappers
 )
 ```
+
+### Optional on-disk cache for Scribe
+
+`transcribe(audio, cache=...)` accepts:
+
+- `False` (default) — no cache, every call hits ElevenLabs.
+- `True` — use the default cache (honors `$MIXING_TRANSCRIPT_CACHE_DIR`,
+  then `$XDG_CACHE_HOME`, then `~/.cache/mixing/transcript`).
+- A `str` / `Path` — explicit cache directory.
+
+Cache key: `sha256(audio_bytes, model_id, granularity, lang, ...)`.
+Pass `refresh=True` to force a re-call and overwrite the cached entry.
+Cached responses don't require an API key, so prior runs work offline.
+
+The Scribe response includes a `confidence` field per word
+(`{"text", "start", "end", "type", "confidence"}`); muvid surfaces
+this through its alignment store for low-confidence-word flagging.
