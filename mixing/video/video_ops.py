@@ -421,7 +421,7 @@ class Video:
 
             # Return new Video instance
             return Video(
-                self.src_path,
+                self.video_src,
                 time_unit=self.time_unit,
                 start_time=start,
                 end_time=end,
