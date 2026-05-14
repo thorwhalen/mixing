@@ -2,9 +2,25 @@
 
 from typing import Literal
 import importlib
+import shutil
 
 TimeUnit = Literal["seconds", "frames", "milliseconds"]
 AudioTimeUnit = Literal["seconds", "samples", "milliseconds"]
+
+
+def has_ffmpeg() -> bool:
+    """Return True if the ``ffmpeg`` binary is available on ``PATH``.
+
+    Most real video work in ``mixing`` (concatenation, trim/pad, dimension
+    normalization, audio replacement) shells out to ffmpeg via moviepy.
+    Without it, some operations degrade silently — producing wrong-duration
+    or lower-quality output instead of failing. Callers should check this at
+    startup and refuse to run rather than emit broken media.
+
+    >>> isinstance(has_ffmpeg(), bool)
+    True
+    """
+    return shutil.which("ffmpeg") is not None
 
 
 def require_package(package_name: str):

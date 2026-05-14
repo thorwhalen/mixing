@@ -152,6 +152,32 @@ class TestClipboardUtilities:
             pytest.skip(f"Clipboard not available: {e}")
 
 
+class TestHasFfmpeg:
+    """Test the has_ffmpeg availability check."""
+
+    def test_returns_bool(self):
+        """has_ffmpeg returns a bool reflecting ffmpeg's presence on PATH."""
+        from mixing.util import has_ffmpeg
+
+        assert isinstance(has_ffmpeg(), bool)
+
+    def test_exported_from_package_root(self):
+        """has_ffmpeg is reachable as mixing.has_ffmpeg."""
+        import mixing
+
+        assert mixing.has_ffmpeg is not None
+        assert callable(mixing.has_ffmpeg)
+
+    def test_tracks_path(self, monkeypatch):
+        """has_ffmpeg follows shutil.which — True when found, False when not."""
+        import mixing.util as util
+
+        monkeypatch.setattr(util.shutil, "which", lambda name: "/usr/bin/ffmpeg")
+        assert util.has_ffmpeg() is True
+        monkeypatch.setattr(util.shutil, "which", lambda name: None)
+        assert util.has_ffmpeg() is False
+
+
 class TestUtilityEdgeCases:
     """Test edge cases and boundary conditions."""
 
