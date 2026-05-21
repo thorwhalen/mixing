@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>mixing.video.video_ops &mdash; mixing 0.0.13 documentation</title>
+  <title>mixing.video.video_ops &mdash; mixing 0.0.14 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
@@ -15,7 +15,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=9fc46840"></script>
+      <script src="../../../_static/documentation_options.js?v=544df88d"></script>
       <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="../../../_static/toggleprompt.js?v=d7ede5d2"></script>
@@ -413,10 +413,11 @@ preserving audio pitch (audio is also sped up/slowed down proportionally).</p>
 </dd>
 </dl>
 <dl class="simple">
-<dt>Rectangle parameterization:</dt><dd><p>Rect = (cx, cy, s)
-cx, cy in [0, 1], s &gt; 0
-s = 1: original size, &lt;1: zoomed out, &gt;1: zoomed in
-Standard Ken Burns: starts slightly zoomed out (s=0.85) and ends zoomed in (s=1.3)</p>
+<dt>Rectangle parameterization:</dt><dd><p>Rect = (cx, cy, s) — pan center (cx, cy) in [0, 1] and zoom scale s &gt; 0.
+s = 1: the full image; s &gt; 1: zoomed in (a smaller crop box).
+The crop box is clamped to the image, so you cannot zoom out past the
+original — express a zoom-out as start s &gt; 1 panning to end s = 1.
+Standard Ken Burns: the full image (s=1) zooming in to s=1.3.</p>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
