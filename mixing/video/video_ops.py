@@ -1043,10 +1043,11 @@ def ken_burns_video(
         Path to saved video
 
     Rectangle parameterization:
-        Rect = (cx, cy, s)
-        cx, cy in [0, 1], s > 0
-        s = 1: original size, <1: zoomed out, >1: zoomed in
-        Standard Ken Burns: starts slightly zoomed out (s=0.85) and ends zoomed in (s=1.3)
+        Rect = (cx, cy, s) — pan center (cx, cy) in [0, 1] and zoom scale s > 0.
+        s = 1: the full image; s > 1: zoomed in (a smaller crop box).
+        The crop box is clamped to the image, so you cannot zoom out past the
+        original — express a zoom-out as start s > 1 panning to end s = 1.
+        Standard Ken Burns: the full image (s=1) zooming in to s=1.3.
 
     Examples:
         >>> ken_burns_video("photo.jpg")  # Standard Ken Burns, 2 seconds  # doctest: +SKIP
@@ -1071,39 +1072,30 @@ def ken_burns_video(
         raise ValueError(f"Unsupported image type: {type(image)}")
 
     img_w, img_h = img.size
-    n_frames = int(duration_s * fps)
+    img_np = np.array(img)  # preload once for fast per-frame cropping
 
     # Parse rectangles - use standard Ken Burns defaults if not specified
-    start_rect = _parse_rectangle(
-        start_rectangle, default=(0.5, 0.5, 0.85)
-    )  # Start zoomed out
-    end_rect = _parse_rectangle(end_rectangle, default=(0.5, 0.5, 1.3))  # End zoomed in
+    start_rect = _parse_rectangle(start_rectangle, default=(0.5, 0.5, 1.0))
+    end_rect = _parse_rectangle(end_rectangle, default=(0.5, 0.5, 1.3))
 
-    # Interpolate rectangles for each frame
-    def lerp(a, b, t):
+    def _lerp(a, b, t):
         return a + (b - a) * t
 
-    rects = [
-        (
-            lerp(start_rect[0], end_rect[0], i / (n_frames - 1)),
-            lerp(start_rect[1], end_rect[1], i / (n_frames - 1)),
-            lerp(start_rect[2], end_rect[2], i / (n_frames - 1)),
-        )
-        for i in range(n_frames)
-    ]
+    def _ken_burns_frame(t):
+        """Render the pan/zoom frame at time ``t`` (seconds), one frame at a time.
 
-    # Preload as numpy array for fast cropping
-    img_np = np.array(img)
-
-    frames = []
-    for cx, cy, s in rects:
+        Computed lazily so the whole clip is never materialised in memory.
+        """
+        progress = 0.0 if duration_s <= 0 else min(t / duration_s, 1.0)
+        cx = _lerp(start_rect[0], end_rect[0], progress)
+        cy = _lerp(start_rect[1], end_rect[1], progress)
+        s = _lerp(start_rect[2], end_rect[2], progress)
         xmin, ymin, xmax, ymax = _rect_to_box(cx, cy, s, img_w, img_h)
         crop = img_np[ymin:ymax, xmin:xmax]
-        # Resize to original size
         crop_img = PIL_Image.fromarray(crop).resize(
             (img_w, img_h), resample=PIL_Image.BICUBIC
         )
-        frames.append(np.array(crop_img))
+        return np.asarray(crop_img)
 
     # Determine output path
     if saveas is None:
@@ -1139,8 +1131,8 @@ def ken_burns_video(
             safe_filename = non_colliding_key(filename, existing_files)
             output_path = directory / safe_filename
 
-    # Create video using moviepy with proper settings for compatibility
-    clip = mp.ImageSequenceClip(frames, fps=fps)
+    # Create the clip lazily: frames are computed on demand during encoding.
+    clip = mp.VideoClip(_ken_burns_frame, duration=duration_s).with_fps(fps)
 
     # Set default kwargs for better compatibility
     write_kwargs.setdefault("bitrate", "5000k")
