@@ -1,0 +1,107 @@
+"""Tests for the Ken Burns pan/zoom video primitive (``ken_burns_video``).
+
+Covers the rectangle-spec parsing helpers and an end-to-end render of a tiny
+synthetic image. The render uses moviepy's bundled ffmpeg, so it runs offline.
+"""
+
+import numpy as np
+import pytest
+from pathlib import Path
+
+from mixing import ken_burns_video
+from mixing.video.video_ops import _parse_rectangle, _rect_to_box
+
+
+def _gradient_image(width: int = 64, height: int = 48) -> np.ndarray:
+    """A small RGB test image with a 2D color gradient (even dims for libx264)."""
+    xs = np.linspace(0, 255, width, dtype=np.uint8)
+    ys = np.linspace(0, 255, height, dtype=np.uint8)
+    img = np.empty((height, width, 3), dtype=np.uint8)
+    img[..., 0] = xs[None, :]
+    img[..., 1] = ys[:, None]
+    img[..., 2] = 128
+    return img
+
+
+class TestRectangleParsing:
+    """The flexible (cx, cy, s) rectangle spec parsing."""
+
+    def test_none_returns_default(self):
+        assert _parse_rectangle(None, default=(0.5, 0.5, 1.0)) == (0.5, 0.5, 1.0)
+
+    def test_scalar_is_scale_only(self):
+        # A bare number is a zoom scale centered on the image.
+        assert _parse_rectangle(2) == (0.5, 0.5, 2.0)
+
+    def test_pair_is_pan_center(self):
+        # A pair is a pan center at the original scale.
+        assert _parse_rectangle((0.3, 0.7)) == (0.3, 0.7, 1.0)
+
+    def test_triple_is_full_spec(self):
+        assert _parse_rectangle((0.3, 0.7, 2)) == (0.3, 0.7, 2.0)
+
+    def test_invalid_input_raises(self):
+        with pytest.raises(ValueError):
+            _parse_rectangle((0.1, 0.2, 0.3, 0.4))
+
+
+class TestRectToBox:
+    """Conversion of an (cx, cy, s) spec to a pixel crop box."""
+
+    def test_full_image_at_scale_one(self):
+        assert _rect_to_box(0.5, 0.5, 1.0, 100, 100) == (0, 0, 100, 100)
+
+    def test_zoom_in_shrinks_box(self):
+        # s=2 → a centered crop box a quarter of the image area.
+        assert _rect_to_box(0.5, 0.5, 2.0, 100, 100) == (25, 25, 75, 75)
+
+    def test_pan_shifts_box(self):
+        # Off-center pan; box clamped to image bounds.
+        assert _rect_to_box(0.25, 0.5, 2.0, 100, 100) == (0, 25, 50, 75)
+
+
+class TestKenBurnsVideo:
+    """End-to-end rendering of the Ken Burns clip."""
+
+    def test_renders_file_with_expected_dims_and_duration(self, tmp_path):
+        from moviepy import VideoFileClip
+
+        out = tmp_path / "kb.mp4"
+        result = ken_burns_video(
+            _gradient_image(64, 48), duration_s=0.5, fps=10, saveas=str(out)
+        )
+
+        assert isinstance(result, Path)
+        assert result.is_file()
+        with VideoFileClip(str(result)) as clip:
+            assert tuple(clip.size) == (64, 48)
+            assert abs(clip.duration - 0.5) < 0.15
+
+    def test_pan_zoom_actually_moves(self, tmp_path):
+        from moviepy import VideoFileClip
+
+        result = ken_burns_video(
+            _gradient_image(64, 48),
+            duration_s=0.5,
+            fps=10,
+            start_rectangle=1.0,
+            end_rectangle=1.6,
+            saveas=str(tmp_path / "motion.mp4"),
+        )
+        with VideoFileClip(str(result)) as clip:
+            first = clip.get_frame(0)
+            last = clip.get_frame(clip.duration - 1 / clip.fps)
+        assert not np.array_equal(first, last)
+
+    def test_accepts_image_path_and_auto_names_output(self, tmp_path):
+        from PIL import Image
+
+        image_path = tmp_path / "photo.png"
+        Image.fromarray(_gradient_image(64, 48)).save(image_path)
+
+        result = ken_burns_video(str(image_path), duration_s=0.3, fps=10)
+
+        # Auto-generated path sits next to the source image.
+        assert result.is_file()
+        assert result.parent == tmp_path
+        assert "kenburns" in result.stem

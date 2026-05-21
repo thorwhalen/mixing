@@ -18,6 +18,7 @@ from mixing.video.video_ops import (
     replace_audio,
     normalize_audio,
     change_speed,
+    ken_burns_video,
 )
 from mixing.video.video_util import (
     get_video_dimensions,
