@@ -68,7 +68,10 @@ class TestKenBurnsVideo:
 
         out = tmp_path / "kb.mp4"
         result = ken_burns_video(
-            _gradient_image(64, 48), duration_s=0.5, fps=10, saveas=str(out)
+            _gradient_image(64, 48),
+            phases=[((0.5, 0.5, 1.0), (0.5, 0.5, 1.3), 0.5)],
+            fps=10,
+            saveas=str(out),
         )
 
         assert isinstance(result, Path)
@@ -82,10 +85,8 @@ class TestKenBurnsVideo:
 
         result = ken_burns_video(
             _gradient_image(64, 48),
-            duration_s=0.5,
+            phases=[((0.5, 0.5, 1.0), (0.5, 0.5, 1.6), 0.5)],
             fps=10,
-            start_rectangle=1.0,
-            end_rectangle=1.6,
             saveas=str(tmp_path / "motion.mp4"),
         )
         with VideoFileClip(str(result)) as clip:
@@ -93,15 +94,86 @@ class TestKenBurnsVideo:
             last = clip.get_frame(clip.duration - 1 / clip.fps)
         assert not np.array_equal(first, last)
 
+    def test_multiphase_total_duration_sums(self, tmp_path):
+        """A multi-phase path's clip duration is the sum of phase durations."""
+        from moviepy import VideoFileClip
+
+        out = tmp_path / "multi.mp4"
+        ken_burns_video(
+            _gradient_image(64, 48),
+            phases=[
+                ((0.5, 0.5, 1.0), (0.6, 0.4, 1.2), 0.4),
+                ((0.6, 0.4, 1.2), (0.4, 0.6, 1.2), 0.4),
+                ((0.4, 0.6, 1.2), (0.5, 0.5, 1.3), 0.4),
+            ],
+            fps=10,
+            saveas=str(out),
+        )
+        with VideoFileClip(str(out)) as clip:
+            assert abs(clip.duration - 1.2) < 0.2
+
+    def test_multiphase_moves_through_each_phase(self, tmp_path):
+        """Each phase contributes distinct motion — the frame mid-way through
+        phase 2 differs from both the start and the final frame."""
+        from moviepy import VideoFileClip
+
+        out = tmp_path / "phased.mp4"
+        ken_burns_video(
+            _gradient_image(96, 72),
+            phases=[
+                ((0.3, 0.5, 1.0), (0.3, 0.5, 1.5), 0.4),
+                ((0.3, 0.5, 1.5), (0.7, 0.5, 1.5), 0.4),
+            ],
+            fps=10,
+            saveas=str(out),
+        )
+        with VideoFileClip(str(out)) as clip:
+            first = clip.get_frame(0)
+            mid_phase2 = clip.get_frame(0.6)  # 0.2s into the pan
+            last = clip.get_frame(clip.duration - 1 / clip.fps)
+        assert not np.array_equal(first, mid_phase2)
+        assert not np.array_equal(mid_phase2, last)
+
+    def test_empty_phases_raises(self, tmp_path):
+        with pytest.raises(ValueError, match="non-empty"):
+            ken_burns_video(
+                _gradient_image(64, 48),
+                phases=[],
+                fps=10,
+                saveas=str(tmp_path / "x.mp4"),
+            )
+
+    def test_zero_duration_phase_raises(self, tmp_path):
+        with pytest.raises(ValueError, match="duration_s must be"):
+            ken_burns_video(
+                _gradient_image(64, 48),
+                phases=[((0.5, 0.5, 1.0), (0.5, 0.5, 1.3), 0.0)],
+                fps=10,
+                saveas=str(tmp_path / "x.mp4"),
+            )
+
     def test_accepts_image_path_and_auto_names_output(self, tmp_path):
         from PIL import Image
 
         image_path = tmp_path / "photo.png"
         Image.fromarray(_gradient_image(64, 48)).save(image_path)
 
-        result = ken_burns_video(str(image_path), duration_s=0.3, fps=10)
+        result = ken_burns_video(
+            str(image_path),
+            phases=[((0.5, 0.5, 1.0), (0.5, 0.5, 1.3), 0.3)],
+            fps=10,
+        )
 
         # Auto-generated path sits next to the source image.
         assert result.is_file()
         assert result.parent == tmp_path
         assert "kenburns" in result.stem
+
+    def test_default_phases_produces_standard_kenburns(self, tmp_path):
+        """No phases arg → the standard 2-second push-in default."""
+        from moviepy import VideoFileClip
+
+        out = tmp_path / "default.mp4"
+        ken_burns_video(_gradient_image(64, 48), fps=10, saveas=str(out))
+        with VideoFileClip(str(out)) as clip:
+            assert abs(clip.duration - 2.0) < 0.2
