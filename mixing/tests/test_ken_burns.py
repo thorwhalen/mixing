@@ -8,7 +8,7 @@ import numpy as np
 import pytest
 from pathlib import Path
 
-from mixing import ken_burns_video
+from mixing import ken_burns_film, ken_burns_video
 from mixing.video.video_ops import _parse_rectangle, _rect_to_box
 
 
@@ -56,8 +56,34 @@ class TestRectToBox:
         assert _rect_to_box(0.5, 0.5, 2.0, 100, 100) == (25, 25, 75, 75)
 
     def test_pan_shifts_box(self):
-        # Off-center pan; box clamped to image bounds.
+        # Off-center pan; box stays the right size (pan-center is clamped,
+        # not the box — preserves aspect ratio).
         assert _rect_to_box(0.25, 0.5, 2.0, 100, 100) == (0, 25, 50, 75)
+
+    def test_pan_past_edge_preserves_box_size_not_distortion(self):
+        """When the pan center would push the crop past an edge, the
+        box must keep its full (img_w/s, img_h/s) size — only the
+        center clamps, not the box. This is the bug-fix for the
+        breathing / stretching artefact on long pans."""
+        # cx=0.9 with s=2.0 wants box [0.65, 1.15] × ... — past the right
+        # edge. The fix clamps cx to 0.75 (the largest legal center for
+        # s=2), giving box [0.5, 1.0] which is full-size.
+        xmin, ymin, xmax, ymax = _rect_to_box(0.9, 0.5, 2.0, 100, 100)
+        assert xmax - xmin == 50  # img_w / s, NOT shrunk by clamping
+        assert ymax - ymin == 50  # img_h / s
+        # And the box rides the right edge.
+        assert xmax == 100
+
+    def test_extreme_pan_keeps_aspect(self):
+        """A non-square image with extreme pan: box width/height must
+        match img_w/img_h (the source aspect), so the resize-back step
+        never stretches the frame."""
+        img_w, img_h = 1024, 576
+        xmin, ymin, xmax, ymax = _rect_to_box(0.95, 0.95, 1.5, img_w, img_h)
+        w = xmax - xmin
+        h = ymax - ymin
+        # Ratio of crop = ratio of source (within 1 px from rounding).
+        assert abs(w / h - img_w / img_h) < 0.01
 
 
 class TestKenBurnsVideo:
@@ -177,3 +203,91 @@ class TestKenBurnsVideo:
         ken_burns_video(_gradient_image(64, 48), fps=10, saveas=str(out))
         with VideoFileClip(str(out)) as clip:
             assert abs(clip.duration - 2.0) < 0.2
+
+
+class TestKenBurnsFilm:
+    """Multi-panel single-pass renderer — the structural fix that avoids
+    per-panel concat seams and per-panel tail-pad freezes."""
+
+    def test_renders_total_duration_equals_sum_of_panel_durations(self, tmp_path):
+        from moviepy import VideoFileClip
+
+        out = tmp_path / "film.mp4"
+        ken_burns_film(
+            [
+                (_gradient_image(64, 48), [((0.5, 0.5, 1.0), (0.5, 0.5, 1.3), 0.5)]),
+                (_gradient_image(64, 48), [((0.5, 0.5, 1.3), (0.5, 0.5, 1.0), 0.3)]),
+            ],
+            saveas=str(out),
+            fps=10,
+        )
+        with VideoFileClip(str(out)) as clip:
+            assert abs(clip.duration - 0.8) < 0.2
+
+    def test_motion_continues_through_each_panel(self, tmp_path):
+        """The last frame of panel 1 must differ from its first — no
+        per-panel tail freeze."""
+        from moviepy import VideoFileClip
+
+        out = tmp_path / "film.mp4"
+        ken_burns_film(
+            [
+                (_gradient_image(96, 72), [((0.3, 0.5, 1.0), (0.7, 0.5, 1.4), 0.5)]),
+                (_gradient_image(96, 72), [((0.5, 0.3, 1.0), (0.5, 0.7, 1.4), 0.5)]),
+            ],
+            saveas=str(out),
+            fps=10,
+        )
+        with VideoFileClip(str(out)) as clip:
+            panel1_first = clip.get_frame(0.05)
+            panel1_last = clip.get_frame(0.45)  # just before panel boundary
+            panel2_first = clip.get_frame(0.55)
+            panel2_last = clip.get_frame(clip.duration - 1 / clip.fps)
+        # Motion within panel 1 → frames differ.
+        assert not np.array_equal(panel1_first, panel1_last)
+        # Panel boundary → different image / framing.
+        assert not np.array_equal(panel1_last, panel2_first)
+        # Motion within panel 2 → frames differ.
+        assert not np.array_equal(panel2_first, panel2_last)
+
+    def test_multi_phase_panel_does_not_freeze_at_phase_boundary(self, tmp_path):
+        """A panel with multiple phases must have moving frames in EVERY
+        phase — no stop mid-segment, the headline bug we set out to fix."""
+        from moviepy import VideoFileClip
+
+        out = tmp_path / "phased.mp4"
+        ken_burns_film(
+            [
+                (
+                    _gradient_image(96, 72),
+                    [
+                        ((0.3, 0.5, 1.0), (0.3, 0.5, 1.4), 0.4),  # zoom in
+                        ((0.3, 0.5, 1.4), (0.7, 0.5, 1.4), 0.4),  # pan right
+                        ((0.7, 0.5, 1.4), (0.5, 0.5, 1.0), 0.4),  # zoom out
+                    ],
+                ),
+            ],
+            saveas=str(out),
+            fps=10,
+        )
+        with VideoFileClip(str(out)) as clip:
+            t_per_phase = 0.4
+            # Sample mid-phase in each of the three phases.
+            f_phase1 = clip.get_frame(0.2)
+            f_phase2 = clip.get_frame(0.6)
+            f_phase3 = clip.get_frame(1.0)
+        # All three differ — motion continues across phase boundaries.
+        assert not np.array_equal(f_phase1, f_phase2)
+        assert not np.array_equal(f_phase2, f_phase3)
+
+    def test_empty_panels_raises(self, tmp_path):
+        with pytest.raises(ValueError):
+            ken_burns_film([], saveas=str(tmp_path / "x.mp4"), fps=10)
+
+    def test_invalid_panel_shape_raises(self, tmp_path):
+        with pytest.raises(ValueError, match="image, phases"):
+            ken_burns_film(
+                [(_gradient_image(64, 48),)],  # missing phases
+                saveas=str(tmp_path / "x.mp4"),
+                fps=10,
+            )
