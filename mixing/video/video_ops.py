@@ -996,21 +996,38 @@ def _parse_rectangle(rect, default=(0.5, 0.5, 1.0)):
 
 
 def _rect_to_box(cx, cy, s, img_w, img_h):
+    """Convert ``(cx, cy, s)`` to a pixel crop box ``(xmin, ymin, xmax, ymax)``.
+
+    The crop's width and height in pixels are ``img_w / s`` and ``img_h / s``
+    respectively — same aspect ratio as the source image, so the resize-back-to-
+    ``(img_w, img_h)`` step that follows never stretches the frame.
+
+    Pan-center clamping: when ``(cx, cy)`` would push the crop past an edge, we
+    clamp the **center**, not the crop box. Clamping the box itself shrinks one
+    side and breaks the aspect ratio — that was the source of the breathing /
+    stretching artefact in long pans. By clamping the center, the box "rides
+    the wall" at the edge but stays the right size.
     """
-    Convert (cx, cy, s) to pixel bounding box (xmin, ymin, xmax, ymax) in image coordinates.
-    """
-    w = 1.0 / s
-    h = 1.0 / s
-    xmin = (cx - w / 2) * img_w
-    ymin = (cy - h / 2) * img_h
-    xmax = (cx + w / 2) * img_w
-    ymax = (cy + h / 2) * img_h
-    # Clamp to image bounds
-    xmin = max(0, xmin)
-    ymin = max(0, ymin)
-    xmax = min(img_w, xmax)
-    ymax = min(img_h, ymax)
-    return int(xmin), int(ymin), int(xmax), int(ymax)
+    half_w = 0.5 / s
+    half_h = 0.5 / s
+    # Clamp the pan center so the crop box fits inside the image. When zoom
+    # s <= 1.0, half_w >= 0.5 → the valid range collapses to {0.5} (i.e. the
+    # only legal center is the image middle); ``max(low, min(high, x))`` is
+    # robust to that case because ``min(...)`` still returns 0.5.
+    cx = max(half_w, min(1.0 - half_w, cx))
+    cy = max(half_h, min(1.0 - half_h, cy))
+    xmin = (cx - half_w) * img_w
+    ymin = (cy - half_h) * img_h
+    xmax = (cx + half_w) * img_w
+    ymax = (cy + half_h) * img_h
+    # Round (not truncate) for symmetric int conversion — the ±1 px drift
+    # from truncation can also nudge aspect ratio on extreme zooms.
+    return (
+        int(round(xmin)),
+        int(round(ymin)),
+        int(round(xmax)),
+        int(round(ymax)),
+    )
 
 
 DEFAULT_KENBURNS_PHASES = (((0.5, 0.5, 1.0), (0.5, 0.5, 1.3), 2.0),)
@@ -1197,4 +1214,201 @@ def ken_burns_video(
     clip.close()
 
     print(f"Saved Ken Burns video to: {output_path}")
+    return output_path
+
+
+# --------------------------------------------------------------------- #
+# Multi-panel Ken Burns film
+# --------------------------------------------------------------------- #
+
+
+def ken_burns_film(
+    panels,
+    *,
+    saveas: str,
+    fps: int = 30,
+    audio_path=None,
+    codec: str = "libx264",
+    audio_codec: str = "aac",
+    **write_kwargs,
+) -> Path:
+    """Render an N-panel Ken Burns film in a single pass — no per-panel
+    intermediate files, no concat seams, no per-panel tail freezes.
+
+    Each panel is one ``(image, phases)`` pair where ``image`` is a path /
+    PIL.Image / np.ndarray and ``phases`` is the same shape as in
+    :func:`ken_burns_video`. The film plays panels back-to-back; the camera
+    cuts at panel boundaries (different image) but motion never pauses on
+    a static frame within a panel.
+
+    Args:
+        panels: iterable of ``(image, phases)`` pairs. Each panel's total
+            duration = sum of its phase durations. Film total = sum across
+            panels.
+        saveas: output mp4 path (required — multi-panel films don't have a
+            single source image to derive an auto-name from).
+        fps: frame rate of the film.
+        audio_path: optional pre-built audio track (already concatenated,
+            already matching the film duration). When supplied it is muxed
+            in. Per-panel audio is the caller's job to assemble — keep
+            mixing's renderer pure visual.
+        codec, audio_codec, **write_kwargs: forwarded to ``write_videofile``.
+
+    Why a single VideoClip rather than per-panel render + concatenate:
+
+    - Concat re-encodes at I-frame boundaries; the last few frames of each
+      input clip can drop and the next clip's first frame may freeze
+      briefly. With one VideoClip the encoder writes a single stream.
+    - No per-panel tail-pad: the pan reaches the panel's last frame exactly
+      when the panel ends; the next frame is already the next panel's
+      first.
+    - Lazy frame generation: a single ``make_frame(t)`` closure dispatches
+      by global ``t`` to the right (panel, phase) — the whole film is
+      never materialised in memory.
+
+    Returns:
+        Path to the written mp4.
+    """
+    from dol import non_colliding_key  # noqa: F401  (matches ken_burns_video)
+
+    PIL_Image = require_package("PIL.Image")
+
+    # Load each panel's image once; pre-parse phases.
+    panel_renders = []
+    film_duration = 0.0
+    for idx, panel in enumerate(panels):
+        if not isinstance(panel, (list, tuple)) or len(panel) != 2:
+            raise ValueError(
+                f"panel {idx}: expected (image, phases) pair, got {panel!r}"
+            )
+        image, phases = panel
+        if isinstance(image, (str, Path)):
+            img = PIL_Image.open(str(image)).convert("RGB")
+        elif isinstance(image, np.ndarray):
+            img = PIL_Image.fromarray(image)
+        elif hasattr(image, "convert"):
+            img = image.convert("RGB")
+        else:
+            raise ValueError(f"panel {idx}: unsupported image type: {type(image)}")
+        img_w, img_h = img.size
+        img_np = np.array(img)
+
+        parsed: list[tuple[tuple, tuple, float]] = []
+        for j, phase in enumerate(phases):
+            if not isinstance(phase, (list, tuple)) or len(phase) != 3:
+                raise ValueError(
+                    f"panel {idx}, phase {j}: expected (start, end, dur), got {phase!r}"
+                )
+            s = _parse_rectangle(phase[0], default=(0.5, 0.5, 1.0))
+            e = _parse_rectangle(phase[1], default=(0.5, 0.5, 1.3))
+            d = float(phase[2])
+            if d <= 0:
+                raise ValueError(
+                    f"panel {idx}, phase {j}: duration_s must be > 0, got {d}"
+                )
+            parsed.append((s, e, d))
+        if not parsed:
+            raise ValueError(f"panel {idx}: phases must be non-empty")
+
+        panel_dur = sum(p[2] for p in parsed)
+        cum = [0.0]
+        for _, _, d in parsed:
+            cum.append(cum[-1] + d)
+        panel_renders.append(
+            {
+                "img_np": img_np,
+                "img_w": img_w,
+                "img_h": img_h,
+                "phases": parsed,
+                "cum_starts": cum,
+                "duration": panel_dur,
+                "film_offset": film_duration,
+                "size": (img_w, img_h),
+            }
+        )
+        film_duration += panel_dur
+
+    if film_duration <= 0:
+        raise ValueError("ken_burns_film: panels must be non-empty")
+
+    # Common output frame size = first panel's size (all panels are
+    # resized to (img_w, img_h) of their own panel after crop; on
+    # film-level, we must pick a single size — first panel's wins,
+    # other panels are letter/pillar-boxed by the resize within their
+    # own (img_w, img_h) which equals their own input size). When all
+    # panels share the same size (common for storyboard demos), no
+    # letterboxing happens — every panel is rendered at its native size.
+    out_w, out_h = panel_renders[0]["size"]
+
+    def _lerp(a, b, t):
+        return a + (b - a) * t
+
+    def make_frame(t):
+        """Render the film's frame at global time ``t``.
+
+        Walks the panel list once per frame (typical film: < 50 panels —
+        cheap). Within a panel, linearly interpolates between the active
+        phase's start and end rect; clamps to the last phase's end-rect
+        when ``t`` lands exactly on a boundary (avoids a 1-frame flicker
+        at panel transitions).
+        """
+        if t >= film_duration:
+            pr = panel_renders[-1]
+            cx, cy, s = pr["phases"][-1][1]
+        else:
+            pr = None
+            for candidate in panel_renders:
+                if t < candidate["film_offset"] + candidate["duration"]:
+                    pr = candidate
+                    break
+            assert pr is not None  # guarded by t < film_duration
+            local_t = t - pr["film_offset"]
+            cx = cy = s = None
+            for idx, (start, end, dur) in enumerate(pr["phases"]):
+                if local_t < pr["cum_starts"][idx + 1]:
+                    inner = (local_t - pr["cum_starts"][idx]) / dur
+                    cx = _lerp(start[0], end[0], inner)
+                    cy = _lerp(start[1], end[1], inner)
+                    s = _lerp(start[2], end[2], inner)
+                    break
+            if cx is None:  # exactly on a boundary
+                start, end, _ = pr["phases"][-1]
+                cx, cy, s = end
+
+        img_w, img_h = pr["img_w"], pr["img_h"]
+        xmin, ymin, xmax, ymax = _rect_to_box(cx, cy, s, img_w, img_h)
+        crop = pr["img_np"][ymin:ymax, xmin:xmax]
+        # Resize the crop back to the film's output frame size. When panels
+        # are all the same size (common case), this equals the crop's own
+        # (img_w, img_h) and the aspect is preserved exactly.
+        crop_img = PIL_Image.fromarray(crop).resize(
+            (out_w, out_h), resample=PIL_Image.BICUBIC
+        )
+        return np.asarray(crop_img)
+
+    output_path = _ensure_output_path(saveas)
+    if not output_path.suffix or output_path.suffix.lower() not in [
+        ".mp4",
+        ".mov",
+        ".avi",
+        ".mkv",
+    ]:
+        output_path = output_path.with_suffix(".mp4")
+
+    clip = mp.VideoClip(make_frame, duration=film_duration).with_fps(fps)
+    if audio_path is not None:
+        audio_clip = mp.AudioFileClip(str(audio_path))
+        clip = clip.with_audio(audio_clip)
+
+    write_kwargs.setdefault("bitrate", "5000k")
+    write_kwargs.setdefault("preset", "medium")
+    write_kwargs.setdefault("logger", None)
+
+    clip.write_videofile(
+        str(output_path), codec=codec, audio_codec=audio_codec, **write_kwargs
+    )
+    clip.close()
+
+    print(f"Saved Ken Burns film ({len(panel_renders)} panels, "
+          f"{film_duration:.1f}s) to: {output_path}")
     return output_path
