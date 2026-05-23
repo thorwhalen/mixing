@@ -1013,27 +1013,30 @@ def _rect_to_box(cx, cy, s, img_w, img_h):
     return int(xmin), int(ymin), int(xmax), int(ymax)
 
 
+DEFAULT_KENBURNS_PHASES = (((0.5, 0.5, 1.0), (0.5, 0.5, 1.3), 2.0),)
+
+
 def ken_burns_video(
     image,
     *,
-    duration_s: float = 2,
+    phases=DEFAULT_KENBURNS_PHASES,
     fps: int = 30,
-    start_rectangle=None,
-    end_rectangle=None,
     saveas: str | None = None,
     codec: str = "libx264",
     audio_codec: str = "aac",
     **write_kwargs,
 ) -> Path:
     """
-    Create a Ken Burns effect video from an image.
+    Create a Ken Burns effect video from an image with multi-phase pan/zoom.
 
     Args:
         image: Path to image file or image object (PIL.Image, np.ndarray)
-        duration_s: Duration of output video in seconds (default: 2)
+        phases: Iterable of ``(start_rect, end_rect, duration_s)`` phases. The
+            camera moves linearly from ``start_rect`` to ``end_rect`` over each
+            phase's ``duration_s``; phases play back-to-back so total clip
+            length is the sum of their durations. Default is a single 2-second
+            standard Ken Burns push-in.
         fps: Frames per second (default 30)
-        start_rectangle: Ken Burns rect at start (default: standard Ken Burns start)
-        end_rectangle: Ken Burns rect at end (default: standard Ken Burns end)
         saveas: Where to save video (default: image path with "__kenburns" appended before extension)
         codec: Video codec (default libx264)
         audio_codec: Audio codec (default aac)
@@ -1048,11 +1051,29 @@ def ken_burns_video(
         The crop box is clamped to the image, so you cannot zoom out past the
         original — express a zoom-out as start s > 1 panning to end s = 1.
         Standard Ken Burns: the full image (s=1) zooming in to s=1.3.
+        Rects accept the same flexible forms as elsewhere: a scalar zoom, a
+        (cx, cy) pan pair, or the full (cx, cy, s) triple.
+
+    Phase continuity:
+        A phase's ``end_rect`` does not need to match the next phase's
+        ``start_rect`` — discontinuities are allowed and produce an
+        instantaneous cut. For continuous motion, set each phase's
+        ``start_rect`` equal to the previous phase's ``end_rect``.
 
     Examples:
-        >>> ken_burns_video("photo.jpg")  # Standard Ken Burns, 2 seconds  # doctest: +SKIP
-        >>> ken_burns_video("photo.jpg", duration_s=5, start_rectangle=1.5, end_rectangle=1.0)  # doctest: +SKIP
-        >>> ken_burns_video("photo.jpg", duration_s=3, start_rectangle=(0.3, 0.3, 2), end_rectangle=(0.7, 0.7, 2))  # doctest: +SKIP
+        >>> ken_burns_video("photo.jpg")  # Standard 2s push-in  # doctest: +SKIP
+        >>> ken_burns_video(  # doctest: +SKIP
+        ...     "photo.jpg",
+        ...     phases=[((0.5, 0.5, 1.0), (0.65, 0.4, 1.2), 5.0)],
+        ... )
+        >>> ken_burns_video(  # doctest: +SKIP
+        ...     "photo.jpg",
+        ...     phases=[
+        ...         ((0.5, 0.5, 1.0), (0.65, 0.4, 1.2), 4.0),
+        ...         ((0.65, 0.4, 1.2), (0.35, 0.6, 1.2), 4.0),
+        ...         ((0.35, 0.6, 1.2), (0.5, 0.5, 1.3), 4.0),
+        ...     ],
+        ... )
     """
     from dol import non_colliding_key
 
@@ -1074,9 +1095,27 @@ def ken_burns_video(
     img_w, img_h = img.size
     img_np = np.array(img)  # preload once for fast per-frame cropping
 
-    # Parse rectangles - use standard Ken Burns defaults if not specified
-    start_rect = _parse_rectangle(start_rectangle, default=(0.5, 0.5, 1.0))
-    end_rect = _parse_rectangle(end_rectangle, default=(0.5, 0.5, 1.3))
+    # Normalize phases: each entry → (start_rect, end_rect, duration_s).
+    parsed_phases: list[tuple[tuple, tuple, float]] = []
+    for i, phase in enumerate(phases):
+        if not isinstance(phase, (list, tuple)) or len(phase) != 3:
+            raise ValueError(
+                f"phase {i}: expected (start_rect, end_rect, duration_s), got {phase!r}"
+            )
+        start_rect = _parse_rectangle(phase[0], default=(0.5, 0.5, 1.0))
+        end_rect = _parse_rectangle(phase[1], default=(0.5, 0.5, 1.3))
+        dur = float(phase[2])
+        if dur <= 0:
+            raise ValueError(f"phase {i}: duration_s must be > 0, got {dur}")
+        parsed_phases.append((start_rect, end_rect, dur))
+    if not parsed_phases:
+        raise ValueError("ken_burns_video: phases must be non-empty")
+
+    duration_s = sum(p[2] for p in parsed_phases)
+    # Cumulative phase-start times for fast bisect lookup at frame time.
+    cum_starts = [0.0]
+    for _, _, dur in parsed_phases:
+        cum_starts.append(cum_starts[-1] + dur)
 
     def _lerp(a, b, t):
         return a + (b - a) * t
@@ -1085,11 +1124,24 @@ def ken_burns_video(
         """Render the pan/zoom frame at time ``t`` (seconds), one frame at a time.
 
         Computed lazily so the whole clip is never materialised in memory.
+        Picks the active phase by ``t`` and lerps linearly within it; clamps
+        to the last phase's end-rect once ``t`` reaches the total duration.
         """
-        progress = 0.0 if duration_s <= 0 else min(t / duration_s, 1.0)
-        cx = _lerp(start_rect[0], end_rect[0], progress)
-        cy = _lerp(start_rect[1], end_rect[1], progress)
-        s = _lerp(start_rect[2], end_rect[2], progress)
+        if t >= duration_s:
+            start_rect, end_rect, _ = parsed_phases[-1]
+            cx, cy, s = end_rect
+        else:
+            # Linear scan is fine — a film typically has < 20 phases per panel.
+            for idx, (start_rect, end_rect, dur) in enumerate(parsed_phases):
+                if t < cum_starts[idx + 1]:
+                    local_t = (t - cum_starts[idx]) / dur
+                    cx = _lerp(start_rect[0], end_rect[0], local_t)
+                    cy = _lerp(start_rect[1], end_rect[1], local_t)
+                    s = _lerp(start_rect[2], end_rect[2], local_t)
+                    break
+            else:  # pragma: no cover — covered by the t >= duration_s branch
+                start_rect, end_rect, _ = parsed_phases[-1]
+                cx, cy, s = end_rect
         xmin, ymin, xmax, ymax = _rect_to_box(cx, cy, s, img_w, img_h)
         crop = img_np[ymin:ymax, xmin:xmax]
         crop_img = PIL_Image.fromarray(crop).resize(
