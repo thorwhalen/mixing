@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>mixing.video.video_ops &mdash; mixing 0.0.14 documentation</title>
+  <title>mixing.video.video_ops &mdash; mixing 0.0.15 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
@@ -14,7 +14,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=544df88d"></script>
+      <script src="../../../_static/documentation_options.js?v=f0357c94"></script>
       <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="../../../_static/toggleprompt.js?v=d7ede5d2"></script>
@@ -1145,29 +1145,32 @@
     <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">xmin</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">ymin</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">xmax</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">ymax</span><span class="p">)</span>
 
 
+<span class="n">DEFAULT_KENBURNS_PHASES</span> <span class="o">=</span> <span class="p">(((</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">),</span> <span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">1.3</span><span class="p">),</span> <span class="mf">2.0</span><span class="p">),)</span>
+
+
 <div class="viewcode-block" id="ken_burns_video">
 <a class="viewcode-back" href="../../../module_docs/mixing/video/video_ops.html#mixing.video.video_files.ken_burns_video">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">ken_burns_video</span><span class="p">(</span>
     <span class="n">image</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
-    <span class="n">duration_s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span>
+    <span class="n">phases</span><span class="o">=</span><span class="n">DEFAULT_KENBURNS_PHASES</span><span class="p">,</span>
     <span class="n">fps</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">30</span><span class="p">,</span>
-    <span class="n">start_rectangle</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-    <span class="n">end_rectangle</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">saveas</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">codec</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;libx264&quot;</span><span class="p">,</span>
     <span class="n">audio_codec</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;aac&quot;</span><span class="p">,</span>
     <span class="o">**</span><span class="n">write_kwargs</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Create a Ken Burns effect video from an image.</span>
+<span class="sd">    Create a Ken Burns effect video from an image with multi-phase pan/zoom.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        image: Path to image file or image object (PIL.Image, np.ndarray)</span>
-<span class="sd">        duration_s: Duration of output video in seconds (default: 2)</span>
+<span class="sd">        phases: Iterable of ``(start_rect, end_rect, duration_s)`` phases. The</span>
+<span class="sd">            camera moves linearly from ``start_rect`` to ``end_rect`` over each</span>
+<span class="sd">            phase&#39;s ``duration_s``; phases play back-to-back so total clip</span>
+<span class="sd">            length is the sum of their durations. Default is a single 2-second</span>
+<span class="sd">            standard Ken Burns push-in.</span>
 <span class="sd">        fps: Frames per second (default 30)</span>
-<span class="sd">        start_rectangle: Ken Burns rect at start (default: standard Ken Burns start)</span>
-<span class="sd">        end_rectangle: Ken Burns rect at end (default: standard Ken Burns end)</span>
 <span class="sd">        saveas: Where to save video (default: image path with &quot;__kenburns&quot; appended before extension)</span>
 <span class="sd">        codec: Video codec (default libx264)</span>
 <span class="sd">        audio_codec: Audio codec (default aac)</span>
@@ -1182,11 +1185,29 @@
 <span class="sd">        The crop box is clamped to the image, so you cannot zoom out past the</span>
 <span class="sd">        original — express a zoom-out as start s &gt; 1 panning to end s = 1.</span>
 <span class="sd">        Standard Ken Burns: the full image (s=1) zooming in to s=1.3.</span>
+<span class="sd">        Rects accept the same flexible forms as elsewhere: a scalar zoom, a</span>
+<span class="sd">        (cx, cy) pan pair, or the full (cx, cy, s) triple.</span>
+
+<span class="sd">    Phase continuity:</span>
+<span class="sd">        A phase&#39;s ``end_rect`` does not need to match the next phase&#39;s</span>
+<span class="sd">        ``start_rect`` — discontinuities are allowed and produce an</span>
+<span class="sd">        instantaneous cut. For continuous motion, set each phase&#39;s</span>
+<span class="sd">        ``start_rect`` equal to the previous phase&#39;s ``end_rect``.</span>
 
 <span class="sd">    Examples:</span>
-<span class="sd">        &gt;&gt;&gt; ken_burns_video(&quot;photo.jpg&quot;)  # Standard Ken Burns, 2 seconds  # doctest: +SKIP</span>
-<span class="sd">        &gt;&gt;&gt; ken_burns_video(&quot;photo.jpg&quot;, duration_s=5, start_rectangle=1.5, end_rectangle=1.0)  # doctest: +SKIP</span>
-<span class="sd">        &gt;&gt;&gt; ken_burns_video(&quot;photo.jpg&quot;, duration_s=3, start_rectangle=(0.3, 0.3, 2), end_rectangle=(0.7, 0.7, 2))  # doctest: +SKIP</span>
+<span class="sd">        &gt;&gt;&gt; ken_burns_video(&quot;photo.jpg&quot;)  # Standard 2s push-in  # doctest: +SKIP</span>
+<span class="sd">        &gt;&gt;&gt; ken_burns_video(  # doctest: +SKIP</span>
+<span class="sd">        ...     &quot;photo.jpg&quot;,</span>
+<span class="sd">        ...     phases=[((0.5, 0.5, 1.0), (0.65, 0.4, 1.2), 5.0)],</span>
+<span class="sd">        ... )</span>
+<span class="sd">        &gt;&gt;&gt; ken_burns_video(  # doctest: +SKIP</span>
+<span class="sd">        ...     &quot;photo.jpg&quot;,</span>
+<span class="sd">        ...     phases=[</span>
+<span class="sd">        ...         ((0.5, 0.5, 1.0), (0.65, 0.4, 1.2), 4.0),</span>
+<span class="sd">        ...         ((0.65, 0.4, 1.2), (0.35, 0.6, 1.2), 4.0),</span>
+<span class="sd">        ...         ((0.35, 0.6, 1.2), (0.5, 0.5, 1.3), 4.0),</span>
+<span class="sd">        ...     ],</span>
+<span class="sd">        ... )</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">dol</span><span class="w"> </span><span class="kn">import</span> <span class="n">non_colliding_key</span>
 
@@ -1208,9 +1229,27 @@
     <span class="n">img_w</span><span class="p">,</span> <span class="n">img_h</span> <span class="o">=</span> <span class="n">img</span><span class="o">.</span><span class="n">size</span>
     <span class="n">img_np</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>  <span class="c1"># preload once for fast per-frame cropping</span>
 
-    <span class="c1"># Parse rectangles - use standard Ken Burns defaults if not specified</span>
-    <span class="n">start_rect</span> <span class="o">=</span> <span class="n">_parse_rectangle</span><span class="p">(</span><span class="n">start_rectangle</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">))</span>
-    <span class="n">end_rect</span> <span class="o">=</span> <span class="n">_parse_rectangle</span><span class="p">(</span><span class="n">end_rectangle</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">1.3</span><span class="p">))</span>
+    <span class="c1"># Normalize phases: each entry → (start_rect, end_rect, duration_s).</span>
+    <span class="n">parsed_phases</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">tuple</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">phase</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">phases</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">phase</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">))</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">phase</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;phase </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">: expected (start_rect, end_rect, duration_s), got </span><span class="si">{</span><span class="n">phase</span><span class="si">!r}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+        <span class="n">start_rect</span> <span class="o">=</span> <span class="n">_parse_rectangle</span><span class="p">(</span><span class="n">phase</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">default</span><span class="o">=</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">))</span>
+        <span class="n">end_rect</span> <span class="o">=</span> <span class="n">_parse_rectangle</span><span class="p">(</span><span class="n">phase</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">default</span><span class="o">=</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">1.3</span><span class="p">))</span>
+        <span class="n">dur</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">phase</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">dur</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;phase </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">: duration_s must be &gt; 0, got </span><span class="si">{</span><span class="n">dur</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">parsed_phases</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">start_rect</span><span class="p">,</span> <span class="n">end_rect</span><span class="p">,</span> <span class="n">dur</span><span class="p">))</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">parsed_phases</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;ken_burns_video: phases must be non-empty&quot;</span><span class="p">)</span>
+
+    <span class="n">duration_s</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">parsed_phases</span><span class="p">)</span>
+    <span class="c1"># Cumulative phase-start times for fast bisect lookup at frame time.</span>
+    <span class="n">cum_starts</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">dur</span> <span class="ow">in</span> <span class="n">parsed_phases</span><span class="p">:</span>
+        <span class="n">cum_starts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cum_starts</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">dur</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_lerp</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">t</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">a</span> <span class="o">+</span> <span class="p">(</span><span class="n">b</span> <span class="o">-</span> <span class="n">a</span><span class="p">)</span> <span class="o">*</span> <span class="n">t</span>
@@ -1219,11 +1258,24 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Render the pan/zoom frame at time ``t`` (seconds), one frame at a time.</span>
 
 <span class="sd">        Computed lazily so the whole clip is never materialised in memory.</span>
+<span class="sd">        Picks the active phase by ``t`` and lerps linearly within it; clamps</span>
+<span class="sd">        to the last phase&#39;s end-rect once ``t`` reaches the total duration.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">progress</span> <span class="o">=</span> <span class="mf">0.0</span> <span class="k">if</span> <span class="n">duration_s</span> <span class="o">&lt;=</span> <span class="mi">0</span> <span class="k">else</span> <span class="nb">min</span><span class="p">(</span><span class="n">t</span> <span class="o">/</span> <span class="n">duration_s</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
-        <span class="n">cx</span> <span class="o">=</span> <span class="n">_lerp</span><span class="p">(</span><span class="n">start_rect</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">end_rect</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">progress</span><span class="p">)</span>
-        <span class="n">cy</span> <span class="o">=</span> <span class="n">_lerp</span><span class="p">(</span><span class="n">start_rect</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">end_rect</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">progress</span><span class="p">)</span>
-        <span class="n">s</span> <span class="o">=</span> <span class="n">_lerp</span><span class="p">(</span><span class="n">start_rect</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">end_rect</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">progress</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">t</span> <span class="o">&gt;=</span> <span class="n">duration_s</span><span class="p">:</span>
+            <span class="n">start_rect</span><span class="p">,</span> <span class="n">end_rect</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">parsed_phases</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">cx</span><span class="p">,</span> <span class="n">cy</span><span class="p">,</span> <span class="n">s</span> <span class="o">=</span> <span class="n">end_rect</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Linear scan is fine — a film typically has &lt; 20 phases per panel.</span>
+            <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="p">(</span><span class="n">start_rect</span><span class="p">,</span> <span class="n">end_rect</span><span class="p">,</span> <span class="n">dur</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">parsed_phases</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">t</span> <span class="o">&lt;</span> <span class="n">cum_starts</span><span class="p">[</span><span class="n">idx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]:</span>
+                    <span class="n">local_t</span> <span class="o">=</span> <span class="p">(</span><span class="n">t</span> <span class="o">-</span> <span class="n">cum_starts</span><span class="p">[</span><span class="n">idx</span><span class="p">])</span> <span class="o">/</span> <span class="n">dur</span>
+                    <span class="n">cx</span> <span class="o">=</span> <span class="n">_lerp</span><span class="p">(</span><span class="n">start_rect</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">end_rect</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">local_t</span><span class="p">)</span>
+                    <span class="n">cy</span> <span class="o">=</span> <span class="n">_lerp</span><span class="p">(</span><span class="n">start_rect</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">end_rect</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">local_t</span><span class="p">)</span>
+                    <span class="n">s</span> <span class="o">=</span> <span class="n">_lerp</span><span class="p">(</span><span class="n">start_rect</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">end_rect</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">local_t</span><span class="p">)</span>
+                    <span class="k">break</span>
+            <span class="k">else</span><span class="p">:</span>  <span class="c1"># pragma: no cover — covered by the t &gt;= duration_s branch</span>
+                <span class="n">start_rect</span><span class="p">,</span> <span class="n">end_rect</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">parsed_phases</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                <span class="n">cx</span><span class="p">,</span> <span class="n">cy</span><span class="p">,</span> <span class="n">s</span> <span class="o">=</span> <span class="n">end_rect</span>
         <span class="n">xmin</span><span class="p">,</span> <span class="n">ymin</span><span class="p">,</span> <span class="n">xmax</span><span class="p">,</span> <span class="n">ymax</span> <span class="o">=</span> <span class="n">_rect_to_box</span><span class="p">(</span><span class="n">cx</span><span class="p">,</span> <span class="n">cy</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">img_w</span><span class="p">,</span> <span class="n">img_h</span><span class="p">)</span>
         <span class="n">crop</span> <span class="o">=</span> <span class="n">img_np</span><span class="p">[</span><span class="n">ymin</span><span class="p">:</span><span class="n">ymax</span><span class="p">,</span> <span class="n">xmin</span><span class="p">:</span><span class="n">xmax</span><span class="p">]</span>
         <span class="n">crop_img</span> <span class="o">=</span> <span class="n">PIL_Image</span><span class="o">.</span><span class="n">fromarray</span><span class="p">(</span><span class="n">crop</span><span class="p">)</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span>
