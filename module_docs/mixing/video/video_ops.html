@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>mixing.video.video_ops &mdash; mixing 0.0.15 documentation</title>
+  <title>mixing.video.video_ops &mdash; mixing 0.0.16 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
@@ -15,7 +15,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=f0357c94"></script>
+      <script src="../../../_static/documentation_options.js?v=c7cdf6fe"></script>
       <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="../../../_static/toggleprompt.js?v=d7ede5d2"></script>
@@ -87,6 +87,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#mixing.video.video_ops.VideoFrames"><code class="docutils literal notranslate"><span class="pre">VideoFrames</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#mixing.video.video_ops.change_speed"><code class="docutils literal notranslate"><span class="pre">change_speed()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#mixing.video.video_ops.crop_video"><code class="docutils literal notranslate"><span class="pre">crop_video()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mixing.video.video_ops.ken_burns_film"><code class="docutils literal notranslate"><span class="pre">ken_burns_film()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#mixing.video.video_ops.ken_burns_video"><code class="docutils literal notranslate"><span class="pre">ken_burns_video()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#mixing.video.video_ops.loop_video"><code class="docutils literal notranslate"><span class="pre">loop_video()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#mixing.video.video_ops.normalize_audio"><code class="docutils literal notranslate"><span class="pre">normalize_audio()</span></code></a></li>
@@ -388,6 +389,55 @@ preserving audio pitch (audio is also sped up/slowed down proportionally).</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">crop_video</span><span class="p">(</span><span class="s2">&quot;video.mp4&quot;</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>  <span class="c1"># Single frame at 10s</span>
 </pre></div>
 </div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mixing.video.video_ops.ken_burns_film">
+<span class="sig-prename descclassname"><span class="pre">mixing.video.video_ops.</span></span><span class="sig-name descname"><span class="pre">ken_burns_film</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">panels</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">saveas</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">30</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">audio_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">codec</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'libx264'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">audio_codec</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'aac'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">write_kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Path</span></span></span><a class="reference internal" href="../../../_modules/mixing/video/video_ops.html#ken_burns_film"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.video.video_ops.ken_burns_film" title="Link to this definition"></a></dt>
+<dd><p>Render an N-panel Ken Burns film in a single pass — no per-panel
+intermediate files, no concat seams, no per-panel tail freezes.</p>
+<p>Each panel is one <code class="docutils literal notranslate"><span class="pre">(image,</span> <span class="pre">phases)</span></code> pair where <code class="docutils literal notranslate"><span class="pre">image</span></code> is a path /
+PIL.Image / np.ndarray and <code class="docutils literal notranslate"><span class="pre">phases</span></code> is the same shape as in
+<a class="reference internal" href="#mixing.video.video_ops.ken_burns_video" title="mixing.video.video_ops.ken_burns_video"><code class="xref py py-func docutils literal notranslate"><span class="pre">ken_burns_video()</span></code></a>. The film plays panels back-to-back; the camera
+cuts at panel boundaries (different image) but motion never pauses on
+a static frame within a panel.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>panels</strong> – iterable of <code class="docutils literal notranslate"><span class="pre">(image,</span> <span class="pre">phases)</span></code> pairs. Each panel’s total
+duration = sum of its phase durations. Film total = sum across
+panels.</p></li>
+<li><p><strong>saveas</strong> – output mp4 path (required — multi-panel films don’t have a
+single source image to derive an auto-name from).</p></li>
+<li><p><strong>fps</strong> – frame rate of the film.</p></li>
+<li><p><strong>audio_path</strong> – optional pre-built audio track (already concatenated,
+already matching the film duration). When supplied it is muxed
+in. Per-panel audio is the caller’s job to assemble — keep
+mixing’s renderer pure visual.</p></li>
+<li><p><strong>codec</strong> – forwarded to <code class="docutils literal notranslate"><span class="pre">write_videofile</span></code>.</p></li>
+<li><p><strong>audio_codec</strong> – forwarded to <code class="docutils literal notranslate"><span class="pre">write_videofile</span></code>.</p></li>
+<li><p><strong>**write_kwargs</strong> – <p>forwarded to <code class="docutils literal notranslate"><span class="pre">write_videofile</span></code>.</p>
+</p></li>
+</ul>
+</dd>
+</dl>
+<p>Why a single VideoClip rather than per-panel render + concatenate:</p>
+<ul class="simple">
+<li><p>Concat re-encodes at I-frame boundaries; the last few frames of each
+input clip can drop and the next clip’s first frame may freeze
+briefly. With one VideoClip the encoder writes a single stream.</p></li>
+<li><p>No per-panel tail-pad: the pan reaches the panel’s last frame exactly
+when the panel ends; the next frame is already the next panel’s
+first.</p></li>
+<li><p>Lazy frame generation: a single <code class="docutils literal notranslate"><span class="pre">make_frame(t)</span></code> closure dispatches
+by global <code class="docutils literal notranslate"><span class="pre">t</span></code> to the right (panel, phase) — the whole film is
+never materialised in memory.</p></li>
+</ul>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Path to the written mp4.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">
