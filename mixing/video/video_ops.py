@@ -1409,6 +1409,8 @@ def ken_burns_film(
     )
     clip.close()
 
-    print(f"Saved Ken Burns film ({len(panel_renders)} panels, "
-          f"{film_duration:.1f}s) to: {output_path}")
+    print(
+        f"Saved Ken Burns film ({len(panel_renders)} panels, "
+        f"{film_duration:.1f}s) to: {output_path}"
+    )
     return output_path
