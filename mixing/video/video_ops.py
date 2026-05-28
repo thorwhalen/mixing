@@ -978,4 +978,4 @@ def change_speed(
 # package (https://pypi.org/project/burns/). They are re-exported here so
 # they remain part of mixing's video toolkit — `mixing.ken_burns_video`
 # and `mixing.ken_burns_film` are unchanged for callers.
-from burns import ken_burns_video, ken_burns_film, DEFAULT_KENBURNS_PHASES
+from burns import ken_burns_video, ken_burns_film, DEFAULT_BURNS_PATH
