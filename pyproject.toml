@@ -23,6 +23,7 @@ dependencies = [
     "pillow",
     "pydub",
     "numpy",
+    "burns",
 ]
 
 [project.license]
