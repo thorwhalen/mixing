@@ -304,5 +304,60 @@ class TestEdgeCases:
 pytestmark = pytest.mark.filterwarnings("ignore::DeprecationWarning")
 
 
+# --------------------------------------------------------------------- #
+# assemble_audio_track
+# --------------------------------------------------------------------- #
+
+
+def _write_tone_wav(path, *, duration_s, sample_rate=44100, freq=440.0):
+    """Write a short stereo sine-tone WAV to ``path`` for assembly tests."""
+    import moviepy as mp
+
+    n = int(duration_s * sample_rate)
+    tone = (0.2 * np.sin(2 * np.pi * freq * np.arange(n) / sample_rate)).astype(
+        np.float32
+    )
+    clip = mp.AudioArrayClip(np.column_stack([tone, tone]), fps=sample_rate)
+    clip.write_audiofile(str(path), codec="pcm_s16le", logger=None)
+    return path
+
+
+def test_assemble_audio_track_returns_none_when_all_silent():
+    """No segment carries audio → wholly-silent track → None (skip muxing)."""
+    from mixing import assemble_audio_track
+
+    with tempfile.TemporaryDirectory() as tmp:
+        out = assemble_audio_track(
+            [(None, 2.0), (None, 1.5)], saveas=Path(tmp) / "track.wav"
+        )
+    assert out is None
+
+
+def test_assemble_audio_track_pads_and_trims_to_slot_durations():
+    """Each segment occupies exactly its slot: short audio is padded with
+    silence, overrunning audio is trimmed, ``None`` slots are pure silence.
+    The total equals the sum of slot durations."""
+    from mixing import assemble_audio_track
+    from moviepy import AudioFileClip
+
+    with tempfile.TemporaryDirectory() as tmp:
+        tmp = Path(tmp)
+        tone = _write_tone_wav(tmp / "tone.wav", duration_s=1.5)
+        out = assemble_audio_track(
+            [
+                (str(tone), 5.0),  # 1.5s voice + 3.5s silence pad
+                (None, 2.0),  # pure silence
+                (str(tone), 1.0),  # 1.5s voice trimmed to 1.0s
+            ],
+            saveas=tmp / "track.wav",
+        )
+        assert out is not None and out.exists()
+        clip = AudioFileClip(str(out))
+        try:
+            assert clip.duration == pytest.approx(8.0, abs=0.05)
+        finally:
+            clip.close()
+
+
 if __name__ == '__main__':
     pytest.main([__file__, '-v'])

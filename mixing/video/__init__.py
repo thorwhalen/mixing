@@ -20,6 +20,7 @@ from mixing.video.video_ops import (
     change_speed,
     ken_burns_video,
     ken_burns_film,
+    assemble_audio_track,
 )
 from mixing.video.video_util import (
     get_video_dimensions,

@@ -38,9 +38,9 @@ Design principles:
 - Single source of truth: One class handles both time ranges and frames
 """
 
-from typing import Union
+from typing import Optional, Union
 from pathlib import Path
-from collections.abc import Callable, Iterator, Mapping
+from collections.abc import Callable, Iterator, Mapping, Sequence
 import io
 import tempfile
 import numpy as np
@@ -912,6 +912,86 @@ def normalize_audio(
 
     print(f"Saved video with normalized audio to: {output_path}")
     return output_path
+
+
+def assemble_audio_track(
+    segments: Sequence[tuple[Optional[str | Path], float]],
+    *,
+    saveas: str | Path,
+    sample_rate: int = 44100,
+) -> Optional[Path]:
+    """Assemble per-segment ``(audio, duration_s)`` pairs into one audio track.
+
+    Each segment occupies *exactly* ``duration_s`` seconds of the output:
+    its audio clip (when given) followed by silence padding up to the
+    segment duration — or pure silence when ``audio`` is ``None``. An audio
+    clip longer than its slot is trimmed to fit. The sections are
+    concatenated in order, so the result aligns slot-for-slot with a video
+    timeline built from the same per-segment durations — e.g. the panels of
+    :func:`ken_burns_film`, where each panel holds for its segment duration
+    and the matching narration plays over it.
+
+    This is the audio counterpart to stitching a multi-shot film: it lets a
+    caller mux one pre-built track rather than attaching audio per shot.
+
+    Args:
+        segments: ordered ``(audio_path_or_None, duration_s)`` pairs, one per
+            shot. ``audio_path_or_None`` is a local audio file (any format
+            ffmpeg reads) or ``None`` for a silent slot.
+        saveas: output path for the assembled track. Written as WAV
+            (``pcm_s16le``) — universally muxable; a downstream mp4 encode
+            re-encodes to aac.
+        sample_rate: sample rate of the generated silence, in Hz.
+
+    Returns:
+        The path to the written track, or ``None`` when no segment carries
+        audio (the track would be wholly silent — callers can skip muxing).
+
+    Examples:
+        >>> assemble_audio_track(  # doctest: +SKIP
+        ...     [("voice1.mp3", 5.0), (None, 3.0), ("voice2.mp3", 4.0)],
+        ...     saveas="film_audio.wav",
+        ... )
+    """
+    if not any(audio is not None for audio, _ in segments):
+        return None
+
+    saveas = Path(saveas)
+
+    def _silence(dur: float) -> "mp.AudioArrayClip":
+        # 2-channel zero array — matches moviepy's default stereo and avoids
+        # a mono/stereo concat mismatch with TTS clips that return stereo.
+        n = max(1, int(round(dur * sample_rate)))
+        return mp.AudioArrayClip(
+            np.zeros((n, 2), dtype=np.float32), fps=sample_rate
+        )
+
+    sections = []
+    opened: list = []  # keep AudioFileClips alive until concat finishes
+    try:
+        for audio_path, duration in segments:
+            if audio_path is None:
+                sections.append(_silence(duration))
+                continue
+            voice = mp.AudioFileClip(str(audio_path))
+            opened.append(voice)
+            if voice.duration > duration:
+                # Overruns the slot — trim to fit.
+                sections.append(voice.subclipped(0, duration))
+            else:
+                sections.append(voice)
+                pad = duration - voice.duration
+                if pad > 1e-3:
+                    sections.append(_silence(pad))
+        track = mp.concatenate_audioclips(sections)
+        track.write_audiofile(str(saveas), codec="pcm_s16le", logger=None)
+    finally:
+        for clip in opened:
+            try:
+                clip.close()
+            except Exception:
+                pass
+    return saveas
 
 
 def change_speed(
