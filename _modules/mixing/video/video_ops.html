@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>mixing.video.video_ops &mdash; mixing 0.0.18 documentation</title>
+  <title>mixing.video.video_ops &mdash; mixing 0.0.20 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
@@ -14,7 +14,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=8bafd125"></script>
+      <script src="../../../_static/documentation_options.js?v=056c92e6"></script>
       <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="../../../_static/toggleprompt.js?v=d7ede5d2"></script>
@@ -137,9 +137,9 @@
 <span class="sd">- Single source of truth: One class handles both time ranges and frames</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Union</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Iterator</span><span class="p">,</span> <span class="n">Mapping</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Iterator</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">Sequence</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">io</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
@@ -1043,6 +1043,89 @@
 
 
 
+<div class="viewcode-block" id="assemble_audio_track">
+<a class="viewcode-back" href="../../../module_docs/mixing/video/video_ops.html#mixing.video.video_files.assemble_audio_track">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">assemble_audio_track</span><span class="p">(</span>
+    <span class="n">segments</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">],</span> <span class="nb">float</span><span class="p">]],</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">saveas</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span>
+    <span class="n">sample_rate</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">44100</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Assemble per-segment ``(audio, duration_s)`` pairs into one audio track.</span>
+
+<span class="sd">    Each segment occupies *exactly* ``duration_s`` seconds of the output:</span>
+<span class="sd">    its audio clip (when given) followed by silence padding up to the</span>
+<span class="sd">    segment duration — or pure silence when ``audio`` is ``None``. An audio</span>
+<span class="sd">    clip longer than its slot is trimmed to fit. The sections are</span>
+<span class="sd">    concatenated in order, so the result aligns slot-for-slot with a video</span>
+<span class="sd">    timeline built from the same per-segment durations — e.g. the panels of</span>
+<span class="sd">    :func:`ken_burns_film`, where each panel holds for its segment duration</span>
+<span class="sd">    and the matching narration plays over it.</span>
+
+<span class="sd">    This is the audio counterpart to stitching a multi-shot film: it lets a</span>
+<span class="sd">    caller mux one pre-built track rather than attaching audio per shot.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        segments: ordered ``(audio_path_or_None, duration_s)`` pairs, one per</span>
+<span class="sd">            shot. ``audio_path_or_None`` is a local audio file (any format</span>
+<span class="sd">            ffmpeg reads) or ``None`` for a silent slot.</span>
+<span class="sd">        saveas: output path for the assembled track. Written as WAV</span>
+<span class="sd">            (``pcm_s16le``) — universally muxable; a downstream mp4 encode</span>
+<span class="sd">            re-encodes to aac.</span>
+<span class="sd">        sample_rate: sample rate of the generated silence, in Hz.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The path to the written track, or ``None`` when no segment carries</span>
+<span class="sd">        audio (the track would be wholly silent — callers can skip muxing).</span>
+
+<span class="sd">    Examples:</span>
+<span class="sd">        &gt;&gt;&gt; assemble_audio_track(  # doctest: +SKIP</span>
+<span class="sd">        ...     [(&quot;voice1.mp3&quot;, 5.0), (None, 3.0), (&quot;voice2.mp3&quot;, 4.0)],</span>
+<span class="sd">        ...     saveas=&quot;film_audio.wav&quot;,</span>
+<span class="sd">        ... )</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="n">audio</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">audio</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">segments</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="n">saveas</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">saveas</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_silence</span><span class="p">(</span><span class="n">dur</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;mp.AudioArrayClip&quot;</span><span class="p">:</span>
+        <span class="c1"># 2-channel zero array — matches moviepy&#39;s default stereo and avoids</span>
+        <span class="c1"># a mono/stereo concat mismatch with TTS clips that return stereo.</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">dur</span> <span class="o">*</span> <span class="n">sample_rate</span><span class="p">)))</span>
+        <span class="k">return</span> <span class="n">mp</span><span class="o">.</span><span class="n">AudioArrayClip</span><span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">n</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">),</span> <span class="n">fps</span><span class="o">=</span><span class="n">sample_rate</span>
+        <span class="p">)</span>
+
+    <span class="n">sections</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">opened</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># keep AudioFileClips alive until concat finishes</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">audio_path</span><span class="p">,</span> <span class="n">duration</span> <span class="ow">in</span> <span class="n">segments</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">audio_path</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">sections</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_silence</span><span class="p">(</span><span class="n">duration</span><span class="p">))</span>
+                <span class="k">continue</span>
+            <span class="n">voice</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">AudioFileClip</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">audio_path</span><span class="p">))</span>
+            <span class="n">opened</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">voice</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">voice</span><span class="o">.</span><span class="n">duration</span> <span class="o">&gt;</span> <span class="n">duration</span><span class="p">:</span>
+                <span class="c1"># Overruns the slot — trim to fit.</span>
+                <span class="n">sections</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">voice</span><span class="o">.</span><span class="n">subclipped</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">duration</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">sections</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">voice</span><span class="p">)</span>
+                <span class="n">pad</span> <span class="o">=</span> <span class="n">duration</span> <span class="o">-</span> <span class="n">voice</span><span class="o">.</span><span class="n">duration</span>
+                <span class="k">if</span> <span class="n">pad</span> <span class="o">&gt;</span> <span class="mf">1e-3</span><span class="p">:</span>
+                    <span class="n">sections</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_silence</span><span class="p">(</span><span class="n">pad</span><span class="p">))</span>
+        <span class="n">track</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">concatenate_audioclips</span><span class="p">(</span><span class="n">sections</span><span class="p">)</span>
+        <span class="n">track</span><span class="o">.</span><span class="n">write_audiofile</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">saveas</span><span class="p">),</span> <span class="n">codec</span><span class="o">=</span><span class="s2">&quot;pcm_s16le&quot;</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">clip</span> <span class="ow">in</span> <span class="n">opened</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">clip</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                <span class="k">pass</span>
+    <span class="k">return</span> <span class="n">saveas</span></div>
+
+
+
 <div class="viewcode-block" id="change_speed">
 <a class="viewcode-back" href="../../../module_docs/mixing/video/video_ops.html#mixing.video.video_files.change_speed">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">change_speed</span><span class="p">(</span>
@@ -1110,7 +1193,7 @@
 <span class="c1"># package (https://pypi.org/project/burns/). They are re-exported here so</span>
 <span class="c1"># they remain part of mixing&#39;s video toolkit — `mixing.ken_burns_video`</span>
 <span class="c1"># and `mixing.ken_burns_film` are unchanged for callers.</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">burns</span><span class="w"> </span><span class="kn">import</span> <span class="n">ken_burns_video</span><span class="p">,</span> <span class="n">ken_burns_film</span><span class="p">,</span> <span class="n">DEFAULT_KENBURNS_PHASES</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">burns</span><span class="w"> </span><span class="kn">import</span> <span class="n">ken_burns_video</span><span class="p">,</span> <span class="n">ken_burns_film</span><span class="p">,</span> <span class="n">DEFAULT_BURNS_PATH</span>
 </pre></div>
 
            </div>

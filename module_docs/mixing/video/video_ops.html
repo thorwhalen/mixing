@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>mixing.video.video_ops &mdash; mixing 0.0.18 documentation</title>
+  <title>mixing.video.video_ops &mdash; mixing 0.0.20 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
@@ -15,7 +15,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=8bafd125"></script>
+      <script src="../../../_static/documentation_options.js?v=056c92e6"></script>
       <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="../../../_static/toggleprompt.js?v=d7ede5d2"></script>
@@ -85,6 +85,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#mixing.video.video_ops.VideoFrames"><code class="docutils literal notranslate"><span class="pre">VideoFrames</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mixing.video.video_ops.assemble_audio_track"><code class="docutils literal notranslate"><span class="pre">assemble_audio_track()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#mixing.video.video_ops.change_speed"><code class="docutils literal notranslate"><span class="pre">change_speed()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#mixing.video.video_ops.crop_video"><code class="docutils literal notranslate"><span class="pre">crop_video()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#mixing.video.video_ops.loop_video"><code class="docutils literal notranslate"><span class="pre">loop_video()</span></code></a></li>
@@ -319,6 +320,46 @@ indexing and slicing. Frames are returned as numpy arrays (BGR format).</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">frame</span> <span class="o">=</span> <span class="n">vf</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>  <span class="c1"># Get first frame</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">last_frame</span> <span class="o">=</span> <span class="n">vf</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>  <span class="c1"># Get last frame</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">frames</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">vf</span><span class="p">[</span><span class="mi">10</span><span class="p">:</span><span class="mi">20</span><span class="p">])</span>  <span class="c1"># Get frames 10-19</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mixing.video.video_ops.assemble_audio_track">
+<span class="sig-prename descclassname"><span class="pre">mixing.video.video_ops.</span></span><span class="sig-name descname"><span class="pre">assemble_audio_track</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">segments</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">saveas</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_rate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">44100</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="reference internal" href="../../../_modules/mixing/video/video_ops.html#assemble_audio_track"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.video.video_ops.assemble_audio_track" title="Link to this definition"></a></dt>
+<dd><p>Assemble per-segment <code class="docutils literal notranslate"><span class="pre">(audio,</span> <span class="pre">duration_s)</span></code> pairs into one audio track.</p>
+<p>Each segment occupies <em>exactly</em> <code class="docutils literal notranslate"><span class="pre">duration_s</span></code> seconds of the output:
+its audio clip (when given) followed by silence padding up to the
+segment duration — or pure silence when <code class="docutils literal notranslate"><span class="pre">audio</span></code> is <code class="docutils literal notranslate"><span class="pre">None</span></code>. An audio
+clip longer than its slot is trimmed to fit. The sections are
+concatenated in order, so the result aligns slot-for-slot with a video
+timeline built from the same per-segment durations — e.g. the panels of
+<code class="xref py py-func docutils literal notranslate"><span class="pre">ken_burns_film()</span></code>, where each panel holds for its segment duration
+and the matching narration plays over it.</p>
+<p>This is the audio counterpart to stitching a multi-shot film: it lets a
+caller mux one pre-built track rather than attaching audio per shot.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>segments</strong> – ordered <code class="docutils literal notranslate"><span class="pre">(audio_path_or_None,</span> <span class="pre">duration_s)</span></code> pairs, one per
+shot. <code class="docutils literal notranslate"><span class="pre">audio_path_or_None</span></code> is a local audio file (any format
+ffmpeg reads) or <code class="docutils literal notranslate"><span class="pre">None</span></code> for a silent slot.</p></li>
+<li><p><strong>saveas</strong> – output path for the assembled track. Written as WAV
+(<code class="docutils literal notranslate"><span class="pre">pcm_s16le</span></code>) — universally muxable; a downstream mp4 encode
+re-encodes to aac.</p></li>
+<li><p><strong>sample_rate</strong> – sample rate of the generated silence, in Hz.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The path to the written track, or <code class="docutils literal notranslate"><span class="pre">None</span></code> when no segment carries
+audio (the track would be wholly silent — callers can skip muxing).</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">assemble_audio_track</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="p">[(</span><span class="s2">&quot;voice1.mp3&quot;</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">),</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;voice2.mp3&quot;</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">)],</span>
+<span class="gp">... </span>    <span class="n">saveas</span><span class="o">=</span><span class="s2">&quot;film_audio.wav&quot;</span><span class="p">,</span>
+<span class="gp">... </span><span class="p">)</span>
 </pre></div>
 </div>
 </dd></dl>
