@@ -962,9 +962,7 @@ def assemble_audio_track(
         # 2-channel zero array — matches moviepy's default stereo and avoids
         # a mono/stereo concat mismatch with TTS clips that return stereo.
         n = max(1, int(round(dur * sample_rate)))
-        return mp.AudioArrayClip(
-            np.zeros((n, 2), dtype=np.float32), fps=sample_rate
-        )
+        return mp.AudioArrayClip(np.zeros((n, 2), dtype=np.float32), fps=sample_rate)
 
     sections = []
     opened: list = []  # keep AudioFileClips alive until concat finishes
