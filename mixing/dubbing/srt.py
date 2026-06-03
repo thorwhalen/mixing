@@ -73,8 +73,18 @@ def parse_srt(srt_text: str) -> list[Cue]:
         if time_idx is None:
             continue
         m = _TIME_RE.search(lines[time_idx])
-        start = int(m[1]) * 3600 + int(m[2]) * 60 + int(m[3]) + int(m[4].ljust(3, "0")) / 1000.0
-        end = int(m[5]) * 3600 + int(m[6]) * 60 + int(m[7]) + int(m[8].ljust(3, "0")) / 1000.0
+        start = (
+            int(m[1]) * 3600
+            + int(m[2]) * 60
+            + int(m[3])
+            + int(m[4].ljust(3, "0")) / 1000.0
+        )
+        end = (
+            int(m[5]) * 3600
+            + int(m[6]) * 60
+            + int(m[7])
+            + int(m[8].ljust(3, "0")) / 1000.0
+        )
         idx_line = lines[time_idx - 1] if time_idx > 0 else ""
         index = int(idx_line) if idx_line.strip().isdigit() else len(cues) + 1
         text = "\n".join(lines[time_idx + 1 :]).strip()

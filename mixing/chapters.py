@@ -94,8 +94,12 @@ def detect_chapters(
         if c.get("title")
     ]
     return _enforce_constraints(
-        chapters, segments, duration=duration,
-        min_chapters=min_chapters, max_chapters=max_chapters, min_spacing=min_spacing,
+        chapters,
+        segments,
+        duration=duration,
+        min_chapters=min_chapters,
+        max_chapters=max_chapters,
+        min_spacing=min_spacing,
     )
 
 
@@ -113,15 +117,26 @@ def _segments_from_transcript(transcript) -> list[dict]:
             return []
         first = items[0]
         # Scribe words list (dicts with a "type" or word-level start/end)
-        if isinstance(first, dict) and "text" in first and "start" in first and (
-            first.get("type") in {"word", "spacing", "audio_event"} or "end" in first
-        ) and _looks_like_words(items):
+        if (
+            isinstance(first, dict)
+            and "text" in first
+            and "start" in first
+            and (
+                first.get("type") in {"word", "spacing", "audio_event"}
+                or "end" in first
+            )
+            and _looks_like_words(items)
+        ):
             return _sentences_from_words(items)
         # Cue-like (dict or object with start/end/text at sentence granularity)
         out = []
         for it in items:
             start = it["start"] if isinstance(it, dict) else getattr(it, "start")
-            end = it.get("end", start) if isinstance(it, dict) else getattr(it, "end", start)
+            end = (
+                it.get("end", start)
+                if isinstance(it, dict)
+                else getattr(it, "end", start)
+            )
             text = (it["text"] if isinstance(it, dict) else getattr(it, "text")).strip()
             if text:
                 out.append({"start": float(start), "end": float(end), "text": text})
@@ -153,7 +168,9 @@ def _sentences_from_words(words: Sequence[dict]) -> list[dict]:
         cur_end = float(w.get("end", cur_end))
         cur.append(text)
         if text.rstrip().endswith(tuple(_SENTENCE_ENDINGS)):
-            out.append({"start": cur_start, "end": cur_end, "text": " ".join(cur).strip()})
+            out.append(
+                {"start": cur_start, "end": cur_end, "text": " ".join(cur).strip()}
+            )
             cur, cur_start = [], None
     if cur and cur_start is not None:
         out.append({"start": cur_start, "end": cur_end, "text": " ".join(cur).strip()})
@@ -173,9 +190,19 @@ def _sentences_from_srt(srt_text: str) -> list[dict]:
         if ti is None:
             continue
         m = time_re.search(lines[ti])
-        start = int(m[1]) * 3600 + int(m[2]) * 60 + int(m[3]) + int(m[4].ljust(3, "0")) / 1000
-        end = int(m[5]) * 3600 + int(m[6]) * 60 + int(m[7]) + int(m[8].ljust(3, "0")) / 1000
-        text = " ".join(lines[ti + 1:]).strip()
+        start = (
+            int(m[1]) * 3600
+            + int(m[2]) * 60
+            + int(m[3])
+            + int(m[4].ljust(3, "0")) / 1000
+        )
+        end = (
+            int(m[5]) * 3600
+            + int(m[6]) * 60
+            + int(m[7])
+            + int(m[8].ljust(3, "0")) / 1000
+        )
+        text = " ".join(lines[ti + 1 :]).strip()
         if text:
             out.append({"start": start, "end": end, "text": text})
     return _tidy(out)
@@ -272,4 +299,8 @@ def _parse_json_array(raw: str) -> list[dict]:
     arr = json.loads(text)
     if not isinstance(arr, list):
         raise ValueError("Segmenter response was not a JSON array.")
-    return [{"start": float(x["start"]), "title": str(x["title"])} for x in arr if "start" in x and "title" in x]
+    return [
+        {"start": float(x["start"]), "title": str(x["title"])}
+        for x in arr
+        if "start" in x and "title" in x
+    ]

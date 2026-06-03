@@ -109,6 +109,7 @@ def dub_video_from_srt(
     )
 
     if synth_fn is None:
+
         def synth_fn(text: str, dest: Path) -> Path:  # noqa: E306
             return synthesize_to_file(
                 text,
@@ -123,7 +124,11 @@ def dub_video_from_srt(
             )
 
     owns_work_dir = work_dir is None
-    work = Path(work_dir) if work_dir is not None else Path(tempfile.mkdtemp(prefix="mixing_dub_"))
+    work = (
+        Path(work_dir)
+        if work_dir is not None
+        else Path(tempfile.mkdtemp(prefix="mixing_dub_"))
+    )
     work.mkdir(parents=True, exist_ok=True)
     try:
         video_dur = _media_duration(video)
@@ -218,9 +223,13 @@ def _media_duration(path: PathLike) -> float:
     if shutil.which("ffprobe"):
         out = subprocess.run(
             [
-                "ffprobe", "-v", "error",
-                "-show_entries", "format=duration",
-                "-of", "default=noprint_wrappers=1:nokey=1",
+                "ffprobe",
+                "-v",
+                "error",
+                "-show_entries",
+                "format=duration",
+                "-of",
+                "default=noprint_wrappers=1:nokey=1",
                 str(path),
             ],
             capture_output=True,
@@ -240,10 +249,16 @@ def _atempo(in_path: PathLike, out_path: PathLike, factor: float) -> Path:
     """Time-stretch audio by ``factor`` (speed up if >1) via ffmpeg ``atempo``."""
     subprocess.run(
         [
-            "ffmpeg", "-y", "-loglevel", "error",
-            "-i", str(in_path),
-            "-filter:a", f"atempo={factor:.5f}",
-            "-vn", str(out_path),
+            "ffmpeg",
+            "-y",
+            "-loglevel",
+            "error",
+            "-i",
+            str(in_path),
+            "-filter:a",
+            f"atempo={factor:.5f}",
+            "-vn",
+            str(out_path),
         ],
         check=True,
         capture_output=True,

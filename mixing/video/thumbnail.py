@@ -45,7 +45,11 @@ def make_thumbnail(
     from PIL import Image
 
     video = Path(video)
-    out = Path(saveas) if saveas else video.with_suffix("").with_name(f"{video.stem}.thumb.jpg")
+    out = (
+        Path(saveas)
+        if saveas
+        else video.with_suffix("").with_name(f"{video.stem}.thumb.jpg")
+    )
 
     if at_time is None:
         at_time = 0.85 * _media_duration(video)
@@ -65,9 +69,17 @@ def make_thumbnail(
 def _extract_frame(video: Path, at_time: float, dest: Path) -> Path:
     subprocess.run(
         [
-            "ffmpeg", "-y", "-loglevel", "error",
-            "-ss", f"{at_time:.3f}", "-i", str(video),
-            "-frames:v", "1", str(dest),
+            "ffmpeg",
+            "-y",
+            "-loglevel",
+            "error",
+            "-ss",
+            f"{at_time:.3f}",
+            "-i",
+            str(video),
+            "-frames:v",
+            "1",
+            str(dest),
         ],
         check=True,
         capture_output=True,
@@ -78,8 +90,14 @@ def _extract_frame(video: Path, at_time: float, dest: Path) -> Path:
 def _media_duration(path: PathLike) -> float:
     out = subprocess.run(
         [
-            "ffprobe", "-v", "error", "-show_entries", "format=duration",
-            "-of", "default=noprint_wrappers=1:nokey=1", str(path),
+            "ffprobe",
+            "-v",
+            "error",
+            "-show_entries",
+            "format=duration",
+            "-of",
+            "default=noprint_wrappers=1:nokey=1",
+            str(path),
         ],
         capture_output=True,
         text=True,
