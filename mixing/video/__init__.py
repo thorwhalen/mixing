@@ -9,6 +9,7 @@ from mixing.video.video_subtitles import (
     write_subtitles_in_video,
 )
 from mixing.video.video_concat import concatenate_videos
+from mixing.video.thumbnail import make_thumbnail, THUMBNAIL_SIZE, YOUTUBE_THUMB_SIZE
 from mixing.video.video_ops import (
     Video,
     VideoFrames,
