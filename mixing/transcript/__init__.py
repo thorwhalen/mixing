@@ -42,6 +42,7 @@ from mixing.transcript.formats import (
     remap_time_after_cuts,
 )
 from mixing.transcript.media import extract_audio, apply_keeps
+from mixing.transcript.persist import srt_for_media
 from mixing.transcript.pipeline import remove_fillers, FillerRemovalResult
 
 __all__ = [
@@ -61,6 +62,7 @@ __all__ = [
     "remap_time_after_cuts",
     "extract_audio",
     "apply_keeps",
+    "srt_for_media",
     "remove_fillers",
     "FillerRemovalResult",
 ]
