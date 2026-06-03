@@ -1,0 +1,390 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>mixing.dubbing.dub &mdash; mixing 0.0.21 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=a11416ff"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../../../_static/toggleprompt.js?v=d7ede5d2"></script>
+      <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            mixing
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing.html">mixing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/audio.html">mixing.audio</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/audio/audio_ops.html">mixing.audio.audio_ops</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/audio/audio_util.html">mixing.audio.audio_util</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/audio/audio_widget.html">mixing.audio.audio_widget</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/audio/demo_audio_widget.html">mixing.audio.demo_audio_widget</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/audio/segmentation.html">mixing.audio.segmentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/audio/test_audio_widget.html">mixing.audio.test_audio_widget</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/chapters.html">mixing.chapters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/dubbing.html">mixing.dubbing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/dubbing/dub.html">mixing.dubbing.dub</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/dubbing/srt.html">mixing.dubbing.srt</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/dubbing/tts.html">mixing.dubbing.tts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/transcript.html">mixing.transcript</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/transcript/fillers.html">mixing.transcript.fillers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/transcript/formats.html">mixing.transcript.formats</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/transcript/media.html">mixing.transcript.media</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/transcript/persist.html">mixing.transcript.persist</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/transcript/pipeline.html">mixing.transcript.pipeline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/transcript/scribe.html">mixing.transcript.scribe</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/util.html">mixing.util</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video.html">mixing.video</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/_helpers.html">mixing.video._helpers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/audio_offset_example.html">mixing.video.audio_offset_example</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/thumbnail.html">mixing.video.thumbnail</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/video_concat.html">mixing.video.video_concat</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/video_files.html">mixing.video.video_files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/video_gen.html">mixing.video.video_gen</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/video_ops.html">mixing.video.video_ops</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/video_subtitles.html">mixing.video.video_subtitles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/video_util.html">mixing.video.video_util</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">mixing</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">mixing.dubbing.dub</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for mixing.dubbing.dub</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;SRT-driven dubbing: replace a video&#39;s audio with TTS narration.</span>
+
+<span class="sd">Given a video and an SRT transcript, synthesize each cue with an ElevenLabs</span>
+<span class="sd">voice, lay the clips onto a silent track at their cue start times, and mux the</span>
+<span class="sd">result back over the video — producing a re-voiced (or translated) version</span>
+<span class="sd">that stays aligned to the original timeline.</span>
+
+<span class="sd">Timing fit (``fit=&quot;speed&quot;``, the default): when a synthesized line is longer</span>
+<span class="sd">than its cue window, it is gently time-compressed (capped at ``max_speedup``)</span>
+<span class="sd">so downstream cues keep their start times; when shorter, the slot is padded</span>
+<span class="sd">with silence. This keeps lip/scene sync without clipping speech. Use</span>
+<span class="sd">``fit=&quot;natural&quot;`` to never alter speed (lines may drift later in the timeline).</span>
+
+<span class="sd">Quick start:</span>
+<span class="sd">    &gt;&gt;&gt; from mixing.dubbing import dub_video_from_srt  # doctest: +SKIP</span>
+<span class="sd">    &gt;&gt;&gt; dub_video_from_srt(  # doctest: +SKIP</span>
+<span class="sd">    ...     &quot;promo.mp4&quot;, &quot;promo.srt&quot;,</span>
+<span class="sd">    ...     voice_id=&quot;&lt;elevenlabs-voice-id&gt;&quot;,</span>
+<span class="sd">    ...     output=&quot;promo.en.mp4&quot;,</span>
+<span class="sd">    ... )</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">shutil</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">subprocess</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Sequence</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">mixing.dubbing.srt</span><span class="w"> </span><span class="kn">import</span> <span class="n">Cue</span><span class="p">,</span> <span class="n">parse_srt</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mixing.dubbing.tts</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">DFLT_MODEL_ID</span><span class="p">,</span>
+    <span class="n">DFLT_OUTPUT_FORMAT</span><span class="p">,</span>
+    <span class="n">synthesize_to_file</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mixing.video.video_ops</span><span class="w"> </span><span class="kn">import</span> <span class="n">assemble_audio_track</span><span class="p">,</span> <span class="n">replace_audio</span>
+
+<span class="n">PathLike</span> <span class="o">=</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span>
+
+<span class="c1">#: A synthesizer maps (text, out_path) -&gt; written path. Lets callers swap the</span>
+<span class="c1">#: TTS backend (or inject a stub in tests) without touching the pipeline.</span>
+<span class="n">SynthFn</span> <span class="o">=</span> <span class="n">Callable</span><span class="p">[[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">],</span> <span class="n">Path</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="dub_video_from_srt">
+<a class="viewcode-back" href="../../../module_docs/mixing/dubbing/dub.html#mixing.dubbing.dub_video_from_srt">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">dub_video_from_srt</span><span class="p">(</span>
+    <span class="n">video</span><span class="p">:</span> <span class="n">PathLike</span><span class="p">,</span>
+    <span class="n">srt</span><span class="p">:</span> <span class="n">PathLike</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Cue</span><span class="p">],</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">voice_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">output</span><span class="p">:</span> <span class="n">PathLike</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">api_key</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">model_id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">DFLT_MODEL_ID</span><span class="p">,</span>
+    <span class="n">output_format</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">DFLT_OUTPUT_FORMAT</span><span class="p">,</span>
+    <span class="n">voice_settings</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">language_code</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">fit</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;speed&quot;</span><span class="p">,</span>
+    <span class="n">max_speedup</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.5</span><span class="p">,</span>
+    <span class="n">keep_original_audio</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
+    <span class="n">work_dir</span><span class="p">:</span> <span class="n">PathLike</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">keep_work</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">cache</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">synth_fn</span><span class="p">:</span> <span class="n">SynthFn</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Replace ``video``&#39;s audio with TTS narration built from ``srt``.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        video: Path to the source video.</span>
+<span class="sd">        srt: An ``.srt`` file path, raw SRT text, or a list of :class:`Cue`.</span>
+<span class="sd">        voice_id: ElevenLabs voice id for the narration.</span>
+<span class="sd">        output: Output video path. Defaults to</span>
+<span class="sd">            ``&lt;video-stem&gt;.&lt;language_code or &#39;dub&#39;&gt;.mp4`` next to the source.</span>
+<span class="sd">        api_key: ElevenLabs API key (falls back to ``ELEVENLABS_API_KEY``).</span>
+<span class="sd">        model_id: TTS model id (default ``eleven_multilingual_v2``).</span>
+<span class="sd">        output_format: TTS audio format for the per-cue clips.</span>
+<span class="sd">        voice_settings: Override default ElevenLabs voice settings.</span>
+<span class="sd">        language_code: Optional ISO-639-1 hint forwarded to the TTS model and</span>
+<span class="sd">            used in the default output filename.</span>
+<span class="sd">        fit: ``&quot;speed&quot;`` (default) time-compresses overlong lines (capped at</span>
+<span class="sd">            ``max_speedup``) to hold sync; ``&quot;natural&quot;`` never changes speed.</span>
+<span class="sd">        max_speedup: Maximum tempo factor when ``fit=&quot;speed&quot;`` (clamped to</span>
+<span class="sd">            ffmpeg&#39;s single-``atempo`` ceiling of 2.0).</span>
+<span class="sd">        keep_original_audio: Fraction (0..1) of the original audio to keep</span>
+<span class="sd">            mixed under the narration. ``0.0`` (default) replaces it entirely;</span>
+<span class="sd">            e.g. ``0.15`` keeps a little background music/ambience.</span>
+<span class="sd">        work_dir: Directory for intermediate audio. Defaults to a temp dir.</span>
+<span class="sd">        keep_work: Keep the intermediate per-cue clips and assembled track.</span>
+<span class="sd">        cache: Cache TTS calls on disk (skips re-synthesis of identical lines).</span>
+<span class="sd">        synth_fn: Override the synthesizer ``(text, out_path) -&gt; path``. When</span>
+<span class="sd">            ``None``, uses ElevenLabs via :func:`mixing.dubbing.tts.synthesize_to_file`.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Path to the dubbed video.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError: ``fit`` is not a recognized strategy.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">fit</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;speed&quot;</span><span class="p">,</span> <span class="s2">&quot;natural&quot;</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;fit must be &#39;speed&#39; or &#39;natural&#39;, got </span><span class="si">{</span><span class="n">fit</span><span class="si">!r}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="n">video</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">video</span><span class="p">)</span>
+    <span class="n">cues</span> <span class="o">=</span> <span class="n">_load_cues</span><span class="p">(</span><span class="n">srt</span><span class="p">)</span>
+    <span class="n">out_path</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">Path</span><span class="p">(</span><span class="n">output</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">output</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="k">else</span> <span class="n">video</span><span class="o">.</span><span class="n">with_suffix</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">with_name</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">video</span><span class="o">.</span><span class="n">stem</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">language_code</span><span class="w"> </span><span class="ow">or</span><span class="w"> </span><span class="s1">&#39;dub&#39;</span><span class="si">}</span><span class="s2">.mp4&quot;</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">synth_fn</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">synth_fn</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">dest</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>  <span class="c1"># noqa: E306</span>
+            <span class="k">return</span> <span class="n">synthesize_to_file</span><span class="p">(</span>
+                <span class="n">text</span><span class="p">,</span>
+                <span class="n">voice_id</span><span class="p">,</span>
+                <span class="n">dest</span><span class="p">,</span>
+                <span class="n">api_key</span><span class="o">=</span><span class="n">api_key</span><span class="p">,</span>
+                <span class="n">model_id</span><span class="o">=</span><span class="n">model_id</span><span class="p">,</span>
+                <span class="n">output_format</span><span class="o">=</span><span class="n">output_format</span><span class="p">,</span>
+                <span class="n">voice_settings</span><span class="o">=</span><span class="n">voice_settings</span><span class="p">,</span>
+                <span class="n">language_code</span><span class="o">=</span><span class="n">language_code</span><span class="p">,</span>
+                <span class="n">cache</span><span class="o">=</span><span class="n">cache</span><span class="p">,</span>
+            <span class="p">)</span>
+
+    <span class="n">owns_work_dir</span> <span class="o">=</span> <span class="n">work_dir</span> <span class="ow">is</span> <span class="kc">None</span>
+    <span class="n">work</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">work_dir</span><span class="p">)</span> <span class="k">if</span> <span class="n">work_dir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">Path</span><span class="p">(</span><span class="n">tempfile</span><span class="o">.</span><span class="n">mkdtemp</span><span class="p">(</span><span class="n">prefix</span><span class="o">=</span><span class="s2">&quot;mixing_dub_&quot;</span><span class="p">))</span>
+    <span class="n">work</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">video_dur</span> <span class="o">=</span> <span class="n">_media_duration</span><span class="p">(</span><span class="n">video</span><span class="p">)</span>
+        <span class="n">segments</span> <span class="o">=</span> <span class="n">_build_segments</span><span class="p">(</span>
+            <span class="n">cues</span><span class="p">,</span>
+            <span class="n">work</span><span class="o">=</span><span class="n">work</span><span class="p">,</span>
+            <span class="n">synth_fn</span><span class="o">=</span><span class="n">synth_fn</span><span class="p">,</span>
+            <span class="n">fit</span><span class="o">=</span><span class="n">fit</span><span class="p">,</span>
+            <span class="n">max_speedup</span><span class="o">=</span><span class="n">max_speedup</span><span class="p">,</span>
+            <span class="n">video_dur</span><span class="o">=</span><span class="n">video_dur</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">track_path</span> <span class="o">=</span> <span class="n">work</span> <span class="o">/</span> <span class="s2">&quot;narration_track.wav&quot;</span>
+        <span class="n">assemble_audio_track</span><span class="p">(</span><span class="n">segments</span><span class="p">,</span> <span class="n">saveas</span><span class="o">=</span><span class="n">track_path</span><span class="p">)</span>
+        <span class="n">replace_audio</span><span class="p">(</span>
+            <span class="nb">str</span><span class="p">(</span><span class="n">video</span><span class="p">),</span>
+            <span class="nb">str</span><span class="p">(</span><span class="n">track_path</span><span class="p">),</span>
+            <span class="n">mix_ratio</span><span class="o">=</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">keep_original_audio</span><span class="p">,</span>
+            <span class="n">saveas</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">out_path</span><span class="p">),</span>
+            <span class="n">match_duration</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">owns_work_dir</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">keep_work</span><span class="p">:</span>
+            <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="n">work</span><span class="p">,</span> <span class="n">ignore_errors</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">out_path</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_load_cues</span><span class="p">(</span><span class="n">srt</span><span class="p">:</span> <span class="n">PathLike</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Cue</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Cue</span><span class="p">]:</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">srt</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">srt</span><span class="p">)</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">srt</span><span class="p">)</span>
+    <span class="c1"># Distinguish an SRT *path* from raw SRT *text*.</span>
+    <span class="k">if</span> <span class="s2">&quot;--&gt;&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">text</span><span class="p">:</span>
+        <span class="n">text</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">text</span><span class="p">)</span><span class="o">.</span><span class="n">read_text</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">parse_srt</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_build_segments</span><span class="p">(</span>
+    <span class="n">cues</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Cue</span><span class="p">],</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">work</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
+    <span class="n">synth_fn</span><span class="p">:</span> <span class="n">SynthFn</span><span class="p">,</span>
+    <span class="n">fit</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">max_speedup</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">video_dur</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Synthesize each cue and lay clips on an absolute timeline with gaps.</span>
+
+<span class="sd">    Returns ``(audio_path_or_None, seg_seconds)`` segments for</span>
+<span class="sd">    :func:`assemble_audio_track`: a silence gap before each cue (so it starts</span>
+<span class="sd">    at its cue time) followed by the cue&#39;s clip. Each clip&#39;s *available</span>
+<span class="sd">    window* runs from its start to the **next cue&#39;s start** — i.e. it may use</span>
+<span class="sd">    the natural pause after the line, not just the tight cue ``end``. Only</span>
+<span class="sd">    when a clip still overruns that window is it time-compressed (``fit=</span>
+<span class="sd">    &quot;speed&quot;``, capped at ``max_speedup``), which keeps the read unhurried</span>
+<span class="sd">    wherever the original left room. No speech is ever trimmed.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">cap</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">max_speedup</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">)</span>  <span class="c1"># single ffmpeg atempo handles up to 2.0</span>
+    <span class="n">ordered</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">([</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">cues</span> <span class="k">if</span> <span class="n">c</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">strip</span><span class="p">()],</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">c</span><span class="p">:</span> <span class="n">c</span><span class="o">.</span><span class="n">start</span><span class="p">)</span>
+    <span class="n">segments</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">cursor</span> <span class="o">=</span> <span class="mf">0.0</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">cue</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">ordered</span><span class="p">):</span>
+        <span class="n">gap</span> <span class="o">=</span> <span class="n">cue</span><span class="o">.</span><span class="n">start</span> <span class="o">-</span> <span class="n">cursor</span>
+        <span class="k">if</span> <span class="n">gap</span> <span class="o">&gt;</span> <span class="mf">1e-3</span><span class="p">:</span>
+            <span class="n">segments</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="kc">None</span><span class="p">,</span> <span class="n">gap</span><span class="p">))</span>
+            <span class="n">cursor</span> <span class="o">+=</span> <span class="n">gap</span>
+
+        <span class="n">clip</span> <span class="o">=</span> <span class="n">synth_fn</span><span class="p">(</span><span class="n">cue</span><span class="o">.</span><span class="n">text</span><span class="p">,</span> <span class="n">work</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;cue_</span><span class="si">{</span><span class="n">i</span><span class="si">:</span><span class="s2">04d</span><span class="si">}</span><span class="s2">.mp3&quot;</span><span class="p">)</span>
+        <span class="n">clip_dur</span> <span class="o">=</span> <span class="n">_media_duration</span><span class="p">(</span><span class="n">clip</span><span class="p">)</span>
+
+        <span class="c1"># Window the line can occupy before the next line must begin (or the</span>
+        <span class="c1"># end of the video for the last line). Uses the gap after the cue too.</span>
+        <span class="n">next_start</span> <span class="o">=</span> <span class="n">ordered</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">start</span> <span class="k">if</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">ordered</span><span class="p">)</span> <span class="k">else</span> <span class="n">video_dur</span>
+        <span class="n">window</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">next_start</span> <span class="o">-</span> <span class="n">cursor</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">fit</span> <span class="o">==</span> <span class="s2">&quot;speed&quot;</span> <span class="ow">and</span> <span class="n">window</span> <span class="o">&gt;</span> <span class="mf">0.05</span> <span class="ow">and</span> <span class="n">clip_dur</span> <span class="o">&gt;</span> <span class="n">window</span><span class="p">:</span>
+            <span class="n">factor</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">clip_dur</span> <span class="o">/</span> <span class="n">window</span><span class="p">,</span> <span class="n">cap</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">factor</span> <span class="o">&gt;</span> <span class="mf">1.001</span><span class="p">:</span>
+                <span class="n">sped</span> <span class="o">=</span> <span class="n">work</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;cue_</span><span class="si">{</span><span class="n">i</span><span class="si">:</span><span class="s2">04d</span><span class="si">}</span><span class="s2">.spd.wav&quot;</span>
+                <span class="n">_atempo</span><span class="p">(</span><span class="n">clip</span><span class="p">,</span> <span class="n">sped</span><span class="p">,</span> <span class="n">factor</span><span class="p">)</span>
+                <span class="n">clip</span><span class="p">,</span> <span class="n">clip_dur</span> <span class="o">=</span> <span class="n">sped</span><span class="p">,</span> <span class="n">_media_duration</span><span class="p">(</span><span class="n">sped</span><span class="p">)</span>
+
+        <span class="n">segments</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">clip</span><span class="p">,</span> <span class="n">clip_dur</span><span class="p">))</span>
+        <span class="n">cursor</span> <span class="o">+=</span> <span class="n">clip_dur</span>
+
+    <span class="k">if</span> <span class="n">video_dur</span> <span class="o">-</span> <span class="n">cursor</span> <span class="o">&gt;</span> <span class="mf">1e-3</span><span class="p">:</span>
+        <span class="n">segments</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="kc">None</span><span class="p">,</span> <span class="n">video_dur</span> <span class="o">-</span> <span class="n">cursor</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">segments</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_media_duration</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="n">PathLike</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Duration of a media file in seconds (via ffprobe, moviepy fallback).&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">shutil</span><span class="o">.</span><span class="n">which</span><span class="p">(</span><span class="s2">&quot;ffprobe&quot;</span><span class="p">):</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="s2">&quot;ffprobe&quot;</span><span class="p">,</span> <span class="s2">&quot;-v&quot;</span><span class="p">,</span> <span class="s2">&quot;error&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;-show_entries&quot;</span><span class="p">,</span> <span class="s2">&quot;format=duration&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;-of&quot;</span><span class="p">,</span> <span class="s2">&quot;default=noprint_wrappers=1:nokey=1&quot;</span><span class="p">,</span>
+                <span class="nb">str</span><span class="p">(</span><span class="n">path</span><span class="p">),</span>
+            <span class="p">],</span>
+            <span class="n">capture_output</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">text</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">out</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="k">pass</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">moviepy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">mp</span>  <span class="c1"># fallback; pulls the whole clip</span>
+
+    <span class="k">with</span> <span class="n">mp</span><span class="o">.</span><span class="n">AudioFileClip</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">path</span><span class="p">))</span> <span class="k">as</span> <span class="n">clip</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">clip</span><span class="o">.</span><span class="n">duration</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_atempo</span><span class="p">(</span><span class="n">in_path</span><span class="p">:</span> <span class="n">PathLike</span><span class="p">,</span> <span class="n">out_path</span><span class="p">:</span> <span class="n">PathLike</span><span class="p">,</span> <span class="n">factor</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Time-stretch audio by ``factor`` (speed up if &gt;1) via ffmpeg ``atempo``.&quot;&quot;&quot;</span>
+    <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+        <span class="p">[</span>
+            <span class="s2">&quot;ffmpeg&quot;</span><span class="p">,</span> <span class="s2">&quot;-y&quot;</span><span class="p">,</span> <span class="s2">&quot;-loglevel&quot;</span><span class="p">,</span> <span class="s2">&quot;error&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;-i&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">in_path</span><span class="p">),</span>
+            <span class="s2">&quot;-filter:a&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;atempo=</span><span class="si">{</span><span class="n">factor</span><span class="si">:</span><span class="s2">.5f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;-vn&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">out_path</span><span class="p">),</span>
+        <span class="p">],</span>
+        <span class="n">check</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">capture_output</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="n">out_path</span><span class="p">)</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright NO COPYRIGHT.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

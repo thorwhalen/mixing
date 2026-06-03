@@ -1,0 +1,299 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>mixing.video.thumbnail &mdash; mixing 0.0.21 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=a11416ff"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../../../_static/toggleprompt.js?v=d7ede5d2"></script>
+      <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            mixing
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing.html">mixing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/audio.html">mixing.audio</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/audio/audio_ops.html">mixing.audio.audio_ops</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/audio/audio_util.html">mixing.audio.audio_util</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/audio/audio_widget.html">mixing.audio.audio_widget</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/audio/demo_audio_widget.html">mixing.audio.demo_audio_widget</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/audio/segmentation.html">mixing.audio.segmentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/audio/test_audio_widget.html">mixing.audio.test_audio_widget</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/chapters.html">mixing.chapters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/dubbing.html">mixing.dubbing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/dubbing/dub.html">mixing.dubbing.dub</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/dubbing/srt.html">mixing.dubbing.srt</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/dubbing/tts.html">mixing.dubbing.tts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/transcript.html">mixing.transcript</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/transcript/fillers.html">mixing.transcript.fillers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/transcript/formats.html">mixing.transcript.formats</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/transcript/media.html">mixing.transcript.media</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/transcript/persist.html">mixing.transcript.persist</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/transcript/pipeline.html">mixing.transcript.pipeline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/transcript/scribe.html">mixing.transcript.scribe</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/util.html">mixing.util</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video.html">mixing.video</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/_helpers.html">mixing.video._helpers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/audio_offset_example.html">mixing.video.audio_offset_example</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/thumbnail.html">mixing.video.thumbnail</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/video_concat.html">mixing.video.video_concat</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/video_files.html">mixing.video.video_files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/video_gen.html">mixing.video.video_gen</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/video_ops.html">mixing.video.video_ops</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/video_subtitles.html">mixing.video.video_subtitles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/video_util.html">mixing.video.video_util</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">mixing</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">mixing.video.thumbnail</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for mixing.video.thumbnail</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Thumbnail / cover-image generation from a video frame.</span>
+
+<span class="sd">Extracts a representative frame and renders it to a 16:9 1280x720 image</span>
+<span class="sd">(a good default for video thumbnails and podcast-cover-over-video alike),</span>
+<span class="sd">optionally overlaying a short title with a legible gradient band. Uses ffmpeg</span>
+<span class="sd">for frame extraction and Pillow for compositing. Platform-neutral — the size</span>
+<span class="sd">is a sensible default, not a YouTube-specific coupling.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">subprocess</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="n">PathLike</span> <span class="o">=</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span>
+
+<span class="c1">#: Default 16:9 thumbnail/cover resolution (also YouTube&#39;s recommended size).</span>
+<span class="n">THUMBNAIL_SIZE</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1280</span><span class="p">,</span> <span class="mi">720</span><span class="p">)</span>
+<span class="c1">#: Backwards-compatible alias.</span>
+<span class="n">YOUTUBE_THUMB_SIZE</span> <span class="o">=</span> <span class="n">THUMBNAIL_SIZE</span>
+
+
+<div class="viewcode-block" id="make_thumbnail">
+<a class="viewcode-back" href="../../../module_docs/mixing/video/thumbnail.html#mixing.video.thumbnail.make_thumbnail">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">make_thumbnail</span><span class="p">(</span>
+    <span class="n">video</span><span class="p">:</span> <span class="n">PathLike</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">at_time</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">text</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">saveas</span><span class="p">:</span> <span class="n">PathLike</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">size</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="n">THUMBNAIL_SIZE</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a thumbnail image from a frame of ``video``.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        video: Source video path.</span>
+<span class="sd">        at_time: Timestamp (seconds) of the frame to grab. Defaults to 85% of</span>
+<span class="sd">            the video duration (typically the closing brand/logo shot).</span>
+<span class="sd">        text: Optional short overlay text (e.g. the title). Rendered bottom-left</span>
+<span class="sd">            over a dark gradient band for legibility.</span>
+<span class="sd">        saveas: Output image path. Defaults to ``&lt;video-stem&gt;.thumb.jpg``.</span>
+<span class="sd">        size: Output size (width, height). Defaults to 1280x720.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Path to the written JPEG.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">PIL</span><span class="w"> </span><span class="kn">import</span> <span class="n">Image</span>
+
+    <span class="n">video</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">video</span><span class="p">)</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">saveas</span><span class="p">)</span> <span class="k">if</span> <span class="n">saveas</span> <span class="k">else</span> <span class="n">video</span><span class="o">.</span><span class="n">with_suffix</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">with_name</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">video</span><span class="o">.</span><span class="n">stem</span><span class="si">}</span><span class="s2">.thumb.jpg&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">at_time</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">at_time</span> <span class="o">=</span> <span class="mf">0.85</span> <span class="o">*</span> <span class="n">_media_duration</span><span class="p">(</span><span class="n">video</span><span class="p">)</span>
+
+    <span class="n">raw_frame</span> <span class="o">=</span> <span class="n">out</span><span class="o">.</span><span class="n">with_suffix</span><span class="p">(</span><span class="s2">&quot;.rawframe.png&quot;</span><span class="p">)</span>
+    <span class="n">_extract_frame</span><span class="p">(</span><span class="n">video</span><span class="p">,</span> <span class="n">at_time</span><span class="p">,</span> <span class="n">raw_frame</span><span class="p">)</span>
+
+    <span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">raw_frame</span><span class="p">)</span><span class="o">.</span><span class="n">convert</span><span class="p">(</span><span class="s2">&quot;RGB&quot;</span><span class="p">)</span>
+    <span class="n">img</span> <span class="o">=</span> <span class="n">_cover_resize</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">size</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">text</span><span class="p">:</span>
+        <span class="n">_overlay_text</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span>
+    <span class="n">img</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">quality</span><span class="o">=</span><span class="mi">90</span><span class="p">)</span>
+    <span class="n">raw_frame</span><span class="o">.</span><span class="n">unlink</span><span class="p">(</span><span class="n">missing_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">out</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_extract_frame</span><span class="p">(</span><span class="n">video</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">at_time</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">dest</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+    <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+        <span class="p">[</span>
+            <span class="s2">&quot;ffmpeg&quot;</span><span class="p">,</span> <span class="s2">&quot;-y&quot;</span><span class="p">,</span> <span class="s2">&quot;-loglevel&quot;</span><span class="p">,</span> <span class="s2">&quot;error&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;-ss&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">at_time</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;-i&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">video</span><span class="p">),</span>
+            <span class="s2">&quot;-frames:v&quot;</span><span class="p">,</span> <span class="s2">&quot;1&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">dest</span><span class="p">),</span>
+        <span class="p">],</span>
+        <span class="n">check</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">capture_output</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">dest</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_media_duration</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="n">PathLike</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+        <span class="p">[</span>
+            <span class="s2">&quot;ffprobe&quot;</span><span class="p">,</span> <span class="s2">&quot;-v&quot;</span><span class="p">,</span> <span class="s2">&quot;error&quot;</span><span class="p">,</span> <span class="s2">&quot;-show_entries&quot;</span><span class="p">,</span> <span class="s2">&quot;format=duration&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;-of&quot;</span><span class="p">,</span> <span class="s2">&quot;default=noprint_wrappers=1:nokey=1&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">path</span><span class="p">),</span>
+        <span class="p">],</span>
+        <span class="n">capture_output</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">text</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">out</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_cover_resize</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">size</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Resize+center-crop ``img`` to exactly ``size`` (object-fit: cover).&quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">PIL</span><span class="w"> </span><span class="kn">import</span> <span class="n">Image</span>
+
+    <span class="n">tw</span><span class="p">,</span> <span class="n">th</span> <span class="o">=</span> <span class="n">size</span>
+    <span class="n">w</span><span class="p">,</span> <span class="n">h</span> <span class="o">=</span> <span class="n">img</span><span class="o">.</span><span class="n">size</span>
+    <span class="n">scale</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">tw</span> <span class="o">/</span> <span class="n">w</span><span class="p">,</span> <span class="n">th</span> <span class="o">/</span> <span class="n">h</span><span class="p">)</span>
+    <span class="n">img</span> <span class="o">=</span> <span class="n">img</span><span class="o">.</span><span class="n">resize</span><span class="p">((</span><span class="nb">round</span><span class="p">(</span><span class="n">w</span> <span class="o">*</span> <span class="n">scale</span><span class="p">),</span> <span class="nb">round</span><span class="p">(</span><span class="n">h</span> <span class="o">*</span> <span class="n">scale</span><span class="p">)),</span> <span class="n">Image</span><span class="o">.</span><span class="n">LANCZOS</span><span class="p">)</span>
+    <span class="n">w</span><span class="p">,</span> <span class="n">h</span> <span class="o">=</span> <span class="n">img</span><span class="o">.</span><span class="n">size</span>
+    <span class="n">left</span><span class="p">,</span> <span class="n">top</span> <span class="o">=</span> <span class="p">(</span><span class="n">w</span> <span class="o">-</span> <span class="n">tw</span><span class="p">)</span> <span class="o">//</span> <span class="mi">2</span><span class="p">,</span> <span class="p">(</span><span class="n">h</span> <span class="o">-</span> <span class="n">th</span><span class="p">)</span> <span class="o">//</span> <span class="mi">2</span>
+    <span class="k">return</span> <span class="n">img</span><span class="o">.</span><span class="n">crop</span><span class="p">((</span><span class="n">left</span><span class="p">,</span> <span class="n">top</span><span class="p">,</span> <span class="n">left</span> <span class="o">+</span> <span class="n">tw</span><span class="p">,</span> <span class="n">top</span> <span class="o">+</span> <span class="n">th</span><span class="p">))</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_overlay_text</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Draw ``text`` bottom-left over a dark gradient band, in place.&quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">PIL</span><span class="w"> </span><span class="kn">import</span> <span class="n">Image</span><span class="p">,</span> <span class="n">ImageDraw</span><span class="p">,</span> <span class="n">ImageFont</span>
+
+    <span class="n">w</span><span class="p">,</span> <span class="n">h</span> <span class="o">=</span> <span class="n">img</span><span class="o">.</span><span class="n">size</span>
+    <span class="n">band_h</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">h</span> <span class="o">*</span> <span class="mf">0.32</span><span class="p">)</span>
+    <span class="n">band</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="s2">&quot;RGBA&quot;</span><span class="p">,</span> <span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="n">band_h</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+    <span class="n">bd</span> <span class="o">=</span> <span class="n">ImageDraw</span><span class="o">.</span><span class="n">Draw</span><span class="p">(</span><span class="n">band</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">band_h</span><span class="p">):</span>
+        <span class="n">alpha</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="mi">200</span> <span class="o">*</span> <span class="p">(</span><span class="n">y</span> <span class="o">/</span> <span class="n">band_h</span><span class="p">))</span>  <span class="c1"># transparent at top -&gt; dark at bottom</span>
+        <span class="n">bd</span><span class="o">.</span><span class="n">line</span><span class="p">([(</span><span class="mi">0</span><span class="p">,</span> <span class="n">y</span><span class="p">),</span> <span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="n">y</span><span class="p">)],</span> <span class="n">fill</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">alpha</span><span class="p">))</span>
+    <span class="n">img</span><span class="o">.</span><span class="n">paste</span><span class="p">(</span><span class="n">Image</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="s2">&quot;RGB&quot;</span><span class="p">,</span> <span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="n">band_h</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">h</span> <span class="o">-</span> <span class="n">band_h</span><span class="p">),</span> <span class="n">band</span><span class="p">)</span>
+
+    <span class="n">draw</span> <span class="o">=</span> <span class="n">ImageDraw</span><span class="o">.</span><span class="n">Draw</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>
+    <span class="n">font</span> <span class="o">=</span> <span class="n">_load_font</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">h</span> <span class="o">*</span> <span class="mf">0.085</span><span class="p">))</span>
+    <span class="n">margin</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">w</span> <span class="o">*</span> <span class="mf">0.04</span><span class="p">)</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="n">_wrap</span><span class="p">(</span><span class="n">draw</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">font</span><span class="p">,</span> <span class="n">w</span> <span class="o">-</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">margin</span><span class="p">)</span>
+    <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">text_h</span> <span class="o">=</span> <span class="n">draw</span><span class="o">.</span><span class="n">multiline_textbbox</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">text</span><span class="p">,</span> <span class="n">font</span><span class="o">=</span><span class="n">font</span><span class="p">)</span>
+    <span class="n">draw</span><span class="o">.</span><span class="n">multiline_text</span><span class="p">(</span>
+        <span class="p">(</span><span class="n">margin</span><span class="p">,</span> <span class="n">h</span> <span class="o">-</span> <span class="n">margin</span> <span class="o">-</span> <span class="n">text_h</span><span class="p">),</span>
+        <span class="n">text</span><span class="p">,</span>
+        <span class="n">font</span><span class="o">=</span><span class="n">font</span><span class="p">,</span>
+        <span class="n">fill</span><span class="o">=</span><span class="p">(</span><span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">),</span>
+        <span class="n">stroke_width</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+        <span class="n">stroke_fill</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+        <span class="n">spacing</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_load_font</span><span class="p">(</span><span class="n">size</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">PIL</span><span class="w"> </span><span class="kn">import</span> <span class="n">ImageFont</span>
+
+    <span class="k">for</span> <span class="n">candidate</span> <span class="ow">in</span> <span class="p">(</span>
+        <span class="s2">&quot;/System/Library/Fonts/Supplemental/Arial Bold.ttf&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;/System/Library/Fonts/Helvetica.ttc&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;/Library/Fonts/Arial.ttf&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;DejaVuSans-Bold.ttf&quot;</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">ImageFont</span><span class="o">.</span><span class="n">truetype</span><span class="p">(</span><span class="n">candidate</span><span class="p">,</span> <span class="n">size</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">OSError</span><span class="p">:</span>
+            <span class="k">continue</span>
+    <span class="k">return</span> <span class="n">ImageFont</span><span class="o">.</span><span class="n">load_default</span><span class="p">()</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_wrap</span><span class="p">(</span><span class="n">draw</span><span class="p">,</span> <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">font</span><span class="p">,</span> <span class="n">max_width</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="n">words</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+    <span class="n">lines</span><span class="p">,</span> <span class="n">cur</span> <span class="o">=</span> <span class="p">[],</span> <span class="s2">&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">words</span><span class="p">:</span>
+        <span class="n">trial</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">cur</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">word</span><span class="si">}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">draw</span><span class="o">.</span><span class="n">textlength</span><span class="p">(</span><span class="n">trial</span><span class="p">,</span> <span class="n">font</span><span class="o">=</span><span class="n">font</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">max_width</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">cur</span><span class="p">:</span>
+            <span class="n">cur</span> <span class="o">=</span> <span class="n">trial</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cur</span><span class="p">)</span>
+            <span class="n">cur</span> <span class="o">=</span> <span class="n">word</span>
+    <span class="k">if</span> <span class="n">cur</span><span class="p">:</span>
+        <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cur</span><span class="p">)</span>
+    <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright NO COPYRIGHT.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

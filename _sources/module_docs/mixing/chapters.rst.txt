@@ -1,0 +1,4 @@
+mixing.chapters
+===============
+.. automodule:: mixing.chapters
+   :members:

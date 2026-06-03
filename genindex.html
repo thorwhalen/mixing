@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Index &mdash; mixing 0.0.20 documentation</title>
+  <title>Index &mdash; mixing 0.0.21 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
@@ -14,7 +14,7 @@
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=056c92e6"></script>
+      <script src="_static/documentation_options.js?v=a11416ff"></script>
       <script src="_static/doctools.js?v=fd6eb6e6"></script>
       <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="_static/toggleprompt.js?v=d7ede5d2"></script>
@@ -54,16 +54,23 @@
 <li class="toctree-l1"><a class="reference internal" href="module_docs/mixing/audio/demo_audio_widget.html">mixing.audio.demo_audio_widget</a></li>
 <li class="toctree-l1"><a class="reference internal" href="module_docs/mixing/audio/segmentation.html">mixing.audio.segmentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="module_docs/mixing/audio/test_audio_widget.html">mixing.audio.test_audio_widget</a></li>
+<li class="toctree-l1"><a class="reference internal" href="module_docs/mixing/chapters.html">mixing.chapters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="module_docs/mixing/dubbing.html">mixing.dubbing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="module_docs/mixing/dubbing/dub.html">mixing.dubbing.dub</a></li>
+<li class="toctree-l1"><a class="reference internal" href="module_docs/mixing/dubbing/srt.html">mixing.dubbing.srt</a></li>
+<li class="toctree-l1"><a class="reference internal" href="module_docs/mixing/dubbing/tts.html">mixing.dubbing.tts</a></li>
 <li class="toctree-l1"><a class="reference internal" href="module_docs/mixing/transcript.html">mixing.transcript</a></li>
 <li class="toctree-l1"><a class="reference internal" href="module_docs/mixing/transcript/fillers.html">mixing.transcript.fillers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="module_docs/mixing/transcript/formats.html">mixing.transcript.formats</a></li>
 <li class="toctree-l1"><a class="reference internal" href="module_docs/mixing/transcript/media.html">mixing.transcript.media</a></li>
+<li class="toctree-l1"><a class="reference internal" href="module_docs/mixing/transcript/persist.html">mixing.transcript.persist</a></li>
 <li class="toctree-l1"><a class="reference internal" href="module_docs/mixing/transcript/pipeline.html">mixing.transcript.pipeline</a></li>
 <li class="toctree-l1"><a class="reference internal" href="module_docs/mixing/transcript/scribe.html">mixing.transcript.scribe</a></li>
 <li class="toctree-l1"><a class="reference internal" href="module_docs/mixing/util.html">mixing.util</a></li>
 <li class="toctree-l1"><a class="reference internal" href="module_docs/mixing/video.html">mixing.video</a></li>
 <li class="toctree-l1"><a class="reference internal" href="module_docs/mixing/video/_helpers.html">mixing.video._helpers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="module_docs/mixing/video/audio_offset_example.html">mixing.video.audio_offset_example</a></li>
+<li class="toctree-l1"><a class="reference internal" href="module_docs/mixing/video/thumbnail.html">mixing.video.thumbnail</a></li>
 <li class="toctree-l1"><a class="reference internal" href="module_docs/mixing/video/video_concat.html">mixing.video.video_concat</a></li>
 <li class="toctree-l1"><a class="reference internal" href="module_docs/mixing/video/video_files.html">mixing.video.video_files</a></li>
 <li class="toctree-l1"><a class="reference internal" href="module_docs/mixing/video/video_gen.html">mixing.video.video_gen</a></li>
@@ -113,16 +120,24 @@
  | <a href="#M"><strong>M</strong></a>
  | <a href="#N"><strong>N</strong></a>
  | <a href="#O"><strong>O</strong></a>
+ | <a href="#P"><strong>P</strong></a>
  | <a href="#R"><strong>R</strong></a>
  | <a href="#S"><strong>S</strong></a>
  | <a href="#T"><strong>T</strong></a>
  | <a href="#V"><strong>V</strong></a>
  | <a href="#W"><strong>W</strong></a>
+ | <a href="#Y"><strong>Y</strong></a>
  
 </div>
 <h2 id="A">A</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="module_docs/mixing/dubbing.html#mixing.dubbing.add_shared_voice">add_shared_voice() (in module mixing.dubbing)</a>
+
+      <ul>
+        <li><a href="module_docs/mixing/dubbing/tts.html#mixing.dubbing.tts.add_shared_voice">(in module mixing.dubbing.tts)</a>
+</li>
+      </ul></li>
       <li><a href="module_docs/mixing/transcript.html#mixing.transcript.apply_keeps">apply_keeps() (in module mixing.transcript)</a>
 
       <ul>
@@ -185,6 +200,8 @@
         <li><a href="module_docs/mixing/audio/audio_ops.html#mixing.audio.audio_ops.Audio.channels">(mixing.audio.audio_ops.Audio property)</a>
 </li>
       </ul></li>
+      <li><a href="module_docs/mixing/chapters.html#mixing.chapters.Chapter">Chapter (class in mixing.chapters)</a>
+</li>
       <li><a href="module_docs/mixing/audio.html#mixing.audio.concatenate_audio">concatenate_audio() (in module mixing.audio)</a>
 
       <ul>
@@ -193,10 +210,10 @@
       </ul></li>
       <li><a href="module_docs/mixing/video/video_concat.html#mixing.video.video_concat.concatenate_videos">concatenate_videos() (in module mixing.video.video_concat)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="module_docs/mixing/util.html#mixing.util.copy_to_clipboard">copy_to_clipboard() (in module mixing.util)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="module_docs/mixing/video/video_subtitles.html#mixing.video.video_subtitles.create_test_srt">create_test_srt() (in module mixing.video.video_subtitles)</a>
 </li>
       <li><a href="module_docs/mixing/video/video_subtitles.html#mixing.video.video_subtitles.create_test_video">create_test_video() (in module mixing.video.video_subtitles)</a>
@@ -211,6 +228,12 @@
 </li>
       <li><a href="module_docs/mixing/video/video_concat.html#mixing.video.video_concat.crossfade_transition">crossfade_transition() (in module mixing.video.video_concat)</a>
 </li>
+      <li><a href="module_docs/mixing/dubbing.html#mixing.dubbing.Cue">Cue (class in mixing.dubbing)</a>
+
+      <ul>
+        <li><a href="module_docs/mixing/dubbing/srt.html#mixing.dubbing.srt.Cue">(class in mixing.dubbing.srt)</a>
+</li>
+      </ul></li>
   </ul></td>
 </tr></table>
 
@@ -219,16 +242,48 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="module_docs/mixing/transcript/fillers.html#mixing.transcript.fillers.DEFAULT_AUDIO_EVENTS_TO_CUT">DEFAULT_AUDIO_EVENTS_TO_CUT (in module mixing.transcript.fillers)</a>
 </li>
-      <li><a href="module_docs/mixing/transcript.html#mixing.transcript.default_cache_dir">default_cache_dir() (in module mixing.transcript)</a>
+      <li><a href="module_docs/mixing/dubbing.html#mixing.dubbing.default_cache_dir">default_cache_dir() (in module mixing.dubbing)</a>
 
       <ul>
+        <li><a href="module_docs/mixing/dubbing/tts.html#mixing.dubbing.tts.default_cache_dir">(in module mixing.dubbing.tts)</a>
+</li>
+        <li><a href="module_docs/mixing/transcript.html#mixing.transcript.default_cache_dir">(in module mixing.transcript)</a>
+</li>
         <li><a href="module_docs/mixing/transcript/scribe.html#mixing.transcript.scribe.default_cache_dir">(in module mixing.transcript.scribe)</a>
 </li>
       </ul></li>
       <li><a href="module_docs/mixing/transcript/fillers.html#mixing.transcript.fillers.DEFAULT_FILLER_TOKENS">DEFAULT_FILLER_TOKENS (in module mixing.transcript.fillers)</a>
 </li>
+      <li><a href="module_docs/mixing/chapters.html#mixing.chapters.default_segment_fn">default_segment_fn() (in module mixing.chapters)</a>
+</li>
+      <li><a href="module_docs/mixing/dubbing.html#mixing.dubbing.default_translate_fn">default_translate_fn() (in module mixing.dubbing)</a>
+
+      <ul>
+        <li><a href="module_docs/mixing/dubbing/srt.html#mixing.dubbing.srt.default_translate_fn">(in module mixing.dubbing.srt)</a>
+</li>
+      </ul></li>
+      <li><a href="module_docs/mixing/chapters.html#mixing.chapters.detect_chapters">detect_chapters() (in module mixing.chapters)</a>
+</li>
+      <li><a href="module_docs/mixing/dubbing/tts.html#mixing.dubbing.tts.DFLT_MODEL_ID">DFLT_MODEL_ID (in module mixing.dubbing.tts)</a>
+</li>
+      <li><a href="module_docs/mixing/dubbing/tts.html#mixing.dubbing.tts.DFLT_OUTPUT_FORMAT">DFLT_OUTPUT_FORMAT (in module mixing.dubbing.tts)</a>
+</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="module_docs/mixing/dubbing/tts.html#mixing.dubbing.tts.DFLT_VOICE_SETTINGS">DFLT_VOICE_SETTINGS (in module mixing.dubbing.tts)</a>
+</li>
+      <li><a href="module_docs/mixing/dubbing.html#mixing.dubbing.dub_video_from_srt">dub_video_from_srt() (in module mixing.dubbing)</a>
+
+      <ul>
+        <li><a href="module_docs/mixing/dubbing/dub.html#mixing.dubbing.dub.dub_video_from_srt">(in module mixing.dubbing.dub)</a>
+</li>
+      </ul></li>
+      <li><a href="module_docs/mixing/dubbing.html#mixing.dubbing.dump_srt">dump_srt() (in module mixing.dubbing)</a>
+
+      <ul>
+        <li><a href="module_docs/mixing/dubbing/srt.html#mixing.dubbing.srt.dump_srt">(in module mixing.dubbing.srt)</a>
+</li>
+      </ul></li>
       <li><a href="module_docs/mixing/audio.html#mixing.audio.Audio.duration">duration (mixing.audio.Audio property)</a>
 
       <ul>
@@ -237,6 +292,10 @@
         <li><a href="module_docs/mixing/audio.html#mixing.audio.Segment.duration">(mixing.audio.Segment property)</a>
 </li>
         <li><a href="module_docs/mixing/audio/segmentation.html#mixing.audio.segmentation.Segment.duration">(mixing.audio.segmentation.Segment property)</a>
+</li>
+        <li><a href="module_docs/mixing/dubbing.html#mixing.dubbing.Cue.duration">(mixing.dubbing.Cue property)</a>
+</li>
+        <li><a href="module_docs/mixing/dubbing/srt.html#mixing.dubbing.srt.Cue.duration">(mixing.dubbing.srt.Cue property)</a>
 </li>
         <li><a href="module_docs/mixing/video/video_ops.html#mixing.video.video_ops.Video.duration">(mixing.video.video_ops.Video property)</a>
 </li>
@@ -252,6 +311,10 @@
       <ul>
         <li><a href="module_docs/mixing/audio/segmentation.html#mixing.audio.segmentation.Segment.end">(mixing.audio.segmentation.Segment attribute)</a>
 </li>
+        <li><a href="module_docs/mixing/dubbing.html#mixing.dubbing.Cue.end">(mixing.dubbing.Cue attribute)</a>
+</li>
+        <li><a href="module_docs/mixing/dubbing/srt.html#mixing.dubbing.srt.Cue.end">(mixing.dubbing.srt.Cue attribute)</a>
+</li>
       </ul></li>
       <li><a href="module_docs/mixing/audio.html#mixing.audio.Audio.end_time">end_time (mixing.audio.Audio property)</a>
 
@@ -263,10 +326,10 @@
       </ul></li>
       <li><a href="module_docs/mixing/video/video_concat.html#mixing.video.video_concat.ensure_videoclip_iterable">ensure_videoclip_iterable() (in module mixing.video.video_concat)</a>
 </li>
-      <li><a href="module_docs/mixing/video/audio_offset_example.html#mixing.video.audio_offset_example.example_analyze_audio_peaks">example_analyze_audio_peaks() (in module mixing.video.audio_offset_example)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="module_docs/mixing/video/audio_offset_example.html#mixing.video.audio_offset_example.example_analyze_audio_peaks">example_analyze_audio_peaks() (in module mixing.video.audio_offset_example)</a>
+</li>
       <li><a href="module_docs/mixing/video/audio_offset_example.html#mixing.video.audio_offset_example.example_audio_based_shift">example_audio_based_shift() (in module mixing.video.audio_offset_example)</a>
 </li>
       <li><a href="module_docs/mixing/video/audio_offset_example.html#mixing.video.audio_offset_example.example_basic_shift">example_basic_shift() (in module mixing.video.audio_offset_example)</a>
@@ -335,6 +398,12 @@
         <li><a href="module_docs/mixing/audio/segmentation.html#mixing.audio.segmentation.find_segments">(in module mixing.audio.segmentation)</a>
 </li>
       </ul></li>
+      <li><a href="module_docs/mixing/dubbing.html#mixing.dubbing.find_voice">find_voice() (in module mixing.dubbing)</a>
+
+      <ul>
+        <li><a href="module_docs/mixing/dubbing/tts.html#mixing.dubbing.tts.find_voice">(in module mixing.dubbing.tts)</a>
+</li>
+      </ul></li>
       <li><a href="module_docs/mixing/video/video_subtitles.html#mixing.video.video_subtitles.fix_srt_file">fix_srt_file() (in module mixing.video.video_subtitles)</a>
 </li>
       <li><a href="module_docs/mixing/transcript.html#mixing.transcript.fmt_srt_time">fmt_srt_time() (in module mixing.transcript)</a>
@@ -389,6 +458,14 @@
 <h2 id="I">I</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="module_docs/mixing/dubbing.html#mixing.dubbing.Cue.index">index (mixing.dubbing.Cue attribute)</a>
+
+      <ul>
+        <li><a href="module_docs/mixing/dubbing/srt.html#mixing.dubbing.srt.Cue.index">(mixing.dubbing.srt.Cue attribute)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="module_docs/mixing/transcript.html#mixing.transcript.is_filler">is_filler() (in module mixing.transcript)</a>
 
       <ul>
@@ -421,6 +498,12 @@
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="module_docs/mixing/dubbing.html#mixing.dubbing.list_voices">list_voices() (in module mixing.dubbing)</a>
+
+      <ul>
+        <li><a href="module_docs/mixing/dubbing/tts.html#mixing.dubbing.tts.list_voices">(in module mixing.dubbing.tts)</a>
+</li>
+      </ul></li>
       <li><a href="module_docs/mixing/video/video_ops.html#mixing.video.video_ops.loop_video">loop_video() (in module mixing.video.video_ops)</a>
 </li>
   </ul></td>
@@ -429,6 +512,8 @@
 <h2 id="M">M</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="module_docs/mixing/video/thumbnail.html#mixing.video.thumbnail.make_thumbnail">make_thumbnail() (in module mixing.video.thumbnail)</a>
+</li>
       <li>
     mixing
 
@@ -465,6 +550,41 @@
 </li>
       </ul></li>
       <li>
+    mixing.chapters
+
+      <ul>
+        <li><a href="module_docs/mixing/chapters.html#module-mixing.chapters">module</a>
+</li>
+      </ul></li>
+      <li>
+    mixing.dubbing
+
+      <ul>
+        <li><a href="module_docs/mixing/dubbing.html#module-mixing.dubbing">module</a>
+</li>
+      </ul></li>
+      <li>
+    mixing.dubbing.dub
+
+      <ul>
+        <li><a href="module_docs/mixing/dubbing/dub.html#module-mixing.dubbing.dub">module</a>
+</li>
+      </ul></li>
+      <li>
+    mixing.dubbing.srt
+
+      <ul>
+        <li><a href="module_docs/mixing/dubbing/srt.html#module-mixing.dubbing.srt">module</a>
+</li>
+      </ul></li>
+      <li>
+    mixing.dubbing.tts
+
+      <ul>
+        <li><a href="module_docs/mixing/dubbing/tts.html#module-mixing.dubbing.tts">module</a>
+</li>
+      </ul></li>
+      <li>
     mixing.transcript
 
       <ul>
@@ -490,6 +610,13 @@
 
       <ul>
         <li><a href="module_docs/mixing/transcript/media.html#module-mixing.transcript.media">module</a>
+</li>
+      </ul></li>
+      <li>
+    mixing.transcript.persist
+
+      <ul>
+        <li><a href="module_docs/mixing/transcript/persist.html#module-mixing.transcript.persist">module</a>
 </li>
       </ul></li>
       <li>
@@ -534,6 +661,15 @@
         <li><a href="module_docs/mixing/video/audio_offset_example.html#module-mixing.video.audio_offset_example">module</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li>
+    mixing.video.thumbnail
+
+      <ul>
+        <li><a href="module_docs/mixing/video/thumbnail.html#module-mixing.video.thumbnail">module</a>
+</li>
+      </ul></li>
       <li>
     mixing.video.video_concat
 
@@ -541,8 +677,6 @@
         <li><a href="module_docs/mixing/video/video_concat.html#module-mixing.video.video_concat">module</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     mixing.video.video_files
 
@@ -592,6 +726,16 @@
 </li>
         <li><a href="module_docs/mixing/audio/segmentation.html#module-mixing.audio.segmentation">mixing.audio.segmentation</a>
 </li>
+        <li><a href="module_docs/mixing/chapters.html#module-mixing.chapters">mixing.chapters</a>
+</li>
+        <li><a href="module_docs/mixing/dubbing.html#module-mixing.dubbing">mixing.dubbing</a>
+</li>
+        <li><a href="module_docs/mixing/dubbing/dub.html#module-mixing.dubbing.dub">mixing.dubbing.dub</a>
+</li>
+        <li><a href="module_docs/mixing/dubbing/srt.html#module-mixing.dubbing.srt">mixing.dubbing.srt</a>
+</li>
+        <li><a href="module_docs/mixing/dubbing/tts.html#module-mixing.dubbing.tts">mixing.dubbing.tts</a>
+</li>
         <li><a href="module_docs/mixing/transcript.html#module-mixing.transcript">mixing.transcript</a>
 </li>
         <li><a href="module_docs/mixing/transcript/fillers.html#module-mixing.transcript.fillers">mixing.transcript.fillers</a>
@@ -599,6 +743,8 @@
         <li><a href="module_docs/mixing/transcript/formats.html#module-mixing.transcript.formats">mixing.transcript.formats</a>
 </li>
         <li><a href="module_docs/mixing/transcript/media.html#module-mixing.transcript.media">mixing.transcript.media</a>
+</li>
+        <li><a href="module_docs/mixing/transcript/persist.html#module-mixing.transcript.persist">mixing.transcript.persist</a>
 </li>
         <li><a href="module_docs/mixing/transcript/pipeline.html#module-mixing.transcript.pipeline">mixing.transcript.pipeline</a>
 </li>
@@ -611,6 +757,8 @@
         <li><a href="module_docs/mixing/video/_helpers.html#module-mixing.video._helpers">mixing.video._helpers</a>
 </li>
         <li><a href="module_docs/mixing/video/audio_offset_example.html#module-mixing.video.audio_offset_example">mixing.video.audio_offset_example</a>
+</li>
+        <li><a href="module_docs/mixing/video/thumbnail.html#module-mixing.video.thumbnail">mixing.video.thumbnail</a>
 </li>
         <li><a href="module_docs/mixing/video/video_concat.html#module-mixing.video.video_concat">mixing.video.video_concat</a>
 </li>
@@ -669,6 +817,18 @@
 
       <ul>
         <li><a href="module_docs/mixing/audio/audio_ops.html#mixing.audio.audio_ops.overlay_audio">(in module mixing.audio.audio_ops)</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="P">P</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="module_docs/mixing/dubbing.html#mixing.dubbing.parse_srt">parse_srt() (in module mixing.dubbing)</a>
+
+      <ul>
+        <li><a href="module_docs/mixing/dubbing/srt.html#mixing.dubbing.srt.parse_srt">(in module mixing.dubbing.srt)</a>
 </li>
       </ul></li>
   </ul></td>
@@ -757,10 +917,14 @@
         <li><a href="module_docs/mixing/audio/segmentation.html#mixing.audio.segmentation.Segment.score">(mixing.audio.segmentation.Segment attribute)</a>
 </li>
       </ul></li>
+      <li><a href="module_docs/mixing/dubbing.html#mixing.dubbing.search_shared_voices">search_shared_voices() (in module mixing.dubbing)</a>
+
+      <ul>
+        <li><a href="module_docs/mixing/dubbing/tts.html#mixing.dubbing.tts.search_shared_voices">(in module mixing.dubbing.tts)</a>
+</li>
+      </ul></li>
       <li><a href="module_docs/mixing/video/video_subtitles.html#mixing.video.video_subtitles.seconds_to_srt_time">seconds_to_srt_time() (in module mixing.video.video_subtitles)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="module_docs/mixing/audio.html#mixing.audio.Segment">Segment (class in mixing.audio)</a>
 
       <ul>
@@ -773,6 +937,8 @@
         <li><a href="module_docs/mixing/audio/segmentation.html#mixing.audio.segmentation.segment_by_energy">(in module mixing.audio.segmentation)</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="module_docs/mixing/audio.html#mixing.audio.segment_by_self_similarity">segment_by_self_similarity() (in module mixing.audio)</a>
 
       <ul>
@@ -791,16 +957,34 @@
         <li><a href="module_docs/mixing/audio/segmentation.html#mixing.audio.segmentation.segment_by_speech_music">(in module mixing.audio.segmentation)</a>
 </li>
       </ul></li>
+      <li><a href="module_docs/mixing/chapters.html#mixing.chapters.SegmentFn">SegmentFn (in module mixing.chapters)</a>
+</li>
       <li><a href="module_docs/mixing/video/video_subtitles.html#mixing.video.video_subtitles.shift_srt_timestamps">shift_srt_timestamps() (in module mixing.video.video_subtitles)</a>
 </li>
       <li><a href="module_docs/mixing/video/video_concat.html#mixing.video.video_concat.slow_motion_blend">slow_motion_blend() (in module mixing.video.video_concat)</a>
 </li>
-      <li><a href="module_docs/mixing/video/video_subtitles.html#mixing.video.video_subtitles.srt_time_to_seconds">srt_time_to_seconds() (in module mixing.video.video_subtitles)</a>
+      <li><a href="module_docs/mixing/transcript.html#mixing.transcript.srt_for_media">srt_for_media() (in module mixing.transcript)</a>
+
+      <ul>
+        <li><a href="module_docs/mixing/transcript/persist.html#mixing.transcript.persist.srt_for_media">(in module mixing.transcript.persist)</a>
 </li>
+      </ul></li>
+      <li><a href="module_docs/mixing/dubbing.html#mixing.dubbing.srt_time_to_seconds">srt_time_to_seconds() (in module mixing.dubbing)</a>
+
+      <ul>
+        <li><a href="module_docs/mixing/dubbing/srt.html#mixing.dubbing.srt.srt_time_to_seconds">(in module mixing.dubbing.srt)</a>
+</li>
+        <li><a href="module_docs/mixing/video/video_subtitles.html#mixing.video.video_subtitles.srt_time_to_seconds">(in module mixing.video.video_subtitles)</a>
+</li>
+      </ul></li>
       <li><a href="module_docs/mixing/audio.html#mixing.audio.Segment.start">start (mixing.audio.Segment attribute)</a>
 
       <ul>
         <li><a href="module_docs/mixing/audio/segmentation.html#mixing.audio.segmentation.Segment.start">(mixing.audio.segmentation.Segment attribute)</a>
+</li>
+        <li><a href="module_docs/mixing/dubbing.html#mixing.dubbing.Cue.start">(mixing.dubbing.Cue attribute)</a>
+</li>
+        <li><a href="module_docs/mixing/dubbing/srt.html#mixing.dubbing.srt.Cue.start">(mixing.dubbing.srt.Cue attribute)</a>
 </li>
       </ul></li>
       <li><a href="module_docs/mixing/audio.html#mixing.audio.Audio.start_time">start_time (mixing.audio.Audio property)</a>
@@ -813,6 +997,14 @@
       </ul></li>
       <li><a href="module_docs/mixing/video/video_subtitles.html#mixing.video.video_subtitles.SubtitleStyle">SubtitleStyle (class in mixing.video.video_subtitles)</a>
 </li>
+      <li><a href="module_docs/mixing/dubbing.html#mixing.dubbing.synthesize_to_file">synthesize_to_file() (in module mixing.dubbing)</a>
+
+      <ul>
+        <li><a href="module_docs/mixing/dubbing/tts.html#mixing.dubbing.tts.synthesize_to_file">(in module mixing.dubbing.tts)</a>
+</li>
+      </ul></li>
+      <li><a href="module_docs/mixing/dubbing/dub.html#mixing.dubbing.dub.SynthFn">SynthFn (in module mixing.dubbing.dub)</a>
+</li>
   </ul></td>
 </tr></table>
 
@@ -821,16 +1013,30 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="module_docs/mixing/video/video_subtitles.html#mixing.video.video_subtitles.test_subtitle_embedding">test_subtitle_embedding() (in module mixing.video.video_subtitles)</a>
 </li>
+      <li><a href="module_docs/mixing/dubbing.html#mixing.dubbing.Cue.text">text (mixing.dubbing.Cue attribute)</a>
+
+      <ul>
+        <li><a href="module_docs/mixing/dubbing/srt.html#mixing.dubbing.srt.Cue.text">(mixing.dubbing.srt.Cue attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="module_docs/mixing/dubbing.html#mixing.dubbing.text_to_speech">text_to_speech() (in module mixing.dubbing)</a>
+
+      <ul>
+        <li><a href="module_docs/mixing/dubbing/tts.html#mixing.dubbing.tts.text_to_speech">(in module mixing.dubbing.tts)</a>
+</li>
+      </ul></li>
+      <li><a href="module_docs/mixing/video/thumbnail.html#mixing.video.thumbnail.THUMBNAIL_SIZE">THUMBNAIL_SIZE (in module mixing.video.thumbnail)</a>
+</li>
       <li><a href="module_docs/mixing/video/video_ops.html#mixing.video.video_ops.Video.to_clip">to_clip() (mixing.video.video_ops.Video method)</a>
 </li>
       <li><a href="module_docs/mixing/video/video_subtitles.html#mixing.video.video_subtitles.SubtitleStyle.to_ffmpeg_style">to_ffmpeg_style() (mixing.video.video_subtitles.SubtitleStyle method)</a>
 </li>
       <li><a href="module_docs/mixing/util.html#mixing.util.to_seconds">to_seconds() (in module mixing.util)</a>
 </li>
-      <li><a href="module_docs/mixing/video/video_subtitles.html#mixing.video.video_subtitles.to_srt_time">to_srt_time() (in module mixing.video.video_subtitles)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="module_docs/mixing/video/video_subtitles.html#mixing.video.video_subtitles.to_srt_time">to_srt_time() (in module mixing.video.video_subtitles)</a>
+</li>
       <li><a href="module_docs/mixing/video/video_subtitles.html#mixing.video.video_subtitles.SubtitleStyle.to_text_clip_kwargs">to_text_clip_kwargs() (mixing.video.video_subtitles.SubtitleStyle method)</a>
 </li>
       <li><a href="module_docs/mixing/transcript.html#mixing.transcript.transcribe">transcribe() (in module mixing.transcript)</a>
@@ -839,6 +1045,14 @@
         <li><a href="module_docs/mixing/transcript/scribe.html#mixing.transcript.scribe.transcribe">(in module mixing.transcript.scribe)</a>
 </li>
       </ul></li>
+      <li><a href="module_docs/mixing/dubbing.html#mixing.dubbing.translate_srt">translate_srt() (in module mixing.dubbing)</a>
+
+      <ul>
+        <li><a href="module_docs/mixing/dubbing/srt.html#mixing.dubbing.srt.translate_srt">(in module mixing.dubbing.srt)</a>
+</li>
+      </ul></li>
+      <li><a href="module_docs/mixing/dubbing/srt.html#mixing.dubbing.srt.TranslateFn">TranslateFn (in module mixing.dubbing.srt)</a>
+</li>
       <li><a href="module_docs/mixing/video/video_concat.html#mixing.video.video_concat.trim_and_crossfade">trim_and_crossfade() (in module mixing.video.video_concat)</a>
 </li>
       <li><a href="module_docs/mixing/video/video_concat.html#mixing.video.video_concat.trim_first_frame_from_subsequent_clips">trim_first_frame_from_subsequent_clips() (in module mixing.video.video_concat)</a>
@@ -888,6 +1102,14 @@
 </li>
       </ul></li>
       <li><a href="module_docs/mixing/video/video_subtitles.html#mixing.video.video_subtitles.write_subtitles_in_video">write_subtitles_in_video() (in module mixing.video.video_subtitles)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="Y">Y</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="module_docs/mixing/video/thumbnail.html#mixing.video.thumbnail.YOUTUBE_THUMB_SIZE">YOUTUBE_THUMB_SIZE (in module mixing.video.thumbnail)</a>
 </li>
   </ul></td>
 </tr></table>

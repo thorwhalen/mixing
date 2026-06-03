@@ -10,16 +10,23 @@
    module_docs/mixing/audio/demo_audio_widget
    module_docs/mixing/audio/segmentation
    module_docs/mixing/audio/test_audio_widget
+   module_docs/mixing/chapters
+   module_docs/mixing/dubbing
+   module_docs/mixing/dubbing/dub
+   module_docs/mixing/dubbing/srt
+   module_docs/mixing/dubbing/tts
    module_docs/mixing/transcript
    module_docs/mixing/transcript/fillers
    module_docs/mixing/transcript/formats
    module_docs/mixing/transcript/media
+   module_docs/mixing/transcript/persist
    module_docs/mixing/transcript/pipeline
    module_docs/mixing/transcript/scribe
    module_docs/mixing/util
    module_docs/mixing/video
    module_docs/mixing/video/_helpers
    module_docs/mixing/video/audio_offset_example
+   module_docs/mixing/video/thumbnail
    module_docs/mixing/video/video_concat
    module_docs/mixing/video/video_files
    module_docs/mixing/video/video_gen

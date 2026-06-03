@@ -1,0 +1,226 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>mixing.chapters &mdash; mixing 0.0.21 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=a11416ff"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../../_static/toggleprompt.js?v=d7ede5d2"></script>
+      <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="mixing.dubbing" href="dubbing.html" />
+    <link rel="prev" title="mixing.audio.test_audio_widget" href="audio/test_audio_widget.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            mixing
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../mixing.html">mixing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="audio.html">mixing.audio</a></li>
+<li class="toctree-l1"><a class="reference internal" href="audio/audio_ops.html">mixing.audio.audio_ops</a></li>
+<li class="toctree-l1"><a class="reference internal" href="audio/audio_util.html">mixing.audio.audio_util</a></li>
+<li class="toctree-l1"><a class="reference internal" href="audio/audio_widget.html">mixing.audio.audio_widget</a></li>
+<li class="toctree-l1"><a class="reference internal" href="audio/demo_audio_widget.html">mixing.audio.demo_audio_widget</a></li>
+<li class="toctree-l1"><a class="reference internal" href="audio/segmentation.html">mixing.audio.segmentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="audio/test_audio_widget.html">mixing.audio.test_audio_widget</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">mixing.chapters</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#mixing.chapters.Chapter"><code class="docutils literal notranslate"><span class="pre">Chapter</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mixing.chapters.SegmentFn"><code class="docutils literal notranslate"><span class="pre">SegmentFn</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mixing.chapters.default_segment_fn"><code class="docutils literal notranslate"><span class="pre">default_segment_fn()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mixing.chapters.detect_chapters"><code class="docutils literal notranslate"><span class="pre">detect_chapters()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="dubbing.html">mixing.dubbing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dubbing/dub.html">mixing.dubbing.dub</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dubbing/srt.html">mixing.dubbing.srt</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dubbing/tts.html">mixing.dubbing.tts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transcript.html">mixing.transcript</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transcript/fillers.html">mixing.transcript.fillers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transcript/formats.html">mixing.transcript.formats</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transcript/media.html">mixing.transcript.media</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transcript/persist.html">mixing.transcript.persist</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transcript/pipeline.html">mixing.transcript.pipeline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transcript/scribe.html">mixing.transcript.scribe</a></li>
+<li class="toctree-l1"><a class="reference internal" href="util.html">mixing.util</a></li>
+<li class="toctree-l1"><a class="reference internal" href="video.html">mixing.video</a></li>
+<li class="toctree-l1"><a class="reference internal" href="video/_helpers.html">mixing.video._helpers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="video/audio_offset_example.html">mixing.video.audio_offset_example</a></li>
+<li class="toctree-l1"><a class="reference internal" href="video/thumbnail.html">mixing.video.thumbnail</a></li>
+<li class="toctree-l1"><a class="reference internal" href="video/video_concat.html">mixing.video.video_concat</a></li>
+<li class="toctree-l1"><a class="reference internal" href="video/video_files.html">mixing.video.video_files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="video/video_gen.html">mixing.video.video_gen</a></li>
+<li class="toctree-l1"><a class="reference internal" href="video/video_ops.html">mixing.video.video_ops</a></li>
+<li class="toctree-l1"><a class="reference internal" href="video/video_subtitles.html">mixing.video.video_subtitles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="video/video_util.html">mixing.video.video_util</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">mixing</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">mixing.chapters</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/module_docs/mixing/chapters.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-mixing.chapters">
+<span id="mixing-chapters"></span><h1>mixing.chapters<a class="headerlink" href="#module-mixing.chapters" title="Link to this heading"></a></h1>
+<p>Detect chapter markers from a transcript — platform-agnostic.</p>
+<p>A <em>chapter</em> is a <code class="docutils literal notranslate"><span class="pre">(start_seconds,</span> <span class="pre">title)</span></code> pair marking a topic shift. This
+module turns a transcript (ElevenLabs Scribe response/words, SRT text, or a
+list of cues) into a list of <a class="reference internal" href="#mixing.chapters.Chapter" title="mixing.chapters.Chapter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Chapter</span></code></a> objects, with titles produced by
+a pluggable LLM segmenter. The result is intentionally <strong>target-neutral</strong> —
+formatting chapters into YouTube description timestamps, podcast PSC, or ID3
+chapter frames is the job of a publication layer (e.g. the <code class="docutils literal notranslate"><span class="pre">yb</span></code> package).</p>
+<p>The detector enforces the constraints common to chapter-aware players:
+first chapter at <code class="docutils literal notranslate"><span class="pre">0:00</span></code>, a minimum spacing between chapters, and a minimum
+count below which chapters are not worth showing (an empty list is returned so
+callers can cleanly skip them — e.g. for a very short clip).</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="mixing.chapters.Chapter">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">mixing.chapters.</span></span><span class="sig-name descname"><span class="pre">Chapter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/mixing/chapters.html#Chapter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.chapters.Chapter" title="Link to this definition"></a></dt>
+<dd><p>A chapter marker: a start time (seconds) and a short title.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="mixing.chapters.SegmentFn">
+<span class="sig-prename descclassname"><span class="pre">mixing.chapters.</span></span><span class="sig-name descname"><span class="pre">SegmentFn</span></span><a class="headerlink" href="#mixing.chapters.SegmentFn" title="Link to this definition"></a></dt>
+<dd><p>str}].
+<code class="docutils literal notranslate"><span class="pre">segments</span></code> is a list of <code class="docutils literal notranslate"><span class="pre">{&quot;start&quot;,</span> <span class="pre">&quot;end&quot;,</span> <span class="pre">&quot;text&quot;}</span></code> sentence-ish units.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A segmenter maps (segments, target_count) -&gt; [{“start”</p>
+</dd>
+<dt class="field-even">Type<span class="colon">:</span></dt>
+<dd class="field-even"><p>float, “title”</p>
+</dd>
+</dl>
+<p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">Callable</span></code>[[<code class="xref py py-class docutils literal notranslate"><span class="pre">Sequence</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>]]</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mixing.chapters.default_segment_fn">
+<span class="sig-prename descclassname"><span class="pre">mixing.chapters.</span></span><span class="sig-name descname"><span class="pre">default_segment_fn</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">segments</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_count</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/mixing/chapters.html#default_segment_fn"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.chapters.default_segment_fn" title="Link to this definition"></a></dt>
+<dd><p>LLM-backed segmenter using <code class="docutils literal notranslate"><span class="pre">aix.chat</span></code>.</p>
+<p>Presents the timestamped sentences and asks for <code class="docutils literal notranslate"><span class="pre">target_count</span></code> chapter
+boundaries as a JSON array of <code class="docutils literal notranslate"><span class="pre">{&quot;start&quot;,</span> <span class="pre">&quot;title&quot;}</span></code>. Pass your own
+<code class="docutils literal notranslate"><span class="pre">segment_fn</span></code> to <a class="reference internal" href="#mixing.chapters.detect_chapters" title="mixing.chapters.detect_chapters"><code class="xref py py-func docutils literal notranslate"><span class="pre">detect_chapters()</span></code></a> to avoid the <code class="docutils literal notranslate"><span class="pre">aix</span></code> dependency.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mixing.chapters.detect_chapters">
+<span class="sig-prename descclassname"><span class="pre">mixing.chapters.</span></span><span class="sig-name descname"><span class="pre">detect_chapters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">transcript</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">duration</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_chapters</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_chapters</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">8</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_spacing</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_count</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">segment_fn</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#mixing.chapters.Chapter" title="mixing.chapters.Chapter"><span class="pre">Chapter</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/mixing/chapters.html#detect_chapters"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.chapters.detect_chapters" title="Link to this definition"></a></dt>
+<dd><p>Detect chapter markers from a <code class="docutils literal notranslate"><span class="pre">transcript</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>transcript</strong> – One of — a Scribe response <code class="docutils literal notranslate"><span class="pre">dict</span></code> (with <code class="docutils literal notranslate"><span class="pre">&quot;words&quot;</span></code>), a
+Scribe <code class="docutils literal notranslate"><span class="pre">words</span></code> list, SRT text, or a list of cue dicts/objects
+exposing <code class="docutils literal notranslate"><span class="pre">start</span></code>/<code class="docutils literal notranslate"><span class="pre">end</span></code>/<code class="docutils literal notranslate"><span class="pre">text</span></code>.</p></li>
+<li><p><strong>duration</strong> – Media duration in seconds. Inferred from the transcript’s
+last timestamp when omitted; used to choose a sensible chapter
+count and to bound the final marker.</p></li>
+<li><p><strong>min_chapters</strong> – Minimum chapters worth showing. If fewer survive the
+constraints, an <strong>empty list</strong> is returned.</p></li>
+<li><p><strong>max_chapters</strong> – Upper bound on chapter count.</p></li>
+<li><p><strong>min_spacing</strong> – Minimum seconds between consecutive chapters (players such
+as YouTube require &gt;= 10s).</p></li>
+<li><p><strong>target_count</strong> – Desired chapter count. When omitted, scales with
+<code class="docutils literal notranslate"><span class="pre">duration</span></code> (roughly one chapter per ~1.5 min, clamped to
+<code class="docutils literal notranslate"><span class="pre">[min_chapters,</span> <span class="pre">max_chapters]</span></code>).</p></li>
+<li><p><strong>segment_fn</strong> – Pluggable segmenter <code class="docutils literal notranslate"><span class="pre">(segments,</span> <span class="pre">target_count)</span> <span class="pre">-&gt;</span> <span class="pre">[{start,</span>
+<span class="pre">title}]</span></code>. Defaults to <a class="reference internal" href="#mixing.chapters.default_segment_fn" title="mixing.chapters.default_segment_fn"><code class="xref py py-func docutils literal notranslate"><span class="pre">default_segment_fn()</span></code></a> (LLM-backed).</p></li>
+<li><p><strong>model</strong> – Optional LLM model override for the default segmenter.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A list of <a class="reference internal" href="#mixing.chapters.Chapter" title="mixing.chapters.Chapter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Chapter</span></code></a>, first at <code class="docutils literal notranslate"><span class="pre">0:00</span></code>, spaced by at least
+<code class="docutils literal notranslate"><span class="pre">min_spacing</span></code> — or <code class="docutils literal notranslate"><span class="pre">[]</span></code> when the media can’t support
+<code class="docutils literal notranslate"><span class="pre">min_chapters</span></code> (e.g. it is too short).</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="audio/test_audio_widget.html" class="btn btn-neutral float-left" title="mixing.audio.test_audio_widget" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="dubbing.html" class="btn btn-neutral float-right" title="mixing.dubbing" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright NO COPYRIGHT.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,485 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>mixing.dubbing &mdash; mixing 0.0.21 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=a11416ff"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../../_static/toggleprompt.js?v=d7ede5d2"></script>
+      <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="mixing.dubbing.dub" href="dubbing/dub.html" />
+    <link rel="prev" title="mixing.chapters" href="chapters.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            mixing
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../mixing.html">mixing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="audio.html">mixing.audio</a></li>
+<li class="toctree-l1"><a class="reference internal" href="audio/audio_ops.html">mixing.audio.audio_ops</a></li>
+<li class="toctree-l1"><a class="reference internal" href="audio/audio_util.html">mixing.audio.audio_util</a></li>
+<li class="toctree-l1"><a class="reference internal" href="audio/audio_widget.html">mixing.audio.audio_widget</a></li>
+<li class="toctree-l1"><a class="reference internal" href="audio/demo_audio_widget.html">mixing.audio.demo_audio_widget</a></li>
+<li class="toctree-l1"><a class="reference internal" href="audio/segmentation.html">mixing.audio.segmentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="audio/test_audio_widget.html">mixing.audio.test_audio_widget</a></li>
+<li class="toctree-l1"><a class="reference internal" href="chapters.html">mixing.chapters</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">mixing.dubbing</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#mixing.dubbing.Cue"><code class="docutils literal notranslate"><span class="pre">Cue</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#mixing.dubbing.Cue.index"><code class="docutils literal notranslate"><span class="pre">Cue.index</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mixing.dubbing.Cue.start"><code class="docutils literal notranslate"><span class="pre">Cue.start</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mixing.dubbing.Cue.end"><code class="docutils literal notranslate"><span class="pre">Cue.end</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mixing.dubbing.Cue.text"><code class="docutils literal notranslate"><span class="pre">Cue.text</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mixing.dubbing.Cue.duration"><code class="docutils literal notranslate"><span class="pre">Cue.duration</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#mixing.dubbing.add_shared_voice"><code class="docutils literal notranslate"><span class="pre">add_shared_voice()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mixing.dubbing.default_cache_dir"><code class="docutils literal notranslate"><span class="pre">default_cache_dir()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mixing.dubbing.default_translate_fn"><code class="docutils literal notranslate"><span class="pre">default_translate_fn()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mixing.dubbing.dub_video_from_srt"><code class="docutils literal notranslate"><span class="pre">dub_video_from_srt()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mixing.dubbing.dump_srt"><code class="docutils literal notranslate"><span class="pre">dump_srt()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mixing.dubbing.find_voice"><code class="docutils literal notranslate"><span class="pre">find_voice()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mixing.dubbing.list_voices"><code class="docutils literal notranslate"><span class="pre">list_voices()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mixing.dubbing.parse_srt"><code class="docutils literal notranslate"><span class="pre">parse_srt()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mixing.dubbing.search_shared_voices"><code class="docutils literal notranslate"><span class="pre">search_shared_voices()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mixing.dubbing.srt_time_to_seconds"><code class="docutils literal notranslate"><span class="pre">srt_time_to_seconds()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mixing.dubbing.synthesize_to_file"><code class="docutils literal notranslate"><span class="pre">synthesize_to_file()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mixing.dubbing.text_to_speech"><code class="docutils literal notranslate"><span class="pre">text_to_speech()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mixing.dubbing.translate_srt"><code class="docutils literal notranslate"><span class="pre">translate_srt()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="dubbing/dub.html">mixing.dubbing.dub</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dubbing/srt.html">mixing.dubbing.srt</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dubbing/tts.html">mixing.dubbing.tts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transcript.html">mixing.transcript</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transcript/fillers.html">mixing.transcript.fillers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transcript/formats.html">mixing.transcript.formats</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transcript/media.html">mixing.transcript.media</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transcript/persist.html">mixing.transcript.persist</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transcript/pipeline.html">mixing.transcript.pipeline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transcript/scribe.html">mixing.transcript.scribe</a></li>
+<li class="toctree-l1"><a class="reference internal" href="util.html">mixing.util</a></li>
+<li class="toctree-l1"><a class="reference internal" href="video.html">mixing.video</a></li>
+<li class="toctree-l1"><a class="reference internal" href="video/_helpers.html">mixing.video._helpers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="video/audio_offset_example.html">mixing.video.audio_offset_example</a></li>
+<li class="toctree-l1"><a class="reference internal" href="video/thumbnail.html">mixing.video.thumbnail</a></li>
+<li class="toctree-l1"><a class="reference internal" href="video/video_concat.html">mixing.video.video_concat</a></li>
+<li class="toctree-l1"><a class="reference internal" href="video/video_files.html">mixing.video.video_files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="video/video_gen.html">mixing.video.video_gen</a></li>
+<li class="toctree-l1"><a class="reference internal" href="video/video_ops.html">mixing.video.video_ops</a></li>
+<li class="toctree-l1"><a class="reference internal" href="video/video_subtitles.html">mixing.video.video_subtitles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="video/video_util.html">mixing.video.video_util</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">mixing</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">mixing.dubbing</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/module_docs/mixing/dubbing.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-mixing.dubbing">
+<span id="mixing-dubbing"></span><h1>mixing.dubbing<a class="headerlink" href="#module-mixing.dubbing" title="Link to this heading"></a></h1>
+<p>Text-to-speech dubbing: re-voice or translate a video from its SRT.</p>
+<p>The transcript side of <a class="reference internal" href="../mixing.html#module-mixing" title="mixing"><code class="xref py py-mod docutils literal notranslate"><span class="pre">mixing</span></code></a> turns speech into SRT (ElevenLabs
+Scribe); this subpackage closes the loop — turning SRT back into speech with
+an ElevenLabs voice and muxing it over the video, optionally translating the
+SRT first to produce a foreign-language dub.</p>
+<dl class="simple">
+<dt>Building blocks:</dt><dd><ul class="simple">
+<li><p><a class="reference internal" href="#mixing.dubbing.text_to_speech" title="mixing.dubbing.text_to_speech"><code class="xref py py-func docutils literal notranslate"><span class="pre">text_to_speech()</span></code></a> / <a class="reference internal" href="#mixing.dubbing.synthesize_to_file" title="mixing.dubbing.synthesize_to_file"><code class="xref py py-func docutils literal notranslate"><span class="pre">synthesize_to_file()</span></code></a> — ElevenLabs TTS.</p></li>
+<li><p><a class="reference internal" href="#mixing.dubbing.list_voices" title="mixing.dubbing.list_voices"><code class="xref py py-func docutils literal notranslate"><span class="pre">list_voices()</span></code></a> / <a class="reference internal" href="#mixing.dubbing.find_voice" title="mixing.dubbing.find_voice"><code class="xref py py-func docutils literal notranslate"><span class="pre">find_voice()</span></code></a> — discover account voices.</p></li>
+<li><p><a class="reference internal" href="#mixing.dubbing.parse_srt" title="mixing.dubbing.parse_srt"><code class="xref py py-func docutils literal notranslate"><span class="pre">parse_srt()</span></code></a> / <a class="reference internal" href="#mixing.dubbing.dump_srt" title="mixing.dubbing.dump_srt"><code class="xref py py-func docutils literal notranslate"><span class="pre">dump_srt()</span></code></a> / <a class="reference internal" href="#mixing.dubbing.translate_srt" title="mixing.dubbing.translate_srt"><code class="xref py py-func docutils literal notranslate"><span class="pre">translate_srt()</span></code></a> — SRT I/O
+and LLM-backed translation.</p></li>
+<li><p><a class="reference internal" href="#mixing.dubbing.dub_video_from_srt" title="mixing.dubbing.dub_video_from_srt"><code class="xref py py-func docutils literal notranslate"><span class="pre">dub_video_from_srt()</span></code></a> — the end-to-end pipeline.</p></li>
+</ul>
+</dd>
+</dl>
+<p>The HTTP clients use stdlib only (no <code class="docutils literal notranslate"><span class="pre">requests</span></code> / <code class="docutils literal notranslate"><span class="pre">elevenlabs</span></code> SDK), so
+this adds no required deps. Needs ffmpeg on PATH and an ElevenLabs API key
+(env var <code class="docutils literal notranslate"><span class="pre">ELEVENLABS_API_KEY</span></code> or explicit <code class="docutils literal notranslate"><span class="pre">api_key=</span></code>). Translation needs
+either the <code class="docutils literal notranslate"><span class="pre">aix</span></code> package or a custom <code class="docutils literal notranslate"><span class="pre">translate_fn</span></code>.</p>
+<dl>
+<dt>Quick start:</dt><dd><div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">mixing.dubbing</span><span class="w"> </span><span class="kn">import</span> <span class="n">dub_video_from_srt</span><span class="p">,</span> <span class="n">translate_srt</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dub_video_from_srt</span><span class="p">(</span><span class="s2">&quot;promo.mp4&quot;</span><span class="p">,</span> <span class="s2">&quot;promo.srt&quot;</span><span class="p">,</span> <span class="n">voice_id</span><span class="o">=</span><span class="s2">&quot;...&quot;</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="s2">&quot;promo.en.mp4&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">fr_srt</span> <span class="o">=</span> <span class="n">translate_srt</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="s2">&quot;promo.srt&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">(),</span> <span class="s2">&quot;French&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="mixing.dubbing.Cue">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">mixing.dubbing.</span></span><span class="sig-name descname"><span class="pre">Cue</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">text</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/mixing/dubbing/srt.html#Cue"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.dubbing.Cue" title="Link to this definition"></a></dt>
+<dd><p>One SRT subtitle cue.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mixing.dubbing.Cue.index">
+<span class="sig-name descname"><span class="pre">index</span></span><a class="headerlink" href="#mixing.dubbing.Cue.index" title="Link to this definition"></a></dt>
+<dd><p>1-based cue number.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mixing.dubbing.Cue.start">
+<span class="sig-name descname"><span class="pre">start</span></span><a class="headerlink" href="#mixing.dubbing.Cue.start" title="Link to this definition"></a></dt>
+<dd><p>Start time in seconds.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mixing.dubbing.Cue.end">
+<span class="sig-name descname"><span class="pre">end</span></span><a class="headerlink" href="#mixing.dubbing.Cue.end" title="Link to this definition"></a></dt>
+<dd><p>End time in seconds.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mixing.dubbing.Cue.text">
+<span class="sig-name descname"><span class="pre">text</span></span><a class="headerlink" href="#mixing.dubbing.Cue.text" title="Link to this definition"></a></dt>
+<dd><p>Cue text (may contain embedded newlines).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mixing.dubbing.Cue.duration">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">duration</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></span><a class="headerlink" href="#mixing.dubbing.Cue.duration" title="Link to this definition"></a></dt>
+<dd><p>Cue duration in seconds (never negative).</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mixing.dubbing.add_shared_voice">
+<span class="sig-prename descclassname"><span class="pre">mixing.dubbing.</span></span><span class="sig-name descname"><span class="pre">add_shared_voice</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">public_owner_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">voice_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">api_key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">60.0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../../_modules/mixing/dubbing/tts.html#add_shared_voice"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.dubbing.add_shared_voice" title="Link to this definition"></a></dt>
+<dd><p>Add a shared-library voice to the account so it can be synthesized.</p>
+<p>Idempotent-ish: if the voice (by name) is already on the account, returns
+its existing id instead of erroring on a duplicate add.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>public_owner_id</strong> – <code class="docutils literal notranslate"><span class="pre">public_owner_id</span></code> from <a class="reference internal" href="#mixing.dubbing.search_shared_voices" title="mixing.dubbing.search_shared_voices"><code class="xref py py-func docutils literal notranslate"><span class="pre">search_shared_voices()</span></code></a>.</p></li>
+<li><p><strong>voice_id</strong> – The shared voice’s <code class="docutils literal notranslate"><span class="pre">voice_id</span></code>.</p></li>
+<li><p><strong>name</strong> – Name to give the added voice on the account.</p></li>
+<li><p><strong>api_key</strong> – API key. Falls back to env var <code class="docutils literal notranslate"><span class="pre">ELEVENLABS_API_KEY</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The account-local <code class="docutils literal notranslate"><span class="pre">voice_id</span></code> to pass to <a class="reference internal" href="#mixing.dubbing.text_to_speech" title="mixing.dubbing.text_to_speech"><code class="xref py py-func docutils literal notranslate"><span class="pre">text_to_speech()</span></code></a>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mixing.dubbing.default_cache_dir">
+<span class="sig-prename descclassname"><span class="pre">mixing.dubbing.</span></span><span class="sig-name descname"><span class="pre">default_cache_dir</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Path</span></span></span><a class="reference internal" href="../../_modules/mixing/dubbing/tts.html#default_cache_dir"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.dubbing.default_cache_dir" title="Link to this definition"></a></dt>
+<dd><p>Default on-disk cache for synthesized audio.</p>
+<p>Honors <code class="docutils literal notranslate"><span class="pre">$MIXING_TTS_CACHE_DIR</span></code>, then <code class="docutils literal notranslate"><span class="pre">$XDG_CACHE_HOME</span></code>, then
+<code class="docutils literal notranslate"><span class="pre">~/.cache/</span></code>. Final segment is always <code class="docutils literal notranslate"><span class="pre">mixing/tts</span></code>.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mixing.dubbing.default_translate_fn">
+<span class="sig-prename descclassname"><span class="pre">mixing.dubbing.</span></span><span class="sig-name descname"><span class="pre">default_translate_fn</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">texts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_language</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source_language</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/mixing/dubbing/srt.html#default_translate_fn"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.dubbing.default_translate_fn" title="Link to this definition"></a></dt>
+<dd><p>LLM-backed translator (segment-count preserving) using <code class="docutils literal notranslate"><span class="pre">aix.chat</span></code>.</p>
+<p>Translates all segments in a single call, returning a JSON array so the
+one-to-one mapping with the input cues is preserved. Falls back to a
+clear error if <code class="docutils literal notranslate"><span class="pre">aix</span></code> is not importable — pass your own <code class="docutils literal notranslate"><span class="pre">translate_fn</span></code>
+in that case.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mixing.dubbing.dub_video_from_srt">
+<span class="sig-prename descclassname"><span class="pre">mixing.dubbing.</span></span><span class="sig-name descname"><span class="pre">dub_video_from_srt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">video</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">srt</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="dubbing/srt.html#mixing.dubbing.srt.Cue" title="mixing.dubbing.srt.Cue"><span class="pre">Cue</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">voice_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">api_key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'eleven_multilingual_v2'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_format</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'mp3_44100_128'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">voice_settings</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">language_code</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'speed'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_speedup</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">keep_original_audio</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">work_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">keep_work</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cache</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">synth_fn</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Path</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Path</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Path</span></span></span><a class="reference internal" href="../../_modules/mixing/dubbing/dub.html#dub_video_from_srt"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.dubbing.dub_video_from_srt" title="Link to this definition"></a></dt>
+<dd><p>Replace <code class="docutils literal notranslate"><span class="pre">video</span></code>’s audio with TTS narration built from <code class="docutils literal notranslate"><span class="pre">srt</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>video</strong> – Path to the source video.</p></li>
+<li><p><strong>srt</strong> – An <code class="docutils literal notranslate"><span class="pre">.srt</span></code> file path, raw SRT text, or a list of <a class="reference internal" href="#mixing.dubbing.Cue" title="mixing.dubbing.Cue"><code class="xref py py-class docutils literal notranslate"><span class="pre">Cue</span></code></a>.</p></li>
+<li><p><strong>voice_id</strong> – ElevenLabs voice id for the narration.</p></li>
+<li><p><strong>output</strong> – Output video path. Defaults to
+<code class="docutils literal notranslate"><span class="pre">&lt;video-stem&gt;.&lt;language_code</span> <span class="pre">or</span> <span class="pre">'dub'&gt;.mp4</span></code> next to the source.</p></li>
+<li><p><strong>api_key</strong> – ElevenLabs API key (falls back to <code class="docutils literal notranslate"><span class="pre">ELEVENLABS_API_KEY</span></code>).</p></li>
+<li><p><strong>model_id</strong> – TTS model id (default <code class="docutils literal notranslate"><span class="pre">eleven_multilingual_v2</span></code>).</p></li>
+<li><p><strong>output_format</strong> – TTS audio format for the per-cue clips.</p></li>
+<li><p><strong>voice_settings</strong> – Override default ElevenLabs voice settings.</p></li>
+<li><p><strong>language_code</strong> – Optional ISO-639-1 hint forwarded to the TTS model and
+used in the default output filename.</p></li>
+<li><p><strong>fit</strong> – <code class="docutils literal notranslate"><span class="pre">&quot;speed&quot;</span></code> (default) time-compresses overlong lines (capped at
+<code class="docutils literal notranslate"><span class="pre">max_speedup</span></code>) to hold sync; <code class="docutils literal notranslate"><span class="pre">&quot;natural&quot;</span></code> never changes speed.</p></li>
+<li><p><strong>max_speedup</strong> – Maximum tempo factor when <code class="docutils literal notranslate"><span class="pre">fit=&quot;speed&quot;</span></code> (clamped to
+ffmpeg’s single-<code class="docutils literal notranslate"><span class="pre">atempo</span></code> ceiling of 2.0).</p></li>
+<li><p><strong>keep_original_audio</strong> – Fraction (0..1) of the original audio to keep
+mixed under the narration. <code class="docutils literal notranslate"><span class="pre">0.0</span></code> (default) replaces it entirely;
+e.g. <code class="docutils literal notranslate"><span class="pre">0.15</span></code> keeps a little background music/ambience.</p></li>
+<li><p><strong>work_dir</strong> – Directory for intermediate audio. Defaults to a temp dir.</p></li>
+<li><p><strong>keep_work</strong> – Keep the intermediate per-cue clips and assembled track.</p></li>
+<li><p><strong>cache</strong> – Cache TTS calls on disk (skips re-synthesis of identical lines).</p></li>
+<li><p><strong>synth_fn</strong> – Override the synthesizer <code class="docutils literal notranslate"><span class="pre">(text,</span> <span class="pre">out_path)</span> <span class="pre">-&gt;</span> <span class="pre">path</span></code>. When
+<code class="docutils literal notranslate"><span class="pre">None</span></code>, uses ElevenLabs via <a class="reference internal" href="dubbing/tts.html#mixing.dubbing.tts.synthesize_to_file" title="mixing.dubbing.tts.synthesize_to_file"><code class="xref py py-func docutils literal notranslate"><span class="pre">mixing.dubbing.tts.synthesize_to_file()</span></code></a>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Path to the dubbed video.</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ValueError</strong> – <code class="docutils literal notranslate"><span class="pre">fit</span></code> is not a recognized strategy.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mixing.dubbing.dump_srt">
+<span class="sig-prename descclassname"><span class="pre">mixing.dubbing.</span></span><span class="sig-name descname"><span class="pre">dump_srt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cues</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="dubbing/srt.html#mixing.dubbing.srt.Cue" title="mixing.dubbing.srt.Cue"><span class="pre">Cue</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../../_modules/mixing/dubbing/srt.html#dump_srt"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.dubbing.dump_srt" title="Link to this definition"></a></dt>
+<dd><p>Serialize cues back to SRT text, renumbering from 1.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mixing.dubbing.find_voice">
+<span class="sig-prename descclassname"><span class="pre">mixing.dubbing.</span></span><span class="sig-name descname"><span class="pre">find_voice</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">query</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">api_key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">voices</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/mixing/dubbing/tts.html#find_voice"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.dubbing.find_voice" title="Link to this definition"></a></dt>
+<dd><p>Return the first voice whose name or labels contain <code class="docutils literal notranslate"><span class="pre">query</span></code> (case-insensitive).</p>
+<p>Convenience for picking a voice by a human name (e.g. <code class="docutils literal notranslate"><span class="pre">&quot;Brian&quot;</span></code>) or a
+label keyword (e.g. <code class="docutils literal notranslate"><span class="pre">&quot;french&quot;</span></code>) without memorizing voice ids.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mixing.dubbing.list_voices">
+<span class="sig-prename descclassname"><span class="pre">mixing.dubbing.</span></span><span class="sig-name descname"><span class="pre">list_voices</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">api_key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">60.0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/mixing/dubbing/tts.html#list_voices"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.dubbing.list_voices" title="Link to this definition"></a></dt>
+<dd><p>List the voices available on the account.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>api_key</strong> – API key. Falls back to env var <code class="docutils literal notranslate"><span class="pre">ELEVENLABS_API_KEY</span></code>.</p></li>
+<li><p><strong>timeout</strong> – Request timeout in seconds.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A list of voice dicts. Each has at least <code class="docutils literal notranslate"><span class="pre">voice_id</span></code>, <code class="docutils literal notranslate"><span class="pre">name</span></code>,
+<code class="docutils literal notranslate"><span class="pre">category</span></code>, and a <code class="docutils literal notranslate"><span class="pre">labels</span></code> dict (<code class="docutils literal notranslate"><span class="pre">accent</span></code>, <code class="docutils literal notranslate"><span class="pre">description</span></code>,
+<code class="docutils literal notranslate"><span class="pre">age</span></code>, <code class="docutils literal notranslate"><span class="pre">gender</span></code>, <code class="docutils literal notranslate"><span class="pre">use_case</span></code>) describing the voice.</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>RuntimeError</strong> – No API key supplied and <code class="docutils literal notranslate"><span class="pre">ELEVENLABS_API_KEY</span></code> unset.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mixing.dubbing.parse_srt">
+<span class="sig-prename descclassname"><span class="pre">mixing.dubbing.</span></span><span class="sig-name descname"><span class="pre">parse_srt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">srt_text</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="dubbing/srt.html#mixing.dubbing.srt.Cue" title="mixing.dubbing.srt.Cue"><span class="pre">Cue</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/mixing/dubbing/srt.html#parse_srt"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.dubbing.parse_srt" title="Link to this definition"></a></dt>
+<dd><p>Parse SRT text into a list of <a class="reference internal" href="#mixing.dubbing.Cue" title="mixing.dubbing.Cue"><code class="xref py py-class docutils literal notranslate"><span class="pre">Cue</span></code></a> objects.</p>
+<p>Tolerant of blank-line spacing variations and of either <code class="docutils literal notranslate"><span class="pre">,</span></code> or <code class="docutils literal notranslate"><span class="pre">.</span></code>
+as the millisecond separator. Cues without a valid time line are skipped.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mixing.dubbing.search_shared_voices">
+<span class="sig-prename descclassname"><span class="pre">mixing.dubbing.</span></span><span class="sig-name descname"><span class="pre">search_shared_voices</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">language</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_cases</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gender</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">category</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sort</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">page_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">40</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">api_key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">60.0</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">extra_params</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/mixing/dubbing/tts.html#search_shared_voices"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.dubbing.search_shared_voices" title="Link to this definition"></a></dt>
+<dd><p>Search ElevenLabs’ public <em>shared voice library</em> (not just the account).</p>
+<p>Useful for finding a native voice in a target language (e.g. a French
+advertising voice) that is not yet on the account. Add the chosen voice
+with <a class="reference internal" href="#mixing.dubbing.add_shared_voice" title="mixing.dubbing.add_shared_voice"><code class="xref py py-func docutils literal notranslate"><span class="pre">add_shared_voice()</span></code></a>, then synthesize with the returned id.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>language</strong> – ISO-639-1 language filter, e.g. <code class="docutils literal notranslate"><span class="pre">&quot;fr&quot;</span></code>.</p></li>
+<li><p><strong>use_cases</strong> – e.g. <code class="docutils literal notranslate"><span class="pre">&quot;advertisement&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;narrative_story&quot;</span></code>.</p></li>
+<li><p><strong>gender</strong> – <code class="docutils literal notranslate"><span class="pre">&quot;male&quot;</span></code> / <code class="docutils literal notranslate"><span class="pre">&quot;female&quot;</span></code> / <code class="docutils literal notranslate"><span class="pre">&quot;neutral&quot;</span></code>.</p></li>
+<li><p><strong>category</strong> – e.g. <code class="docutils literal notranslate"><span class="pre">&quot;professional&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;high_quality&quot;</span></code>.</p></li>
+<li><p><strong>sort</strong> – e.g. <code class="docutils literal notranslate"><span class="pre">&quot;trending&quot;</span></code>.</p></li>
+<li><p><strong>page_size</strong> – Max results.</p></li>
+<li><p><strong>extra_params</strong> – Any other query params the endpoint accepts.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A list of shared-voice dicts. Each has <code class="docutils literal notranslate"><span class="pre">voice_id</span></code> and
+<code class="docutils literal notranslate"><span class="pre">public_owner_id</span></code> (both needed by <a class="reference internal" href="#mixing.dubbing.add_shared_voice" title="mixing.dubbing.add_shared_voice"><code class="xref py py-func docutils literal notranslate"><span class="pre">add_shared_voice()</span></code></a>), plus
+<code class="docutils literal notranslate"><span class="pre">name</span></code>, <code class="docutils literal notranslate"><span class="pre">language</span></code>, <code class="docutils literal notranslate"><span class="pre">accent</span></code>, <code class="docutils literal notranslate"><span class="pre">gender</span></code>, <code class="docutils literal notranslate"><span class="pre">use_case</span></code>,
+<code class="docutils literal notranslate"><span class="pre">description</span></code>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mixing.dubbing.srt_time_to_seconds">
+<span class="sig-prename descclassname"><span class="pre">mixing.dubbing.</span></span><span class="sig-name descname"><span class="pre">srt_time_to_seconds</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="../../_modules/mixing/dubbing/srt.html#srt_time_to_seconds"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.dubbing.srt_time_to_seconds" title="Link to this definition"></a></dt>
+<dd><p>Parse an <code class="docutils literal notranslate"><span class="pre">HH:MM:SS,mmm</span></code> (or <code class="docutils literal notranslate"><span class="pre">.mmm</span></code>) SRT timestamp to seconds.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mixing.dubbing.synthesize_to_file">
+<span class="sig-prename descclassname"><span class="pre">mixing.dubbing.</span></span><span class="sig-name descname"><span class="pre">synthesize_to_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">voice_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Path</span></span></span><a class="reference internal" href="../../_modules/mixing/dubbing/tts.html#synthesize_to_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.dubbing.synthesize_to_file" title="Link to this definition"></a></dt>
+<dd><p>Synthesize <code class="docutils literal notranslate"><span class="pre">text</span></code> and write the audio to <code class="docutils literal notranslate"><span class="pre">path</span></code>.</p>
+<p>Thin convenience wrapper over <a class="reference internal" href="#mixing.dubbing.text_to_speech" title="mixing.dubbing.text_to_speech"><code class="xref py py-func docutils literal notranslate"><span class="pre">text_to_speech()</span></code></a>. Extra keyword
+arguments are forwarded unchanged.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The path written.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mixing.dubbing.text_to_speech">
+<span class="sig-prename descclassname"><span class="pre">mixing.dubbing.</span></span><span class="sig-name descname"><span class="pre">text_to_speech</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">voice_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">api_key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'eleven_multilingual_v2'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_format</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'mp3_44100_128'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">voice_settings</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">language_code</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">600.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cache</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">refresh</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bytes</span></span></span><a class="reference internal" href="../../_modules/mixing/dubbing/tts.html#text_to_speech"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.dubbing.text_to_speech" title="Link to this definition"></a></dt>
+<dd><p>Synthesize <code class="docutils literal notranslate"><span class="pre">text</span></code> to speech with ElevenLabs and return audio bytes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>text</strong> – The text to speak.</p></li>
+<li><p><strong>voice_id</strong> – ElevenLabs voice id (see <a class="reference internal" href="#mixing.dubbing.list_voices" title="mixing.dubbing.list_voices"><code class="xref py py-func docutils literal notranslate"><span class="pre">list_voices()</span></code></a>).</p></li>
+<li><p><strong>api_key</strong> – API key. Falls back to env var <code class="docutils literal notranslate"><span class="pre">ELEVENLABS_API_KEY</span></code>.</p></li>
+<li><p><strong>model_id</strong> – TTS model id. Defaults to <code class="docutils literal notranslate"><span class="pre">eleven_multilingual_v2</span></code>.</p></li>
+<li><p><strong>output_format</strong> – ElevenLabs <code class="docutils literal notranslate"><span class="pre">output_format</span></code> query value, e.g.
+<code class="docutils literal notranslate"><span class="pre">mp3_44100_128</span></code> (default), <code class="docutils literal notranslate"><span class="pre">mp3_44100_192</span></code> (needs a paid
+tier), or <code class="docutils literal notranslate"><span class="pre">pcm_44100</span></code>.</p></li>
+<li><p><strong>voice_settings</strong> – Override the default voice settings (stability,
+similarity_boost, style, use_speaker_boost). Merged over
+<code class="xref py py-data docutils literal notranslate"><span class="pre">DFLT_VOICE_SETTINGS</span></code>.</p></li>
+<li><p><strong>language_code</strong> – Optional ISO-639-1 hint (e.g. <code class="docutils literal notranslate"><span class="pre">&quot;fr&quot;</span></code>). Only some
+models honor it; ignored by others.</p></li>
+<li><p><strong>timeout</strong> – Total request timeout in seconds.</p></li>
+<li><p><strong>cache</strong> – <code class="docutils literal notranslate"><span class="pre">True</span></code> (default) → use <a class="reference internal" href="#mixing.dubbing.default_cache_dir" title="mixing.dubbing.default_cache_dir"><code class="xref py py-func docutils literal notranslate"><span class="pre">default_cache_dir()</span></code></a>. <code class="docutils literal notranslate"><span class="pre">False</span></code>
+→ no cache. A path → use that directory. The cache key is a
+SHA-256 of the text plus every parameter that affects the audio.</p></li>
+<li><p><strong>refresh</strong> – When <code class="docutils literal notranslate"><span class="pre">True</span></code> and <code class="docutils literal notranslate"><span class="pre">cache</span></code> is enabled, force a re-call and
+overwrite the cached entry.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Raw audio bytes in <code class="docutils literal notranslate"><span class="pre">output_format</span></code> (MP3 by default).</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>RuntimeError</strong> – No API key supplied and <code class="docutils literal notranslate"><span class="pre">ELEVENLABS_API_KEY</span></code> unset.</p></li>
+<li><p><strong>urllib.error.HTTPError</strong> – Request failed (4xx/5xx).</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mixing.dubbing.translate_srt">
+<span class="sig-prename descclassname"><span class="pre">mixing.dubbing.</span></span><span class="sig-name descname"><span class="pre">translate_srt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">srt</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="dubbing/srt.html#mixing.dubbing.srt.Cue" title="mixing.dubbing.srt.Cue"><span class="pre">Cue</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_language</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">source_language</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">translate_fn</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../../_modules/mixing/dubbing/srt.html#translate_srt"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.dubbing.translate_srt" title="Link to this definition"></a></dt>
+<dd><p>Translate the cue text of an SRT to <code class="docutils literal notranslate"><span class="pre">target_language</span></code>, keeping timings.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>srt</strong> – SRT text or a list of <a class="reference internal" href="#mixing.dubbing.Cue" title="mixing.dubbing.Cue"><code class="xref py py-class docutils literal notranslate"><span class="pre">Cue</span></code></a> objects.</p></li>
+<li><p><strong>target_language</strong> – Human-readable target language (e.g. <code class="docutils literal notranslate"><span class="pre">&quot;French&quot;</span></code>).</p></li>
+<li><p><strong>source_language</strong> – Optional source language hint.</p></li>
+<li><p><strong>translate_fn</strong> – A callable <code class="docutils literal notranslate"><span class="pre">(texts,</span> <span class="pre">target_language,</span> <span class="pre">source_language)</span>
+<span class="pre">-&gt;</span> <span class="pre">list[str]</span></code> returning one translation per input text, in
+order. Defaults to <a class="reference internal" href="#mixing.dubbing.default_translate_fn" title="mixing.dubbing.default_translate_fn"><code class="xref py py-func docutils literal notranslate"><span class="pre">default_translate_fn()</span></code></a> (LLM-backed).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Translated SRT text with the original cue timings.</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ValueError</strong> – The translator returned a different number of segments
+    than it was given.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="chapters.html" class="btn btn-neutral float-left" title="mixing.chapters" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="dubbing/dub.html" class="btn btn-neutral float-right" title="mixing.dubbing.dub" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright NO COPYRIGHT.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

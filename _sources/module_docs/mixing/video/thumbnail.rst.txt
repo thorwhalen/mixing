@@ -1,0 +1,4 @@
+mixing.video.thumbnail
+======================
+.. automodule:: mixing.video.thumbnail
+   :members:

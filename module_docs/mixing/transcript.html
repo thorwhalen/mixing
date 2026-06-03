@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>mixing.transcript &mdash; mixing 0.0.20 documentation</title>
+  <title>mixing.transcript &mdash; mixing 0.0.21 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
@@ -15,7 +15,7 @@
   
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../_static/documentation_options.js?v=056c92e6"></script>
+      <script src="../../_static/documentation_options.js?v=a11416ff"></script>
       <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="../../_static/toggleprompt.js?v=d7ede5d2"></script>
@@ -25,7 +25,7 @@
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="mixing.transcript.fillers" href="transcript/fillers.html" />
-    <link rel="prev" title="mixing.audio.test_audio_widget" href="audio/test_audio_widget.html" /> 
+    <link rel="prev" title="mixing.dubbing.tts" href="dubbing/tts.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -57,6 +57,11 @@
 <li class="toctree-l1"><a class="reference internal" href="audio/demo_audio_widget.html">mixing.audio.demo_audio_widget</a></li>
 <li class="toctree-l1"><a class="reference internal" href="audio/segmentation.html">mixing.audio.segmentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="audio/test_audio_widget.html">mixing.audio.test_audio_widget</a></li>
+<li class="toctree-l1"><a class="reference internal" href="chapters.html">mixing.chapters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dubbing.html">mixing.dubbing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dubbing/dub.html">mixing.dubbing.dub</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dubbing/srt.html">mixing.dubbing.srt</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dubbing/tts.html">mixing.dubbing.tts</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">mixing.transcript</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#mixing.transcript.FillerRemovalResult"><code class="docutils literal notranslate"><span class="pre">FillerRemovalResult</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#mixing.transcript.apply_keeps"><code class="docutils literal notranslate"><span class="pre">apply_keeps()</span></code></a></li>
@@ -69,6 +74,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#mixing.transcript.normalize_token"><code class="docutils literal notranslate"><span class="pre">normalize_token()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#mixing.transcript.remap_time_after_cuts"><code class="docutils literal notranslate"><span class="pre">remap_time_after_cuts()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#mixing.transcript.remove_fillers"><code class="docutils literal notranslate"><span class="pre">remove_fillers()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mixing.transcript.srt_for_media"><code class="docutils literal notranslate"><span class="pre">srt_for_media()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#mixing.transcript.transcribe"><code class="docutils literal notranslate"><span class="pre">transcribe()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#mixing.transcript.words_to_prose"><code class="docutils literal notranslate"><span class="pre">words_to_prose()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#mixing.transcript.words_to_srt"><code class="docutils literal notranslate"><span class="pre">words_to_srt()</span></code></a></li>
@@ -78,12 +84,14 @@
 <li class="toctree-l1"><a class="reference internal" href="transcript/fillers.html">mixing.transcript.fillers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="transcript/formats.html">mixing.transcript.formats</a></li>
 <li class="toctree-l1"><a class="reference internal" href="transcript/media.html">mixing.transcript.media</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transcript/persist.html">mixing.transcript.persist</a></li>
 <li class="toctree-l1"><a class="reference internal" href="transcript/pipeline.html">mixing.transcript.pipeline</a></li>
 <li class="toctree-l1"><a class="reference internal" href="transcript/scribe.html">mixing.transcript.scribe</a></li>
 <li class="toctree-l1"><a class="reference internal" href="util.html">mixing.util</a></li>
 <li class="toctree-l1"><a class="reference internal" href="video.html">mixing.video</a></li>
 <li class="toctree-l1"><a class="reference internal" href="video/_helpers.html">mixing.video._helpers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="video/audio_offset_example.html">mixing.video.audio_offset_example</a></li>
+<li class="toctree-l1"><a class="reference internal" href="video/thumbnail.html">mixing.video.thumbnail</a></li>
 <li class="toctree-l1"><a class="reference internal" href="video/video_concat.html">mixing.video.video_concat</a></li>
 <li class="toctree-l1"><a class="reference internal" href="video/video_files.html">mixing.video.video_files</a></li>
 <li class="toctree-l1"><a class="reference internal" href="video/video_gen.html">mixing.video.video_gen</a></li>
@@ -267,6 +275,32 @@ cut/keep ranges.</p>
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="mixing.transcript.srt_for_media">
+<span class="sig-prename descclassname"><span class="pre">mixing.transcript.</span></span><span class="sig-name descname"><span class="pre">srt_for_media</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">media</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">srt_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reuse</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">refresh</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cache</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_chars</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">80</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">transcribe_kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Path</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/mixing/transcript/persist.html#srt_for_media"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.transcript.srt_for_media" title="Link to this definition"></a></dt>
+<dd><p>Return <code class="docutils literal notranslate"><span class="pre">(srt_text,</span> <span class="pre">srt_path)</span></code> for <code class="docutils literal notranslate"><span class="pre">media</span></code>, transcribing if needed.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>media</strong> – Audio or video file (Scribe extracts audio from video).</p></li>
+<li><p><strong>srt_path</strong> – Where the SRT lives/should be written. Defaults to the media
+path with an <code class="docutils literal notranslate"><span class="pre">.srt</span></code> suffix.</p></li>
+<li><p><strong>reuse</strong> – When <code class="docutils literal notranslate"><span class="pre">True</span></code> (default) and the SRT already exists, read and
+return it without re-transcribing.</p></li>
+<li><p><strong>refresh</strong> – Force re-transcription even if the SRT exists (overwrites it).</p></li>
+<li><p><strong>cache</strong> – Pass-through to <a class="reference internal" href="#mixing.transcript.transcribe" title="mixing.transcript.transcribe"><code class="xref py py-func docutils literal notranslate"><span class="pre">mixing.transcript.transcribe()</span></code></a>’s on-disk
+response cache.</p></li>
+<li><p><strong>max_chars</strong> – Max characters per SRT cue when generating.</p></li>
+<li><p><strong>transcribe_kwargs</strong> – Extra args forwarded to <code class="docutils literal notranslate"><span class="pre">transcribe</span></code> (e.g.
+<code class="docutils literal notranslate"><span class="pre">language_code</span></code>, <code class="docutils literal notranslate"><span class="pre">diarize</span></code>).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The SRT text and the path it lives at.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="mixing.transcript.transcribe">
 <span class="sig-prename descclassname"><span class="pre">mixing.transcript.</span></span><span class="sig-name descname"><span class="pre">transcribe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">audio</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">bytes</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">api_key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'scribe_v1'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timestamps_granularity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'word'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tag_audio_events</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diarize</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">language_code</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extra_fields</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">600.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cache</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">refresh</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/mixing/transcript/scribe.html#transcribe"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.transcript.transcribe" title="Link to this definition"></a></dt>
 <dd><p>Transcribe <code class="docutils literal notranslate"><span class="pre">audio</span></code> with ElevenLabs Scribe.</p>
@@ -346,7 +380,7 @@ the cleaned media.</p>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="audio/test_audio_widget.html" class="btn btn-neutral float-left" title="mixing.audio.test_audio_widget" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="dubbing/tts.html" class="btn btn-neutral float-left" title="mixing.dubbing.tts" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="transcript/fillers.html" class="btn btn-neutral float-right" title="mixing.transcript.fillers" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 

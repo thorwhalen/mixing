@@ -1,0 +1,198 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>mixing.transcript.persist &mdash; mixing 0.0.21 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=a11416ff"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../../../_static/toggleprompt.js?v=d7ede5d2"></script>
+      <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            mixing
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing.html">mixing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/audio.html">mixing.audio</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/audio/audio_ops.html">mixing.audio.audio_ops</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/audio/audio_util.html">mixing.audio.audio_util</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/audio/audio_widget.html">mixing.audio.audio_widget</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/audio/demo_audio_widget.html">mixing.audio.demo_audio_widget</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/audio/segmentation.html">mixing.audio.segmentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/audio/test_audio_widget.html">mixing.audio.test_audio_widget</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/chapters.html">mixing.chapters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/dubbing.html">mixing.dubbing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/dubbing/dub.html">mixing.dubbing.dub</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/dubbing/srt.html">mixing.dubbing.srt</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/dubbing/tts.html">mixing.dubbing.tts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/transcript.html">mixing.transcript</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/transcript/fillers.html">mixing.transcript.fillers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/transcript/formats.html">mixing.transcript.formats</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/transcript/media.html">mixing.transcript.media</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/transcript/persist.html">mixing.transcript.persist</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/transcript/pipeline.html">mixing.transcript.pipeline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/transcript/scribe.html">mixing.transcript.scribe</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/util.html">mixing.util</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video.html">mixing.video</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/_helpers.html">mixing.video._helpers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/audio_offset_example.html">mixing.video.audio_offset_example</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/thumbnail.html">mixing.video.thumbnail</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/video_concat.html">mixing.video.video_concat</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/video_files.html">mixing.video.video_files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/video_gen.html">mixing.video.video_gen</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/video_ops.html">mixing.video.video_ops</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/video_subtitles.html">mixing.video.video_subtitles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/video_util.html">mixing.video.video_util</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">mixing</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">mixing.transcript.persist</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for mixing.transcript.persist</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Reuse-or-create the SRT that lives next to a media file.</span>
+
+<span class="sd">Encodes the &quot;transcribe once, persist, reuse&quot; rule: the SRT lives alongside</span>
+<span class="sd">the media (same folder, same basename, ``.srt``). If it already exists it is</span>
+<span class="sd">returned untouched — re-transcribing costs API credits and the file may have</span>
+<span class="sd">been hand-corrected. Otherwise it is generated via ElevenLabs Scribe (whose</span>
+<span class="sd">raw response is itself cached on disk) and written next to the media.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Union</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">mixing.transcript.scribe</span><span class="w"> </span><span class="kn">import</span> <span class="n">transcribe</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mixing.transcript.formats</span><span class="w"> </span><span class="kn">import</span> <span class="n">words_to_srt</span>
+
+<span class="n">PathLike</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="srt_for_media">
+<a class="viewcode-back" href="../../../module_docs/mixing/transcript/persist.html#mixing.transcript.srt_for_media">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">srt_for_media</span><span class="p">(</span>
+    <span class="n">media</span><span class="p">:</span> <span class="n">PathLike</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">srt_path</span><span class="p">:</span> <span class="n">PathLike</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">reuse</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">refresh</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">cache</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">max_chars</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">80</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">transcribe_kwargs</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return ``(srt_text, srt_path)`` for ``media``, transcribing if needed.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        media: Audio or video file (Scribe extracts audio from video).</span>
+<span class="sd">        srt_path: Where the SRT lives/should be written. Defaults to the media</span>
+<span class="sd">            path with an ``.srt`` suffix.</span>
+<span class="sd">        reuse: When ``True`` (default) and the SRT already exists, read and</span>
+<span class="sd">            return it without re-transcribing.</span>
+<span class="sd">        refresh: Force re-transcription even if the SRT exists (overwrites it).</span>
+<span class="sd">        cache: Pass-through to :func:`mixing.transcript.transcribe`&#39;s on-disk</span>
+<span class="sd">            response cache.</span>
+<span class="sd">        max_chars: Max characters per SRT cue when generating.</span>
+<span class="sd">        transcribe_kwargs: Extra args forwarded to ``transcribe`` (e.g.</span>
+<span class="sd">            ``language_code``, ``diarize``).</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The SRT text and the path it lives at.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">media</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">media</span><span class="p">)</span>
+    <span class="n">srt_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">srt_path</span><span class="p">)</span> <span class="k">if</span> <span class="n">srt_path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">media</span><span class="o">.</span><span class="n">with_suffix</span><span class="p">(</span><span class="s2">&quot;.srt&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">reuse</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">refresh</span> <span class="ow">and</span> <span class="n">srt_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="k">return</span> <span class="n">srt_path</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">),</span> <span class="n">srt_path</span>
+
+    <span class="n">resp</span> <span class="o">=</span> <span class="n">transcribe</span><span class="p">(</span><span class="n">media</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="n">cache</span><span class="p">,</span> <span class="o">**</span><span class="n">transcribe_kwargs</span><span class="p">)</span>
+    <span class="n">srt</span> <span class="o">=</span> <span class="n">words_to_srt</span><span class="p">(</span><span class="n">resp</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;words&quot;</span><span class="p">,</span> <span class="p">[]),</span> <span class="n">max_chars</span><span class="o">=</span><span class="n">max_chars</span><span class="p">)</span>
+    <span class="n">srt_path</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">srt_path</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="n">srt</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">srt</span><span class="p">,</span> <span class="n">srt_path</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright NO COPYRIGHT.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
