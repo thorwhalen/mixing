@@ -42,6 +42,7 @@ from typing import Optional, Union
 from pathlib import Path
 from collections.abc import Callable, Iterator, Mapping, Sequence
 import io
+import os
 import tempfile
 import numpy as np
 import cv2
@@ -1113,10 +1114,91 @@ def change_speed(
 
 
 # --------------------------------------------------------------------- #
-# Ken Burns pan/zoom rendering (now provided by the `burns` package)
+# Ken Burns pan/zoom rendering (provided by the `burns` package)
 # --------------------------------------------------------------------- #
-# The Ken Burns renderers were extracted into the standalone `burns`
-# package (https://pypi.org/project/burns/). They are re-exported here so
-# they remain part of mixing's video toolkit — `mixing.ken_burns_video`
-# and `mixing.ken_burns_film` are unchanged for callers.
-from burns import ken_burns_video, ken_burns_film, DEFAULT_BURNS_PATH
+# The renderers live in the standalone `burns` package
+# (https://pypi.org/project/burns/). mixing wraps them in thin adapters so
+# they speak the same `output` egress protocol as the rest of the toolkit
+# (burns itself uses ``saveas=``).
+from burns import (
+    ken_burns_video as _burns_ken_burns_video,
+    ken_burns_film as _burns_ken_burns_film,
+    DEFAULT_BURNS_PATH,
+)
+
+
+def ken_burns_video(
+    image,
+    path=DEFAULT_BURNS_PATH,
+    *,
+    duration: float = 2.0,
+    fps: int = 30,
+    output: Output = None,
+    output_size: tuple[int, int] | None = None,
+    **write_kwargs,
+) -> Path:
+    """Render one image into a pan/zoom video (thin wrapper over ``burns``).
+
+    Args:
+        image: path / ``PIL.Image`` / ``np.ndarray``.
+        path: the :class:`burns.BurnsPath` motion spec (defaults to a 2s push-in).
+        duration: clip length in seconds.
+        fps: frames per second.
+        output: Where to put the result — ``None`` (burns auto-names beside the
+            image), a file path, a directory (auto-named), or a callable sink.
+            See :mod:`mixing.egress`.
+        output_size: optional ``(w, h)`` to render at.
+        write_kwargs: forwarded to the ffmpeg write (codec, audio_codec, ...).
+
+    Returns:
+        The ``Path`` written (or the sink's return value).
+    """
+
+    def _render(saveas):
+        return _burns_ken_burns_video(
+            image,
+            path,
+            duration=duration,
+            fps=fps,
+            saveas=saveas,
+            output_size=output_size,
+            **write_kwargs,
+        )
+
+    # output=None defers to burns' own (nice) "beside the image" auto-naming.
+    if output is None:
+        return _render(None)
+    stem = Path(str(image)).stem if isinstance(image, (str, os.PathLike)) else "ken_burns"
+    default_path = Path.cwd() / f"{stem}_kenburns.mp4"
+    return write_egress(output, default_path=default_path, write=lambda p: _render(str(p)))
+
+
+def ken_burns_film(
+    panels,
+    *,
+    output: Output,
+    fps: int = 30,
+    audio_path=None,
+    **write_kwargs,
+) -> Path:
+    """Stitch ``(image, BurnsPath, duration_s)`` panels into one film (wraps ``burns``).
+
+    Args:
+        panels: ordered ``(image, BurnsPath, duration_s)`` triples.
+        output: Where to put the film — a file path, a directory (auto-named),
+            or a callable sink. See :mod:`mixing.egress`. Required.
+        fps: frames per second.
+        audio_path: optional pre-built audio track to mux over the film.
+        write_kwargs: forwarded to the ffmpeg write.
+
+    Returns:
+        The ``Path`` written (or the sink's return value).
+    """
+    default_path = Path.cwd() / "ken_burns_film.mp4"
+    return write_egress(
+        output,
+        default_path=default_path,
+        write=lambda p: _burns_ken_burns_film(
+            panels, saveas=str(p), fps=fps, audio_path=audio_path, **write_kwargs
+        ),
+    )

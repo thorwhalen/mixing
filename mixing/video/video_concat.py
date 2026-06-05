@@ -201,7 +201,7 @@ def _save_frame_comparison(
     frame1: np.ndarray,
     frame2: np.ndarray,
     difference_score: float,
-    output_path: str,
+    output: str,
 ) -> None:
     """
     Save a side-by-side comparison of two frames with difference heatmap.
@@ -240,8 +240,8 @@ def _save_frame_comparison(
         (width * 2 + 10, 10), f"Diff: {difference_score:.1%}", fill="white", font=font
     )
 
-    composite.save(output_path)
-    print(f"Comparison saved to: {output_path}")
+    composite.save(output)
+    print(f"Comparison saved to: {output}")
 
 
 def concatenate_videos(
@@ -252,7 +252,7 @@ def concatenate_videos(
     normalize_dimensions: bool | Literal["stretch", "fit", "fill", "social"] = "social",
     target_width: int | None = None,
     target_height: int | None = None,
-    output_path: str | bool | None = None,
+    output: str | bool | None = None,
     codec: str = "libx264",
     audio_codec: str = "aac",
     **concat_kwargs,
@@ -279,7 +279,7 @@ def concatenate_videos(
             - True: Same as 'social'
         target_width: Explicit target width (overrides first video's dimensions)
         target_height: Explicit target height (overrides first video's dimensions)
-        output_path: Optional path to save the concatenated video file.
+        output: Optional path to save the concatenated video file.
                     If True and videos is a folder path, generates filename from folder name.
                     If True and videos is not a folder, raises ValueError.
         codec: Video codec to use when writing file (default: 'libx264')
@@ -297,7 +297,7 @@ def concatenate_videos(
         >>> final = concatenate_videos(
         ...     '/path/to/videos/',
         ...     normalize_dimensions='fit',
-        ...     output_path='/path/output.mp4'
+        ...     output='/path/output.mp4'
         ... )  # doctest: +SKIP
 
         >>> # From list of paths with transformation and specific dimensions
@@ -321,18 +321,18 @@ def concatenate_videos(
 
     try:
         # Handle auto-generated output path from folder name
-        if output_path is True:
+        if output is True:
             if isinstance(videos, (str, Path)):
                 folder_path = Path(videos)
                 if folder_path.is_dir():
                     # Generate output filename from folder name
-                    output_path = str(folder_path.parent / f"{folder_path.name}.mp4")
+                    output = str(folder_path.parent / f"{folder_path.name}.mp4")
                 else:
                     raise ValueError(
-                        "output_path=True requires videos to be a folder path"
+                        "output=True requires videos to be a folder path"
                     )
             else:
-                raise ValueError("output_path=True requires videos to be a folder path")
+                raise ValueError("output=True requires videos to be a folder path")
 
         # Normalize input to iterable of VideoFileClips
         # All clips created by ensure_videoclip_iterable need to be closed by us
@@ -375,10 +375,10 @@ def concatenate_videos(
 
         # Concatenate and optionally write
         final_clip = concatenate_videoclips(clips_to_concat, **concat_kwargs)
-        if output_path is not None:
+        if output is not None:
             # Explicitly include audio with proper codecs
             final_clip.write_videofile(
-                output_path, codec=codec, audio_codec=audio_codec
+                output, codec=codec, audio_codec=audio_codec
             )
 
         return final_clip
@@ -391,40 +391,6 @@ def concatenate_videos(
             except Exception:
                 # Silently ignore cleanup errors
                 pass
-
-
-# Example usage matching your original code
-if __name__ == "__main__":
-    # Example 1: Using a list of video paths
-    video_paths = """
-    /Users/thorwhalen/Downloads/cosmo_vids/00_Book_Skyscraper_City_Video.mp4
-    /Users/thorwhalen/Downloads/cosmo_vids/01_Book_Towers_Collapsing_Video.mp4
-    /Users/thorwhalen/Downloads/cosmo_vids/02_meh_Catastrophic_Book_City_Collapse_Video.mp4
-    """.split()
-
-    # Uses the canonical module-level trim_first_frame_from_subsequent_clips.
-    output_path = "/Users/thorwhalen/Downloads/cosmo_vids/concatenated_video.mp4"
-
-    final_clip = concatenate_videos(
-        video_paths,
-        transform_clips=trim_first_frame_from_subsequent_clips,
-        output_path=output_path,
-    )
-    final_clip.close()
-
-    print(f"Successfully concatenated videos and saved to {output_path}")
-
-    # Example 2: Using a folder path (new feature!)
-    # This will automatically find and concatenate all video files in sorted order
-    # folder_path = "/Users/thorwhalen/Downloads/cosmo_vids/"
-    # final_clip = concatenate_videos(
-    #     folder_path,
-    #     transform_clips=trim_first_frame_from_subsequent_clips,
-    #     output_path="output_from_folder.mp4",
-    # )
-    # final_clip.close()
-
-
 # ============================================================================
 # TRANSITION FUNCTIONS - Try these alternatives
 # ============================================================================
