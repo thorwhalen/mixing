@@ -28,6 +28,16 @@ SegmentFn = Callable[[Sequence[dict], int], list[dict]]
 
 _SENTENCE_ENDINGS = ".?!"
 
+#: Heuristic spacing used to pick a default chapter count when ``target_count``
+#: is not given: roughly one chapter per this many seconds of media. ~90s (1.5
+#: minutes) is a common chapter cadence for talks/tutorials.
+SECONDS_PER_CHAPTER_HEURISTIC = 90.0
+
+#: Small slack (seconds) when comparing chapter starts against the media
+#: duration, so a marker sitting essentially *at* the end is dropped despite
+#: floating-point jitter in the last timestamp.
+_EPSILON_SECONDS = 1e-3
+
 
 @dataclass
 class Chapter:
@@ -85,7 +95,10 @@ def detect_chapters(
         return []
 
     if target_count is None:
-        target_count = max(min_chapters, min(max_chapters, round(duration / 90)))
+        target_count = max(
+            min_chapters,
+            min(max_chapters, round(duration / SECONDS_PER_CHAPTER_HEURISTIC)),
+        )
     target_count = max(min_chapters, min(max_chapters, target_count))
 
     segment_fn = segment_fn or default_segment_fn
@@ -218,7 +231,7 @@ def _enforce_constraints(
     # Enforce minimum spacing and the duration bound; keep first occurrence.
     kept: list[Chapter] = []
     for c in chapters:
-        if c.start >= duration - 1e-3:
+        if c.start >= duration - _EPSILON_SECONDS:
             continue
         if kept and c.start - kept[-1].start < min_spacing:
             continue

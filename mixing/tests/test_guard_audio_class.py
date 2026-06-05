@@ -8,9 +8,10 @@ properties, ``.save(output=...)``, chained ``fade_in``/``fade_out``, ``overlay``
 and the ``.samples`` Mapping protocol.
 
 Notable current quirks encoded here (a refactor should preserve or deliberately fix):
-- ``Audio`` only treats a ``str`` as a file path. Passing a ``pathlib.Path`` falls
-  into the "AudioSegment" branch, yielding ``src_path is None`` and a broken object
-  (e.g. ``full_duration`` raises ``TypeError``). Tests therefore pass ``str(path)``.
+- ``Audio`` accepts a file path as either a ``str`` or an ``os.PathLike`` (e.g.
+  ``pathlib.Path``); both construct the same object. (This used to be a footgun
+  where a ``Path`` was silently treated as an ``AudioSegment``; that bug is now
+  fixed — see ``test_path_object_constructs_like_str``.)
 - ``Audio.samples[i]`` returns a NumPy scalar (``np.floating``), not a builtin
   ``float`` (though it coerces cleanly via ``float(...)``).
 """
@@ -59,18 +60,37 @@ def test_stereo_channels_reported(make_tone_audio):
     assert audio.channels == 2
 
 
-def test_passing_path_object_is_a_silent_footgun(tone_audio):
-    """Quirk: a Path (not str) is treated as an AudioSegment, not a file path.
+def test_path_object_constructs_like_str(tone_audio):
+    """A ``pathlib.Path`` is accepted as a file path, just like a ``str``.
 
-    Construction succeeds, src_path becomes None, but the object is broken:
-    accessing full_duration raises TypeError (len() on a PosixPath).
+    Pins the fix for the former footgun where a non-``str`` ``os.PathLike`` was
+    silently routed into the AudioSegment branch (``src_path is None`` and a
+    broken object). Now ``Audio(Path(p))`` behaves exactly like ``Audio(p)``.
     """
     from pathlib import Path
 
-    audio = Audio(Path(str(tone_audio)))  # NB: a real Path, not a str
-    assert audio.src_path is None
-    with pytest.raises(TypeError):
-        _ = audio.full_duration
+    path = Path(str(tone_audio))
+    from_path = Audio(path)
+    from_str = Audio(str(tone_audio))
+
+    # src_path is coerced to the same str either way.
+    assert from_path.src_path == str(tone_audio)
+    assert from_path.src_path == from_str.src_path
+    # Same observable audio properties.
+    assert from_path.sample_rate == from_str.sample_rate
+    assert abs(from_path.full_duration - from_str.full_duration) < DUR_TOL
+    assert abs(from_path.full_duration - 1.0) < DUR_TOL
+
+
+def test_audiosamples_path_object_constructs_like_str(tone_audio):
+    """``AudioSamples`` likewise accepts a ``pathlib.Path`` like a ``str``."""
+    from pathlib import Path
+
+    from_path = AudioSamples(Path(str(tone_audio)))
+    from_str = AudioSamples(str(tone_audio))
+    assert from_path.audio_src == str(tone_audio)
+    assert from_path.audio_src == from_str.audio_src
+    assert len(from_path) == len(from_str)
 
 
 # --------------------------------------------------------------------------- #

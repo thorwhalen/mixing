@@ -74,13 +74,15 @@ class AudioSamples(Mapping[int, float]):
 
     def __init__(
         self,
-        audio_src: Union[str, "AudioSegment"],
+        audio_src: Union[str, "os.PathLike[str]", "AudioSegment"],
         start_sample: int = 0,
         end_sample: int | None = None,
     ):
         AudioSegment = require_package("pydub").AudioSegment
 
-        if isinstance(audio_src, str):
+        if isinstance(audio_src, (str, os.PathLike)):
+            # Accept both ``str`` and ``pathlib.Path`` / any os.PathLike
+            audio_src = os.fspath(audio_src)
             self.audio_src = audio_src
             self._audio = AudioSegment.from_file(audio_src)
         else:
@@ -173,7 +175,7 @@ class Audio:
 
     def __init__(
         self,
-        src_path: Union[str, "AudioSegment"],
+        src_path: Union[str, "os.PathLike[str]", "AudioSegment"],
         *,
         time_unit: AudioTimeUnit = "seconds",
         start_time: float | None = None,
@@ -181,7 +183,9 @@ class Audio:
     ):
         AudioSegment = require_package("pydub").AudioSegment
 
-        if isinstance(src_path, str):
+        if isinstance(src_path, (str, os.PathLike)):
+            # Accept both ``str`` and ``pathlib.Path`` / any os.PathLike
+            src_path = os.fspath(src_path)
             self.src_path = str(src_path)
             self._audio = AudioSegment.from_file(src_path)
         else:

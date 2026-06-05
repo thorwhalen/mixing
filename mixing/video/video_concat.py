@@ -402,14 +402,7 @@ if __name__ == "__main__":
     /Users/thorwhalen/Downloads/cosmo_vids/02_meh_Catastrophic_Book_City_Collapse_Video.mp4
     """.split()
 
-    def trim_first_frame_from_subsequent_clips(
-        clips: list[VideoFileClip],
-    ) -> Iterable[VideoFileClip]:
-        """Keep first clip intact, trim first frame from subsequent clips."""
-        yield clips[0]
-        for clip in clips[1:]:
-            yield clip.subclipped(1 / clip.fps)
-
+    # Uses the canonical module-level trim_first_frame_from_subsequent_clips.
     output_path = "/Users/thorwhalen/Downloads/cosmo_vids/concatenated_video.mp4"
 
     final_clip = concatenate_videos(

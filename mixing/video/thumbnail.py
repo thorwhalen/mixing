@@ -21,6 +21,11 @@ THUMBNAIL_SIZE = (1280, 720)
 #: Backwards-compatible alias.
 YOUTUBE_THUMB_SIZE = THUMBNAIL_SIZE
 
+#: Fraction of the video duration used for the default frame grab when
+#: ``at_time`` is omitted — 85% lands near the end, typically on the closing
+#: brand/logo shot, which makes a good default thumbnail.
+DEFAULT_FRAME_TIME_FRACTION = 0.85
+
 
 def make_thumbnail(
     video: PathLike,
@@ -52,7 +57,7 @@ def make_thumbnail(
     default_path = video.with_suffix("").with_name(f"{video.stem}.thumb.jpg")
 
     if at_time is None:
-        at_time = 0.85 * _media_duration(video)
+        at_time = DEFAULT_FRAME_TIME_FRACTION * _media_duration(video)
 
     def _write(out: Path) -> None:
         raw_frame = out.with_suffix(".rawframe.png")
