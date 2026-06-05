@@ -1168,9 +1168,13 @@ def ken_burns_video(
     # output=None defers to burns' own (nice) "beside the image" auto-naming.
     if output is None:
         return _render(None)
-    stem = Path(str(image)).stem if isinstance(image, (str, os.PathLike)) else "ken_burns"
+    stem = (
+        Path(str(image)).stem if isinstance(image, (str, os.PathLike)) else "ken_burns"
+    )
     default_path = Path.cwd() / f"{stem}_kenburns.mp4"
-    return write_egress(output, default_path=default_path, write=lambda p: _render(str(p)))
+    return write_egress(
+        output, default_path=default_path, write=lambda p: _render(str(p))
+    )
 
 
 def ken_burns_film(

@@ -46,7 +46,9 @@ def resolve_cache_dir(
     """
     if cache is False:
         return None
-    directory = default_factory() if cache is True else Path(cache).expanduser().resolve()
+    directory = (
+        default_factory() if cache is True else Path(cache).expanduser().resolve()
+    )
     directory.mkdir(parents=True, exist_ok=True)
     return directory
 

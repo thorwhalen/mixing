@@ -328,9 +328,7 @@ def concatenate_videos(
                     # Generate output filename from folder name
                     output = str(folder_path.parent / f"{folder_path.name}.mp4")
                 else:
-                    raise ValueError(
-                        "output=True requires videos to be a folder path"
-                    )
+                    raise ValueError("output=True requires videos to be a folder path")
             else:
                 raise ValueError("output=True requires videos to be a folder path")
 
@@ -377,9 +375,7 @@ def concatenate_videos(
         final_clip = concatenate_videoclips(clips_to_concat, **concat_kwargs)
         if output is not None:
             # Explicitly include audio with proper codecs
-            final_clip.write_videofile(
-                output, codec=codec, audio_codec=audio_codec
-            )
+            final_clip.write_videofile(output, codec=codec, audio_codec=audio_codec)
 
         return final_clip
 
@@ -391,6 +387,8 @@ def concatenate_videos(
             except Exception:
                 # Silently ignore cleanup errors
                 pass
+
+
 # ============================================================================
 # TRANSITION FUNCTIONS - Try these alternatives
 # ============================================================================
