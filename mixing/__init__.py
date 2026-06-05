@@ -95,6 +95,7 @@ _SUBMODULES = (
     "dubbing",
     "chapters",
     "srt",
+    "egress",
     "util",
 )
 
