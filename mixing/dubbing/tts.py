@@ -20,19 +20,20 @@ Quick start:
 
 from __future__ import annotations
 
-import hashlib
 import json
-import os
 import urllib.parse
 import urllib.request
 from pathlib import Path
 from typing import Any, Mapping, Union
 
+from mixing import _cache
+from mixing._cache import CacheArg
+from mixing._elevenlabs import resolve_api_key
+
 ELEVENLABS_TTS_URL = "https://api.elevenlabs.io/v1/text-to-speech"
 ELEVENLABS_VOICES_URL = "https://api.elevenlabs.io/v1/voices"
 ELEVENLABS_SHARED_VOICES_URL = "https://api.elevenlabs.io/v1/shared-voices"
 ELEVENLABS_ADD_VOICE_URL = "https://api.elevenlabs.io/v1/voices/add"
-ENV_KEY = "ELEVENLABS_API_KEY"
 CACHE_ENV_KEY = "MIXING_TTS_CACHE_DIR"
 
 #: High-quality, multilingual default model (one voice speaks many languages).
@@ -51,7 +52,6 @@ DFLT_VOICE_SETTINGS: dict[str, Any] = {
 }
 
 PathLike = Union[str, Path]
-CacheArg = Union[bool, str, Path]
 
 
 def default_cache_dir() -> Path:
@@ -60,13 +60,7 @@ def default_cache_dir() -> Path:
     Honors ``$MIXING_TTS_CACHE_DIR``, then ``$XDG_CACHE_HOME``, then
     ``~/.cache/``. Final segment is always ``mixing/tts``.
     """
-    override = os.environ.get(CACHE_ENV_KEY)
-    if override:
-        return Path(override).expanduser().resolve()
-    base = os.environ.get("XDG_CACHE_HOME")
-    if base:
-        return Path(base).expanduser().resolve() / "mixing" / "tts"
-    return Path.home() / ".cache" / "mixing" / "tts"
+    return _cache.default_cache_dir("tts", env_key=CACHE_ENV_KEY)
 
 
 def text_to_speech(
@@ -113,7 +107,7 @@ def text_to_speech(
     """
     settings = {**DFLT_VOICE_SETTINGS, **(voice_settings or {})}
 
-    cache_dir = _resolve_cache_dir(cache)
+    cache_dir = _cache.resolve_cache_dir(cache, default_factory=default_cache_dir)
     if cache_dir is not None:
         key = _cache_key(
             text,
@@ -123,13 +117,11 @@ def text_to_speech(
             settings=settings,
             language_code=language_code,
         )
-        cached = _cache_get(cache_dir, key)
+        cached = _cache.read_cache(cache_dir, key, suffix=".audio")
         if cached is not None and not refresh:
             return cached
 
-    api_key = api_key or os.environ.get(ENV_KEY)
-    if not api_key:
-        raise RuntimeError(f"No ElevenLabs API key. Pass api_key= or set {ENV_KEY}.")
+    api_key = resolve_api_key(api_key)
 
     payload: dict[str, Any] = {
         "text": text,
@@ -157,7 +149,7 @@ def text_to_speech(
         audio = resp.read()
 
     if cache_dir is not None:
-        _cache_put(cache_dir, key, audio)
+        _cache.write_cache(cache_dir, key, audio, suffix=".audio")
     return audio
 
 
@@ -201,9 +193,7 @@ def list_voices(
     Raises:
         RuntimeError: No API key supplied and ``ELEVENLABS_API_KEY`` unset.
     """
-    api_key = api_key or os.environ.get(ENV_KEY)
-    if not api_key:
-        raise RuntimeError(f"No ElevenLabs API key. Pass api_key= or set {ENV_KEY}.")
+    api_key = resolve_api_key(api_key)
     req = urllib.request.Request(
         ELEVENLABS_VOICES_URL,
         method="GET",
@@ -247,9 +237,7 @@ def search_shared_voices(
         ``name``, ``language``, ``accent``, ``gender``, ``use_case``,
         ``description``.
     """
-    api_key = api_key or os.environ.get(ENV_KEY)
-    if not api_key:
-        raise RuntimeError(f"No ElevenLabs API key. Pass api_key= or set {ENV_KEY}.")
+    api_key = resolve_api_key(api_key)
     params = {"page_size": str(page_size)}
     for k, v in (
         ("language", language),
@@ -292,9 +280,7 @@ def add_shared_voice(
     Returns:
         The account-local ``voice_id`` to pass to :func:`text_to_speech`.
     """
-    api_key = api_key or os.environ.get(ENV_KEY)
-    if not api_key:
-        raise RuntimeError(f"No ElevenLabs API key. Pass api_key= or set {ENV_KEY}.")
+    api_key = resolve_api_key(api_key)
 
     existing = find_voice(name, api_key=api_key)
     if existing is not None:
@@ -338,20 +324,6 @@ def find_voice(
     return None
 
 
-# -- caching helpers (parallel to mixing.transcript.scribe) ------------------
-
-
-def _resolve_cache_dir(cache: CacheArg) -> Path | None:
-    if cache is False:
-        return None
-    if cache is True:
-        d = default_cache_dir()
-    else:
-        d = Path(cache).expanduser().resolve()
-    d.mkdir(parents=True, exist_ok=True)
-    return d
-
-
 def _cache_key(
     text: str,
     *,
@@ -361,31 +333,12 @@ def _cache_key(
     settings: Mapping[str, Any],
     language_code: str | None,
 ) -> str:
-    h = hashlib.sha256()
-    for part in (text, voice_id, model_id, output_format, language_code or ""):
-        h.update(part.encode())
-        h.update(b"\0")
-    h.update(json.dumps(settings, sort_keys=True).encode())
-    return h.hexdigest()
-
-
-def _cache_path(cache_dir: Path, key: str) -> Path:
-    return cache_dir / key[:2] / f"{key}.audio"
-
-
-def _cache_get(cache_dir: Path, key: str) -> bytes | None:
-    p = _cache_path(cache_dir, key)
-    if not p.exists():
-        return None
-    try:
-        return p.read_bytes()
-    except OSError:
-        return None
-
-
-def _cache_put(cache_dir: Path, key: str, audio: bytes) -> None:
-    p = _cache_path(cache_dir, key)
-    p.parent.mkdir(parents=True, exist_ok=True)
-    tmp = p.with_suffix(".tmp")
-    tmp.write_bytes(audio)
-    tmp.replace(p)
+    """Cache key over the text and every parameter that affects the audio."""
+    return _cache.sha256_key(
+        text,
+        voice_id,
+        model_id,
+        output_format,
+        language_code or "",
+        json.dumps(settings, sort_keys=True),
+    )

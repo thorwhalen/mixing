@@ -12,7 +12,6 @@ been transcribed before.
 
 from __future__ import annotations
 
-import hashlib
 import json
 import mimetypes
 import os
@@ -20,13 +19,15 @@ import urllib.request
 from pathlib import Path
 from typing import Any, Mapping, Union
 
+from mixing import _cache
+from mixing._cache import CacheArg
+from mixing._elevenlabs import resolve_api_key
+
 ELEVENLABS_STT_URL = "https://api.elevenlabs.io/v1/speech-to-text"
-ENV_KEY = "ELEVENLABS_API_KEY"
 CACHE_ENV_KEY = "MIXING_TRANSCRIPT_CACHE_DIR"
 
 PathLike = Union[str, Path]
 AudioInput = Union[PathLike, bytes]
-CacheArg = Union[bool, str, Path]
 
 
 def default_cache_dir() -> Path:
@@ -35,13 +36,7 @@ def default_cache_dir() -> Path:
     Honors ``$MIXING_TRANSCRIPT_CACHE_DIR``, then ``$XDG_CACHE_HOME``,
     then ``~/.cache/``. Final segment is always ``mixing/transcript``.
     """
-    override = os.environ.get(CACHE_ENV_KEY)
-    if override:
-        return Path(override).expanduser().resolve()
-    base = os.environ.get("XDG_CACHE_HOME")
-    if base:
-        return Path(base).expanduser().resolve() / "mixing" / "transcript"
-    return Path.home() / ".cache" / "mixing" / "transcript"
+    return _cache.default_cache_dir("transcript", env_key=CACHE_ENV_KEY)
 
 
 def transcribe(
@@ -98,7 +93,7 @@ def transcribe(
         audio_bytes = audio
         filename = "audio.bin"
 
-    cache_dir = _resolve_cache_dir(cache)
+    cache_dir = _cache.resolve_cache_dir(cache, default_factory=default_cache_dir)
 
     if cache_dir is not None:
         key = _cache_key(
@@ -110,13 +105,11 @@ def transcribe(
             language_code=language_code,
             extra_fields=extra_fields,
         )
-        cached = _cache_get(cache_dir, key)
+        cached = _cache.read_cache(cache_dir, key, suffix=".json", loads=_json_loads)
         if cached is not None and not refresh:
             return cached
 
-    api_key = api_key or os.environ.get(ENV_KEY)
-    if not api_key:
-        raise RuntimeError(f"No ElevenLabs API key. Pass api_key= or set {ENV_KEY}.")
+    api_key = resolve_api_key(api_key)
 
     fields: dict[str, str] = {
         "model_id": model_id,
@@ -140,19 +133,16 @@ def transcribe(
         response = json.loads(resp.read().decode())
 
     if cache_dir is not None:
-        _cache_put(cache_dir, key, response)
+        _cache.write_cache(cache_dir, key, response, suffix=".json", dumps=_json_dumps)
     return response
 
 
-def _resolve_cache_dir(cache: CacheArg) -> Path | None:
-    if cache is False:
-        return None
-    if cache is True:
-        d = default_cache_dir()
-    else:
-        d = Path(cache).expanduser().resolve()
-    d.mkdir(parents=True, exist_ok=True)
-    return d
+def _json_loads(data: bytes) -> dict[str, Any]:
+    return json.loads(data.decode())
+
+
+def _json_dumps(value: object) -> bytes:
+    return json.dumps(value).encode()
 
 
 def _cache_key(
@@ -165,46 +155,17 @@ def _cache_key(
     language_code: str | None,
     extra_fields: Mapping[str, str] | None,
 ) -> str:
-    h = hashlib.sha256()
-    h.update(audio_bytes)
-    h.update(b"\0")
-    h.update(model_id.encode())
-    h.update(b"\0")
-    h.update(timestamps_granularity.encode())
-    h.update(b"\0")
-    h.update(b"1" if tag_audio_events else b"0")
-    h.update(b"1" if diarize else b"0")
-    h.update((language_code or "").encode())
+    extra = ""
     if extra_fields:
-        for k in sorted(extra_fields):
-            h.update(b"\0")
-            h.update(k.encode())
-            h.update(b"=")
-            h.update(str(extra_fields[k]).encode())
-    return h.hexdigest()
-
-
-def _cache_path(cache_dir: Path, key: str) -> Path:
-    # 2-char shard to avoid one giant directory
-    return cache_dir / key[:2] / f"{key}.json"
-
-
-def _cache_get(cache_dir: Path, key: str) -> dict[str, Any] | None:
-    p = _cache_path(cache_dir, key)
-    if not p.exists():
-        return None
-    try:
-        return json.loads(p.read_text())
-    except (OSError, json.JSONDecodeError):
-        return None
-
-
-def _cache_put(cache_dir: Path, key: str, response: dict[str, Any]) -> None:
-    p = _cache_path(cache_dir, key)
-    p.parent.mkdir(parents=True, exist_ok=True)
-    tmp = p.with_suffix(".tmp")
-    tmp.write_text(json.dumps(response))
-    tmp.replace(p)
+        extra = "".join(f"\0{k}={extra_fields[k]}" for k in sorted(extra_fields))
+    return _cache.sha256_key(
+        audio_bytes,
+        model_id,
+        timestamps_granularity,
+        "1" if tag_audio_events else "0",
+        # NOTE: kept adjacent (no delimiter) to match the original key scheme.
+        ("1" if diarize else "0") + (language_code or "") + extra,
+    )
 
 
 def _multipart_encode(
