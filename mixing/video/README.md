@@ -10,7 +10,7 @@ This module provides comprehensive video processing capabilities including:
 - **Video Concatenation** with various transition effects
 - **Subtitle Integration** for video content
 
-## AI Video Generation (`video_gen`)
+## AI Video Generation (`genai`)
 
 Generate videos using Google's state-of-the-art Veo models on Vertex AI.
 
@@ -19,7 +19,7 @@ Generate videos using Google's state-of-the-art Veo models on Vertex AI.
 The simplest way to generate videos is with a single function call that returns file paths:
 
 ```python
-from mixing.video.video_gen import generate_video
+from mixing.video.genai import generate_video
 
 # Generate video and get file path in one call
 video_path = generate_video("A serene forest at dawn with golden sunlight filtering through mist")
@@ -57,43 +57,43 @@ export VEO_LOCATION="us-central1"  # Optional, defaults to us-central1
 ### Basic Video Generation
 
 ```python
-from mixing.video.video_gen import generate_video
+from mixing.video.genai import generate_video
 
 # Generate video and get file path (default behavior)
 video_path = generate_video("A serene forest at dawn with golden sunlight filtering through mist")
 print(f"Video saved to: {video_path}")
 
 # Save to specific location
-video_path = generate_video("A butterfly in a garden", save_video="/path/to/my_video.mp4")
+video_path = generate_video("A butterfly in a garden", output="/path/to/my_video.mp4")
 
 # Save to directory with auto-generated name
-video_path = generate_video("Ocean waves at sunset", save_video="/output/directory/")
+video_path = generate_video("Ocean waves at sunset", output="/output/directory/")
 ```
 
 ### Flexible Egress Options
 
-The `save_video` parameter controls how generated videos are processed:
+The `output` parameter controls how generated videos are processed:
 
 ```python
 # Default: Auto-save to temp files and return path(s)
 path = generate_video("Forest scene")
 
 # Save with specific extension to temp files
-path = generate_video("Forest scene", save_video=".webm")
+path = generate_video("Forest scene", output=".webm")
 
 # Just get the raw operation (no saving)
-operation = generate_video("Forest scene", save_video=False)
-# or: operation = generate_video("Forest scene", save_video=lambda x: x)
+operation = generate_video("Forest scene", output=False)
+# or: operation = generate_video("Forest scene", output=lambda x: x)
 
 # Custom processing function
 def my_video_processor(operation):
     # Save with custom prefix and settings
-    from mixing.video.video_gen import save_generated_videos
+    from mixing.video.genai import save_generated_videos
     paths = save_generated_videos(operation, prefix="custom_", extension_fallback="webm")
     print(f"Processed {len(paths)} videos with custom settings")
     return paths
 
-result = generate_video("Forest scene", save_video=my_video_processor)
+result = generate_video("Forest scene", output=my_video_processor)
 ```
 
 ### Advanced Video Generation Examples
@@ -105,7 +105,7 @@ video_path = generate_video(
     model="veo-2.0-generate-001",
     aspect_ratio="16:9",
     duration_seconds=8,
-    save_video="/my/custom/video.mp4",
+    output="/my/custom/video.mp4",
     project_id="your-project-id"  # Override environment
 )
 ```
@@ -116,7 +116,7 @@ video_path = generate_video(
 video_path = generate_video(
     prompt="The camera slowly zooms out revealing a vast landscape",
     first_frame="/path/to/start_image.jpg",
-    save_video="/output/zoom_out.mp4"
+    output="/output/zoom_out.mp4"
 )
 ```
 
@@ -127,7 +127,7 @@ video_path = generate_video(
     prompt="Smooth transition with swirling particles",
     first_frame="/path/to/video1.mp4",  # Extracts last frame
     last_frame="/path/to/video2.mp4",   # Extracts first frame
-    save_video="/output/transition.mp4"
+    output="/output/transition.mp4"
 )
 ```
 
@@ -137,7 +137,7 @@ video_path = generate_video(
 video_paths = generate_video(
     prompt="A cosmic dance of stars and galaxies",
     model="veo-3.0-generate-001",  # May generate multiple results
-    save_video="/output/directory/"  # Auto-indexed: cosmic_00.mp4, cosmic_01.mp4, etc.
+    output="/output/directory/"  # Auto-indexed: cosmic_00.mp4, cosmic_01.mp4, etc.
 )
 print(f"Generated {len(video_paths)} videos: {video_paths}")
 ```
@@ -146,7 +146,7 @@ print(f"Generated {len(video_paths)} videos: {video_paths}")
 ```python
 # Get raw operation for custom processing
 def advanced_processor(operation):
-    from mixing.video.video_gen import save_generated_videos
+    from mixing.video.genai import save_generated_videos
     
     # Save multiple formats
     mp4_paths = save_generated_videos(operation, "/output/mp4/", extension_fallback="mp4")
@@ -159,7 +159,7 @@ def advanced_processor(operation):
     
     return {"mp4": mp4_paths, "webm": webm_paths}
 
-result = generate_video("Epic landscape timelapse", save_video=advanced_processor)
+result = generate_video("Epic landscape timelapse", output=advanced_processor)
 ```
 
 ### Standalone Video Saving (save_generated_videos)
@@ -168,10 +168,10 @@ For more control over the saving process, you can also use `save_generated_video
 
 ```python
 # Get raw operation without auto-saving
-operation = generate_video("Forest scene", save_video=False)
+operation = generate_video("Forest scene", output=False)
 
 # Then save with full control
-from mixing.video.video_gen import save_generated_videos
+from mixing.video.genai import save_generated_videos
 
 # Various saving options
 paths = save_generated_videos(operation)  # Auto temp files
@@ -442,7 +442,7 @@ Download from [FFmpeg official site](https://ffmpeg.org/download.html#build-wind
 ## API Reference
 
 For detailed API documentation, see the docstrings in individual modules:
-- `video_gen.py`: AI video generation with Veo
+- `genai.py`: AI video generation with Veo (optional; `pip install 'mixing[gen]'`)
 - `video_files.py`: Frame extraction and video file utilities  
 - `video_subtitles.py`: Subtitle processing and video utilities
 - `video_concat.py`: Video concatenation and transitions

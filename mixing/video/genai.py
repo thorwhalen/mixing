@@ -4,17 +4,22 @@ AI Video Generation with Google Vertex AI Veo
 This module provides tools for generating videos using Google's Veo models on Vertex AI.
 The main workflow is simple: **generate and get a file path** to your video.
 
+It is an *optional* feature: it requires ``google-genai`` (``pip install
+'mixing[gen]'``) and Google Cloud credentials. Importing it pulls
+``from google import genai``, so it is not wired into the lazy ``mixing.video``
+facade — import it explicitly via ``mixing.video.genai``.
+
 Key features include:
 
 • **One-Step Generation**: Generate videos and get file paths in one call
-• **Flexible Egress**: Control how videos are saved with the `save_video` parameter
+• **Flexible Egress**: Control how videos are saved with the `output` parameter
 • **Multiple Input Formats**: Generate from text prompts, images, or video frames
 • **Smart Authentication**: Automatic environment variable detection and helpful error messages
 • **Multiple Video Support**: Handle models that generate multiple video variations
 
 Quick Start (Generate and Save):
 ```python
-from mixing.video.video_gen import generate_video
+from mixing.video.genai import generate_video
 
 # Generate video and get file path in one call
 video_path = generate_video("A serene forest at dawn with mist")
@@ -27,14 +32,14 @@ Flexible Egress Options:
 path = generate_video("prompt")
 
 # Save to specific location
-path = generate_video("prompt", save_video="/path/to/my_video.mp4")
+path = generate_video("prompt", output="/path/to/my_video.mp4")
 
 # Save to directory with auto-naming
-path = generate_video("prompt", save_video="/path/to/output_dir/")
+path = generate_video("prompt", output="/path/to/output_dir/")
 
 # Just return the operation (no saving)
-op = generate_video("prompt", save_video=False)
-# or: op = generate_video("prompt", save_video=lambda x: x)
+op = generate_video("prompt", output=False)
+# or: op = generate_video("prompt", output=lambda x: x)
 
 # Custom processing function
 def my_processor(operation):
@@ -42,7 +47,7 @@ def my_processor(operation):
     print(f"Saved {len(paths)} videos")
     return paths
 
-result = generate_video("prompt", save_video=my_processor)
+result = generate_video("prompt", output=my_processor)
 ```
 
 Authentication Setup:
@@ -193,7 +198,7 @@ def _get_video_extension_from_mime(mime_type: str) -> str:
 
 def _generate_output_paths(
     generated_videos,
-    save_filepath: str | None = None,
+    output: str | None = None,
     *,
     prefix: str = "generated_video_",
     directory_name: str = "generated_video_",
@@ -204,9 +209,9 @@ def _generate_output_paths(
 
     Args:
         generated_videos: List of GeneratedVideo objects
-        save_filepath: Output path specification (None, extension, directory, or full path)
+        output: Output path specification (None, extension, directory, or full path)
         prefix: Prefix for auto-generated filenames
-        directory_name: Name to use when save_filepath is directory
+        directory_name: Name to use when output is directory
         extension_fallback: Default extension if MIME type can't be determined
 
     Returns:
@@ -216,7 +221,7 @@ def _generate_output_paths(
     is_single_video = num_videos == 1
     output_paths = []
 
-    if save_filepath is None:
+    if output is None:
         # Auto-generate temp files
         for i, video in enumerate(generated_videos):
             # Get extension from MIME type if available (handle both new and legacy API)
@@ -239,9 +244,9 @@ def _generate_output_paths(
             os.close(temp_fd)  # Close the file descriptor since we'll write separately
             output_paths.append(output_path)
 
-    elif save_filepath.startswith("."):
+    elif output.startswith("."):
         # Extension provided
-        ext = save_filepath[1:]  # Remove the leading dot
+        ext = output[1:]  # Remove the leading dot
 
         # Validate it's a video extension
         video_extensions = {
@@ -272,11 +277,11 @@ def _generate_output_paths(
             os.close(temp_fd)
             output_paths.append(output_path)
 
-    elif os.path.isdir(save_filepath):
+    elif os.path.isdir(output):
         # Directory provided - generate safe filenames
         # Get list of existing files in the directory for collision detection
         try:
-            existing_files = set(os.listdir(save_filepath))
+            existing_files = set(os.listdir(output))
         except OSError:
             existing_files = set()
 
@@ -299,7 +304,7 @@ def _generate_output_paths(
 
             # Use non_colliding_key to ensure we don't overwrite existing files
             safe_filename = non_colliding_key(base_filename, existing_files)
-            output_path = os.path.join(save_filepath, safe_filename)
+            output_path = os.path.join(output, safe_filename)
             output_paths.append(output_path)
 
             # Add the new filename to existing_files to avoid collisions within this batch
@@ -309,9 +314,9 @@ def _generate_output_paths(
         # Full path provided
         if is_single_video:
             # For single video, check if file exists and use non_colliding_key if needed
-            if os.path.exists(save_filepath):
-                directory = os.path.dirname(save_filepath)
-                filename = os.path.basename(save_filepath)
+            if os.path.exists(output):
+                directory = os.path.dirname(output)
+                filename = os.path.basename(output)
                 try:
                     existing_files = (
                         set(os.listdir(directory))
@@ -327,15 +332,15 @@ def _generate_output_paths(
                     else safe_filename
                 )
             else:
-                output_path = save_filepath
+                output_path = output
             output_paths.append(output_path)
         else:
             # Multiple videos - generate indexed paths using non_colliding_key
-            base_path, ext = os.path.splitext(save_filepath)
+            base_path, ext = os.path.splitext(output)
             if not ext:
                 ext = f".{extension_fallback}"
 
-            directory = os.path.dirname(save_filepath)
+            directory = os.path.dirname(output)
             try:
                 existing_files = (
                     set(os.listdir(directory)) if directory else set(os.listdir("."))
@@ -363,7 +368,7 @@ def _generate_output_paths(
 
 def save_generated_videos(
     video_input,  # Can be: GeneratedVideo, list[GeneratedVideo], operation.response, or operation
-    save_filepath: str | None = None,
+    output: str | None = None,
     *,
     prefix: str = "generated_video_",
     directory_name: str = "generated_video_",
@@ -379,13 +384,13 @@ def save_generated_videos(
             - A list of GeneratedVideo objects (from op.response.generated_videos)
             - An operation response object (op.response)
             - A full operation object (op)
-        save_filepath: Output path specification. Can be:
+        output: Output path specification. Can be:
             - None: Auto-generate temp file(s) with appropriate extension
             - Path starting with '.': Use as extension (e.g., '.mp4')
             - Full filepath: Use as-is (for single video) or add index for multiple
             - Directory path: Use directory with generated names
         prefix: Prefix for auto-generated filenames (keyword-only)
-        directory_name: Name to use when save_filepath is directory (keyword-only)
+        directory_name: Name to use when output is directory (keyword-only)
         extension_fallback: Default extension if MIME type can't be determined (keyword-only)
 
     Returns:
@@ -520,7 +525,7 @@ def save_generated_videos(
     # Generate output paths using helper function
     output_paths = _generate_output_paths(
         generated_videos,
-        save_filepath,
+        output,
         prefix=prefix,
         directory_name=directory_name,
         extension_fallback=extension_fallback,
@@ -590,7 +595,7 @@ def generate_video(
     first_frame: str | None = None,
     last_frame: str | None = None,
     *,
-    save_video: Callable | str = save_generated_videos,
+    output: Callable | str | bool = save_generated_videos,
     model: str = "veo-2.0-generate-001",  # TODO: manage models better (when aix offers model routing tools)
     aspect_ratio: str = "16:9",
     duration_seconds: int = 5,
@@ -605,17 +610,21 @@ def generate_video(
     This function provides a complete workflow: generate video(s) and get downloadable file(s).
     By default, videos are automatically saved to temporary files and you get the path(s).
 
+    The ``output`` parameter follows the canonical :mod:`mixing.egress` protocol
+    (a path/dir writes there; a callable is a sink applied to the result), with
+    two generator-specific sentinels noted below.
+
     Args:
         prompt: Text prompt for video generation
         first_frame: Path to image/video file for first frame
         last_frame: Path to image/video file for last frame
-        save_video: Egress function or path specification. Controls how generated videos are processed:
+        output: Egress target / path specification. Controls how generated videos are processed:
             - save_generated_videos (default): Auto-save to temp files, return path(s)
-            - "/path/to/file.mp4": Save to specific file path
+            - "/path/to/file.mp4": Save to specific file path (via mixing.egress)
             - "/path/to/directory/": Save to directory with auto-generated names
             - ".mp4": Save to temp files with specific extension
-            - False or lambda x: x: Return raw operation without saving
-            - Custom function: Process operation and return your desired result
+            - False: Return raw operation without saving (sentinel)
+            - lambda x: x or custom callable: Sink applied to the operation
         model: Model to use for generation
         aspect_ratio: Video aspect ratio
         duration_seconds: Video duration
@@ -625,9 +634,9 @@ def generate_video(
         location: Google Cloud location
 
     Returns:
-        Depends on save_video parameter:
+        Depends on output parameter:
         - Default: File path(s) where video(s) were saved
-        - save_video=False: Raw operation object
+        - output=False: Raw operation object
         - Custom function: Whatever your function returns
 
     Examples:
@@ -636,19 +645,19 @@ def generate_video(
         >>> print(f"Video saved to: {path}")  # doctest: +SKIP
 
         Save to specific location:
-        >>> path = generate_video("Forest scene", save_video="/my/video.mp4")  # doctest: +SKIP
+        >>> path = generate_video("Forest scene", output="/my/video.mp4")  # doctest: +SKIP
 
         Save to directory:
-        >>> path = generate_video("Forest scene", save_video="/output/dir/")  # doctest: +SKIP
+        >>> path = generate_video("Forest scene", output="/output/dir/")  # doctest: +SKIP
 
         Just get the operation (no saving):
-        >>> op = generate_video("Forest scene", save_video=False)  # doctest: +SKIP
+        >>> op = generate_video("Forest scene", output=False)  # doctest: +SKIP
         >>> # Process op.response.generated_videos yourself
 
         Custom processing:
         >>> def my_saver(op):
         ...     return save_generated_videos(op, prefix="custom_", extension_fallback="webm")
-        >>> paths = generate_video("Forest scene", save_video=my_saver)  # doctest: +SKIP
+        >>> paths = generate_video("Forest scene", output=my_saver)  # doctest: +SKIP
 
     Environment Variables:
         VEO_SERVICE_ACCOUNT_FILE or GOOGLE_APPLICATION_CREDENTIALS: Service account JSON path
@@ -668,14 +677,19 @@ def generate_video(
     # TODO: manage models better (when aix offers model routing tools)
     from google import genai
     from google.genai.types import GenerateVideosConfig, Image
+    from mixing.egress import is_path_output, is_sink
 
-    if save_video:
-        if isinstance(save_video, str) or isinstance(save_video, bytes):
-            save_filepath = save_video
-            save_video = lambda v: save_generated_videos(v, save_filepath)
-        elif not callable(save_video):
+    # Resolve ``output`` into an egress sink (a callable applied to the
+    # operation) or the ``False`` sentinel (return the raw operation).
+    if output:
+        if is_path_output(output):
+            # A path/dir (str): route through save_generated_videos, which
+            # itself delegates filename resolution to mixing.egress semantics.
+            output_path = output
+            output = lambda v: save_generated_videos(v, output_path)
+        elif not is_sink(output):
             raise ValueError(
-                "save_video must be a callable function or 'save_generated_videos'"
+                "output must be a path, a result-consuming callable, or False"
             )
 
     # Get authentication info from environment if not provided
@@ -781,10 +795,11 @@ def generate_video(
         print("=" * 80)
         raise
 
-    # Process the result through save_video egress function
-    if save_video:
+    # Process the result through the resolved ``output`` egress sink. The
+    # ``False`` sentinel falls through to returning the raw operation.
+    if output:
         try:
-            return save_video(operation)
+            return output(operation)
         except Exception as e:
             print(f"Error saving video: {e}")
             from xdol import save_obj

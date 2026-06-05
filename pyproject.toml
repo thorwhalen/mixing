@@ -49,6 +49,12 @@ widget = [
     "soundfile",
     "jupyter",
 ]
+gen = [
+    "google-genai",
+]
+llm = [
+    "aix",
+]
 dev = [
     "pytest",
     "ruff",

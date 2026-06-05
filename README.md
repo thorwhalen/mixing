@@ -304,8 +304,10 @@ Generate videos using Google's state-of-the-art Veo models. The simplest approac
 
 #### Quick Start
 
+Install the optional extra: `pip install 'mixing[gen]'`.
+
 ```python
-from mixing.video.video_gen import generate_video
+from mixing.video.genai import generate_video
 
 # Generate video and get file path in one call
 video_path = generate_video("A serene forest at dawn with golden sunlight filtering through mist")
@@ -333,7 +335,7 @@ export GOOGLE_CLOUD_PROJECT="your-project-id"
 video_path = generate_video(
     prompt="The camera slowly zooms out revealing a vast landscape",
     first_frame="/path/to/image.jpg",
-    save_video="/my/custom/video.mp4",
+    output="/my/custom/video.mp4",
     duration_seconds=8
 )
 
@@ -348,35 +350,35 @@ video_path = generate_video(
 # Handle multiple generated videos (some models create variations)
 video_paths = generate_video(
     "A magical forest with dancing fireflies",
-    save_video="/output/directory/"  # Auto-indexed files
+    output="/output/directory/"  # Auto-indexed files
 )
 
 # Get raw operation for custom processing
-operation = generate_video("Epic landscape", save_video=False)
+operation = generate_video("Epic landscape", output=False)
 # Process operation.response.generated_videos as needed
 ```
 
 #### Flexible Egress Control
 
-The `save_video` parameter controls how videos are processed:
+The `output` parameter follows the canonical `mixing.egress` protocol:
 
 ```python
 # Default: Auto-save to temp files and return path(s)
 path = generate_video("prompt")
 
 # Save to specific file or directory
-path = generate_video("prompt", save_video="/path/to/video.mp4")
-path = generate_video("prompt", save_video="/output/dir/")
+path = generate_video("prompt", output="/path/to/video.mp4")
+path = generate_video("prompt", output="/output/dir/")
 
 # Just get the operation (no saving)
-op = generate_video("prompt", save_video=False)
+op = generate_video("prompt", output=False)
 
-# Custom processing function
+# Custom processing function (sink)
 def custom_processor(operation):
     # Your custom logic here
     return processed_result
 
-result = generate_video("prompt", save_video=custom_processor)
+result = generate_video("prompt", output=custom_processor)
 ```
 
 
