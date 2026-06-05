@@ -19,11 +19,11 @@ from pathlib import Path
 
 import pytest
 
-# Demos and the (soon-to-be-relocated) widget test pull heavy/optional UI deps;
-# keep them out of default collection.
+# The interactive audio widget pulls optional Jupyter/UI deps; keep the module
+# itself out of collection (its test lives in mixing/tests/ and self-skips when
+# the backends are absent).
 collect_ignore_glob = [
-    "mixing/audio/*widget*",
-    "mixing/audio/demo_*",
+    "mixing/audio/audio_widget.py",
 ]
 
 

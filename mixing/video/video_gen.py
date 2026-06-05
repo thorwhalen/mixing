@@ -567,7 +567,7 @@ def _get_frame_path(media_path: str, frame_idx: int = 0) -> str:
     If it's already an image, return the original path.
     """
     if _is_video_file(media_path):
-        from .video_files import save_frame
+        from .video_ops import save_frame
 
         return save_frame(media_path, frame_idx, saveas="/TMP")
     else:

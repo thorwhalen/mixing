@@ -14,8 +14,13 @@ import tempfile
 from pathlib import Path
 import io
 
+# The audio widget is an optional, Jupyter-oriented feature (see the [widget]
+# extra). Skip the whole module cleanly when its backends aren't installed.
+pytest.importorskip("soundfile")
+pytest.importorskip("IPython")
+
 # Import the module under test
-from audio_widget import ensure_wfsr, AudioWidget, wf_to_base64_wav
+from mixing.audio.audio_widget import ensure_wfsr, AudioWidget, wf_to_base64_wav
 
 
 # Fixtures
