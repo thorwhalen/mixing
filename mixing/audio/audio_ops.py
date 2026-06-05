@@ -455,6 +455,78 @@ class Audio:
         )
         return Audio(mixed, time_unit=self.time_unit)
 
+    def normalize(self, *, headroom: float = 0.1) -> "Audio":
+        """Peak-normalize the audio (via ``pydub.effects.normalize``).
+
+        Boosts (or attenuates) the segment so its loudest peak sits ``headroom``
+        dB below 0 dBFS. Pure pydub — adds no new dependency.
+
+        Args:
+            headroom: Target peak distance below 0 dBFS, in dB (keyword-only).
+
+        Returns:
+            New Audio with normalization applied.
+
+        Examples:
+            >>> audio = Audio("song.mp3")  # doctest: +SKIP
+            >>> louder = audio.normalize()  # doctest: +SKIP
+        """
+        from pydub import effects
+
+        segment = self._get_segment()
+        normalized = effects.normalize(segment, headroom=headroom)
+        return Audio(normalized, time_unit=self.time_unit)
+
+    def to_mono(self) -> "Audio":
+        """Downmix to a single channel (via pydub ``set_channels(1)``).
+
+        Returns:
+            New mono Audio. Pure pydub — adds no new dependency.
+
+        Examples:
+            >>> audio = Audio("stereo.mp3")  # doctest: +SKIP
+            >>> mono = audio.to_mono()  # doctest: +SKIP
+        """
+        segment = self._get_segment()
+        mono = segment.set_channels(1)
+        return Audio(mono, time_unit=self.time_unit)
+
+    def resample(self, sample_rate: int) -> "Audio":
+        """Change the sample rate (via pydub ``set_frame_rate``).
+
+        Args:
+            sample_rate: Target sample rate in Hz (e.g. ``16000``, ``44100``).
+
+        Returns:
+            New Audio at the requested sample rate. Pure pydub — adds no new
+            dependency.
+
+        Examples:
+            >>> audio = Audio("song.mp3")  # doctest: +SKIP
+            >>> downsampled = audio.resample(16000)  # doctest: +SKIP
+        """
+        segment = self._get_segment()
+        resampled = segment.set_frame_rate(sample_rate)
+        return Audio(resampled, time_unit=self.time_unit)
+
+    def close(self) -> None:
+        """Release the reference to the in-memory audio (no OS handles to free).
+
+        ``Audio`` is fully in-memory (a decoded ``AudioSegment``), so there is
+        nothing OS-level to close. ``close`` simply drops the reference so the
+        data can be garbage-collected promptly; the object should not be used
+        afterwards.
+        """
+        self._audio = None
+
+    def __enter__(self) -> "Audio":
+        """Support ``with Audio(path) as a: ...`` — returns ``self``."""
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback) -> None:
+        """Release in-memory data on context exit (see :meth:`close`)."""
+        self.close()
+
     def __repr__(self) -> str:
         if self._start_time is not None or self._end_time is not None:
             src_info = f"'{self.src_path}'" if self.src_path else "AudioSegment"

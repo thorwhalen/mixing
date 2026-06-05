@@ -26,10 +26,26 @@ pytest.importorskip("moviepy")
 import moviepy as mp  # noqa: E402
 
 from mixing.video.video_util import (  # noqa: E402
+    SOCIAL_SIZES,
     get_video_dimensions,
     resize_to_dimensions,
     normalize_video_dimensions,
 )
+
+
+def test_social_sizes_presets_and_export():
+    """``SOCIAL_SIZES`` holds the expected (w, h) presets and is re-exported."""
+    assert SOCIAL_SIZES == {
+        "youtube": (1920, 1080),
+        "shorts": (1080, 1920),
+        "square": (1080, 1080),
+        "story": (1080, 1920),
+        "tiktok": (1080, 1920),
+    }
+    # Re-exported from the subpackage namespace (same object).
+    import mixing.video as mv
+
+    assert mv.SOCIAL_SIZES is SOCIAL_SIZES
 
 
 # --------------------------------------------------------------------------- #

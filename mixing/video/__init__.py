@@ -24,6 +24,7 @@ from mixing.video.video_ops import (
     assemble_audio_track,
 )
 from mixing.video.video_util import (
+    SOCIAL_SIZES,
     get_video_dimensions,
     resize_to_dimensions,
     normalize_video_dimensions,

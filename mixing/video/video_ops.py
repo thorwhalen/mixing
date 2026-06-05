@@ -579,6 +579,38 @@ class Video:
             end_frame=int(self.end_time * self.fps),
         )
 
+    def close(self) -> None:
+        """Release any backend handles (moviepy clip / cv2 capture) held.
+
+        ``Video`` is path-backed: most operations open a moviepy clip or cv2
+        capture inside a ``with`` / ``try-finally`` block and release it
+        immediately. ``close`` defensively releases any handle that *was*
+        cached on the instance (``_clip`` / ``_cap``), so it is safe to call
+        even when nothing is open, and future-proof if a handle is ever cached.
+        """
+        clip = getattr(self, "_clip", None)
+        if clip is not None:
+            try:
+                clip.close()
+            except Exception:
+                pass  # best-effort cleanup
+            self._clip = None
+        cap = getattr(self, "_cap", None)
+        if cap is not None:
+            try:
+                cap.release()
+            except Exception:
+                pass  # best-effort cleanup
+            self._cap = None
+
+    def __enter__(self) -> "Video":
+        """Support ``with Video(path) as v: ...`` — returns ``self``."""
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback) -> None:
+        """Release backend handles on context exit (see :meth:`close`)."""
+        self.close()
+
 
 def crop_video(
     video_src: str,

@@ -312,3 +312,81 @@ def test_audiosamples_direct_construction_from_path(tone_audio):
     samples = AudioSamples(str(tone_audio))
     assert abs(len(samples) - 44100) < 44100 * DUR_TOL
     assert isinstance(samples[0], np.floating)
+
+
+# --------------------------------------------------------------------------- #
+# Context manager protocol
+# --------------------------------------------------------------------------- #
+
+
+def test_audio_context_manager_yields_self(tone_audio):
+    audio = Audio(str(tone_audio))
+    with audio as ctx:
+        assert ctx is audio
+        assert abs(ctx.duration - 1.0) < DUR_TOL
+
+
+def test_audio_context_manager_releases_on_exit(tone_audio):
+    audio = Audio(str(tone_audio))
+    with audio:
+        pass
+    # Exit calls close(), which drops the in-memory AudioSegment reference.
+    assert audio._audio is None
+
+
+def test_audio_close_is_idempotent(tone_audio):
+    audio = Audio(str(tone_audio))
+    audio.close()
+    audio.close()  # second call must not raise
+    assert audio._audio is None
+
+
+# --------------------------------------------------------------------------- #
+# normalize / to_mono / resample (return new Audio for chaining)
+# --------------------------------------------------------------------------- #
+
+
+def test_normalize_returns_new_audio_same_duration(tone_audio):
+    audio = Audio(str(tone_audio))
+    normalized = audio.normalize()
+    assert isinstance(normalized, Audio)
+    assert normalized is not audio
+    assert abs(normalized.duration - audio.duration) < DUR_TOL
+    # Same channel count / sample rate; only level changes.
+    assert normalized.channels == audio.channels
+    assert normalized.sample_rate == audio.sample_rate
+
+
+def test_to_mono_downmixes_stereo(make_tone_audio):
+    audio = Audio(str(make_tone_audio(1.0, channels=2)))
+    assert audio.channels == 2
+    mono = audio.to_mono()
+    assert isinstance(mono, Audio)
+    assert mono is not audio
+    assert mono.channels == 1
+    assert abs(mono.duration - audio.duration) < DUR_TOL
+
+
+def test_to_mono_on_mono_is_noop_shaped(tone_audio):
+    audio = Audio(str(tone_audio))  # mono
+    mono = audio.to_mono()
+    assert mono.channels == 1
+
+
+def test_resample_changes_sample_rate(tone_audio):
+    audio = Audio(str(tone_audio))
+    assert audio.sample_rate == 44100
+    resampled = audio.resample(16000)
+    assert isinstance(resampled, Audio)
+    assert resampled is not audio
+    assert resampled.sample_rate == 16000
+    assert abs(resampled.duration - audio.duration) < DUR_TOL
+
+
+def test_convenience_methods_chain(make_tone_audio):
+    audio = Audio(str(make_tone_audio(1.0, channels=2)))
+    out = audio.to_mono().resample(22050).normalize()
+    assert isinstance(out, Audio)
+    assert out.channels == 1
+    assert out.sample_rate == 22050
+    assert abs(out.duration - 1.0) < DUR_TOL

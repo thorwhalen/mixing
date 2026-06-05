@@ -358,3 +358,49 @@ def test_videoframes_bad_path_raises_value_error():
     """Opening a non-existent video raises ValueError at construction."""
     with pytest.raises(ValueError, match="Cannot open video"):
         VideoFrames("/no/such/video/file/definitely_missing.mp4")
+
+
+# --------------------------------------------------------------------------- #
+# Context manager protocol
+# --------------------------------------------------------------------------- #
+
+
+def test_video_context_manager_yields_self(color_video):
+    """``with Video(path) as v`` returns the Video and it is usable inside."""
+    video = Video(str(color_video))
+    with video as ctx:
+        assert ctx is video
+        assert abs(ctx.full_duration - 1.0) < DUR_TOL
+
+
+def test_video_context_manager_closes_on_exit(color_video):
+    """Exiting the context releases any cached backend handles via close()."""
+
+    class _Sentinel:
+        def __init__(self):
+            self.closed = False
+            self.released = False
+
+        def close(self):
+            self.closed = True
+
+        def release(self):
+            self.released = True
+
+    clip = _Sentinel()
+    cap = _Sentinel()
+    with Video(str(color_video)) as video:
+        # Simulate cached backend handles being attached during use.
+        video._clip = clip
+        video._cap = cap
+    assert clip.closed
+    assert cap.released
+    assert video._clip is None
+    assert video._cap is None
+
+
+def test_video_close_is_safe_without_handles(color_video):
+    """close() is a safe no-op when no backend handle was ever cached."""
+    video = Video(str(color_video))
+    video.close()  # must not raise
+    video.close()  # idempotent
