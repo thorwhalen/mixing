@@ -213,18 +213,17 @@ def test_seconds_to_srt_time_known_value():
     assert vs.seconds_to_srt_time(65.123) == "00:01:05,123"
 
 
-def test_to_srt_time_truncates_milliseconds_quirk():
-    """video_subtitles.to_srt_time TRUNCATES ms (current quirk), off-by-one vs rounding.
+def test_to_srt_time_now_unified_on_rounding():
+    """to_srt_time is now an alias of the canonical rounding formatter.
 
-    For 2592.187, float representation makes ``int((x-int(x))*1000)`` yield 186, not
-    187 — one millisecond *earlier* than the rounding-based formatters. This is
-    surprising current behavior the refactor should preserve or deliberately fix.
+    The old ``video_subtitles.to_srt_time`` TRUNCATED the millisecond field
+    (yielding ``00:43:12,186`` for ``2592.187``). Consolidation onto
+    ``mixing.srt`` deliberately fixes that off-by-one so every formatter agrees.
     """
-    assert vs.to_srt_time(_KNOWN_SECONDS) == "00:43:12,186"
-    # Diverges from the rounding-based formatters for this input.
-    assert vs.to_srt_time(_KNOWN_SECONDS) != formats.fmt_srt_time(_KNOWN_SECONDS)
-    assert vs.to_srt_time(_KNOWN_SECONDS) != vs.seconds_to_srt_time(_KNOWN_SECONDS)
-    # But agrees for "clean" inputs.
+    assert vs.to_srt_time(_KNOWN_SECONDS) == _KNOWN_SRT  # 00:43:12,187 (rounded)
+    # Now agrees with the other formatters for this input.
+    assert vs.to_srt_time(_KNOWN_SECONDS) == formats.fmt_srt_time(_KNOWN_SECONDS)
+    assert vs.to_srt_time(_KNOWN_SECONDS) == vs.seconds_to_srt_time(_KNOWN_SECONDS)
     assert vs.to_srt_time(1.5) == "00:00:01,500"
     assert vs.to_srt_time(65.123) == "00:01:05,123"
 

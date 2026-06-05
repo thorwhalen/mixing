@@ -20,6 +20,8 @@ import re
 from dataclasses import dataclass
 from typing import Callable, Sequence
 
+from mixing.srt import parse_srt as _parse_srt
+
 #: A segmenter maps (segments, target_count) -> [{"start": float, "title": str}].
 #: ``segments`` is a list of ``{"start", "end", "text"}`` sentence-ish units.
 SegmentFn = Callable[[Sequence[dict], int], list[dict]]
@@ -178,33 +180,15 @@ def _sentences_from_words(words: Sequence[dict]) -> list[dict]:
 
 
 def _sentences_from_srt(srt_text: str) -> list[dict]:
-    """Parse SRT into per-cue segments (cues already ~sentence granularity)."""
-    time_re = re.compile(
-        r"(\d{1,2}):(\d{2}):(\d{2})[,.](\d{1,3})\s*-->\s*"
-        r"(\d{1,2}):(\d{2}):(\d{2})[,.](\d{1,3})"
-    )
-    out: list[dict] = []
-    for block in re.split(r"\n\s*\n", srt_text.strip()):
-        lines = [ln for ln in block.splitlines() if ln.strip()]
-        ti = next((i for i, ln in enumerate(lines) if time_re.search(ln)), None)
-        if ti is None:
-            continue
-        m = time_re.search(lines[ti])
-        start = (
-            int(m[1]) * 3600
-            + int(m[2]) * 60
-            + int(m[3])
-            + int(m[4].ljust(3, "0")) / 1000
-        )
-        end = (
-            int(m[5]) * 3600
-            + int(m[6]) * 60
-            + int(m[7])
-            + int(m[8].ljust(3, "0")) / 1000
-        )
-        text = " ".join(lines[ti + 1 :]).strip()
-        if text:
-            out.append({"start": start, "end": end, "text": text})
+    """Parse SRT into per-cue segments (cues already ~sentence granularity).
+
+    Uses the canonical :func:`mixing.srt.parse_srt`; multi-line cue text is
+    flattened to a single line (chapters work at sentence granularity).
+    """
+    out = [
+        {"start": c.start, "end": c.end, "text": " ".join(c.text.split())}
+        for c in _parse_srt(srt_text)
+    ]
     return _tidy(out)
 
 

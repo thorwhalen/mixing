@@ -17,96 +17,14 @@ import moviepy as mp
 
 from config2py import process_path
 
-
-def srt_time_to_seconds(time_str: str) -> float:
-    """
-    Convert SRT time format to seconds.
-
-    >>> srt_time_to_seconds('00:43:12,187')
-    2592.187
-    >>> srt_time_to_seconds('00:00:01,500')
-    1.5
-    """
-    # Parse HH:MM:SS,mmm format
-    match = re.match(r"(\d+):(\d+):(\d+),(\d+)", time_str)
-    if not match:
-        raise ValueError(f"Invalid time format: {time_str}")
-
-    hours, minutes, seconds, milliseconds = map(int, match.groups())
-    total_seconds = hours * 3600 + minutes * 60 + seconds + milliseconds / 1000
-    return total_seconds
-
-
-def seconds_to_srt_time(seconds: float) -> str:
-    """
-    Convert seconds to SRT time format.
-
-    >>> seconds_to_srt_time(2592.187)
-    '00:43:12,187'
-    >>> seconds_to_srt_time(1.5)
-    '00:00:01,500'
-    """
-    # Handle negative times (clamp to 0)
-    if seconds < 0:
-        seconds = 0
-
-    hours = int(seconds // 3600)
-    minutes = int((seconds % 3600) // 60)
-    secs = int(seconds % 60)
-    # Round milliseconds to handle floating-point precision
-    milliseconds = round((seconds - int(seconds)) * 1000)
-
-    return f"{hours:02d}:{minutes:02d}:{secs:02d},{milliseconds:03d}"
-
-
-def shift_srt_timestamps(srt_content: str, shift_seconds: float = 0.0) -> str:
-    """
-    Shift all timestamps in an SRT file by a given number of seconds.
-
-    Args:
-        srt_content: SRT file content as string
-        shift_seconds: Number of seconds to shift (negative to shift earlier)
-
-    Returns:
-        Modified SRT content with shifted timestamps
-
-    >>> srt = '''1
-    ... 00:43:12,187 --> 00:43:13,817
-    ... Hello world'''
-    >>> shifted = shift_srt_timestamps(srt, -2592)  # Shift back 43 minutes 12 seconds
-    >>> '00:00:00,187 --> 00:00:01,817' in shifted
-    True
-    """
-
-    def _shift_timestamp_line(line: str) -> str:
-        """Shift a single timestamp line."""
-        # Match the timestamp line format: "00:43:12,187 --> 00:43:13,817"
-        match = re.match(r"(\d+:\d+:\d+,\d+)\s+-->\s+(\d+:\d+:\d+,\d+)", line)
-        if not match:
-            return line
-
-        start_time_str, end_time_str = match.groups()
-
-        # Convert to seconds, shift, and convert back
-        start_seconds = srt_time_to_seconds(start_time_str) + shift_seconds
-        end_seconds = srt_time_to_seconds(end_time_str) + shift_seconds
-
-        new_start = seconds_to_srt_time(start_seconds)
-        new_end = seconds_to_srt_time(end_seconds)
-
-        return f"{new_start} --> {new_end}"
-
-    # Process line by line
-    lines = srt_content.split("\n")
-    shifted_lines = []
-
-    for line in lines:
-        if "-->" in line:
-            shifted_lines.append(_shift_timestamp_line(line))
-        else:
-            shifted_lines.append(line)
-
-    return "\n".join(shifted_lines)
+# Canonical SRT time + cue helpers live in mixing.srt; re-exported here for
+# backward compatibility (``to_srt_time`` is part of the video public surface).
+from mixing.srt import (
+    srt_time_to_seconds,
+    seconds_to_srt_time,
+    to_srt_time,
+    shift_srt_timestamps,
+)
 
 
 def _find_audio_peaks(
@@ -465,21 +383,6 @@ class SubtitleStyle:
         color_hex = color_map.get(self.color.lower(), "FFFFFF")
 
         return f"FontSize={self.font_size},FontName={self.font_name},PrimaryColour=&H{color_hex}&,Alignment={alignment}"
-
-
-def to_srt_time(seconds: float) -> str:
-    """
-    Convert seconds to SRT time format.
-
-    >>> to_srt_time(1.5)
-    '00:00:01,500'
-    >>> to_srt_time(65.123)
-    '00:01:05,123'
-    """
-    milliseconds = int((seconds - int(seconds)) * 1000)
-    minutes, seconds = divmod(int(seconds), 60)
-    hours, minutes = divmod(minutes, 60)
-    return f"{hours:02}:{minutes:02}:{seconds:02},{milliseconds:03}"
 
 
 def _parse_srt_timestamp(timestamp: str) -> str:

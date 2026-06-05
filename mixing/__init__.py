@@ -79,6 +79,12 @@ _LAZY: dict[str, str] = {
     "dub_video_from_srt": "mixing.dubbing",
     "text_to_speech": "mixing.dubbing",
     "translate_srt": "mixing.dubbing",
+    # srt / timeline (pure)
+    "Cue": "mixing.srt",
+    "parse_srt": "mixing.srt",
+    "dump_srt": "mixing.srt",
+    "srt_time_to_seconds": "mixing.srt",
+    "seconds_to_srt_time": "mixing.srt",
 }
 
 # Submodules reachable as attributes after ``import mixing``.
