@@ -713,9 +713,21 @@ def concatenate_audio(
     )
 
 
+#: Gain (dB) below which an overlay/background contribution is treated as muted.
+#: -120 dB is ~1e-6 amplitude — inaudible — and avoids ``log10(0) = -inf``.
+_MIX_SILENCE_FLOOR_DB = -120.0
+
+
+def _mix_amplitude_to_db(amplitude: float) -> float:
+    """Linear amplitude ratio in ``[0, 1]`` → dB gain, floored at silence."""
+    if amplitude <= 0.0:
+        return _MIX_SILENCE_FLOOR_DB
+    return max(_MIX_SILENCE_FLOOR_DB, float(20.0 * np.log10(amplitude)))
+
+
 def overlay_audio(
-    background: Union[str, Audio],
-    overlay: Union[str, Audio],
+    background: Union[str, Path, Audio],
+    overlay: Union[str, Path, Audio],
     position: float = 0.0,
     *,
     mix_ratio: float = 0.5,
@@ -725,11 +737,18 @@ def overlay_audio(
     """
     Overlay/mix two audio sources.
 
+    ``mix_ratio`` is the prominence of the *overlay*, modeled as a
+    linear-amplitude crossfade between background-only and overlay-only: the
+    overlay plays at gain ``20·log10(mix_ratio)`` and the background is ducked
+    by ``20·log10(1 - mix_ratio)`` for the overlap's duration. So ``0.0`` =
+    only the background, ``1.0`` = only the overlay (during the overlap),
+    ``0.5`` = an equal blend (both ~-6 dB).
+
     Args:
         background: Background audio (filepath or Audio instance)
         overlay: Audio to overlay (filepath or Audio instance)
         position: Position in seconds where overlay starts
-        mix_ratio: Mix ratio (0.0 = only background, 1.0 = only overlay, 0.5 = equal mix)
+        mix_ratio: Prominence of the overlay in ``[0.0, 1.0]`` (see above).
         output: Where to put the result — None (return the Audio object), a file
             path, a directory (auto-named), or a callable sink. See mixing.egress.
         **save_kwargs: Additional save arguments
@@ -741,33 +760,28 @@ def overlay_audio(
         >>> overlay_audio("music.mp3", "voice.mp3", position=5.0)  # doctest: +SKIP
         >>> overlay_audio("bg.mp3", "sfx.mp3", mix_ratio=0.3)  # 30% overlay, 70% bg  # doctest: +SKIP
     """
-    bg_audio = Audio(background) if isinstance(background, str) else background
-    ov_audio = Audio(overlay) if isinstance(overlay, str) else overlay
+    if not 0.0 <= mix_ratio <= 1.0:
+        raise ValueError(f"mix_ratio must be between 0.0 and 1.0, got {mix_ratio}")
 
-    # Calculate gain adjustments based on mix ratio
-    # mix_ratio = 0.5 means equal mix (both at -3dB)
-    # mix_ratio = 1.0 means full overlay volume, background silent
-    # mix_ratio = 0.0 means full background volume, overlay silent
-
-    if mix_ratio == 0.5:
-        # Equal mix: reduce both by 3dB
-        gain_during_overlay = -3.0
-    elif mix_ratio < 0.5:
-        # More background, less overlay
-        # Overlay gain ranges from -inf (at 0.0) to -3dB (at 0.5)
-        if mix_ratio == 0.0:
-            gain_during_overlay = -100  # Effectively silent
-        else:
-            # Logarithmic scaling
-            gain_during_overlay = 20 * np.log10(mix_ratio * 2)
-    else:
-        # More overlay, less background
-        # For now, just use standard overlay (might need to adjust background volume)
-        gain_during_overlay = 0.0
-
-    mixed = bg_audio.overlay(
-        ov_audio, position=position, gain_during_overlay=gain_during_overlay
+    bg_audio = (
+        Audio(background) if isinstance(background, (str, os.PathLike)) else background
     )
+    ov_audio = Audio(overlay) if isinstance(overlay, (str, os.PathLike)) else overlay
+
+    overlay_gain_db = _mix_amplitude_to_db(mix_ratio)
+    background_gain_db = _mix_amplitude_to_db(1.0 - mix_ratio)
+
+    if overlay_gain_db <= _MIX_SILENCE_FLOOR_DB:
+        # Overlay is muted — the result is just the background, untouched.
+        mixed = bg_audio
+    else:
+        overlay_seg = ov_audio._get_segment()
+        if overlay_gain_db != 0.0:
+            overlay_seg = overlay_seg + overlay_gain_db  # pydub gain
+        overlay_adjusted = Audio(overlay_seg, time_unit=ov_audio.time_unit)
+        mixed = bg_audio.overlay(
+            overlay_adjusted, position=position, gain_during_overlay=background_gain_db
+        )
 
     return deliver(
         mixed,
