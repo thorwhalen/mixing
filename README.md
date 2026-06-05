@@ -1,545 +1,130 @@
 # mixing
 
-Tools for video and audio editing
+Tools for **video and audio editing** in Python — slicing, fades, audio
+replace/mix, Ken Burns, thumbnails, subtitles, speech-to-text + filler removal,
+TTS dubbing, and chapter detection.
 
-To install:	```pip install mixing```
-
-# Quick Start
-
-```python
-# Audio editing
-from mixing.audio import Audio, fade_in, concatenate_audio
-
-audio = Audio("song.mp3")
-segment = audio[10:30]  # Get 10s-30s segment
-faded = segment.fade_in(2).fade_out(3)  # Apply fades
-faded.save("edited.mp3")
-
-# Video editing
-from mixing.video import Video, loop_video, replace_audio
-
-video = Video("clip.mp4")
-trimmed = video[5:15]  # Get 5s-15s segment
-looped = loop_video("intro.mp4", n_loops=3)  # Repeat 3 times
-mixed = replace_audio("video.mp4", "music.mp3", mix_ratio=0.7)  # Mix audio
-
-# Filler removal (uh, um, ...) via ElevenLabs Scribe + ffmpeg
-from mixing.transcript import remove_fillers
-
-result = remove_fillers("talk.mov", "out/")  # uses $ELEVENLABS_API_KEY
-print(result.cleaned_media)        # out/talk.cleaned.mp4
-print(result.cleaned_md.read_text())   # filler-free transcript
+```bash
+pip install mixing
 ```
 
-# Examples
+---
 
-## mixing.audio (NEW!)
+## 🤖 AI-first: start with the skills & agents
 
-### Audio: Sliceable audio editing interface
+`mixing` is built to be driven by AI coding agents. The fastest, most reliable
+way to use it is through the bundled **skills** and **agents** in
+[`.claude/`](.claude/) — task-oriented playbooks that encode the right
+functions, the calling conventions, and the gotchas, so an agent gets it right
+the first time.
 
-The `Audio` class provides a clean, Pythonic interface for audio editing with slice notation and chainable operations.
+**Skills** (`.claude/skills/`) — *how to use mixing for a task*:
+
+| Skill | Use it for |
+|---|---|
+| [`mixing`](.claude/skills/mixing/SKILL.md) | **Start here** — router, architecture, the `output` protocol, extras |
+| [`mixing-audio`](.claude/skills/mixing-audio/SKILL.md) | slice, fade, crop, concat, overlay, normalize, align, segment audio |
+| [`mixing-video`](.claude/skills/mixing-video/SKILL.md) | slice, crop, loop, speed, replace/normalize audio, Ken Burns, thumbnails, subtitles |
+| [`mixing-transcript`](.claude/skills/mixing-transcript/SKILL.md) | transcribe, remove fillers, SRT/prose, chapters |
+| [`mixing-dubbing`](.claude/skills/mixing-dubbing/SKILL.md) | TTS re-voicing & SRT translation |
+
+**Agents** (`.claude/agents/`):
+
+- [`mixing-editor`](.claude/agents/mixing-editor.md) — performs an editing task
+  end-to-end ("edit this media …").
+- [`mixing-dev`](.claude/agents/mixing-dev.md) — works *on* the mixing codebase.
+
+Using Claude Code? These are discovered automatically from `.claude/`. The
+architectural contract they share lives in [`.claude/CLAUDE.md`](.claude/CLAUDE.md).
+
+---
+
+## Quick start
 
 ```python
+import mixing                      # cheap: no moviepy/opencv loaded yet
+assert mixing.has_ffmpeg()         # most ops need ffmpeg on PATH
+
+# --- audio ---
 from mixing.audio import Audio
+Audio("song.mp3")[10:30].fade_in(2).fade_out(3).save(output="clip.mp3")
 
-# Load audio file
-audio = Audio("song.mp3")
+# --- video ---
+from mixing.video import replace_audio, ken_burns_video
+replace_audio("clip.mp4", "music.mp3", mix_ratio=0.7, output="mixed.mp4")
+ken_burns_video("cover.jpg", duration=8, output="cover.mp4")
 
-# Slice audio (lazy evaluation - no copying)
-intro = audio[0:10]        # First 10 seconds
-chorus = audio[30:60]       # 30s to 60s
-outro = audio[-10:]         # Last 10 seconds
-
-# Use different time units
-audio_samples = Audio("song.mp3", time_unit="samples")
-segment = audio_samples[0:44100]  # First 44100 samples (1s at 44.1kHz)
-
-audio_ms = Audio("song.mp3", time_unit="milliseconds")
-segment = audio_ms[0:5000]  # First 5000ms (5 seconds)
-
-# Chain operations
-edited = audio[10:120].fade_in(2).fade_out(3)
-edited.save("edited.mp3")
-
-# Access properties
-print(f"Duration: {audio.duration}s")
-print(f"Sample rate: {audio.sample_rate}Hz")
-print(f"Channels: {audio.channels}")
+# --- transcript: remove "uh"/"um" (ElevenLabs Scribe + ffmpeg) ---
+from mixing.transcript import remove_fillers
+result = remove_fillers("talk.mov", "out/")     # uses $ELEVENLABS_API_KEY
+print(result.cleaned_media)
 ```
 
-### Audio Editing Functions
+## Core ideas (learn once)
+
+**The `output` protocol.** Every result-producing function takes one `output`
+argument whose *role* is constant and *type* is open:
 
 ```python
-from mixing.audio import fade_in, fade_out, crop_audio, concatenate_audio, overlay_audio
-
-# Apply fade effects
-faded_in = fade_in("song.mp3", duration=2.0)
-faded_out = fade_out("song.mp3", duration=3.0)
-
-# Crop/trim audio
-crop_audio("song.mp3", start=10, end=30, output_path="segment.mp3")
-
-# Concatenate multiple audio files
-combined = concatenate_audio(
-    "intro.mp3", 
-    "main.mp3", 
-    "outro.mp3",
-    crossfade=0.5  # 500ms crossfade between segments
-)
-combined.save("full_song.mp3")
-
-# Overlay/mix audio tracks
-# mix_ratio controls the balance: 0.0=only background, 1.0=only overlay, 0.5=equal mix
-mixed = overlay_audio(
-    background="music.mp3",
-    overlay="voice.mp3",
-    position=5.0,      # Start overlay at 5 seconds
-    mix_ratio=0.7      # 70% overlay, 30% background
-)
-mixed.save("mixed.mp3")
+crop_video("in.mp4", 5, 15, output="out.mp4")   # file → writes it, returns Path
+crop_video("in.mp4", 5, 15, output="clips/")     # dir  → auto-named file inside
+crop_video("in.mp4", 5, 15)                       # None → saves beside the input
+fade_in("in.mp3", output=lambda audio: audio)     # callable → receives the result
 ```
 
-### Audio Alignment: Find where one recording fits inside another
+Object producers (audio editing) return the in-memory object when `output=None`,
+so you can chain and save when ready. Functions that emit *several* artifacts
+qualify the destinations (`remove_fillers(media, output_dir=…, output_media=…)`).
 
-`find_audio_offset` uses cross-correlation to find the best time offset where a
-query audio aligns within a reference audio. Useful for aligning different
-recordings of the same performance — e.g., a studio mix (voice + instruments)
-with a camera recording (voice only).
+**Lazy & tiered.** `import mixing` (and `import mixing.chapters` /
+`mixing.srt`) pull **no** heavy backends; moviepy/opencv/pydub load only when you
+touch a name that needs them. Import the facade (`mixing.Video`) or the
+subpackage (`from mixing.video import Video`).
 
-```python
-from mixing.audio import find_audio_offset
-
-# Find where the studio recording aligns with the camera audio
-offset = find_audio_offset("camera_recording.wav", "studio_mix.mp3")
-print(f"Studio recording starts at {offset:.2f}s into the camera audio")
-
-# Then use the offset to splice the studio audio into the video
-from pydub import AudioSegment
-
-video_audio = AudioSegment.from_file("camera_recording.mov")
-studio_audio = AudioSegment.from_file("studio_mix.mp3")
-
-offset_ms = int(offset * 1000)
-composite = (
-    video_audio[:offset_ms]
-    + studio_audio
-    + video_audio[offset_ms + len(studio_audio):]
-)
-composite.export("composite_audio.wav", format="wav")
-```
-
-### AudioSamples: Sample-level access
-
-Access individual audio samples through a Mapping interface:
-
-```python
-audio = Audio("song.mp3")
-samples = audio.samples
-
-# Access individual samples
-first_sample = samples[0]
-last_sample = samples[-1]
-
-# Slice samples
-sample_range = samples[1000:2000]  # Returns numpy array
-
-# Get properties
-print(f"Total samples: {len(samples)}")
-```
-
-## mixing.video
-
-### Video: Sliceable video editing interface (Enhanced!)
+**Sliceable media.** `Audio` and `Video` are lazy, sliceable, context-managed
+views:
 
 ```python
 from mixing.video import Video
-
-# Load and slice video
-video = Video("movie.mp4")
-clip = video[10:30]  # Get 10s-30s segment
-clip.save("clip.mp4")
-
-# Use frame numbers
-video_frames = Video("movie.mp4", time_unit="frames")
-segment = video_frames[100:500]  # Frames 100-500
-
-# Extract single frames
-frame = video[15]  # Returns numpy array (frame at 15s)
+with Video("movie.mp4") as v:
+    v[10:30].save(output="cut.mp4")   # seconds; v[100] returns a single frame
 ```
 
-### NEW: Loop Video
+## Requirements
 
-Repeat a video multiple times:
+- **ffmpeg** on PATH (most operations). macOS: `brew install ffmpeg`;
+  Debian/Ubuntu: `sudo apt install ffmpeg`; Windows: download from
+  [ffmpeg.org](https://ffmpeg.org/download.html) and add `bin` to PATH.
+- **ElevenLabs API key** for `mixing.transcript` / `mixing.dubbing`
+  (`ELEVENLABS_API_KEY`, or pass `api_key=`). Responses are cached on disk, so
+  re-runs are free and offline.
+- **Google Cloud** auth for AI video generation
+  (`mixing.video.genai`, Vertex AI Veo).
 
-```python
-from mixing.video import loop_video
-
-# Loop video 3 times
-looped = loop_video("intro.mp4", n_loops=3)
-print(f"Looped video saved to: {looped}")
-
-# Custom output path
-looped = loop_video("clip.mp4", n_loops=5, output_path="extended_clip.mp4")
-```
-
-### NEW: Replace/Mix Video Audio
-
-Replace or mix audio in videos with fine control:
-
-```python
-from mixing.video import replace_audio
-
-# Complete audio replacement
-replace_audio("video.mp4", "new_music.mp3", mix_ratio=1.0)
-
-# Equal mix of original and new audio
-replace_audio("video.mp4", "music.mp3", mix_ratio=0.5)
-
-# Mostly new audio with some original (70% new, 30% original)
-replace_audio("video.mp4", "voice.mp3", mix_ratio=0.7)
-
-# Keep only original audio (no change)
-replace_audio("video.mp4", "music.mp3", mix_ratio=0.0)
-
-# Auto-adjust audio length to match video
-replace_audio(
-    "video.mp4", 
-    "short_music.mp3",
-    mix_ratio=1.0,
-    normalize_audio=True  # Loops/trims audio to match video length
-)
-```
-
-### NEW: Normalize Audio Levels
-
-Reduce volume fluctuations in video audio (perfect for narration with varying volume):
-
-```python
-from mixing.video import normalize_audio
-
-# Normalize audio in a video with varying narrator volume
-normalize_audio("lecture.mp4")  # Creates lecture_normalized.mp4
-
-# Custom output path
-normalize_audio("interview.mp4", output_path="interview_fixed.mp4")
-
-# The function adjusts audio so loudest parts reach a consistent level,
-# reducing variation between quiet and loud sections
-```
-
-### VideoFrames: Dictionary-like access to video frames
-
-`VideoFrames` provides a Mapping interface to access individual frames from a video file by index. Frames are returned as numpy arrays (BGR format).
-
-```python
-from mv.util import VideoFrames
-
-# Create frame accessor
-frames = VideoFrames("my_video.mp4")
-
-# Access frames by index
-first_frame = frames[0]
-last_frame = frames[-1]  # Negative indexing supported
-middle_frame = frames[len(frames) // 2]
-
-# Slice to get multiple frames (returns an iterator, not a list)
-for frame in frames[10:50]:
-    # Process frames 10 through 49
-    pass
-
-# Get every 5th frame
-for frame in frames[::5]:
-    # Process every 5th frame
-    pass
-```
-
-### save_frame: Extract and save video frames as images
-
-Convenience function to extract a single frame from a video and save it as an image.
-
-```python
-from mv.util import save_frame
-
-# Save first frame with auto-generated filename (video_0.png)
-save_frame("my_video.mp4")
-
-# Save frame 100 as JPEG
-save_frame("my_video.mp4", 100, saveas=".jpg")  # Saves as my_video_000100.jpg
-
-# Save last frame to specific path
-save_frame("my_video.mp4", -1, saveas="output/last_frame.png")
-
-```
-
-The `saveas` parameter accepts:
-- `None` (default): Auto-generate filename in video's directory
-- `.ext`: Use this extension with auto-generated filename
-- Full path: Save to this specific location
-
-### write_subtitles_in_video
-
-
-Write subtitles in a video.
-
-Example usage:
-
-```python
->>> from mixing import write_subtitles_in_video
->>> output_path = write_subtitles_in_video("~/Downloads/some_video.mp4") 
-```
-
-Which is syntactic sugar for the more explicit:
-
-```python
->>> output_path = write_subtitles_in_video(
-...     "~/Downloads/some_video.mp4", 
-...     subtitles="~/Downloads/some_video.srt",
-...     output_video="~/Downloads/some_video.mp4"
-... )  
-```
-
-### AI Video Generation with Google Vertex AI Veo
-
-Generate videos using Google's state-of-the-art Veo models. The simplest approach generates videos and returns file paths in one call.
-
-#### Quick Start
-
-Install the optional extra: `pip install 'mixing[gen]'`.
-
-```python
-from mixing.video.genai import generate_video
-
-# Generate video and get file path in one call
-video_path = generate_video("A serene forest at dawn with golden sunlight filtering through mist")
-print(f"Video saved to: {video_path}")
-```
-
-#### Authentication Setup
-
-Before using video generation, set up Google Cloud authentication:
+### Optional extras
 
 ```bash
-# Service account (recommended for production)
-export GOOGLE_APPLICATION_CREDENTIALS="/path/to/service-account.json"
-export GOOGLE_CLOUD_PROJECT="your-project-id"
-
-# Or use gcloud CLI (for development)
-gcloud auth application-default login
-export GOOGLE_CLOUD_PROJECT="your-project-id"
+pip install mixing[audio]      # pydub / ffmpeg-python / soundfile
+pip install mixing[widget]     # interactive Jupyter audio widget
+pip install mixing[gen]        # Google Vertex AI Veo generation
+pip install mixing[llm]        # aix — chapter titling + SRT translation
+pip install mixing[clipboard]  # get file paths from the clipboard
 ```
 
-#### Advanced Examples
+## What's inside
 
-```python
-# Save to specific location
-video_path = generate_video(
-    prompt="The camera slowly zooms out revealing a vast landscape",
-    first_frame="/path/to/image.jpg",
-    output="/my/custom/video.mp4",
-    duration_seconds=8
-)
+| Subpackage | Highlights |
+|---|---|
+| `mixing.audio` | `Audio`, `fade_in/out`, `crop_audio`, `concatenate_audio`, `overlay_audio`, `find_audio_offset`, `find_segments`/`extract_segments` |
+| `mixing.video` | `Video`, `crop_video`, `loop_video`, `change_speed`, `replace_audio`, `normalize_audio`, `ken_burns_video`/`ken_burns_film`, `concatenate_videos`, `make_thumbnail`, `write_subtitles_in_video`, `SOCIAL_SIZES` |
+| `mixing.video.genai` | `generate_video` (Vertex AI Veo) |
+| `mixing.transcript` | `transcribe`, `remove_fillers`, `srt_for_media`, `words_to_srt`/`words_to_prose` |
+| `mixing.chapters` | `detect_chapters`, `Chapter` |
+| `mixing.dubbing` | `text_to_speech`, `list_voices`, `translate_srt`, `dub_video_from_srt` |
+| `mixing.srt` | `Cue`, `parse_srt`, `dump_srt`, `seconds_to_srt_time` |
 
-# Video-to-video: Use frames from existing videos
-video_path = generate_video(
-    prompt="Smooth transition with swirling particles",
-    first_frame="video1.mp4",  # Uses last frame as start
-    last_frame="video2.mp4",   # Uses first frame as end
-    model="veo-2.0-generate-001"
-)
+See the [skills](.claude/skills/) for the full, example-driven API of each.
 
-# Handle multiple generated videos (some models create variations)
-video_paths = generate_video(
-    "A magical forest with dancing fireflies",
-    output="/output/directory/"  # Auto-indexed files
-)
+## License
 
-# Get raw operation for custom processing
-operation = generate_video("Epic landscape", output=False)
-# Process operation.response.generated_videos as needed
-```
-
-#### Flexible Egress Control
-
-The `output` parameter follows the canonical `mixing.egress` protocol:
-
-```python
-# Default: Auto-save to temp files and return path(s)
-path = generate_video("prompt")
-
-# Save to specific file or directory
-path = generate_video("prompt", output="/path/to/video.mp4")
-path = generate_video("prompt", output="/output/dir/")
-
-# Just get the operation (no saving)
-op = generate_video("prompt", output=False)
-
-# Custom processing function (sink)
-def custom_processor(operation):
-    # Your custom logic here
-    return processed_result
-
-result = generate_video("prompt", output=custom_processor)
-```
-
-
-# Further requirements
-
-## Google Cloud Setup (for AI Video Generation)
-
-To use the AI video generation features:
-
-1. **Google Cloud Project**: Create a project with billing enabled
-2. **Enable APIs**: Enable the Vertex AI API in your project  
-3. **Authentication**: Set up service account credentials or use application default credentials
-4. **Quotas**: Ensure sufficient Vertex AI quotas for video generation
-
-For detailed setup instructions, see the [video generation authentication guide](mixing/video/README.md#authentication-setup).
-
-## FFmpeg
-
-Many of the tools also require `ffmeg`. 
-
-To install FFmpeg on your system, follow the instructions for your operating system below.
-
-### macOS
-
-1. **Using Homebrew:**
-   - Open Terminal.
-   - Run the following command:
-     ```bash
-     brew install ffmpeg
-     ```
-
-For more details, visit the [FFmpeg installation page for macOS](https://ffmpeg.org/download.html#build-mac).
-
-### Linux
-
-1. **Using the package manager:**
-   - For Debian/Ubuntu-based distributions, run:
-     ```bash
-     sudo apt update
-     sudo apt install ffmpeg
-     ```
-   - For Fedora, run:
-     ```bash
-     sudo dnf install ffmpeg
-     ```
-   - For Arch Linux, run:
-     ```bash
-     sudo pacman -S ffmpeg
-     ```
-
-For more details, visit the [FFmpeg installation page for Linux](https://ffmpeg.org/download.html#build-linux).
-
-### Windows
-
-1. **Using Windows builds:**
-   - Download the executable from [FFmpeg for Windows](https://ffmpeg.org/download.html#build-windows).
-   - Extract the downloaded files and add the `bin` directory to your system's PATH.
-
-For more details, visit the [FFmpeg installation page for Windows](https://ffmpeg.org/download.html#build-windows).
-
-
-# Optional Dependencies
-
-For additional functionality, you can install optional dependencies:
-
-```bash
-# For testing
-pip install mixing[testing]
-
-# For clipboard functionality (get file paths from clipboard)
-pip install mixing[clipboard]
-
-# For audio editing functionality
-pip install mixing[audio]
-
-# Install multiple extras
-pip install mixing[testing,clipboard,audio]
-```
-
-## Audio Editing Requirements
-
-The audio editing features require:
-- **pydub**: Python audio manipulation library
-- **ffmpeg**: Audio/video processing (see installation below)
-
-Install audio extras:
-```bash
-pip install mixing[audio]
-```
-
-## Filler removal: `mixing.transcript`
-
-Removes filler words (`uh`, `um`, `mm`, ...) from a video by transcribing it
-with ElevenLabs Scribe, identifying filler tokens via word-level timestamps,
-and cutting them out with `ffmpeg`. Produces an editable transcript and an
-SRT aligned to the cleaned timeline.
-
-**Requirements**
-
-- `ffmpeg` on PATH (existing system dependency for `mixing`).
-- An ElevenLabs API key. Pass `api_key=` or set `ELEVENLABS_API_KEY`.
-- No new Python dependencies — the Scribe HTTP client uses the stdlib only.
-
-**One-shot pipeline**
-
-```python
-from mixing.transcript import remove_fillers
-
-result = remove_fillers("talk.mov", "out/")
-# out/talk.cleaned.mp4         — video with fillers removed
-# out/transcript.md            — original verbatim text
-# out/transcript.srt           — SRT aligned to original media
-# out/transcript.cleaned.md    — filler-free prose, paragraphs on long pauses
-# out/transcript.cleaned.srt   — SRT aligned to the cleaned media
-# out/scribe.json              — raw Scribe response (word-level timestamps)
-# out/cuts.json / keeps.json   — exact ranges removed / kept
-```
-
-Override the filler list, or replay against a saved Scribe response (no
-network call):
-
-```python
-result = remove_fillers(
-    "talk.mov", "out/",
-    fillers={"uh", "um", "like", "you-know"},
-    audio_events={"(coughs)", "(sighs)"},
-)
-
-# Or, replay against a saved Scribe JSON (skips the API entirely)
-import json
-result = remove_fillers(
-    "talk.mov", "out/",
-    scribe_data=json.load(open("out/scribe.json")),
-)
-```
-
-**Lower-level building blocks**
-
-```python
-from mixing.transcript import (
-    transcribe,                  # ElevenLabs Scribe HTTP call
-    default_cache_dir,           # default on-disk cache for Scribe responses
-    build_cuts, keeps_from_cuts, # filler -> cut/keep ranges
-    words_to_srt, words_to_prose, words_to_srt_remapped,
-    extract_audio, apply_keeps,  # ffmpeg wrappers
-)
-```
-
-### Optional on-disk cache for Scribe
-
-`transcribe(audio, cache=...)` accepts:
-
-- `False` (default) — no cache, every call hits ElevenLabs.
-- `True` — use the default cache (honors `$MIXING_TRANSCRIPT_CACHE_DIR`,
-  then `$XDG_CACHE_HOME`, then `~/.cache/mixing/transcript`).
-- A `str` / `Path` — explicit cache directory.
-
-Cache key: `sha256(audio_bytes, model_id, granularity, lang, ...)`.
-Pass `refresh=True` to force a re-call and overwrite the cached entry.
-Cached responses don't require an API key, so prior runs work offline.
-
-The Scribe response includes a `confidence` field per word
-(`{"text", "start", "end", "type", "confidence"}`); muvid surfaces
-this through its alignment store for low-confidence-word flagging.
+MIT
