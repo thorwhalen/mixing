@@ -569,7 +569,7 @@ def _get_frame_path(media_path: str, frame_idx: int = 0) -> str:
     if _is_video_file(media_path):
         from .video_ops import save_frame
 
-        return save_frame(media_path, frame_idx, saveas="/TMP")
+        return save_frame(media_path, frame_idx, output="/TMP")
     else:
         return media_path
 

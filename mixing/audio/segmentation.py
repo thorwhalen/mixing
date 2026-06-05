@@ -54,7 +54,7 @@ Examples:
     >>> segs = find_segments("radio.mp3", strategy="speech_music")  # doctest: +SKIP
     >>>
     >>> # Save them to disk
-    >>> paths = extract_segments("concert.wav", segs, output_dir="songs/")  # doctest: +SKIP
+    >>> paths = extract_segments("concert.wav", segs, output="songs/")  # doctest: +SKIP
 """
 
 from dataclasses import dataclass
@@ -819,7 +819,7 @@ def extract_segments(
     audio: AudioSource,
     segments: Sequence[Segment | tuple[float, float]] | None = None,
     *,
-    output_dir: str | Path | None = None,
+    output: str | Path | None = None,
     name_template: str = "{stem}_{idx:03d}{ext}",
     format: str = "mp3",
     bitrate: str = "192k",
@@ -836,7 +836,9 @@ def extract_segments(
         segments: Either a list of ``Segment`` objects, or a list of
             ``(start, end)`` tuples in seconds. If ``None``, segments are
             discovered automatically.
-        output_dir: Directory to write files to (created if missing).
+        output: Destination directory to write the per-segment files to
+            (created if missing). This multi-file producer treats ``output``
+            strictly as a directory — one file per segment is written into it.
             Defaults to the source file's parent, or the current directory
             if ``audio`` isn't a path.
         name_template: Filename template. Available fields: ``{stem}``,
@@ -853,7 +855,7 @@ def extract_segments(
         >>> # Auto-detect and save in one call
         >>> paths = extract_segments(
         ...     "concert.wav", strategy="self_similarity",
-        ...     output_dir="songs/", format="mp3",
+        ...     output="songs/", format="mp3",
         ...     kernel_seconds=14.0,
         ... )  # doctest: +SKIP
         >>>
@@ -861,7 +863,7 @@ def extract_segments(
         >>> paths = extract_segments(
         ...     "mix.mp3",
         ...     segments=[(0, 245), (247, 445), (445, 600)],
-        ...     output_dir="tracks/",
+        ...     output="tracks/",
         ... )  # doctest: +SKIP
     """
     audio_seg = _normalize_audio_source(audio, target_type="AudioSegment")
@@ -878,10 +880,10 @@ def extract_segments(
     if isinstance(audio, (str, Path)):
         src_path = Path(audio)
         stem = src_path.stem
-        out_dir = Path(output_dir) if output_dir is not None else src_path.parent
+        out_dir = Path(output) if output is not None else src_path.parent
     else:
         stem = "audio"
-        out_dir = Path(output_dir) if output_dir is not None else Path.cwd()
+        out_dir = Path(output) if output is not None else Path.cwd()
     out_dir.mkdir(parents=True, exist_ok=True)
 
     ext = "." + format.lstrip(".")

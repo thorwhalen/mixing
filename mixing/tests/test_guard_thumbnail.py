@@ -13,9 +13,9 @@ implementation details.
 
 NOTE on current signature (to be preserved or deliberately changed by the
 refactor): the first positional parameter is ``video`` (not ``media``) and the
-output path keyword is ``saveas`` (not ``output_path``). The default output is
-``<video-stem>.thumb.jpg`` written next to the source video, and the default
-frame timestamp is 85% of the source duration.
+output path keyword is ``output`` (the canonical egress parameter). The default
+output is ``<video-stem>.thumb.jpg`` written next to the source video, and the
+default frame timestamp is 85% of the source duration.
 """
 
 from __future__ import annotations
@@ -67,7 +67,7 @@ def test_make_thumbnail_produces_image_file(color_video, tmp_path):
     from PIL import Image
 
     out = tmp_path / "thumb.jpg"
-    result = make_thumbnail(color_video, saveas=out)
+    result = make_thumbnail(color_video, output=out)
 
     assert isinstance(result, Path)
     assert result == out
@@ -81,7 +81,7 @@ def test_make_thumbnail_produces_image_file(color_video, tmp_path):
 def test_make_thumbnail_default_size_is_youtube_preset(color_video, tmp_path):
     """With no ``size`` override, output is exactly the 1280x720 preset."""
     out = tmp_path / "thumb.jpg"
-    make_thumbnail(color_video, saveas=out)
+    make_thumbnail(color_video, output=out)
     assert _image_size(out) == (1280, 720)
     assert _image_size(out) == YOUTUBE_THUMB_SIZE
 
@@ -89,7 +89,7 @@ def test_make_thumbnail_default_size_is_youtube_preset(color_video, tmp_path):
 def test_make_thumbnail_respects_custom_size(color_video, tmp_path):
     """An explicit ``size`` is honored exactly (cover-fit to that box)."""
     out = tmp_path / "thumb.jpg"
-    make_thumbnail(color_video, saveas=out, size=(640, 360))
+    make_thumbnail(color_video, output=out, size=(640, 360))
     assert _image_size(out) == (640, 360)
 
 
@@ -112,7 +112,7 @@ def test_make_thumbnail_default_saveas_is_thumb_jpg_next_to_video(
 def test_make_thumbnail_cleans_up_raw_frame(color_video, tmp_path):
     """The intermediate ``.rawframe.png`` extracted by ffmpeg is removed."""
     out = tmp_path / "thumb.jpg"
-    make_thumbnail(color_video, saveas=out)
+    make_thumbnail(color_video, output=out)
     raw = out.with_suffix(".rawframe.png")
     assert not raw.exists()
 
@@ -125,7 +125,7 @@ def test_make_thumbnail_cleans_up_raw_frame(color_video, tmp_path):
 def test_make_thumbnail_explicit_at_time(color_video, tmp_path):
     """An explicit ``at_time`` grabs a frame without error, sized to preset."""
     out = tmp_path / "thumb.jpg"
-    make_thumbnail(color_video, saveas=out, at_time=0.1)
+    make_thumbnail(color_video, output=out, at_time=0.1)
     assert out.exists()
     assert _image_size(out) == THUMBNAIL_SIZE
 
@@ -140,7 +140,7 @@ def test_make_thumbnail_with_text_overlay_does_not_crash(color_video, tmp_path):
     from PIL import Image
 
     out = tmp_path / "thumb_text.jpg"
-    result = make_thumbnail(color_video, saveas=out, text="Hello World")
+    result = make_thumbnail(color_video, output=out, text="Hello World")
     assert result == out
     assert out.exists()
     assert _image_size(out) == THUMBNAIL_SIZE
@@ -152,7 +152,7 @@ def test_make_thumbnail_with_long_wrapping_text_does_not_crash(color_video, tmp_
     """Long text exercises the word-wrap path without raising."""
     out = tmp_path / "thumb_long.jpg"
     long_text = "A rather long title that should wrap across multiple lines nicely"
-    make_thumbnail(color_video, saveas=out, text=long_text)
+    make_thumbnail(color_video, output=out, text=long_text)
     assert out.exists()
     assert _image_size(out) == THUMBNAIL_SIZE
 
@@ -160,7 +160,7 @@ def test_make_thumbnail_with_long_wrapping_text_does_not_crash(color_video, tmp_
 def test_make_thumbnail_empty_text_is_falsy_so_no_overlay(color_video, tmp_path):
     """Empty string is falsy: the overlay branch is skipped, image still made."""
     out = tmp_path / "thumb_empty.jpg"
-    make_thumbnail(color_video, saveas=out, text="")
+    make_thumbnail(color_video, output=out, text="")
     assert out.exists()
     assert _image_size(out) == THUMBNAIL_SIZE
 
@@ -175,7 +175,7 @@ def test_make_thumbnail_png_output(color_video, tmp_path):
     from PIL import Image
 
     out = tmp_path / "thumb.png"
-    make_thumbnail(color_video, saveas=out)
+    make_thumbnail(color_video, output=out)
     assert out.exists()
     with Image.open(out) as im:
         assert im.format == "PNG"
@@ -187,7 +187,7 @@ def test_make_thumbnail_jpg_output(color_video, tmp_path):
     from PIL import Image
 
     out = tmp_path / "thumb.jpg"
-    make_thumbnail(color_video, saveas=out)
+    make_thumbnail(color_video, output=out)
     assert out.exists()
     with Image.open(out) as im:
         assert im.format == "JPEG"
@@ -195,9 +195,9 @@ def test_make_thumbnail_jpg_output(color_video, tmp_path):
 
 
 def test_make_thumbnail_accepts_str_path(color_video, tmp_path):
-    """``video`` and ``saveas`` accept str paths (coerced via Path)."""
+    """``video`` and ``output`` accept str paths (coerced via Path)."""
     out = tmp_path / "thumb_strpath.jpg"
-    result = make_thumbnail(str(color_video), saveas=str(out))
+    result = make_thumbnail(str(color_video), output=str(out))
     assert isinstance(result, Path)
     assert result == out
     assert out.exists()

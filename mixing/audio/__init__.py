@@ -22,7 +22,7 @@ Examples:
 
     >>> from mixing.audio import find_segments, extract_segments  # doctest: +SKIP
     >>> segs = find_segments("concert.wav", strategy="self_similarity")  # doctest: +SKIP
-    >>> paths = extract_segments("concert.wav", segs, output_dir="songs/")  # doctest: +SKIP
+    >>> paths = extract_segments("concert.wav", segs, output="songs/")  # doctest: +SKIP
 """
 
 from .audio_ops import (

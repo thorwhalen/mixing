@@ -17,6 +17,8 @@ import moviepy as mp
 
 from config2py import process_path
 
+from ..egress import Output, write_egress
+
 # Canonical SRT time + cue helpers live in mixing.srt; re-exported here for
 # backward compatibility (``to_srt_time`` is part of the video public surface).
 from mixing.srt import (
@@ -467,7 +469,7 @@ Filepath = str
 def write_subtitles_in_video(
     video: Filepath,
     subtitles: str | None = None,
-    output_video: str | None = None,
+    output: Output = None,
     *,
     embed_subtitles: bool = True,
     style: Optional[SubtitleStyle] = None,
@@ -484,7 +486,9 @@ def write_subtitles_in_video(
     Args:
         video: Path to input video file
         subtitles: Path to SRT file, SRT content string, or None (auto-detect)
-        output_video: Path for output video, or None (auto-generate)
+        output: Where to put the result — None (save beside the input,
+            auto-named), a file path, a directory (auto-named), or a callable
+            sink. See mixing.egress.
         embed_subtitles: Whether to embed subtitles (default True)
         style: SubtitleStyle configuration (optional)
         use_ffmpeg: Use FFmpeg directly for speed (default True, recommended)
@@ -502,15 +506,17 @@ def write_subtitles_in_video(
     video_path = process_path(video)
 
     if not embed_subtitles:
-        output_video_path = _get_output_path(output_video, video_path, suffix="_copy")
+        default_path = _get_output_path(None, video_path, suffix="_copy")
         import shutil
 
-        shutil.copy2(video_path, output_video_path)
-        return output_video_path
+        return write_egress(
+            output,
+            default_path=default_path,
+            write=lambda out_path: shutil.copy2(video_path, out_path),
+        )
 
-    srt_content, output_video_path = _process_subtitle_inputs(
-        subtitles, output_video, video_path
-    )
+    srt_content = _read_srt_content(subtitles, video_path)
+    default_path = _get_output_path(None, video_path)
 
     # Apply timestamp adjustment if requested
     if auto_detect_audio_start or start_time is not None:
@@ -521,14 +527,15 @@ def write_subtitles_in_video(
             start_time=start_time,
         )
 
-    if use_ffmpeg:
-        return _embed_subtitles_ffmpeg(
-            video_path, srt_content, output_video_path, style
-        )
-    else:
-        return _embed_subtitles_moviepy(
-            video_path, srt_content, output_video_path, style, **subtitle_kwargs
-        )
+    def _write(out_path: Path) -> None:
+        if use_ffmpeg:
+            _embed_subtitles_ffmpeg(video_path, srt_content, out_path, style)
+        else:
+            _embed_subtitles_moviepy(
+                video_path, srt_content, out_path, style, **subtitle_kwargs
+            )
+
+    return write_egress(output, default_path=default_path, write=_write)
 
 
 def _embed_subtitles_ffmpeg(
@@ -610,10 +617,11 @@ def _embed_subtitles_moviepy(
     return output_path
 
 
-def _process_subtitle_inputs(
-    subtitles: str | None, output_video: str | None, video_path: Path
-) -> tuple[str, Path]:
-    """Process subtitle and output video path inputs."""
+def _read_srt_content(subtitles: str | None, video_path: Path) -> str:
+    """Resolve ``subtitles`` (path, SRT content, or None) to SRT text.
+
+    ``None`` looks for a sibling ``.srt`` file next to ``video_path``.
+    """
     if subtitles is None:
         subtitles_path = video_path.with_suffix(".srt")
         if not subtitles_path.exists():
@@ -621,16 +629,11 @@ def _process_subtitle_inputs(
                 f"No subtitle file found at {subtitles_path}. "
                 f"Please provide subtitles explicitly."
             )
-        srt_content = subtitles_path.read_text()
-    elif os.path.isfile(subtitles):
+        return subtitles_path.read_text()
+    if os.path.isfile(subtitles):
         subtitles_path = process_path(subtitles)
-        srt_content = Path(subtitles_path).read_text()
-    else:
-        srt_content = subtitles
-
-    output_video_path = _get_output_path(output_video, video_path)
-
-    return srt_content, output_video_path
+        return Path(subtitles_path).read_text()
+    return subtitles
 
 
 def _get_output_path(

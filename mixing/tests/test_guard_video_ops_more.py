@@ -49,11 +49,11 @@ def _duration_s(path: str | Path) -> float:
 def test_crop_video_segment_duration_matches_requested_window(
     make_color_video, tmp_path
 ):
-    """crop_video(start, end, saveas=) writes a clip ~= (end - start) long."""
+    """crop_video(start, end, output=) writes a clip ~= (end - start) long."""
     src = make_color_video(2.0, with_audio=False)
     out = tmp_path / "cropped.mp4"
 
-    returned = crop_video(str(src), 0.5, 1.5, saveas=str(out))
+    returned = crop_video(str(src), 0.5, 1.5, output=str(out))
 
     assert isinstance(returned, Path)
     assert returned == out
@@ -62,11 +62,11 @@ def test_crop_video_segment_duration_matches_requested_window(
 
 
 def test_crop_video_returns_path_to_saveas_target(make_color_video, tmp_path):
-    """The returned Path is exactly the requested ``saveas`` location."""
+    """The returned Path is exactly the requested ``output`` location."""
     src = make_color_video(1.5, with_audio=False)
     out = tmp_path / "explicit_name.mp4"
 
-    returned = crop_video(str(src), 0.0, 1.0, saveas=str(out))
+    returned = crop_video(str(src), 0.0, 1.0, output=str(out))
 
     assert returned == out
     assert returned.exists()
@@ -82,7 +82,7 @@ def test_change_speed_2x_halves_duration(make_color_video, tmp_path):
     src = make_color_video(2.0, with_audio=True)
     out = tmp_path / "fast.mp4"
 
-    returned = change_speed(str(src), 2.0, saveas=str(out))
+    returned = change_speed(str(src), 2.0, output=str(out))
 
     assert isinstance(returned, Path)
     assert returned == out
@@ -95,13 +95,13 @@ def test_change_speed_half_speed_doubles_duration(make_color_video, tmp_path):
     src = make_color_video(1.0, with_audio=False)
     out = tmp_path / "slow.mp4"
 
-    change_speed(str(src), 0.5, saveas=str(out))
+    change_speed(str(src), 0.5, output=str(out))
 
     assert abs(_duration_s(out) - 2.0) < 0.2
 
 
 def test_change_speed_auto_saveas_uses_speed_suffix(make_color_video):
-    """When saveas is None, the output filename carries a ``_speed_<f>x`` suffix."""
+    """When output is None, the output filename carries a ``_speed_<f>x`` suffix."""
     src = make_color_video(1.0, with_audio=False)
     try:
         returned = change_speed(str(src), 2.0)
@@ -127,7 +127,7 @@ def test_normalize_audio_produces_output_file(make_color_video, tmp_path):
     freshly-encoded clip. The failure is non-deterministic across durations
     (e.g. a 1.0s clip may raise while a 2.0s clip succeeds), so we pin the
     deterministic part of the contract — *when it succeeds*, it returns the
-    ``saveas`` Path and preserves duration — and tolerate the known
+    ``output`` Path and preserves duration — and tolerate the known
     boundary-read ``OSError`` rather than asserting a flaky success. The
     refactor should make this path robust (e.g. avoid reading the end
     boundary) and then this tolerance can be removed.
@@ -136,7 +136,7 @@ def test_normalize_audio_produces_output_file(make_color_video, tmp_path):
     out = tmp_path / "normalized.mp4"
 
     try:
-        returned = normalize_audio(str(src), saveas=str(out))
+        returned = normalize_audio(str(src), output=str(out))
     except OSError:
         pytest.skip("known moviepy AudioNormalize end-boundary OSError (see docstring)")
 
@@ -151,7 +151,7 @@ def test_normalize_audio_passes_through_video_without_audio(make_color_video, tm
     src = make_color_video(1.0, with_audio=False)
     out = tmp_path / "normalized_silent.mp4"
 
-    returned = normalize_audio(str(src), saveas=str(out))
+    returned = normalize_audio(str(src), output=str(out))
 
     assert returned == out
     assert out.exists()
@@ -169,7 +169,7 @@ def test_assemble_audio_track_returns_none_when_all_silent(tmp_path):
 
     returned = assemble_audio_track(
         [(None, 1.0), (None, 0.5)],
-        saveas=str(out),
+        output=str(out),
     )
 
     assert returned is None
@@ -187,7 +187,7 @@ def test_assemble_audio_track_duration_is_sum_of_slot_durations(
 
     returned = assemble_audio_track(
         [(str(voice1), 1.5), (None, 1.0), (str(voice2), 0.5)],
-        saveas=str(out),
+        output=str(out),
     )
 
     assert isinstance(returned, Path)
@@ -204,7 +204,7 @@ def test_assemble_audio_track_trims_audio_longer_than_slot(make_tone_audio, tmp_
 
     returned = assemble_audio_track(
         [(str(voice), 0.5)],
-        saveas=str(out),
+        output=str(out),
     )
 
     assert returned == out
@@ -220,7 +220,7 @@ def test_assemble_audio_track_single_silent_slot_with_one_voice(
 
     returned = assemble_audio_track(
         [(str(voice), 1.0)],
-        saveas=str(out),
+        output=str(out),
     )
 
     assert returned == out
@@ -234,7 +234,7 @@ def test_assemble_audio_track_accepts_custom_sample_rate(make_tone_audio, tmp_pa
 
     returned = assemble_audio_track(
         [(str(voice), 0.5), (None, 0.5)],
-        saveas=str(out),
+        output=str(out),
         sample_rate=22050,
     )
 

@@ -47,6 +47,7 @@ import numpy as np
 
 from ..util import require_package, AudioTimeUnit, to_seconds, get_path_from_clipboard
 from .audio_util import AudioSource, _normalize_audio_source
+from ..egress import Output, deliver, is_sink, resolve_output_path
 
 if TYPE_CHECKING:
     from pydub import AudioSegment
@@ -308,7 +309,7 @@ class Audio:
 
     def save(
         self,
-        output_path: str | None = None,
+        output: Output = None,
         *,
         format: str | None = None,
         bitrate: str = "192k",
@@ -318,7 +319,9 @@ class Audio:
         Save this audio/segment to a new audio file.
 
         Args:
-            output_path: Path for output file (auto-generated if None)
+            output: Where to put the result — None (save beside the input with
+                an auto-derived name), a file path, a directory (auto-named), or
+                a callable sink. See mixing.egress.
             format: Audio format (mp3, wav, etc.). Auto-detected from extension if None.
             bitrate: Bitrate for compressed formats
             **export_kwargs: Additional arguments for pydub export
@@ -331,25 +334,30 @@ class Audio:
             >>> audio[10:30].save("clip.mp3")  # doctest: +SKIP
             >>> audio[10:30].save("clip.wav", format="wav")  # doctest: +SKIP
         """
-        if output_path is None:
-            if self.src_path:
-                src = Path(self.src_path)
-                output_path = src.with_stem(
-                    f"{src.stem}_{int(self.start_time)}_{int(self.end_time)}"
-                )
-            else:
-                output_path = Path(
-                    f"audio_{int(self.start_time)}_{int(self.end_time)}.mp3"
-                )
+        # Auto-name (beside the source) when no explicit destination is given.
+        if self.src_path:
+            src = Path(self.src_path)
+            default_name = (
+                f"{src.stem}_{int(self.start_time)}_{int(self.end_time)}{src.suffix}"
+            )
+        else:
+            default_name = f"audio_{int(self.start_time)}_{int(self.end_time)}.mp3"
 
-        output_path = Path(output_path)
+        sink = output if is_sink(output) else None
+        if output is None or sink is not None:
+            # No path given (or a sink): write to the default location beside
+            # the input, then hand that Path to the sink if there is one.
+            if self.src_path:
+                output_path = Path(self.src_path).with_name(default_name)
+            else:
+                output_path = Path(default_name)
+            output_path.parent.mkdir(parents=True, exist_ok=True)
+        else:
+            output_path = resolve_output_path(output, default_name=default_name)
 
         # Auto-detect format from extension
         if format is None:
             format = output_path.suffix[1:] if output_path.suffix else "mp3"
-
-        # Ensure directory exists
-        output_path.parent.mkdir(parents=True, exist_ok=True)
 
         # Export segment
         segment = self._get_segment()
@@ -358,7 +366,7 @@ class Audio:
         )
 
         print(f"Saved audio to: {output_path}")
-        return output_path
+        return sink(output_path) if sink is not None else output_path
 
     def fade_in(self, duration: float = 1.0) -> "Audio":
         """
@@ -480,7 +488,7 @@ def crop_audio(
     end: float | int | None = None,
     *,
     time_unit: AudioTimeUnit = "seconds",
-    output_path: str | None = None,
+    output: Output = None,
     **save_kwargs,
 ) -> Path:
     """
@@ -491,7 +499,8 @@ def crop_audio(
         start: Start time (None = beginning)
         end: End time (None = end of audio)
         time_unit: Unit for start/end values
-        output_path: Path for output (auto-generated if None)
+        output: Where to put the result — None (save beside the input), a file
+            path, a directory (auto-named), or a callable sink. See mixing.egress.
         **save_kwargs: Additional arguments for save operation
 
     Returns:
@@ -503,14 +512,14 @@ def crop_audio(
     """
     audio = Audio(src_path, time_unit=time_unit)
     segment = audio[start:end]
-    return segment.save(output_path, **save_kwargs)
+    return segment.save(output, **save_kwargs)
 
 
 def fade_in(
     src: Union[str, Audio],
     duration: float = 1.0,
     *,
-    output_path: str | None = None,
+    output: Output = None,
     **save_kwargs,
 ) -> Union[Audio, Path]:
     """
@@ -519,29 +528,32 @@ def fade_in(
     Args:
         src: Audio source (filepath or Audio instance)
         duration: Fade duration in seconds
-        output_path: If provided, saves to file and returns Path. Otherwise returns Audio.
+        output: Where to put the result — None (return the Audio object), a file
+            path, a directory (auto-named), or a callable sink. See mixing.egress.
         **save_kwargs: Additional save arguments
 
     Returns:
         Audio instance or Path to saved file
 
     Examples:
-        >>> fade_in("song.mp3", 2.0, output_path="faded.mp3")  # doctest: +SKIP
+        >>> fade_in("song.mp3", 2.0, output="faded.mp3")  # doctest: +SKIP
         >>> audio = fade_in("song.mp3", 2.0)  # Returns Audio instance  # doctest: +SKIP
     """
     audio = Audio(src) if isinstance(src, str) else src
     faded = audio.fade_in(duration)
-
-    if output_path:
-        return faded.save(output_path, **save_kwargs)
-    return faded
+    return deliver(
+        faded,
+        output,
+        write=lambda a, p: a.save(p, **save_kwargs),
+        default_name="audio_fade_in.mp3",
+    )
 
 
 def fade_out(
     src: Union[str, Audio],
     duration: float = 1.0,
     *,
-    output_path: str | None = None,
+    output: Output = None,
     **save_kwargs,
 ) -> Union[Audio, Path]:
     """
@@ -550,27 +562,30 @@ def fade_out(
     Args:
         src: Audio source (filepath or Audio instance)
         duration: Fade duration in seconds
-        output_path: If provided, saves to file and returns Path. Otherwise returns Audio.
+        output: Where to put the result — None (return the Audio object), a file
+            path, a directory (auto-named), or a callable sink. See mixing.egress.
         **save_kwargs: Additional save arguments
 
     Returns:
         Audio instance or Path to saved file
 
     Examples:
-        >>> fade_out("song.mp3", 3.0, output_path="faded.mp3")  # doctest: +SKIP
+        >>> fade_out("song.mp3", 3.0, output="faded.mp3")  # doctest: +SKIP
         >>> audio = fade_out("song.mp3", 3.0)  # Returns Audio instance  # doctest: +SKIP
     """
     audio = Audio(src) if isinstance(src, str) else src
     faded = audio.fade_out(duration)
-
-    if output_path:
-        return faded.save(output_path, **save_kwargs)
-    return faded
+    return deliver(
+        faded,
+        output,
+        write=lambda a, p: a.save(p, **save_kwargs),
+        default_name="audio_fade_out.mp3",
+    )
 
 
 def concatenate_audio(
     *sources: Union[str, Audio],
-    output_path: str | None = None,
+    output: Output = None,
     crossfade: float = 0.0,
     **save_kwargs,
 ) -> Union[Audio, Path]:
@@ -579,7 +594,8 @@ def concatenate_audio(
 
     Args:
         *sources: Audio sources (filepaths or Audio instances)
-        output_path: If provided, saves to file and returns Path. Otherwise returns Audio.
+        output: Where to put the result — None (return the Audio object), a file
+            path, a directory (auto-named), or a callable sink. See mixing.egress.
         crossfade: Crossfade duration in seconds between segments
         **save_kwargs: Additional save arguments
 
@@ -588,7 +604,7 @@ def concatenate_audio(
 
     Examples:
         >>> concatenate_audio("intro.mp3", "main.mp3", "outro.mp3")  # doctest: +SKIP
-        >>> concatenate_audio("a.mp3", "b.mp3", output_path="combined.mp3")  # doctest: +SKIP
+        >>> concatenate_audio("a.mp3", "b.mp3", output="combined.mp3")  # doctest: +SKIP
         >>> concatenate_audio("a.mp3", "b.mp3", crossfade=0.5)  # 500ms crossfade  # doctest: +SKIP
     """
     if not sources:
@@ -613,9 +629,12 @@ def concatenate_audio(
             # Simple concatenation
             result = result + audio
 
-    if output_path:
-        return result.save(output_path, **save_kwargs)
-    return result
+    return deliver(
+        result,
+        output,
+        write=lambda a, p: a.save(p, **save_kwargs),
+        default_name="audio_concat.mp3",
+    )
 
 
 def overlay_audio(
@@ -624,7 +643,7 @@ def overlay_audio(
     position: float = 0.0,
     *,
     mix_ratio: float = 0.5,
-    output_path: str | None = None,
+    output: Output = None,
     **save_kwargs,
 ) -> Union[Audio, Path]:
     """
@@ -635,7 +654,8 @@ def overlay_audio(
         overlay: Audio to overlay (filepath or Audio instance)
         position: Position in seconds where overlay starts
         mix_ratio: Mix ratio (0.0 = only background, 1.0 = only overlay, 0.5 = equal mix)
-        output_path: If provided, saves to file and returns Path. Otherwise returns Audio.
+        output: Where to put the result — None (return the Audio object), a file
+            path, a directory (auto-named), or a callable sink. See mixing.egress.
         **save_kwargs: Additional save arguments
 
     Returns:
@@ -673,9 +693,12 @@ def overlay_audio(
         ov_audio, position=position, gain_during_overlay=gain_during_overlay
     )
 
-    if output_path:
-        return mixed.save(output_path, **save_kwargs)
-    return mixed
+    return deliver(
+        mixed,
+        output,
+        write=lambda a, p: a.save(p, **save_kwargs),
+        default_name="audio_overlay.mp3",
+    )
 
 
 def save_audio_clip(
@@ -684,7 +707,7 @@ def save_audio_clip(
     end: float | None = None,
     *,
     time_unit: AudioTimeUnit | None = None,
-    saveas: str | None = None,
+    output: Output = None,
     format: str = "mp3",
 ) -> Path:
     """
@@ -695,7 +718,8 @@ def save_audio_clip(
         start: Start time/sample (default: 0)
         end: End time/sample (None = end of audio)
         time_unit: Unit for start/end ('seconds', 'samples', 'milliseconds')
-        saveas: Output path (auto-generated if None)
+        output: Where to put the result — None (save beside the input), a file
+            path, a directory (auto-named), or a callable sink. See mixing.egress.
         format: Output format
 
     Returns:
@@ -714,7 +738,7 @@ def save_audio_clip(
     audio = Audio(audio_src, time_unit=time_unit)
     segment = audio[start:end] if end is not None else audio[start:]
 
-    return segment.save(saveas, format=format)
+    return segment.save(output, format=format)
 
 
 def find_audio_offset(

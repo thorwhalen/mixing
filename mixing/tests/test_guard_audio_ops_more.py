@@ -4,17 +4,17 @@
 These tests lock in the *observable* behavior of the public audio-editing
 convenience functions ahead of a refactor:
 
-- ``crop_audio`` — ``output_path=`` keyword, returned ``Path``, duration of the
+- ``crop_audio`` — ``output=`` keyword, returned ``Path``, duration of the
   cropped clip, and ``time_unit`` handling (seconds vs milliseconds).
-- ``fade_in`` / ``fade_out`` — return ``Audio`` when no ``output_path`` is
+- ``fade_in`` / ``fade_out`` — return ``Audio`` when no ``output`` is
   given, return a ``Path`` (to an existing file) when one is, and preserve the
   source duration.
 - ``concatenate_audio`` — concatenating N tones yields ~sum of durations, and a
   positive ``crossfade`` reduces the total. Returns ``Audio`` by default, a
-  ``Path`` when ``output_path=`` is given.
+  ``Path`` when ``output=`` is given.
 - ``overlay_audio`` — ``mix_ratio`` and ``position`` semantics produce an
   ``Audio`` / a file; overlay never extends the background duration.
-- ``save_audio_clip`` — ``saveas=`` keyword writes a file and returns its
+- ``save_audio_clip`` — ``output=`` keyword writes a file and returns its
   ``Path``.
 - ``find_audio_offset`` — returns a ``float`` offset (seconds) that correctly
   locates a known sub-segment placed at a known offset inside a longer signal.
@@ -69,12 +69,12 @@ def _tmp(suffix: str) -> Path:
 
 
 def test_crop_audio_returns_path_with_expected_duration(make_tone_audio):
-    """crop_audio(output_path=...) returns a Path to an existing file whose
+    """crop_audio(output=...) returns a Path to an existing file whose
     duration matches the requested [start, end) window (in seconds)."""
     src = make_tone_audio(2.0)
     out = _tmp(".mp3")
     try:
-        result = crop_audio(str(src), 0.5, 1.5, output_path=str(out))
+        result = crop_audio(str(src), 0.5, 1.5, output=str(out))
         assert isinstance(result, Path)
         assert result.exists()
         assert _duration(result) == pytest.approx(1.0, abs=0.15)
@@ -88,7 +88,7 @@ def test_crop_audio_time_unit_milliseconds(make_tone_audio):
     out = _tmp(".mp3")
     try:
         result = crop_audio(
-            str(src), 0, 500, time_unit="milliseconds", output_path=str(out)
+            str(src), 0, 500, time_unit="milliseconds", output=str(out)
         )
         assert _duration(result) == pytest.approx(0.5, abs=0.15)
     finally:
@@ -102,7 +102,7 @@ def test_crop_audio_time_unit_samples(make_tone_audio):
     out = _tmp(".mp3")
     try:
         result = crop_audio(
-            str(src), 0, 22050, time_unit="samples", output_path=str(out)
+            str(src), 0, 22050, time_unit="samples", output=str(out)
         )
         assert _duration(result) == pytest.approx(0.5, abs=0.15)
     finally:
@@ -115,7 +115,7 @@ def test_crop_audio_time_unit_samples(make_tone_audio):
 
 
 def test_fade_in_returns_audio_without_output_path(make_tone_audio):
-    """fade_in with no output_path returns an Audio instance (not a Path),
+    """fade_in with no output returns an Audio instance (not a Path),
     preserving the source duration."""
     src = make_tone_audio(1.0)
     result = fade_in(str(src), duration=0.2)
@@ -124,11 +124,11 @@ def test_fade_in_returns_audio_without_output_path(make_tone_audio):
 
 
 def test_fade_in_returns_path_with_output_path(make_tone_audio):
-    """fade_in with output_path writes a file and returns its Path."""
+    """fade_in with output writes a file and returns its Path."""
     src = make_tone_audio(1.0)
     out = _tmp(".mp3")
     try:
-        result = fade_in(str(src), duration=0.2, output_path=str(out))
+        result = fade_in(str(src), duration=0.2, output=str(out))
         assert isinstance(result, Path)
         assert result.exists()
         assert _duration(result) == pytest.approx(1.0, abs=0.15)
@@ -137,7 +137,7 @@ def test_fade_in_returns_path_with_output_path(make_tone_audio):
 
 
 def test_fade_out_returns_audio_without_output_path(make_tone_audio):
-    """fade_out with no output_path returns an Audio instance."""
+    """fade_out with no output returns an Audio instance."""
     src = make_tone_audio(1.0)
     result = fade_out(str(src), duration=0.2)
     assert isinstance(result, Audio)
@@ -145,11 +145,11 @@ def test_fade_out_returns_audio_without_output_path(make_tone_audio):
 
 
 def test_fade_out_returns_path_with_output_path(make_tone_audio):
-    """fade_out with output_path writes a file and returns its Path."""
+    """fade_out with output writes a file and returns its Path."""
     src = make_tone_audio(1.0)
     out = _tmp(".mp3")
     try:
-        result = fade_out(str(src), duration=0.2, output_path=str(out))
+        result = fade_out(str(src), duration=0.2, output=str(out))
         assert isinstance(result, Path)
         assert result.exists()
         assert _duration(result) == pytest.approx(1.0, abs=0.15)
@@ -194,12 +194,12 @@ def test_concatenate_audio_crossfade_reduces_duration(make_tone_audio):
 
 
 def test_concatenate_audio_output_path_returns_path(make_tone_audio):
-    """concatenate_audio(output_path=...) writes a file and returns its Path."""
+    """concatenate_audio(output=...) writes a file and returns its Path."""
     a = make_tone_audio(0.5)
     b = make_tone_audio(0.5)
     out = _tmp(".mp3")
     try:
-        result = concatenate_audio(str(a), str(b), output_path=str(out))
+        result = concatenate_audio(str(a), str(b), output=str(out))
         assert isinstance(result, Path)
         assert result.exists()
         assert _duration(result) == pytest.approx(1.0, abs=0.2)
@@ -240,14 +240,14 @@ def test_overlay_audio_position_keeps_background_duration(make_tone_audio):
 
 
 def test_overlay_audio_mix_ratio_and_output_path(make_tone_audio):
-    """overlay_audio with a non-default mix_ratio and an output_path writes a
+    """overlay_audio with a non-default mix_ratio and an output writes a
     file and returns its Path."""
     bg = make_tone_audio(2.0, freq=220)
     ov = make_tone_audio(1.0, freq=660)
     out = _tmp(".mp3")
     try:
         result = overlay_audio(
-            str(bg), str(ov), mix_ratio=0.3, output_path=str(out)
+            str(bg), str(ov), mix_ratio=0.3, output=str(out)
         )
         assert isinstance(result, Path)
         assert result.exists()
@@ -262,12 +262,12 @@ def test_overlay_audio_mix_ratio_and_output_path(make_tone_audio):
 
 
 def test_save_audio_clip_saveas_returns_path(make_tone_audio):
-    """save_audio_clip(audio_src, start, end, saveas=...) writes a file and
+    """save_audio_clip(audio_src, start, end, output=...) writes a file and
     returns its Path; the clip spans [start, end) seconds."""
     src = make_tone_audio(2.0)
     out = _tmp(".mp3")
     try:
-        result = save_audio_clip(str(src), 0.25, 1.25, saveas=str(out))
+        result = save_audio_clip(str(src), 0.25, 1.25, output=str(out))
         assert isinstance(result, Path)
         assert result.exists()
         assert _duration(result) == pytest.approx(1.0, abs=0.2)
@@ -280,7 +280,7 @@ def test_save_audio_clip_no_end_goes_to_end(make_tone_audio):
     src = make_tone_audio(2.0)
     out = _tmp(".mp3")
     try:
-        result = save_audio_clip(str(src), 1.0, None, saveas=str(out))
+        result = save_audio_clip(str(src), 1.0, None, output=str(out))
         assert _duration(result) == pytest.approx(1.0, abs=0.2)
     finally:
         out.unlink(missing_ok=True)

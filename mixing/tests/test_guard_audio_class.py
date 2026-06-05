@@ -4,7 +4,7 @@ These tests lock in the *observable* behavior of the sliceable-audio facade in
 ``mixing.audio.audio_ops`` (the :class:`Audio` and :class:`AudioSamples` classes)
 so an upcoming refactor cannot silently change semantics. They pin behavior, not
 implementation: construction, time-unit-aware slicing, the derived duration/sample
-properties, ``.save(output_path=...)``, chained ``fade_in``/``fade_out``, ``overlay``,
+properties, ``.save(output=...)``, chained ``fade_in``/``fade_out``, ``overlay``,
 and the ``.samples`` Mapping protocol.
 
 Notable current quirks encoded here (a refactor should preserve or deliberately fix):
@@ -151,7 +151,7 @@ def test_nested_slice_chains_offsets(tone_audio):
 def test_save_with_output_path_writes_file(tone_audio, tmp_path):
     audio = Audio(str(tone_audio))
     out = tmp_path / "clip.mp3"
-    returned = audio[0.2:0.7].save(output_path=str(out))
+    returned = audio[0.2:0.7].save(output=str(out))
     from pathlib import Path
 
     assert isinstance(returned, Path)
@@ -166,7 +166,7 @@ def test_save_with_output_path_writes_file(tone_audio, tmp_path):
 def test_save_creates_missing_parent_dirs(tone_audio, tmp_path):
     audio = Audio(str(tone_audio))
     out = tmp_path / "nested" / "deeper" / "clip.wav"
-    returned = audio[0:0.5].save(output_path=str(out), format="wav")
+    returned = audio[0:0.5].save(output=str(out), format="wav")
     assert returned.exists()
     assert returned.suffix == ".wav"
 

@@ -203,12 +203,12 @@ def test_index_bad_type_raises_type_error(color_video):
 
 
 def test_save_writes_subclip_of_right_duration(make_color_video):
-    """.save(saveas=...) writes a file; the result has the sub-clip's duration."""
+    """.save(output=...) writes a file; the result has the sub-clip's duration."""
     v = Video(make_color_video(2.0, fps=24))
     seg = v[0.5:1.5]
     out = _tmp_out(".mp4")
     try:
-        returned = seg.save(saveas=str(out))
+        returned = seg.save(output=str(out))
         assert isinstance(returned, Path)
         assert returned.exists()
         # Round-trip the saved file and confirm its duration.
@@ -224,7 +224,7 @@ def test_save_full_clip_preserves_duration(make_color_video):
     v = Video(src)
     out = _tmp_out(".mp4")
     try:
-        returned = v.save(saveas=str(out))
+        returned = v.save(output=str(out))
         assert returned.exists()
         assert abs(Video(str(returned)).full_duration - 1.0) < DUR_TOL
     finally:
@@ -232,7 +232,7 @@ def test_save_full_clip_preserves_duration(make_color_video):
 
 
 def test_save_frame_writes_image_file(make_color_video):
-    """.save_frame(t, saveas=...) writes an image of the frame's (H, W, 3) size."""
+    """.save_frame(t, output=...) writes an image of the frame's (H, W, 3) size."""
     pytest.importorskip("cv2")
     import cv2
 
@@ -240,7 +240,7 @@ def test_save_frame_writes_image_file(make_color_video):
     v = Video(path)
     out = _tmp_out(".png")
     try:
-        returned = v.save_frame(0.0, saveas=str(out))
+        returned = v.save_frame(0.0, output=str(out))
         assert isinstance(returned, Path)
         assert returned.exists()
         img = cv2.imread(str(returned))
@@ -251,10 +251,10 @@ def test_save_frame_writes_image_file(make_color_video):
 
 
 def test_save_frame_requires_an_output_target(color_video):
-    """save_frame with saveas=False and no clipboard is a ValueError."""
+    """save_frame with output=False and no clipboard is a ValueError."""
     v = Video(color_video)
     with pytest.raises(ValueError, match="at least one output"):
-        v.save_frame(0.0, saveas=False, copy_to_clipboard=False)
+        v.save_frame(0.0, output=False, copy_to_clipboard=False)
 
 
 def test_to_clip_returns_moviepy_clip_of_subduration(make_color_video):

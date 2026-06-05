@@ -141,12 +141,12 @@ def dub_video_from_srt(
             video_dur=video_dur,
         )
         track_path = work / "narration_track.wav"
-        assemble_audio_track(segments, saveas=track_path)
+        assemble_audio_track(segments, output=track_path)
         replace_audio(
             str(video),
             str(track_path),
             mix_ratio=1.0 - keep_original_audio,
-            saveas=str(out_path),
+            output=str(out_path),
             match_duration=False,
         )
     finally:
