@@ -5,7 +5,7 @@ Test collision detection in the refactored save_generated_videos function
 
 import tempfile
 import os
-from mixing.video.video_gen import _generate_output_paths, save_generated_videos
+from mixing.video.genai import _generate_output_paths, save_generated_videos
 
 
 class MockVideo:

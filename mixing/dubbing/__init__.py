@@ -15,7 +15,15 @@ Building blocks:
 The HTTP clients use stdlib only (no ``requests`` / ``elevenlabs`` SDK), so
 this adds no required deps. Needs ffmpeg on PATH and an ElevenLabs API key
 (env var ``ELEVENLABS_API_KEY`` or explicit ``api_key=``). Translation needs
-either the ``aix`` package or a custom ``translate_fn``.
+either the ``aix`` package (``pip install 'mixing[llm]'``) or a custom
+``translate_fn``.
+
+**Lazy by design.** Like the top-level :mod:`mixing` facade, this subpackage
+uses PEP 562 ``__getattr__`` so that the TTS / SRT building blocks
+(:func:`text_to_speech`, :func:`list_voices`, :func:`parse_srt`,
+:class:`Cue`, …) import with **no** ``moviepy`` dependency. Only
+:func:`dub_video_from_srt` — the end-to-end pipeline that muxes audio over a
+video — pulls ``moviepy``, and only when it is first accessed.
 
 Quick start:
     >>> from mixing.dubbing import dub_video_from_srt, translate_srt  # doctest: +SKIP
@@ -23,6 +31,14 @@ Quick start:
     >>> fr_srt = translate_srt(open("promo.srt").read(), "French")  # doctest: +SKIP
 """
 
+from __future__ import annotations
+
+import importlib
+from typing import TYPE_CHECKING
+
+# --- Eager, dependency-light exports -------------------------------------
+# The TTS (stdlib HTTP) and SRT (pure) building blocks pull no media backend,
+# so they stay eager: ``from mixing.dubbing import text_to_speech`` is cheap.
 from mixing.dubbing.tts import (
     ELEVENLABS_TTS_URL,
     ELEVENLABS_VOICES_URL,
@@ -45,7 +61,32 @@ from mixing.dubbing.srt import (
     translate_srt,
     default_translate_fn,
 )
-from mixing.dubbing.dub import dub_video_from_srt
+
+# --- Lazy facade ----------------------------------------------------------
+# name -> the submodule that defines it. Imported (with its moviepy backend)
+# only when the name is first accessed via ``__getattr__`` (PEP 562).
+_LAZY: dict[str, str] = {
+    # dub.py pulls moviepy via mixing.video.video_ops
+    "dub_video_from_srt": "mixing.dubbing.dub",
+}
+
+if TYPE_CHECKING:  # help static analyzers see the lazy name
+    from mixing.dubbing.dub import dub_video_from_srt  # noqa: F401
+
+
+def __getattr__(name: str):
+    """Resolve a lazy facade name (PEP 562)."""
+    module_path = _LAZY.get(name)
+    if module_path is not None:
+        value = getattr(importlib.import_module(module_path), name)
+        globals()[name] = value  # cache so __getattr__ isn't hit again
+        return value
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+
+
+def __dir__() -> list[str]:
+    return sorted(set(globals()) | set(_LAZY))
+
 
 __all__ = [
     "ELEVENLABS_TTS_URL",

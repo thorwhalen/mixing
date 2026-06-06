@@ -88,7 +88,7 @@ class TestLoopVideo:
             saveas = f.name
 
         try:
-            result = loop_video(sample_video_file, n_loops=3, saveas=saveas)
+            result = loop_video(sample_video_file, n_loops=3, output=saveas)
 
             assert isinstance(result, Path)
             assert result.exists()
@@ -114,7 +114,7 @@ class TestLoopVideo:
             saveas = f.name
 
         try:
-            result = loop_video(sample_video_file, n_loops=2, saveas=saveas)
+            result = loop_video(sample_video_file, n_loops=2, output=saveas)
 
             assert result.exists()
 
@@ -157,7 +157,7 @@ class TestReplaceAudio:
                 sample_video_file,
                 sample_audio_file,
                 mix_ratio=1.0,
-                saveas=saveas,
+                output=saveas,
             )
 
             assert isinstance(result, Path)
@@ -185,7 +185,7 @@ class TestReplaceAudio:
                     sample_video_file,
                     sample_audio_file,
                     mix_ratio=ratio,
-                    saveas=saveas,
+                    output=saveas,
                 )
 
                 assert result.exists()
@@ -218,7 +218,7 @@ class TestReplaceAudio:
                 sample_audio_file,
                 mix_ratio=1.0,
                 match_duration=True,
-                saveas=saveas,
+                output=saveas,
             )
 
             assert result.exists()
@@ -254,12 +254,12 @@ class TestVideoAudioIntegration:
 
         try:
             # First loop the video
-            looped = loop_video(sample_video_file, n_loops=2, saveas=looped_path)
+            looped = loop_video(sample_video_file, n_loops=2, output=looped_path)
             assert looped.exists()
 
             # Then replace audio
             final = replace_audio(
-                str(looped), sample_audio_file, mix_ratio=1.0, saveas=final_path
+                str(looped), sample_audio_file, mix_ratio=1.0, output=final_path
             )
             assert final.exists()
         finally:

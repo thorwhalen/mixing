@@ -152,7 +152,7 @@ def test_extract_segments_writes_files(tmp_path):
     paths = extract_segments(
         audio,
         segments=[(0.0, 3.0), (5.0, 8.0)],
-        output_dir=tmp_path,
+        output=tmp_path,
         format="wav",
     )
     assert len(paths) == 2

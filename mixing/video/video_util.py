@@ -7,6 +7,19 @@ from typing import Literal, Tuple, Optional
 import numpy as np
 from moviepy import VideoFileClip, VideoClip, ImageClip, CompositeVideoClip
 
+#: Common social-media target sizes as ``(width, height)`` pixel presets, handy
+#: as the ``target_width``/``target_height`` for :func:`resize_to_dimensions`
+#: and friends. Landscape ``youtube`` is 16:9; the vertical 9:16 presets
+#: (``shorts`` / ``story`` / ``tiktok``) and the 1:1 ``square`` cover the usual
+#: short-form formats.
+SOCIAL_SIZES: dict[str, Tuple[int, int]] = {
+    "youtube": (1920, 1080),
+    "shorts": (1080, 1920),
+    "square": (1080, 1080),
+    "story": (1080, 1920),
+    "tiktok": (1080, 1920),
+}
+
 
 def get_video_dimensions(video: VideoFileClip) -> Tuple[int, int]:
     """

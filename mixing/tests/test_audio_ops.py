@@ -153,7 +153,7 @@ class TestAudioOperations:
 
         try:
             result = crop_audio(
-                temp_audio_file, start=0.2, end=0.8, output_path=output_path
+                temp_audio_file, start=0.2, end=0.8, output=output_path
             )
 
             assert isinstance(result, Path)
@@ -328,7 +328,7 @@ def test_assemble_audio_track_returns_none_when_all_silent():
 
     with tempfile.TemporaryDirectory() as tmp:
         out = assemble_audio_track(
-            [(None, 2.0), (None, 1.5)], saveas=Path(tmp) / "track.wav"
+            [(None, 2.0), (None, 1.5)], output=Path(tmp) / "track.wav"
         )
     assert out is None
 
@@ -349,7 +349,7 @@ def test_assemble_audio_track_pads_and_trims_to_slot_durations():
                 (None, 2.0),  # pure silence
                 (str(tone), 1.0),  # 1.5s voice trimmed to 1.0s
             ],
-            saveas=tmp / "track.wav",
+            output=tmp / "track.wav",
         )
         assert out is not None and out.exists()
         clip = AudioFileClip(str(out))

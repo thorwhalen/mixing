@@ -17,96 +17,16 @@ import moviepy as mp
 
 from config2py import process_path
 
+from ..egress import Output, write_egress
 
-def srt_time_to_seconds(time_str: str) -> float:
-    """
-    Convert SRT time format to seconds.
-
-    >>> srt_time_to_seconds('00:43:12,187')
-    2592.187
-    >>> srt_time_to_seconds('00:00:01,500')
-    1.5
-    """
-    # Parse HH:MM:SS,mmm format
-    match = re.match(r"(\d+):(\d+):(\d+),(\d+)", time_str)
-    if not match:
-        raise ValueError(f"Invalid time format: {time_str}")
-
-    hours, minutes, seconds, milliseconds = map(int, match.groups())
-    total_seconds = hours * 3600 + minutes * 60 + seconds + milliseconds / 1000
-    return total_seconds
-
-
-def seconds_to_srt_time(seconds: float) -> str:
-    """
-    Convert seconds to SRT time format.
-
-    >>> seconds_to_srt_time(2592.187)
-    '00:43:12,187'
-    >>> seconds_to_srt_time(1.5)
-    '00:00:01,500'
-    """
-    # Handle negative times (clamp to 0)
-    if seconds < 0:
-        seconds = 0
-
-    hours = int(seconds // 3600)
-    minutes = int((seconds % 3600) // 60)
-    secs = int(seconds % 60)
-    # Round milliseconds to handle floating-point precision
-    milliseconds = round((seconds - int(seconds)) * 1000)
-
-    return f"{hours:02d}:{minutes:02d}:{secs:02d},{milliseconds:03d}"
-
-
-def shift_srt_timestamps(srt_content: str, shift_seconds: float = 0.0) -> str:
-    """
-    Shift all timestamps in an SRT file by a given number of seconds.
-
-    Args:
-        srt_content: SRT file content as string
-        shift_seconds: Number of seconds to shift (negative to shift earlier)
-
-    Returns:
-        Modified SRT content with shifted timestamps
-
-    >>> srt = '''1
-    ... 00:43:12,187 --> 00:43:13,817
-    ... Hello world'''
-    >>> shifted = shift_srt_timestamps(srt, -2592)  # Shift back 43 minutes 12 seconds
-    >>> '00:00:00,187 --> 00:00:01,817' in shifted
-    True
-    """
-
-    def _shift_timestamp_line(line: str) -> str:
-        """Shift a single timestamp line."""
-        # Match the timestamp line format: "00:43:12,187 --> 00:43:13,817"
-        match = re.match(r"(\d+:\d+:\d+,\d+)\s+-->\s+(\d+:\d+:\d+,\d+)", line)
-        if not match:
-            return line
-
-        start_time_str, end_time_str = match.groups()
-
-        # Convert to seconds, shift, and convert back
-        start_seconds = srt_time_to_seconds(start_time_str) + shift_seconds
-        end_seconds = srt_time_to_seconds(end_time_str) + shift_seconds
-
-        new_start = seconds_to_srt_time(start_seconds)
-        new_end = seconds_to_srt_time(end_seconds)
-
-        return f"{new_start} --> {new_end}"
-
-    # Process line by line
-    lines = srt_content.split("\n")
-    shifted_lines = []
-
-    for line in lines:
-        if "-->" in line:
-            shifted_lines.append(_shift_timestamp_line(line))
-        else:
-            shifted_lines.append(line)
-
-    return "\n".join(shifted_lines)
+# Canonical SRT time + cue helpers live in mixing.srt; re-exported here for
+# backward compatibility (``to_srt_time`` is part of the video public surface).
+from mixing.srt import (
+    srt_time_to_seconds,
+    seconds_to_srt_time,
+    to_srt_time,
+    shift_srt_timestamps,
+)
 
 
 def _find_audio_peaks(
@@ -467,21 +387,6 @@ class SubtitleStyle:
         return f"FontSize={self.font_size},FontName={self.font_name},PrimaryColour=&H{color_hex}&,Alignment={alignment}"
 
 
-def to_srt_time(seconds: float) -> str:
-    """
-    Convert seconds to SRT time format.
-
-    >>> to_srt_time(1.5)
-    '00:00:01,500'
-    >>> to_srt_time(65.123)
-    '00:01:05,123'
-    """
-    milliseconds = int((seconds - int(seconds)) * 1000)
-    minutes, seconds = divmod(int(seconds), 60)
-    hours, minutes = divmod(minutes, 60)
-    return f"{hours:02}:{minutes:02}:{seconds:02},{milliseconds:03}"
-
-
 def _parse_srt_timestamp(timestamp: str) -> str:
     """
     Parse SRT timestamp and convert to moviepy format.
@@ -564,7 +469,7 @@ Filepath = str
 def write_subtitles_in_video(
     video: Filepath,
     subtitles: str | None = None,
-    output_video: str | None = None,
+    output: Output = None,
     *,
     embed_subtitles: bool = True,
     style: Optional[SubtitleStyle] = None,
@@ -581,7 +486,9 @@ def write_subtitles_in_video(
     Args:
         video: Path to input video file
         subtitles: Path to SRT file, SRT content string, or None (auto-detect)
-        output_video: Path for output video, or None (auto-generate)
+        output: Where to put the result — None (save beside the input,
+            auto-named), a file path, a directory (auto-named), or a callable
+            sink. See mixing.egress.
         embed_subtitles: Whether to embed subtitles (default True)
         style: SubtitleStyle configuration (optional)
         use_ffmpeg: Use FFmpeg directly for speed (default True, recommended)
@@ -599,15 +506,17 @@ def write_subtitles_in_video(
     video_path = process_path(video)
 
     if not embed_subtitles:
-        output_video_path = _get_output_path(output_video, video_path, suffix="_copy")
+        default_path = _get_output_path(None, video_path, suffix="_copy")
         import shutil
 
-        shutil.copy2(video_path, output_video_path)
-        return output_video_path
+        return write_egress(
+            output,
+            default_path=default_path,
+            write=lambda out_path: shutil.copy2(video_path, out_path),
+        )
 
-    srt_content, output_video_path = _process_subtitle_inputs(
-        subtitles, output_video, video_path
-    )
+    srt_content = _read_srt_content(subtitles, video_path)
+    default_path = _get_output_path(None, video_path)
 
     # Apply timestamp adjustment if requested
     if auto_detect_audio_start or start_time is not None:
@@ -618,14 +527,15 @@ def write_subtitles_in_video(
             start_time=start_time,
         )
 
-    if use_ffmpeg:
-        return _embed_subtitles_ffmpeg(
-            video_path, srt_content, output_video_path, style
-        )
-    else:
-        return _embed_subtitles_moviepy(
-            video_path, srt_content, output_video_path, style, **subtitle_kwargs
-        )
+    def _write(out_path: Path) -> None:
+        if use_ffmpeg:
+            _embed_subtitles_ffmpeg(video_path, srt_content, out_path, style)
+        else:
+            _embed_subtitles_moviepy(
+                video_path, srt_content, out_path, style, **subtitle_kwargs
+            )
+
+    return write_egress(output, default_path=default_path, write=_write)
 
 
 def _embed_subtitles_ffmpeg(
@@ -707,10 +617,11 @@ def _embed_subtitles_moviepy(
     return output_path
 
 
-def _process_subtitle_inputs(
-    subtitles: str | None, output_video: str | None, video_path: Path
-) -> tuple[str, Path]:
-    """Process subtitle and output video path inputs."""
+def _read_srt_content(subtitles: str | None, video_path: Path) -> str:
+    """Resolve ``subtitles`` (path, SRT content, or None) to SRT text.
+
+    ``None`` looks for a sibling ``.srt`` file next to ``video_path``.
+    """
     if subtitles is None:
         subtitles_path = video_path.with_suffix(".srt")
         if not subtitles_path.exists():
@@ -718,16 +629,11 @@ def _process_subtitle_inputs(
                 f"No subtitle file found at {subtitles_path}. "
                 f"Please provide subtitles explicitly."
             )
-        srt_content = subtitles_path.read_text()
-    elif os.path.isfile(subtitles):
+        return subtitles_path.read_text()
+    if os.path.isfile(subtitles):
         subtitles_path = process_path(subtitles)
-        srt_content = Path(subtitles_path).read_text()
-    else:
-        srt_content = subtitles
-
-    output_video_path = _get_output_path(output_video, video_path)
-
-    return srt_content, output_video_path
+        return Path(subtitles_path).read_text()
+    return subtitles
 
 
 def _get_output_path(
@@ -740,136 +646,3 @@ def _get_output_path(
     else:
         output_video_path = Path(output_video)
     return output_video_path
-
-
-# --------------------------------------------------------------------------------------
-# Testing utilities
-# --------------------------------------------------------------------------------------
-
-
-def create_test_video(
-    output_path: str = "/tmp/test_video.mp4",
-    *,
-    duration: float = 5.0,
-    fps: int = 24,
-    size: tuple[int, int] = (640, 480),
-    with_audio: bool = True,
-) -> Path:
-    """Create a simple test video with color bars and optional audio tone."""
-    import numpy as np
-
-    num_frames = int(duration * fps)
-    frames = []
-
-    for frame_idx in range(num_frames):
-        t = frame_idx / fps
-        frame = np.zeros((size[1], size[0], 3), dtype=np.uint8)
-        bar_width = size[0] // 3
-        frame[:, :bar_width] = [int(255 * (t / duration)), 0, 0]
-        frame[:, bar_width : 2 * bar_width] = [0, int(255 * (t / duration)), 0]
-        frame[:, 2 * bar_width :] = [0, 0, int(255 * (t / duration))]
-        frames.append(frame)
-
-    video = mp.ImageSequenceClip(frames, fps=fps)
-
-    if with_audio:
-        try:
-            from moviepy.audio.AudioClip import AudioClip
-
-            def _make_audio_frame(t):
-                """Generate audio sample at time t."""
-                return np.sin(2 * np.pi * 440 * t)
-
-            audio = AudioClip(
-                make_frame=_make_audio_frame, duration=duration, fps=44100
-            )
-            video = video.with_audio(audio)
-        except Exception as e:
-            print(f"Warning: Could not add audio to test video: {e}")
-
-    output_path = Path(output_path)
-    write_kwargs = {"codec": "libx264", "fps": fps, "logger": None}
-
-    if video.audio is not None:
-        write_kwargs["audio_codec"] = "aac"
-
-    video.write_videofile(str(output_path), **write_kwargs)
-    video.close()
-
-    return output_path
-
-
-def create_test_srt(
-    output_path: str = "/tmp/test_subtitles.srt", *, num_subtitles: int = 3
-) -> Path:
-    """Create a simple test SRT subtitle file."""
-    srt_content = []
-    for i in range(num_subtitles):
-        start_time = i * 1.5
-        end_time = start_time + 1.2
-        srt_content.append(f"{i + 1}")
-        srt_content.append(f"{to_srt_time(start_time)} --> {to_srt_time(end_time)}")
-        srt_content.append(f"Test subtitle {i + 1}")
-        srt_content.append("")
-
-    output_path = Path(output_path)
-    output_path.write_text("\n".join(srt_content))
-
-    return output_path
-
-
-def test_subtitle_embedding(cleanup: bool = True, *, use_ffmpeg: bool = True) -> bool:
-    """Run a simple automated test of subtitle embedding functionality."""
-    import tempfile
-
-    try:
-        with tempfile.TemporaryDirectory() as tmpdir:
-            video_path = Path(tmpdir) / "test_video.mp4"
-            srt_path = Path(tmpdir) / "test_subtitles.srt"
-            output_path = Path(tmpdir) / "output_video.mp4"
-
-            print("Creating test video...")
-            create_test_video(str(video_path), duration=5.0, with_audio=True)
-
-            print("Creating test subtitles...")
-            create_test_srt(str(srt_path), num_subtitles=3)
-
-            print("Embedding subtitles...")
-            result = write_subtitles_in_video(
-                str(video_path), str(srt_path), str(output_path), use_ffmpeg=use_ffmpeg
-            )
-
-            if not result.exists():
-                print("❌ Output video not created")
-                return False
-
-            if result.stat().st_size == 0:
-                print("❌ Output video is empty")
-                return False
-
-            output_clip = mp.VideoFileClip(str(result))
-            has_video = output_clip.duration > 0
-            has_audio = output_clip.audio is not None
-
-            if not has_audio:
-                print(
-                    "⚠️  Output video has no audio (this is okay in some test environments)"
-                )
-
-            output_clip.close()
-
-            if not has_video:
-                print("❌ Output video has no video content")
-                return False
-
-            print("✅ All tests passed!")
-            if has_audio:
-                print("✅ Audio preserved successfully")
-            return True
-
-    except Exception as e:
-        print(f"❌ Test failed with error: {e}")
-        import traceback
-
-        traceback.print_exc()
-        return False

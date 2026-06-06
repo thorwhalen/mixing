@@ -42,18 +42,18 @@ from typing import Optional, Union
 from pathlib import Path
 from collections.abc import Callable, Iterator, Mapping, Sequence
 import io
+import os
 import tempfile
 import numpy as np
 import cv2
 import moviepy as mp
 
 from ..util import require_package, TimeUnit, to_seconds
+from ..egress import Output, write_egress, is_path_output
 from ._helpers import (
     _auto_video_path,
     _auto_frame_path,
     _set_default_codecs,
-    _ensure_output_path,
-    _resolve_output_path,
 )
 
 
@@ -449,7 +449,7 @@ class Video:
 
     def save(
         self,
-        saveas: str | None = None,
+        output: Output = None,
         *,
         codec: str = "libx264",
         audio_codec: str = "aac",
@@ -459,7 +459,9 @@ class Video:
         Save this video/segment to a new video file.
 
         Args:
-            saveas: Path for output file (auto-generated if None)
+            output: Where to put the result — None (save beside the input with
+                an auto-derived name), a file path, a directory (auto-named), or
+                a callable sink. See mixing.egress.
             codec: Video codec to use
             audio_codec: Audio codec to use
             **write_kwargs: Additional arguments for write_videofile
@@ -467,25 +469,23 @@ class Video:
         Returns:
             Path to saved file
         """
-        if saveas is None:
-            saveas = _auto_video_path(
-                self.video_src, f"{int(self.start_time)}_{int(self.end_time)}"
-            )
+        default_path = _auto_video_path(
+            self.video_src, f"{int(self.start_time)}_{int(self.end_time)}"
+        )
 
-        output_path = _ensure_output_path(saveas)
+        def _write(path: Path) -> None:
+            with mp.VideoFileClip(self.video_src) as clip:
+                subclip = clip.subclipped(self.start_time, self.end_time)
+                subclip.write_videofile(
+                    str(path), codec=codec, audio_codec=audio_codec, **write_kwargs
+                )
 
-        with mp.VideoFileClip(self.video_src) as clip:
-            subclip = clip.subclipped(self.start_time, self.end_time)
-            subclip.write_videofile(
-                str(output_path), codec=codec, audio_codec=audio_codec, **write_kwargs
-            )
-
-        return output_path
+        return write_egress(output, default_path=default_path, write=_write)
 
     def save_frame(
         self,
         time_or_frame: float | None = None,
-        saveas: str | None = None,
+        output: Output | bool = None,
         *,
         image_format: str = "png",
         copy_to_clipboard: bool = False,
@@ -495,8 +495,10 @@ class Video:
 
         Args:
             time_or_frame: Time/frame index (None = start of segment)
-            saveas: Path for output image (auto-generated if None,
-                        False = don't save to file)
+            output: Where to put the frame — None (save beside the input with an
+                auto-derived name), a file path, a directory (auto-named), or a
+                callable sink. ``False`` means "don't save to file" (clipboard
+                only). See mixing.egress.
             image_format: Image format (png, jpg, etc.)
             copy_to_clipboard: If True, copy image to system clipboard
 
@@ -507,11 +509,11 @@ class Video:
             >>> video = Video("movie.mp4")  # doctest: +SKIP
             >>> video.save_frame(10.5)  # Save frame at 10.5s  # doctest: +SKIP
             >>> video.save_frame(10.5, copy_to_clipboard=True)  # Save and copy  # doctest: +SKIP
-            >>> video.save_frame(10.5, saveas=False, copy_to_clipboard=True)  # Clipboard only  # doctest: +SKIP
+            >>> video.save_frame(10.5, output=False, copy_to_clipboard=True)  # Clipboard only  # doctest: +SKIP
         """
-        if saveas is False and not copy_to_clipboard:
+        if output is False and not copy_to_clipboard:
             raise ValueError(
-                "Must specify at least one output: set saveas or copy_to_clipboard=True"
+                "Must specify at least one output: set output or copy_to_clipboard=True"
             )
 
         if time_or_frame is None:
@@ -526,26 +528,21 @@ class Video:
             _copy_frame_to_clipboard(frame)
 
         # Save to file if requested
-        if saveas is not False:
-            # Determine output path
-            if saveas is None:
-                frame_idx = int(time_or_frame * self.fps)
-                saveas = _auto_frame_path(
-                    self.video_src, frame_idx, image_format=image_format
-                )
-            else:
-                saveas = Path(saveas)
-                if not saveas.suffix:
-                    saveas = saveas.with_suffix(f".{image_format}")
+        if output is not False:
+            frame_idx = int(time_or_frame * self.fps)
+            default_path = _auto_frame_path(
+                self.video_src, frame_idx, image_format=image_format
+            )
 
-            # Ensure directory exists
-            output_path = _ensure_output_path(saveas)
+            # An explicit file path without a suffix gets the image_format ext.
+            if is_path_output(output) and not Path(output).suffix:
+                output = str(Path(output).with_suffix(f".{image_format}"))
 
-            # Save frame
-            cv2.imwrite(str(output_path), frame)
-            print(f"Saved frame to: {output_path}")
+            def _write(path: Path) -> None:
+                cv2.imwrite(str(path), frame)
+                print(f"Saved frame to: {path}")
 
-            return output_path
+            return write_egress(output, default_path=default_path, write=_write)
 
         return None
 
@@ -583,6 +580,38 @@ class Video:
             end_frame=int(self.end_time * self.fps),
         )
 
+    def close(self) -> None:
+        """Release any backend handles (moviepy clip / cv2 capture) held.
+
+        ``Video`` is path-backed: most operations open a moviepy clip or cv2
+        capture inside a ``with`` / ``try-finally`` block and release it
+        immediately. ``close`` defensively releases any handle that *was*
+        cached on the instance (``_clip`` / ``_cap``), so it is safe to call
+        even when nothing is open, and future-proof if a handle is ever cached.
+        """
+        clip = getattr(self, "_clip", None)
+        if clip is not None:
+            try:
+                clip.close()
+            except Exception:
+                pass  # best-effort cleanup
+            self._clip = None
+        cap = getattr(self, "_cap", None)
+        if cap is not None:
+            try:
+                cap.release()
+            except Exception:
+                pass  # best-effort cleanup
+            self._cap = None
+
+    def __enter__(self) -> "Video":
+        """Support ``with Video(path) as v: ...`` — returns ``self``."""
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback) -> None:
+        """Release backend handles on context exit (see :meth:`close`)."""
+        self.close()
+
 
 def crop_video(
     video_src: str,
@@ -590,7 +619,7 @@ def crop_video(
     end: float | int | None = None,
     *,
     time_unit: TimeUnit = "seconds",
-    saveas: str | None = None,
+    output: Output = None,
     **save_kwargs,
 ) -> Path:
     """
@@ -601,7 +630,8 @@ def crop_video(
         start: Start time/frame (None = beginning)
         end: End time/frame (None = end of video)
         time_unit: Unit for start/end values
-        saveas: Path for output (auto-generated if None or False)
+        output: Where to put the result — None (save beside the input), a file
+            path, a directory (auto-named), or a callable sink. See mixing.egress.
         **save_kwargs: Additional arguments for save operation
 
     Returns:
@@ -617,11 +647,11 @@ def crop_video(
     # Handle single frame case
     if start is not None and end is not None and start == end:
         # Extract single frame
-        return video.save_frame(time_or_frame=start, saveas=saveas, **save_kwargs)
+        return video.save_frame(time_or_frame=start, output=output, **save_kwargs)
 
     # Handle segment case
     segment = video[start:end]
-    return segment.save(saveas, **save_kwargs)
+    return segment.save(output, **save_kwargs)
 
 
 def save_frame(
@@ -629,7 +659,7 @@ def save_frame(
     time_or_frame: int | float = 0,
     *,
     time_unit: TimeUnit | None = None,
-    saveas: str | bool | None = None,
+    output: str | bool | None = None,
     image_format: str = "png",
     copy_to_clipboard: bool = False,
 ) -> Path | None:
@@ -642,13 +672,13 @@ def save_frame(
         time_unit: Unit for time_or_frame ('seconds', 'frames', 'milliseconds').
             If None, defaults to 'seconds', unless time_or_frame is a negative integer,
             in which case it defaults to 'frames'.
-        saveas: Where to save the image. If None or "", auto-generates path.
-            - None or "": Auto-generate path based on video filename
-            - Path starting with '.': Use as extension (e.g., '.jpg')
-            - '/TMP': Save to temporary directory
-            - Full filepath: Use as-is
-            - False: Don't save to file (requires copy_to_clipboard=True)
-        image_format: Default image format if not specified in saveas
+        output: Where to put the frame — None (save beside the input with an
+            auto-derived name), a file path, a directory (auto-named), or a
+            callable sink. See mixing.egress. Two extra string shorthands are
+            honored: ``""`` (same as None), a value starting with ``"."`` (used
+            as the image extension), and ``"/TMP"`` (save to the temp dir).
+            ``False`` means "don't save to file" (requires copy_to_clipboard).
+        image_format: Default image format if not specified in output
         copy_to_clipboard: If True, copy image to system clipboard
 
     Returns:
@@ -659,14 +689,14 @@ def save_frame(
         >>> save_frame("video.mp4", 10)  # Saves frame at 10s  # doctest: +SKIP
         >>> save_frame("video.mp4", -1)  # Saves last frame (frame-based)  # doctest: +SKIP
         >>> save_frame("video.mp4", 100, time_unit="frames")  # Frame 100  # doctest: +SKIP
-        >>> save_frame("video.mp4", 5, saveas=".jpg")  # doctest: +SKIP
-        >>> save_frame("video.mp4", 5, saveas="/TMP")  # doctest: +SKIP
+        >>> save_frame("video.mp4", 5, output=".jpg")  # doctest: +SKIP
+        >>> save_frame("video.mp4", 5, output="/TMP")  # doctest: +SKIP
         >>> save_frame(time_or_frame=3, copy_to_clipboard=True)  # From clipboard  # doctest: +SKIP
-        >>> save_frame(time_or_frame=3, saveas=False, copy_to_clipboard=True)  # Clipboard only  # doctest: +SKIP
+        >>> save_frame(time_or_frame=3, output=False, copy_to_clipboard=True)  # Clipboard only  # doctest: +SKIP
     """
-    if saveas is False and not copy_to_clipboard:
+    if output is False and not copy_to_clipboard:
         raise ValueError(
-            "Must specify at least one output: set saveas or copy_to_clipboard=True"
+            "Must specify at least one output: set output or copy_to_clipboard=True"
         )
 
     if video_src is None:
@@ -684,14 +714,14 @@ def save_frame(
     # Resolve time using the Video's _resolve_time method
     time_seconds = video._resolve_time(time_or_frame, is_start=True)
 
-    # Determine output path based on saveas parameter
+    # Determine output path based on the output parameter
     output_path = None
-    if saveas is False:
+    if output is False:
         output_path = False
-    elif saveas is None or saveas == "":
+    elif output is None or output == "":
         # Auto-generate: video_dir/video_name_frameIdx.ext
         output_path = None  # Let Video.save_frame auto-generate
-    elif saveas == "/TMP":
+    elif output == "/TMP":
         # Save to temporary directory
         temp_dir = tempfile.gettempdir()
         video_name = Path(video_src).stem
@@ -699,17 +729,17 @@ def save_frame(
         output_path = (
             Path(temp_dir) / f"{video_name}_{frame_idx_int:06d}.{image_format}"
         )
-    elif saveas.startswith("."):
+    elif isinstance(output, str) and output.startswith("."):
         # Extension provided: use it as format
-        image_format = saveas[1:]
+        image_format = output[1:]
         output_path = None  # Let Video.save_frame auto-generate with new format
     else:
         # Full path provided
-        output_path = saveas
+        output_path = output
 
     return video.save_frame(
         time_or_frame=time_seconds,
-        saveas=output_path,
+        output=output_path,
         image_format=image_format,
         copy_to_clipboard=copy_to_clipboard,
     )
@@ -719,7 +749,7 @@ def loop_video(
     video_src: str,
     n_loops: int = 2,
     *,
-    saveas: str | None = None,
+    output: Output = None,
     **save_kwargs,
 ) -> Path:
     """
@@ -728,7 +758,8 @@ def loop_video(
     Args:
         video_src: Path to source video
         n_loops: Number of times to repeat the video
-        saveas: Path for output (auto-generated if None)
+        output: Where to put the result — None (save beside the input), a file
+            path, a directory (auto-named), or a callable sink. See mixing.egress.
         **save_kwargs: Additional arguments for video export
 
     Returns:
@@ -736,32 +767,34 @@ def loop_video(
 
     Examples:
         >>> loop_video("intro.mp4", 3)  # Repeat 3 times  # doctest: +SKIP
-        >>> loop_video("short_clip.mp4", 5, saveas="extended.mp4")  # doctest: +SKIP
+        >>> loop_video("short_clip.mp4", 5, output="extended.mp4")  # doctest: +SKIP
     """
     if n_loops < 1:
         raise ValueError(f"n_loops must be at least 1, got {n_loops}")
 
-    output_path = _resolve_output_path(video_src, saveas, f"loop{n_loops}")
+    default_path = _auto_video_path(video_src, f"loop{n_loops}")
 
     # Set default codecs
     _set_default_codecs(save_kwargs)
 
-    # Load video clip
-    with mp.VideoFileClip(video_src) as clip:
-        # Create list of clips to concatenate
-        clips = [clip] * n_loops
+    def _write(output_path: Path) -> None:
+        # Load video clip
+        with mp.VideoFileClip(video_src) as clip:
+            # Create list of clips to concatenate
+            clips = [clip] * n_loops
 
-        # Concatenate
-        looped = mp.concatenate_videoclips(clips)
+            # Concatenate
+            looped = mp.concatenate_videoclips(clips)
 
-        # Write output
-        looped.write_videofile(str(output_path), **save_kwargs)
+            # Write output
+            looped.write_videofile(str(output_path), **save_kwargs)
 
-        # Clean up
-        looped.close()
+            # Clean up
+            looped.close()
 
-    print(f"Saved looped video to: {output_path}")
-    return output_path
+        print(f"Saved looped video to: {output_path}")
+
+    return write_egress(output, default_path=default_path, write=_write)
 
 
 def replace_audio(
@@ -769,7 +802,7 @@ def replace_audio(
     audio_src: str,
     *,
     mix_ratio: float = 1.0,
-    saveas: str | None = None,
+    output: Output = None,
     match_duration: bool = True,
     **save_kwargs,
 ) -> Path:
@@ -781,7 +814,8 @@ def replace_audio(
         audio_src: Path to audio file to add/mix
         mix_ratio: Audio mixing ratio (0.0 = keep only original, 1.0 = replace completely,
                    0.5 = mix both equally). Values between 0 and 1 blend the audio tracks.
-        saveas: Path for output (auto-generated if None)
+        output: Where to put the result — None (save beside the input), a file
+            path, a directory (auto-named), or a callable sink. See mixing.egress.
         match_duration: If True, adjust audio duration to match video
         **save_kwargs: Additional arguments for video export
 
@@ -797,11 +831,35 @@ def replace_audio(
         raise ValueError(f"mix_ratio must be between 0.0 and 1.0, got {mix_ratio}")
 
     audio_name = Path(audio_src).stem
-    output_path = _resolve_output_path(video_src, saveas, f"audio_{audio_name}")
+    default_path = _auto_video_path(video_src, f"audio_{audio_name}")
 
     # Set default codecs
     _set_default_codecs(save_kwargs)
 
+    def _write(output_path: Path) -> None:
+        _replace_audio_write(
+            video_src,
+            audio_src,
+            output_path,
+            mix_ratio=mix_ratio,
+            match_duration=match_duration,
+            **save_kwargs,
+        )
+        print(f"Saved video with audio to: {output_path}")
+
+    return write_egress(output, default_path=default_path, write=_write)
+
+
+def _replace_audio_write(
+    video_src: str,
+    audio_src: str,
+    output_path: Path,
+    *,
+    mix_ratio: float,
+    match_duration: bool,
+    **save_kwargs,
+) -> None:
+    """Perform the actual audio replace/mix and encode to ``output_path``."""
     # Load video and audio
     with mp.VideoFileClip(video_src) as video_clip:
         # Load new audio
@@ -857,14 +915,11 @@ def replace_audio(
             # Write output
             final_clip.write_videofile(str(output_path), **save_kwargs)
 
-    print(f"Saved video with audio to: {output_path}")
-    return output_path
-
 
 def normalize_audio(
     video_src: str,
     *,
-    saveas: str | None = None,
+    output: Output = None,
     **save_kwargs,
 ) -> Path:
     """
@@ -876,7 +931,8 @@ def normalize_audio(
 
     Args:
         video_src: Path to input video file
-        saveas: Optional output path. If None, generates name with suffix
+        output: Where to put the result — None (save beside the input), a file
+            path, a directory (auto-named), or a callable sink. See mixing.egress.
         **save_kwargs: Additional arguments for write_videofile (e.g., codec, audio_codec)
 
     Returns:
@@ -888,36 +944,38 @@ def normalize_audio(
         >>> # Output: lecture_normalized.mp4
 
         >>> # Specify custom output path
-        >>> normalize_audio("interview.mp4", saveas="interview_fixed.mp4")  # doctest: +SKIP
+        >>> normalize_audio("interview.mp4", output="interview_fixed.mp4")  # doctest: +SKIP
     """
-    output_path = _resolve_output_path(video_src, saveas, "normalized")
+    default_path = _auto_video_path(video_src, "normalized")
 
     # Set default codecs
     _set_default_codecs(save_kwargs)
 
-    # Load video and normalize audio
-    with mp.VideoFileClip(str(video_src)) as clip:
-        if clip.audio is not None:
-            # Apply audio normalization
-            from moviepy.audio.fx import AudioNormalize
+    def _write(output_path: Path) -> None:
+        # Load video and normalize audio
+        with mp.VideoFileClip(str(video_src)) as clip:
+            if clip.audio is not None:
+                # Apply audio normalization
+                from moviepy.audio.fx import AudioNormalize
 
-            normalized_audio = clip.audio.with_effects([AudioNormalize()])
-            final_clip = clip.with_audio(normalized_audio)
-        else:
-            # No audio to normalize
-            print(f"Warning: {video_src} has no audio track")
-            final_clip = clip
+                normalized_audio = clip.audio.with_effects([AudioNormalize()])
+                final_clip = clip.with_audio(normalized_audio)
+            else:
+                # No audio to normalize
+                print(f"Warning: {video_src} has no audio track")
+                final_clip = clip
 
-        final_clip.write_videofile(str(output_path), **save_kwargs)
+            final_clip.write_videofile(str(output_path), **save_kwargs)
 
-    print(f"Saved video with normalized audio to: {output_path}")
-    return output_path
+        print(f"Saved video with normalized audio to: {output_path}")
+
+    return write_egress(output, default_path=default_path, write=_write)
 
 
 def assemble_audio_track(
     segments: Sequence[tuple[Optional[str | Path], float]],
     *,
-    saveas: str | Path,
+    output: Output,
     sample_rate: int = 44100,
 ) -> Optional[Path]:
     """Assemble per-segment ``(audio, duration_s)`` pairs into one audio track.
@@ -938,25 +996,26 @@ def assemble_audio_track(
         segments: ordered ``(audio_path_or_None, duration_s)`` pairs, one per
             shot. ``audio_path_or_None`` is a local audio file (any format
             ffmpeg reads) or ``None`` for a silent slot.
-        saveas: output path for the assembled track. Written as WAV
-            (``pcm_s16le``) — universally muxable; a downstream mp4 encode
-            re-encodes to aac.
+        output: Where to put the assembled track — a file path, a directory
+            (auto-named ``audio_track.wav``), or a callable sink. See
+            mixing.egress. Written as WAV (``pcm_s16le``) — universally
+            muxable; a downstream mp4 encode re-encodes to aac. Required: there
+            is no input file to derive a default location from.
         sample_rate: sample rate of the generated silence, in Hz.
 
     Returns:
-        The path to the written track, or ``None`` when no segment carries
-        audio (the track would be wholly silent — callers can skip muxing).
+        The path to the written track (or the sink's return value), or ``None``
+        when no segment carries audio (the track would be wholly silent —
+        nothing is written, callers can skip muxing).
 
     Examples:
         >>> assemble_audio_track(  # doctest: +SKIP
         ...     [("voice1.mp3", 5.0), (None, 3.0), ("voice2.mp3", 4.0)],
-        ...     saveas="film_audio.wav",
+        ...     output="film_audio.wav",
         ... )
     """
     if not any(audio is not None for audio, _ in segments):
         return None
-
-    saveas = Path(saveas)
 
     def _silence(dur: float) -> "mp.AudioArrayClip":
         # 2-channel zero array — matches moviepy's default stereo and avoids
@@ -964,39 +1023,41 @@ def assemble_audio_track(
         n = max(1, int(round(dur * sample_rate)))
         return mp.AudioArrayClip(np.zeros((n, 2), dtype=np.float32), fps=sample_rate)
 
-    sections = []
-    opened: list = []  # keep AudioFileClips alive until concat finishes
-    try:
-        for audio_path, duration in segments:
-            if audio_path is None:
-                sections.append(_silence(duration))
-                continue
-            voice = mp.AudioFileClip(str(audio_path))
-            opened.append(voice)
-            if voice.duration > duration:
-                # Overruns the slot — trim to fit.
-                sections.append(voice.subclipped(0, duration))
-            else:
-                sections.append(voice)
-                pad = duration - voice.duration
-                if pad > 1e-3:
-                    sections.append(_silence(pad))
-        track = mp.concatenate_audioclips(sections)
-        track.write_audiofile(str(saveas), codec="pcm_s16le", logger=None)
-    finally:
-        for clip in opened:
-            try:
-                clip.close()
-            except Exception:
-                pass
-    return saveas
+    def _write(target: Path) -> None:
+        sections = []
+        opened: list = []  # keep AudioFileClips alive until concat finishes
+        try:
+            for audio_path, duration in segments:
+                if audio_path is None:
+                    sections.append(_silence(duration))
+                    continue
+                voice = mp.AudioFileClip(str(audio_path))
+                opened.append(voice)
+                if voice.duration > duration:
+                    # Overruns the slot — trim to fit.
+                    sections.append(voice.subclipped(0, duration))
+                else:
+                    sections.append(voice)
+                    pad = duration - voice.duration
+                    if pad > 1e-3:
+                        sections.append(_silence(pad))
+            track = mp.concatenate_audioclips(sections)
+            track.write_audiofile(str(target), codec="pcm_s16le", logger=None)
+        finally:
+            for clip in opened:
+                try:
+                    clip.close()
+                except Exception:
+                    pass
+
+    return write_egress(output, default_path="audio_track.wav", write=_write)
 
 
 def change_speed(
     video_src: str,
     speed_factor: float,
     *,
-    saveas: str | None = None,
+    output: Output = None,
     **save_kwargs,
 ) -> Path:
     """
@@ -1011,7 +1072,8 @@ def change_speed(
             - > 1.0: speeds up the video (e.g., 2.0 = twice as fast)
             - < 1.0: slows down the video (e.g., 0.5 = half speed)
             - 1.0: no change
-        saveas: Optional output path. If None, generates name with speed suffix
+        output: Where to put the result — None (save beside the input), a file
+            path, a directory (auto-named), or a callable sink. See mixing.egress.
         **save_kwargs: Additional arguments for write_videofile (e.g., codec, fps)
 
     Returns:
@@ -1023,37 +1085,124 @@ def change_speed(
         >>> # Output: action_speed_0.5x.mp4
 
         >>> # Speed up video 2x
-        >>> change_speed("lecture.mp4", 2.0, saveas="fast_lecture.mp4")  # doctest: +SKIP
+        >>> change_speed("lecture.mp4", 2.0, output="fast_lecture.mp4")  # doctest: +SKIP
 
         >>> # Extreme slow motion
         >>> change_speed("jump.mp4", 0.25)  # doctest: +SKIP
         >>> # Output: jump_speed_0.25x.mp4
     """
-    output_path = _resolve_output_path(video_src, saveas, f"speed_{speed_factor}x")
+    default_path = _auto_video_path(video_src, f"speed_{speed_factor}x")
 
     # Set default codecs
     _set_default_codecs(save_kwargs)
 
-    # Load video and change speed
-    with mp.VideoFileClip(str(video_src)) as clip:
-        # Apply speed change (this also affects audio)
-        sped_clip = clip.with_speed_scaled(speed_factor)
+    def _write(output_path: Path) -> None:
+        # Load video and change speed
+        with mp.VideoFileClip(str(video_src)) as clip:
+            # Apply speed change (this also affects audio)
+            sped_clip = clip.with_speed_scaled(speed_factor)
 
-        # Write output
-        sped_clip.write_videofile(str(output_path), **save_kwargs)
+            # Write output
+            sped_clip.write_videofile(str(output_path), **save_kwargs)
 
-        # Clean up
-        sped_clip.close()
+            # Clean up
+            sped_clip.close()
 
-    print(f"Saved {speed_factor}x speed video to: {output_path}")
-    return output_path
+        print(f"Saved {speed_factor}x speed video to: {output_path}")
+
+    return write_egress(output, default_path=default_path, write=_write)
 
 
 # --------------------------------------------------------------------- #
-# Ken Burns pan/zoom rendering (now provided by the `burns` package)
+# Ken Burns pan/zoom rendering (provided by the `burns` package)
 # --------------------------------------------------------------------- #
-# The Ken Burns renderers were extracted into the standalone `burns`
-# package (https://pypi.org/project/burns/). They are re-exported here so
-# they remain part of mixing's video toolkit — `mixing.ken_burns_video`
-# and `mixing.ken_burns_film` are unchanged for callers.
-from burns import ken_burns_video, ken_burns_film, DEFAULT_BURNS_PATH
+# The renderers live in the standalone `burns` package
+# (https://pypi.org/project/burns/). mixing wraps them in thin adapters so
+# they speak the same `output` egress protocol as the rest of the toolkit
+# (burns itself uses ``saveas=``).
+from burns import (
+    ken_burns_video as _burns_ken_burns_video,
+    ken_burns_film as _burns_ken_burns_film,
+    DEFAULT_BURNS_PATH,
+)
+
+
+def ken_burns_video(
+    image,
+    path=DEFAULT_BURNS_PATH,
+    *,
+    duration: float = 2.0,
+    fps: int = 30,
+    output: Output = None,
+    output_size: tuple[int, int] | None = None,
+    **write_kwargs,
+) -> Path:
+    """Render one image into a pan/zoom video (thin wrapper over ``burns``).
+
+    Args:
+        image: path / ``PIL.Image`` / ``np.ndarray``.
+        path: the :class:`burns.BurnsPath` motion spec (defaults to a 2s push-in).
+        duration: clip length in seconds.
+        fps: frames per second.
+        output: Where to put the result — ``None`` (burns auto-names beside the
+            image), a file path, a directory (auto-named), or a callable sink.
+            See :mod:`mixing.egress`.
+        output_size: optional ``(w, h)`` to render at.
+        write_kwargs: forwarded to the ffmpeg write (codec, audio_codec, ...).
+
+    Returns:
+        The ``Path`` written (or the sink's return value).
+    """
+
+    def _render(saveas):
+        return _burns_ken_burns_video(
+            image,
+            path,
+            duration=duration,
+            fps=fps,
+            saveas=saveas,
+            output_size=output_size,
+            **write_kwargs,
+        )
+
+    # output=None defers to burns' own (nice) "beside the image" auto-naming.
+    if output is None:
+        return _render(None)
+    stem = (
+        Path(str(image)).stem if isinstance(image, (str, os.PathLike)) else "ken_burns"
+    )
+    default_path = Path.cwd() / f"{stem}_kenburns.mp4"
+    return write_egress(
+        output, default_path=default_path, write=lambda p: _render(str(p))
+    )
+
+
+def ken_burns_film(
+    panels,
+    *,
+    output: Output,
+    fps: int = 30,
+    audio_path=None,
+    **write_kwargs,
+) -> Path:
+    """Stitch ``(image, BurnsPath, duration_s)`` panels into one film (wraps ``burns``).
+
+    Args:
+        panels: ordered ``(image, BurnsPath, duration_s)`` triples.
+        output: Where to put the film — a file path, a directory (auto-named),
+            or a callable sink. See :mod:`mixing.egress`. Required.
+        fps: frames per second.
+        audio_path: optional pre-built audio track to mux over the film.
+        write_kwargs: forwarded to the ffmpeg write.
+
+    Returns:
+        The ``Path`` written (or the sink's return value).
+    """
+    default_path = Path.cwd() / "ken_burns_film.mp4"
+    return write_egress(
+        output,
+        default_path=default_path,
+        write=lambda p: _burns_ken_burns_film(
+            panels, saveas=str(p), fps=fps, audio_path=audio_path, **write_kwargs
+        ),
+    )

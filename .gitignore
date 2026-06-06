@@ -113,3 +113,6 @@ venv.bak/
 
 # PyCharm
 .idea
+.claude/handoffs/
+.claude/scheduled_tasks.lock
+.claude/scheduled_tasks/

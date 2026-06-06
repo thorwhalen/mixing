@@ -12,6 +12,8 @@ from __future__ import annotations
 import subprocess
 from pathlib import Path
 
+from ..egress import Output, write_egress
+
 PathLike = str | Path
 
 #: Default 16:9 thumbnail/cover resolution (also YouTube's recommended size).
@@ -19,13 +21,18 @@ THUMBNAIL_SIZE = (1280, 720)
 #: Backwards-compatible alias.
 YOUTUBE_THUMB_SIZE = THUMBNAIL_SIZE
 
+#: Fraction of the video duration used for the default frame grab when
+#: ``at_time`` is omitted — 85% lands near the end, typically on the closing
+#: brand/logo shot, which makes a good default thumbnail.
+DEFAULT_FRAME_TIME_FRACTION = 0.85
+
 
 def make_thumbnail(
     video: PathLike,
     *,
     at_time: float | None = None,
     text: str | None = None,
-    saveas: PathLike | None = None,
+    output: Output = None,
     size: tuple[int, int] = THUMBNAIL_SIZE,
 ) -> Path:
     """Create a thumbnail image from a frame of ``video``.
@@ -36,7 +43,9 @@ def make_thumbnail(
             the video duration (typically the closing brand/logo shot).
         text: Optional short overlay text (e.g. the title). Rendered bottom-left
             over a dark gradient band for legibility.
-        saveas: Output image path. Defaults to ``<video-stem>.thumb.jpg``.
+        output: Where to put the result — None (save beside the input as
+            ``<video-stem>.thumb.jpg``), a file path, a directory (auto-named),
+            or a callable sink. See mixing.egress.
         size: Output size (width, height). Defaults to 1280x720.
 
     Returns:
@@ -45,25 +54,23 @@ def make_thumbnail(
     from PIL import Image
 
     video = Path(video)
-    out = (
-        Path(saveas)
-        if saveas
-        else video.with_suffix("").with_name(f"{video.stem}.thumb.jpg")
-    )
+    default_path = video.with_suffix("").with_name(f"{video.stem}.thumb.jpg")
 
     if at_time is None:
-        at_time = 0.85 * _media_duration(video)
+        at_time = DEFAULT_FRAME_TIME_FRACTION * _media_duration(video)
 
-    raw_frame = out.with_suffix(".rawframe.png")
-    _extract_frame(video, at_time, raw_frame)
+    def _write(out: Path) -> None:
+        raw_frame = out.with_suffix(".rawframe.png")
+        _extract_frame(video, at_time, raw_frame)
 
-    img = Image.open(raw_frame).convert("RGB")
-    img = _cover_resize(img, size)
-    if text:
-        _overlay_text(img, text)
-    img.save(out, quality=90)
-    raw_frame.unlink(missing_ok=True)
-    return out
+        img = Image.open(raw_frame).convert("RGB")
+        img = _cover_resize(img, size)
+        if text:
+            _overlay_text(img, text)
+        img.save(out, quality=90)
+        raw_frame.unlink(missing_ok=True)
+
+    return write_egress(output, default_path=default_path, write=_write)
 
 
 def _extract_frame(video: Path, at_time: float, dest: Path) -> Path:

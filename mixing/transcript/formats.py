@@ -5,6 +5,7 @@ from __future__ import annotations
 import re
 from typing import Iterable, Sequence
 
+from mixing.srt import seconds_to_srt_time as fmt_srt_time  # canonical (re-exported)
 from mixing.transcript.fillers import (
     DEFAULT_AUDIO_EVENTS_TO_CUT,
     DEFAULT_FILLER_TOKENS,
@@ -12,15 +13,6 @@ from mixing.transcript.fillers import (
 )
 
 _SENTENCE_ENDINGS_DEFAULT = ".?!"
-
-
-def fmt_srt_time(t: float) -> str:
-    """Format a time in seconds as an SRT timestamp ``HH:MM:SS,mmm``."""
-    ms = int(round(t * 1000))
-    h, ms = divmod(ms, 3600 * 1000)
-    m, ms = divmod(ms, 60 * 1000)
-    s, ms = divmod(ms, 1000)
-    return f"{h:02d}:{m:02d}:{s:02d},{ms:03d}"
 
 
 def words_to_srt(

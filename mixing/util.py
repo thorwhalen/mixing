@@ -134,9 +134,6 @@ def get_path_from_clipboard() -> str:
         f"Tip: Copy the file path directly, not an error message containing it."
     )
 
-    print(f"... File path: {file_path}")
-    return file_path
-
 
 def copy_to_clipboard(data: bytes | str) -> None:
     """
