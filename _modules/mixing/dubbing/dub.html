@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>mixing.dubbing.dub &mdash; mixing 0.0.21 documentation</title>
+  <title>mixing.dubbing.dub &mdash; mixing 0.0.22 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
@@ -14,7 +14,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=a11416ff"></script>
+      <script src="../../../_static/documentation_options.js?v=96ec9c95"></script>
       <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="../../../_static/toggleprompt.js?v=d7ede5d2"></script>
@@ -47,18 +47,20 @@
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing.html">mixing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/_cache.html">mixing._cache</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/_elevenlabs.html">mixing._elevenlabs</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/audio.html">mixing.audio</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/audio/audio_ops.html">mixing.audio.audio_ops</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/audio/audio_util.html">mixing.audio.audio_util</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/audio/audio_widget.html">mixing.audio.audio_widget</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/audio/demo_audio_widget.html">mixing.audio.demo_audio_widget</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/audio/segmentation.html">mixing.audio.segmentation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/audio/test_audio_widget.html">mixing.audio.test_audio_widget</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/chapters.html">mixing.chapters</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/dubbing.html">mixing.dubbing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/dubbing/dub.html">mixing.dubbing.dub</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/dubbing/srt.html">mixing.dubbing.srt</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/dubbing/tts.html">mixing.dubbing.tts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/egress.html">mixing.egress</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/srt.html">mixing.srt</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/transcript.html">mixing.transcript</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/transcript/fillers.html">mixing.transcript.fillers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/transcript/formats.html">mixing.transcript.formats</a></li>
@@ -69,11 +71,9 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/util.html">mixing.util</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video.html">mixing.video</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/_helpers.html">mixing.video._helpers</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/audio_offset_example.html">mixing.video.audio_offset_example</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/genai.html">mixing.video.genai</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/thumbnail.html">mixing.video.thumbnail</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/video_concat.html">mixing.video.video_concat</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/video_files.html">mixing.video.video_files</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/video_gen.html">mixing.video.video_gen</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/video_ops.html">mixing.video.video_ops</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/video_subtitles.html">mixing.video.video_subtitles</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/video_util.html">mixing.video.video_util</a></li>
@@ -150,7 +150,7 @@
 
 
 <div class="viewcode-block" id="dub_video_from_srt">
-<a class="viewcode-back" href="../../../module_docs/mixing/dubbing/dub.html#mixing.dubbing.dub_video_from_srt">[docs]</a>
+<a class="viewcode-back" href="../../../module_docs/mixing/dubbing/dub.html#mixing.dub_video_from_srt">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">dub_video_from_srt</span><span class="p">(</span>
     <span class="n">video</span><span class="p">:</span> <span class="n">PathLike</span><span class="p">,</span>
     <span class="n">srt</span><span class="p">:</span> <span class="n">PathLike</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Cue</span><span class="p">],</span>
@@ -217,6 +217,7 @@
     <span class="p">)</span>
 
     <span class="k">if</span> <span class="n">synth_fn</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+
         <span class="k">def</span><span class="w"> </span><span class="nf">synth_fn</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">dest</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>  <span class="c1"># noqa: E306</span>
             <span class="k">return</span> <span class="n">synthesize_to_file</span><span class="p">(</span>
                 <span class="n">text</span><span class="p">,</span>
@@ -231,7 +232,11 @@
             <span class="p">)</span>
 
     <span class="n">owns_work_dir</span> <span class="o">=</span> <span class="n">work_dir</span> <span class="ow">is</span> <span class="kc">None</span>
-    <span class="n">work</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">work_dir</span><span class="p">)</span> <span class="k">if</span> <span class="n">work_dir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">Path</span><span class="p">(</span><span class="n">tempfile</span><span class="o">.</span><span class="n">mkdtemp</span><span class="p">(</span><span class="n">prefix</span><span class="o">=</span><span class="s2">&quot;mixing_dub_&quot;</span><span class="p">))</span>
+    <span class="n">work</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">Path</span><span class="p">(</span><span class="n">work_dir</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">work_dir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="k">else</span> <span class="n">Path</span><span class="p">(</span><span class="n">tempfile</span><span class="o">.</span><span class="n">mkdtemp</span><span class="p">(</span><span class="n">prefix</span><span class="o">=</span><span class="s2">&quot;mixing_dub_&quot;</span><span class="p">))</span>
+    <span class="p">)</span>
     <span class="n">work</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="n">video_dur</span> <span class="o">=</span> <span class="n">_media_duration</span><span class="p">(</span><span class="n">video</span><span class="p">)</span>
@@ -244,12 +249,12 @@
             <span class="n">video_dur</span><span class="o">=</span><span class="n">video_dur</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">track_path</span> <span class="o">=</span> <span class="n">work</span> <span class="o">/</span> <span class="s2">&quot;narration_track.wav&quot;</span>
-        <span class="n">assemble_audio_track</span><span class="p">(</span><span class="n">segments</span><span class="p">,</span> <span class="n">saveas</span><span class="o">=</span><span class="n">track_path</span><span class="p">)</span>
+        <span class="n">assemble_audio_track</span><span class="p">(</span><span class="n">segments</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="n">track_path</span><span class="p">)</span>
         <span class="n">replace_audio</span><span class="p">(</span>
             <span class="nb">str</span><span class="p">(</span><span class="n">video</span><span class="p">),</span>
             <span class="nb">str</span><span class="p">(</span><span class="n">track_path</span><span class="p">),</span>
             <span class="n">mix_ratio</span><span class="o">=</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">keep_original_audio</span><span class="p">,</span>
-            <span class="n">saveas</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">out_path</span><span class="p">),</span>
+            <span class="n">output</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">out_path</span><span class="p">),</span>
             <span class="n">match_duration</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
         <span class="p">)</span>
     <span class="k">finally</span><span class="p">:</span>
@@ -327,9 +332,13 @@
     <span class="k">if</span> <span class="n">shutil</span><span class="o">.</span><span class="n">which</span><span class="p">(</span><span class="s2">&quot;ffprobe&quot;</span><span class="p">):</span>
         <span class="n">out</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
             <span class="p">[</span>
-                <span class="s2">&quot;ffprobe&quot;</span><span class="p">,</span> <span class="s2">&quot;-v&quot;</span><span class="p">,</span> <span class="s2">&quot;error&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;-show_entries&quot;</span><span class="p">,</span> <span class="s2">&quot;format=duration&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;-of&quot;</span><span class="p">,</span> <span class="s2">&quot;default=noprint_wrappers=1:nokey=1&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;ffprobe&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;-v&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;error&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;-show_entries&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;format=duration&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;-of&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;default=noprint_wrappers=1:nokey=1&quot;</span><span class="p">,</span>
                 <span class="nb">str</span><span class="p">(</span><span class="n">path</span><span class="p">),</span>
             <span class="p">],</span>
             <span class="n">capture_output</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
@@ -349,10 +358,16 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Time-stretch audio by ``factor`` (speed up if &gt;1) via ffmpeg ``atempo``.&quot;&quot;&quot;</span>
     <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
         <span class="p">[</span>
-            <span class="s2">&quot;ffmpeg&quot;</span><span class="p">,</span> <span class="s2">&quot;-y&quot;</span><span class="p">,</span> <span class="s2">&quot;-loglevel&quot;</span><span class="p">,</span> <span class="s2">&quot;error&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;-i&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">in_path</span><span class="p">),</span>
-            <span class="s2">&quot;-filter:a&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;atempo=</span><span class="si">{</span><span class="n">factor</span><span class="si">:</span><span class="s2">.5f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;-vn&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">out_path</span><span class="p">),</span>
+            <span class="s2">&quot;ffmpeg&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;-y&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;-loglevel&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;error&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;-i&quot;</span><span class="p">,</span>
+            <span class="nb">str</span><span class="p">(</span><span class="n">in_path</span><span class="p">),</span>
+            <span class="s2">&quot;-filter:a&quot;</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">&quot;atempo=</span><span class="si">{</span><span class="n">factor</span><span class="si">:</span><span class="s2">.5f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;-vn&quot;</span><span class="p">,</span>
+            <span class="nb">str</span><span class="p">(</span><span class="n">out_path</span><span class="p">),</span>
         <span class="p">],</span>
         <span class="n">check</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="n">capture_output</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>

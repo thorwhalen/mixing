@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>mixing.audio.segmentation &mdash; mixing 0.0.21 documentation</title>
+  <title>mixing.audio.segmentation &mdash; mixing 0.0.22 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
@@ -15,7 +15,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=a11416ff"></script>
+      <script src="../../../_static/documentation_options.js?v=96ec9c95"></script>
       <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="../../../_static/toggleprompt.js?v=d7ede5d2"></script>
@@ -24,8 +24,8 @@
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
-    <link rel="next" title="mixing.audio.test_audio_widget" href="test_audio_widget.html" />
-    <link rel="prev" title="mixing.audio.demo_audio_widget" href="demo_audio_widget.html" /> 
+    <link rel="next" title="mixing.chapters" href="../chapters.html" />
+    <link rel="prev" title="mixing.audio.audio_widget" href="audio_widget.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -50,11 +50,12 @@
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../../mixing.html">mixing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_cache.html">mixing._cache</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_elevenlabs.html">mixing._elevenlabs</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../audio.html">mixing.audio</a></li>
 <li class="toctree-l1"><a class="reference internal" href="audio_ops.html">mixing.audio.audio_ops</a></li>
 <li class="toctree-l1"><a class="reference internal" href="audio_util.html">mixing.audio.audio_util</a></li>
 <li class="toctree-l1"><a class="reference internal" href="audio_widget.html">mixing.audio.audio_widget</a></li>
-<li class="toctree-l1"><a class="reference internal" href="demo_audio_widget.html">mixing.audio.demo_audio_widget</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">mixing.audio.segmentation</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#mixing.audio.segmentation.Segment"><code class="docutils literal notranslate"><span class="pre">Segment</span></code></a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#mixing.audio.segmentation.Segment.start"><code class="docutils literal notranslate"><span class="pre">Segment.start</span></code></a></li>
@@ -75,12 +76,13 @@
 <li class="toctree-l2"><a class="reference internal" href="#mixing.audio.segmentation.segment_by_speech_music"><code class="docutils literal notranslate"><span class="pre">segment_by_speech_music()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="test_audio_widget.html">mixing.audio.test_audio_widget</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../chapters.html">mixing.chapters</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../dubbing.html">mixing.dubbing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../dubbing/dub.html">mixing.dubbing.dub</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../dubbing/srt.html">mixing.dubbing.srt</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../dubbing/tts.html">mixing.dubbing.tts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../egress.html">mixing.egress</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../srt.html">mixing.srt</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../transcript.html">mixing.transcript</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../transcript/fillers.html">mixing.transcript.fillers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../transcript/formats.html">mixing.transcript.formats</a></li>
@@ -91,11 +93,9 @@
 <li class="toctree-l1"><a class="reference internal" href="../util.html">mixing.util</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../video.html">mixing.video</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../video/_helpers.html">mixing.video._helpers</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../video/audio_offset_example.html">mixing.video.audio_offset_example</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../video/genai.html">mixing.video.genai</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../video/thumbnail.html">mixing.video.thumbnail</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../video/video_concat.html">mixing.video.video_concat</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../video/video_files.html">mixing.video.video_files</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../video/video_gen.html">mixing.video.video_gen</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../video/video_ops.html">mixing.video.video_ops</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../video/video_subtitles.html">mixing.video.video_subtitles</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../video/video_util.html">mixing.video.video_util</a></li>
@@ -182,7 +182,7 @@ common timestamp representations.</p></li>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">segs</span> <span class="o">=</span> <span class="n">find_segments</span><span class="p">(</span><span class="s2">&quot;radio.mp3&quot;</span><span class="p">,</span> <span class="n">strategy</span><span class="o">=</span><span class="s2">&quot;speech_music&quot;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># Save them to disk</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">paths</span> <span class="o">=</span> <span class="n">extract_segments</span><span class="p">(</span><span class="s2">&quot;concert.wav&quot;</span><span class="p">,</span> <span class="n">segs</span><span class="p">,</span> <span class="n">output_dir</span><span class="o">=</span><span class="s2">&quot;songs/&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">paths</span> <span class="o">=</span> <span class="n">extract_segments</span><span class="p">(</span><span class="s2">&quot;concert.wav&quot;</span><span class="p">,</span> <span class="n">segs</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="s2">&quot;songs/&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 <dl class="py class">
@@ -261,7 +261,7 @@ common timestamp representations.</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="mixing.audio.segmentation.extract_segments">
-<span class="sig-prename descclassname"><span class="pre">mixing.audio.segmentation.</span></span><span class="sig-name descname"><span class="pre">extract_segments</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">audio</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">AudioSegment</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">segments</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#mixing.audio.segmentation.Segment" title="mixing.audio.segmentation.Segment"><span class="pre">Segment</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name_template</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'{stem}_{idx:03d}{ext}'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">format</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'mp3'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bitrate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'192k'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strategy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'silence'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'energy_novelty'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'self_similarity'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'speech_music'</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#mixing.audio.segmentation.Segment" title="mixing.audio.segmentation.Segment"><span class="pre">Segment</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'silence'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">strategy_kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">Path</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/mixing/audio/segmentation.html#extract_segments"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.audio.segmentation.extract_segments" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">mixing.audio.segmentation.</span></span><span class="sig-name descname"><span class="pre">extract_segments</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">audio</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">AudioSegment</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">segments</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#mixing.audio.segmentation.Segment" title="mixing.audio.segmentation.Segment"><span class="pre">Segment</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">output</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name_template</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'{stem}_{idx:03d}{ext}'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">format</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'mp3'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bitrate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'192k'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strategy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'silence'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'energy_novelty'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'self_similarity'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'speech_music'</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#mixing.audio.segmentation.Segment" title="mixing.audio.segmentation.Segment"><span class="pre">Segment</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'silence'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">strategy_kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">Path</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/mixing/audio/segmentation.html#extract_segments"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.audio.segmentation.extract_segments" title="Link to this definition"></a></dt>
 <dd><p>Save each segment as its own audio file.</p>
 <p>If <code class="docutils literal notranslate"><span class="pre">segments</span></code> is <code class="docutils literal notranslate"><span class="pre">None</span></code>, this calls <a class="reference internal" href="#mixing.audio.segmentation.find_segments" title="mixing.audio.segmentation.find_segments"><code class="xref py py-func docutils literal notranslate"><span class="pre">find_segments()</span></code></a> first using
 <code class="docutils literal notranslate"><span class="pre">strategy</span></code> and <code class="docutils literal notranslate"><span class="pre">strategy_kwargs</span></code>.</p>
@@ -272,7 +272,9 @@ common timestamp representations.</p></li>
 <li><p><strong>segments</strong> – Either a list of <code class="docutils literal notranslate"><span class="pre">Segment</span></code> objects, or a list of
 <code class="docutils literal notranslate"><span class="pre">(start,</span> <span class="pre">end)</span></code> tuples in seconds. If <code class="docutils literal notranslate"><span class="pre">None</span></code>, segments are
 discovered automatically.</p></li>
-<li><p><strong>output_dir</strong> – Directory to write files to (created if missing).
+<li><p><strong>output</strong> – Destination directory to write the per-segment files to
+(created if missing). This multi-file producer treats <code class="docutils literal notranslate"><span class="pre">output</span></code>
+strictly as a directory — one file per segment is written into it.
 Defaults to the source file’s parent, or the current directory
 if <code class="docutils literal notranslate"><span class="pre">audio</span></code> isn’t a path.</p></li>
 <li><p><strong>name_template</strong> – Filename template. Available fields: <code class="docutils literal notranslate"><span class="pre">{stem}</span></code>,
@@ -293,7 +295,7 @@ if <code class="docutils literal notranslate"><span class="pre">audio</span></co
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># Auto-detect and save in one call</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">paths</span> <span class="o">=</span> <span class="n">extract_segments</span><span class="p">(</span>
 <span class="gp">... </span>    <span class="s2">&quot;concert.wav&quot;</span><span class="p">,</span> <span class="n">strategy</span><span class="o">=</span><span class="s2">&quot;self_similarity&quot;</span><span class="p">,</span>
-<span class="gp">... </span>    <span class="n">output_dir</span><span class="o">=</span><span class="s2">&quot;songs/&quot;</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;mp3&quot;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">output</span><span class="o">=</span><span class="s2">&quot;songs/&quot;</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;mp3&quot;</span><span class="p">,</span>
 <span class="gp">... </span>    <span class="n">kernel_seconds</span><span class="o">=</span><span class="mf">14.0</span><span class="p">,</span>
 <span class="gp">... </span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt;</span>
@@ -301,7 +303,7 @@ if <code class="docutils literal notranslate"><span class="pre">audio</span></co
 <span class="gp">&gt;&gt;&gt; </span><span class="n">paths</span> <span class="o">=</span> <span class="n">extract_segments</span><span class="p">(</span>
 <span class="gp">... </span>    <span class="s2">&quot;mix.mp3&quot;</span><span class="p">,</span>
 <span class="gp">... </span>    <span class="n">segments</span><span class="o">=</span><span class="p">[(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">245</span><span class="p">),</span> <span class="p">(</span><span class="mi">247</span><span class="p">,</span> <span class="mi">445</span><span class="p">),</span> <span class="p">(</span><span class="mi">445</span><span class="p">,</span> <span class="mi">600</span><span class="p">)],</span>
-<span class="gp">... </span>    <span class="n">output_dir</span><span class="o">=</span><span class="s2">&quot;tracks/&quot;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">output</span><span class="o">=</span><span class="s2">&quot;tracks/&quot;</span><span class="p">,</span>
 <span class="gp">... </span><span class="p">)</span>
 </pre></div>
 </div>
@@ -500,8 +502,8 @@ thresholding. Larger = fewer, longer segments.</p></li>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="demo_audio_widget.html" class="btn btn-neutral float-left" title="mixing.audio.demo_audio_widget" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="test_audio_widget.html" class="btn btn-neutral float-right" title="mixing.audio.test_audio_widget" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="audio_widget.html" class="btn btn-neutral float-left" title="mixing.audio.audio_widget" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../chapters.html" class="btn btn-neutral float-right" title="mixing.chapters" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

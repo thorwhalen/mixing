@@ -1,0 +1,264 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>mixing.egress &mdash; mixing 0.0.22 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=96ec9c95"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../../_static/toggleprompt.js?v=d7ede5d2"></script>
+      <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="mixing.srt" href="srt.html" />
+    <link rel="prev" title="mixing.dubbing.tts" href="dubbing/tts.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            mixing
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../mixing.html">mixing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="_cache.html">mixing._cache</a></li>
+<li class="toctree-l1"><a class="reference internal" href="_elevenlabs.html">mixing._elevenlabs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="audio.html">mixing.audio</a></li>
+<li class="toctree-l1"><a class="reference internal" href="audio/audio_ops.html">mixing.audio.audio_ops</a></li>
+<li class="toctree-l1"><a class="reference internal" href="audio/audio_util.html">mixing.audio.audio_util</a></li>
+<li class="toctree-l1"><a class="reference internal" href="audio/audio_widget.html">mixing.audio.audio_widget</a></li>
+<li class="toctree-l1"><a class="reference internal" href="audio/segmentation.html">mixing.audio.segmentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="chapters.html">mixing.chapters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dubbing.html">mixing.dubbing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dubbing/dub.html">mixing.dubbing.dub</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dubbing/srt.html">mixing.dubbing.srt</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dubbing/tts.html">mixing.dubbing.tts</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">mixing.egress</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#mixing.egress.Output"><code class="docutils literal notranslate"><span class="pre">Output</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mixing.egress.deliver"><code class="docutils literal notranslate"><span class="pre">deliver()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mixing.egress.is_path_output"><code class="docutils literal notranslate"><span class="pre">is_path_output()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mixing.egress.is_sink"><code class="docutils literal notranslate"><span class="pre">is_sink()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mixing.egress.resolve_output_path"><code class="docutils literal notranslate"><span class="pre">resolve_output_path()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mixing.egress.write_egress"><code class="docutils literal notranslate"><span class="pre">write_egress()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="srt.html">mixing.srt</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transcript.html">mixing.transcript</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transcript/fillers.html">mixing.transcript.fillers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transcript/formats.html">mixing.transcript.formats</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transcript/media.html">mixing.transcript.media</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transcript/persist.html">mixing.transcript.persist</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transcript/pipeline.html">mixing.transcript.pipeline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transcript/scribe.html">mixing.transcript.scribe</a></li>
+<li class="toctree-l1"><a class="reference internal" href="util.html">mixing.util</a></li>
+<li class="toctree-l1"><a class="reference internal" href="video.html">mixing.video</a></li>
+<li class="toctree-l1"><a class="reference internal" href="video/_helpers.html">mixing.video._helpers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="video/genai.html">mixing.video.genai</a></li>
+<li class="toctree-l1"><a class="reference internal" href="video/thumbnail.html">mixing.video.thumbnail</a></li>
+<li class="toctree-l1"><a class="reference internal" href="video/video_concat.html">mixing.video.video_concat</a></li>
+<li class="toctree-l1"><a class="reference internal" href="video/video_ops.html">mixing.video.video_ops</a></li>
+<li class="toctree-l1"><a class="reference internal" href="video/video_subtitles.html">mixing.video.video_subtitles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="video/video_util.html">mixing.video.video_util</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">mixing</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">mixing.egress</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/module_docs/mixing/egress.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-mixing.egress">
+<span id="mixing-egress"></span><h1>mixing.egress<a class="headerlink" href="#module-mixing.egress" title="Link to this heading"></a></h1>
+<p>Canonical <em>egress</em>: route a produced result to its destination.</p>
+<p>Across <code class="docutils literal notranslate"><span class="pre">mixing</span></code>, every result-producing function takes a single <code class="docutils literal notranslate"><span class="pre">output</span></code>
+parameter whose <strong>role</strong> is constant — “what to do with the result” — while its
+<strong>type</strong> is open:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p><code class="docutils literal notranslate"><span class="pre">output</span></code> value</p></th>
+<th class="head"><p>behavior</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">None</span></code></p></td>
+<td><p>return the in-memory result (object producers) or
+save next to the input (file producers); see below</p></td>
+</tr>
+<tr class="row-odd"><td><p>a <strong>file path</strong></p></td>
+<td><p>write the result there; return the <code class="docutils literal notranslate"><span class="pre">Path</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>a <strong>directory</strong></p></td>
+<td><p>write with an auto-derived name; return the <code class="docutils literal notranslate"><span class="pre">Path</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>a <strong>callable</strong></p></td>
+<td><p>return <code class="docutils literal notranslate"><span class="pre">output(result)</span></code> — the general escape hatch</p></td>
+</tr>
+</tbody>
+</table>
+<p>There are two flavors of producer, modeled by two helpers:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="#mixing.egress.deliver" title="mixing.egress.deliver"><code class="xref py py-func docutils literal notranslate"><span class="pre">deliver()</span></code></a> — <em>object-first</em>: <code class="docutils literal notranslate"><span class="pre">output=None</span></code> returns the in-memory
+object (e.g. an <a class="reference internal" href="audio.html#mixing.audio.Audio" title="mixing.audio.Audio"><code class="xref py py-class docutils literal notranslate"><span class="pre">Audio</span></code></a>). Used by editing functions that
+build a value you may want to keep chaining.</p></li>
+<li><p><a class="reference internal" href="#mixing.egress.write_egress" title="mixing.egress.write_egress"><code class="xref py py-func docutils literal notranslate"><span class="pre">write_egress()</span></code></a> — <em>file-first</em>: <code class="docutils literal notranslate"><span class="pre">output=None</span></code> saves to a default path
+(typically beside the input) and returns it. Used by file→file operations
+whose whole point is to produce a file.</p></li>
+</ul>
+<p>Both accept the same <code class="docutils literal notranslate"><span class="pre">output</span></code> forms, so callers learn one mental model.
+<code class="docutils literal notranslate"><span class="pre">Output</span></code> is the shared type alias.</p>
+<dl class="py data">
+<dt class="sig sig-object py" id="mixing.egress.Output">
+<span class="sig-prename descclassname"><span class="pre">mixing.egress.</span></span><span class="sig-name descname"><span class="pre">Output</span></span><a class="headerlink" href="#mixing.egress.Output" title="Link to this definition"></a></dt>
+<dd><p>nothing, a filesystem path/dir, or a result-consuming sink.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>An egress target</p>
+</dd>
+</dl>
+<p>alias of <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code> | <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code> | <code class="xref py py-class docutils literal notranslate"><span class="pre">os.PathLike[str]</span></code> | <code class="xref py py-class docutils literal notranslate"><span class="pre">Callable</span></code>[[<code class="xref py py-obj docutils literal notranslate"><span class="pre">Any</span></code>], <code class="xref py py-obj docutils literal notranslate"><span class="pre">Any</span></code>]</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mixing.egress.deliver">
+<span class="sig-prename descclassname"><span class="pre">mixing.egress.</span></span><span class="sig-name descname"><span class="pre">deliver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">result</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">None</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">PathLike</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">write</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Path</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="reference internal" href="../../_modules/mixing/egress.html#deliver"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.egress.deliver" title="Link to this definition"></a></dt>
+<dd><p>Object-first egress: route an in-memory <code class="docutils literal notranslate"><span class="pre">result</span></code> to <code class="docutils literal notranslate"><span class="pre">output</span></code>.</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">None</span></code> → return <code class="docutils literal notranslate"><span class="pre">result</span></code> unchanged (no I/O).</p></li>
+<li><p>sink callable → return <code class="docutils literal notranslate"><span class="pre">output(result)</span></code>.</p></li>
+<li><p>path/dir → <code class="docutils literal notranslate"><span class="pre">write(result,</span> <span class="pre">path)</span></code> then return the <code class="docutils literal notranslate"><span class="pre">Path</span></code>.</p></li>
+</ul>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>result</strong> – the produced in-memory value (e.g. an <code class="docutils literal notranslate"><span class="pre">Audio</span></code>).</p></li>
+<li><p><strong>output</strong> – the egress target (see module docstring).</p></li>
+<li><p><strong>write</strong> – <code class="docutils literal notranslate"><span class="pre">write(result,</span> <span class="pre">path)</span></code> persists <code class="docutils literal notranslate"><span class="pre">result</span></code> to <code class="docutils literal notranslate"><span class="pre">path</span></code>.</p></li>
+<li><p><strong>default_name</strong> – filename to use when <code class="docutils literal notranslate"><span class="pre">output</span></code> is a directory.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mixing.egress.is_path_output">
+<span class="sig-prename descclassname"><span class="pre">mixing.egress.</span></span><span class="sig-name descname"><span class="pre">is_path_output</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">output</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">object</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="../../_modules/mixing/egress.html#is_path_output"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.egress.is_path_output" title="Link to this definition"></a></dt>
+<dd><p>True if <code class="docutils literal notranslate"><span class="pre">output</span></code> denotes a filesystem path (<code class="docutils literal notranslate"><span class="pre">str</span></code> / <code class="docutils literal notranslate"><span class="pre">os.PathLike</span></code>).</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mixing.egress.is_sink">
+<span class="sig-prename descclassname"><span class="pre">mixing.egress.</span></span><span class="sig-name descname"><span class="pre">is_sink</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">output</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">object</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="../../_modules/mixing/egress.html#is_sink"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.egress.is_sink" title="Link to this definition"></a></dt>
+<dd><p>True if <code class="docutils literal notranslate"><span class="pre">output</span></code> is a result-consuming callable (not a path).</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mixing.egress.resolve_output_path">
+<span class="sig-prename descclassname"><span class="pre">mixing.egress.</span></span><span class="sig-name descname"><span class="pre">resolve_output_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">output</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">PathLike</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">default_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Path</span></span></span><a class="reference internal" href="../../_modules/mixing/egress.html#resolve_output_path"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.egress.resolve_output_path" title="Link to this definition"></a></dt>
+<dd><p>Resolve a path/dir <code class="docutils literal notranslate"><span class="pre">output</span></code> to a concrete file <code class="docutils literal notranslate"><span class="pre">Path</span></code> (parents created).</p>
+<p>A directory <code class="docutils literal notranslate"><span class="pre">output</span></code> (existing, or with a trailing separator) is joined
+with <code class="docutils literal notranslate"><span class="pre">default_name</span></code>. Only call this when <code class="docutils literal notranslate"><span class="pre">output</span></code> is a path — not
+<code class="docutils literal notranslate"><span class="pre">None</span></code> and not a sink.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mixing.egress.write_egress">
+<span class="sig-prename descclassname"><span class="pre">mixing.egress.</span></span><span class="sig-name descname"><span class="pre">write_egress</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">output</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">None</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">PathLike</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">default_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">PathLike</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">write</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">Path</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="reference internal" href="../../_modules/mixing/egress.html#write_egress"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.egress.write_egress" title="Link to this definition"></a></dt>
+<dd><p>File-first egress: for operations whose primary effect is writing a file.</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">None</span></code> → write to <code class="docutils literal notranslate"><span class="pre">default_path</span></code> (e.g. beside the input) and return it.</p></li>
+<li><p>sink callable → write to <code class="docutils literal notranslate"><span class="pre">default_path</span></code>, then return <code class="docutils literal notranslate"><span class="pre">output(path)</span></code>.</p></li>
+<li><p>path/dir → write to that file (dir → <code class="docutils literal notranslate"><span class="pre">default_path</span></code>’s name inside it).</p></li>
+</ul>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>output</strong> – the egress target (see module docstring).</p></li>
+<li><p><strong>default_path</strong> – where to write when <code class="docutils literal notranslate"><span class="pre">output</span></code> is <code class="docutils literal notranslate"><span class="pre">None</span></code> / a sink, and
+the source of the auto filename when <code class="docutils literal notranslate"><span class="pre">output</span></code> is a directory.</p></li>
+<li><p><strong>write</strong> – <code class="docutils literal notranslate"><span class="pre">write(path)</span></code> performs the actual encode to <code class="docutils literal notranslate"><span class="pre">path</span></code>.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="dubbing/tts.html" class="btn btn-neutral float-left" title="mixing.dubbing.tts" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="srt.html" class="btn btn-neutral float-right" title="mixing.srt" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright NO COPYRIGHT.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,4 @@
+mixing.video.genai
+==================
+.. automodule:: mixing.video.genai
+   :members:

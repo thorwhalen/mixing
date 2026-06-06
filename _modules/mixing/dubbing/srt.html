@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>mixing.dubbing.srt &mdash; mixing 0.0.21 documentation</title>
+  <title>mixing.dubbing.srt &mdash; mixing 0.0.22 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
@@ -14,7 +14,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=a11416ff"></script>
+      <script src="../../../_static/documentation_options.js?v=96ec9c95"></script>
       <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="../../../_static/toggleprompt.js?v=d7ede5d2"></script>
@@ -47,18 +47,20 @@
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing.html">mixing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/_cache.html">mixing._cache</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/_elevenlabs.html">mixing._elevenlabs</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/audio.html">mixing.audio</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/audio/audio_ops.html">mixing.audio.audio_ops</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/audio/audio_util.html">mixing.audio.audio_util</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/audio/audio_widget.html">mixing.audio.audio_widget</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/audio/demo_audio_widget.html">mixing.audio.demo_audio_widget</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/audio/segmentation.html">mixing.audio.segmentation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/audio/test_audio_widget.html">mixing.audio.test_audio_widget</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/chapters.html">mixing.chapters</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/dubbing.html">mixing.dubbing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/dubbing/dub.html">mixing.dubbing.dub</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/dubbing/srt.html">mixing.dubbing.srt</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/dubbing/tts.html">mixing.dubbing.tts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/egress.html">mixing.egress</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/srt.html">mixing.srt</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/transcript.html">mixing.transcript</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/transcript/fillers.html">mixing.transcript.fillers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/transcript/formats.html">mixing.transcript.formats</a></li>
@@ -69,11 +71,9 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/util.html">mixing.util</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video.html">mixing.video</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/_helpers.html">mixing.video._helpers</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/audio_offset_example.html">mixing.video.audio_offset_example</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/genai.html">mixing.video.genai</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/thumbnail.html">mixing.video.thumbnail</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/video_concat.html">mixing.video.video_concat</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/video_files.html">mixing.video.video_files</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/video_gen.html">mixing.video.video_gen</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/video_ops.html">mixing.video.video_ops</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/video_subtitles.html">mixing.video.video_subtitles</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/video_util.html">mixing.video.video_util</a></li>
@@ -104,114 +104,41 @@
            <div itemprop="articleBody">
              
   <h1>Source code for mixing.dubbing.srt</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;SRT subtitle parsing, serialization, and translation.</span>
+<span></span><span class="sd">&quot;&quot;&quot;SRT translation for dubbing — built on the canonical :mod:`mixing.srt`.</span>
 
-<span class="sd">The transcript side of :mod:`mixing` *generates* SRT from word timestamps</span>
-<span class="sd">(:func:`mixing.transcript.words_to_srt`); this module reads it back into</span>
-<span class="sd">structured cues, writes cues out again, and translates the cue text into</span>
-<span class="sd">another language while preserving timings.</span>
+<span class="sd">SRT parsing/serialization and the :class:`~mixing.srt.Cue` model live in</span>
+<span class="sd">:mod:`mixing.srt`; this module re-exports them and adds the dubbing-specific</span>
+<span class="sd">piece: translating cue *text* into another language while preserving timings.</span>
 
-<span class="sd">Translation is pluggable: pass any ``translate_fn`` that maps a list of</span>
-<span class="sd">strings to a list of the same length. The default uses an LLM via the</span>
-<span class="sd">``aix`` package (provider-agnostic) when it is importable.</span>
+<span class="sd">Translation is pluggable: pass any ``translate_fn`` that maps a list of strings</span>
+<span class="sd">to a list of the same length. The default uses an LLM via the ``aix`` package</span>
+<span class="sd">(provider-agnostic) when it is importable.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Sequence</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Sequence</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">mixing.transcript.formats</span><span class="w"> </span><span class="kn">import</span> <span class="n">fmt_srt_time</span>
+<span class="c1"># Canonical SRT primitives (re-exported for backward compatibility).</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mixing.srt</span><span class="w"> </span><span class="kn">import</span> <span class="n">Cue</span><span class="p">,</span> <span class="n">dump_srt</span><span class="p">,</span> <span class="n">parse_srt</span><span class="p">,</span> <span class="n">srt_time_to_seconds</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;Cue&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;parse_srt&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;dump_srt&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;srt_time_to_seconds&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;TranslateFn&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;translate_srt&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;default_translate_fn&quot;</span><span class="p">,</span>
+<span class="p">]</span>
 
 <span class="c1">#: A translator maps (texts, target_language, source_language) -&gt; texts.</span>
-<span class="n">TranslateFn</span> <span class="o">=</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="nb">str</span><span class="p">,</span> <span class="s2">&quot;str | None&quot;</span><span class="p">],</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span>
-
-<span class="n">_TIME_RE</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
-    <span class="sa">r</span><span class="s2">&quot;(\d{1,2}):(\d</span><span class="si">{2}</span><span class="s2">):(\d</span><span class="si">{2}</span><span class="s2">)[,.](\d{1,3})\s*--&gt;\s*&quot;</span>
-    <span class="sa">r</span><span class="s2">&quot;(\d{1,2}):(\d</span><span class="si">{2}</span><span class="s2">):(\d</span><span class="si">{2}</span><span class="s2">)[,.](\d{1,3})&quot;</span>
-<span class="p">)</span>
-
-
-<div class="viewcode-block" id="Cue">
-<a class="viewcode-back" href="../../../module_docs/mixing/dubbing/srt.html#mixing.dubbing.Cue">[docs]</a>
-<span class="nd">@dataclass</span>
-<span class="k">class</span><span class="w"> </span><span class="nc">Cue</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;One SRT subtitle cue.</span>
-
-<span class="sd">    Attributes:</span>
-<span class="sd">        index: 1-based cue number.</span>
-<span class="sd">        start: Start time in seconds.</span>
-<span class="sd">        end: End time in seconds.</span>
-<span class="sd">        text: Cue text (may contain embedded newlines).</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="n">index</span><span class="p">:</span> <span class="nb">int</span>
-    <span class="n">start</span><span class="p">:</span> <span class="nb">float</span>
-    <span class="n">end</span><span class="p">:</span> <span class="nb">float</span>
-    <span class="n">text</span><span class="p">:</span> <span class="nb">str</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">duration</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Cue duration in seconds (never negative).&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="nb">max</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">end</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">start</span><span class="p">)</span></div>
-
-
-
-<div class="viewcode-block" id="srt_time_to_seconds">
-<a class="viewcode-back" href="../../../module_docs/mixing/dubbing/srt.html#mixing.dubbing.srt_time_to_seconds">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">srt_time_to_seconds</span><span class="p">(</span><span class="n">s</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Parse an ``HH:MM:SS,mmm`` (or ``.mmm``) SRT timestamp to seconds.&quot;&quot;&quot;</span>
-    <span class="n">h</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="n">sec</span><span class="p">,</span> <span class="n">ms</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;[:,.]&quot;</span><span class="p">,</span> <span class="n">s</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
-    <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">h</span><span class="p">)</span> <span class="o">*</span> <span class="mi">3600</span> <span class="o">+</span> <span class="nb">int</span><span class="p">(</span><span class="n">m</span><span class="p">)</span> <span class="o">*</span> <span class="mi">60</span> <span class="o">+</span> <span class="nb">int</span><span class="p">(</span><span class="n">sec</span><span class="p">)</span> <span class="o">+</span> <span class="nb">int</span><span class="p">(</span><span class="n">ms</span><span class="o">.</span><span class="n">ljust</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="s2">&quot;0&quot;</span><span class="p">))</span> <span class="o">/</span> <span class="mf">1000.0</span></div>
-
-
-
-<div class="viewcode-block" id="parse_srt">
-<a class="viewcode-back" href="../../../module_docs/mixing/dubbing/srt.html#mixing.dubbing.parse_srt">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">parse_srt</span><span class="p">(</span><span class="n">srt_text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Cue</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Parse SRT text into a list of :class:`Cue` objects.</span>
-
-<span class="sd">    Tolerant of blank-line spacing variations and of either ``,`` or ``.``</span>
-<span class="sd">    as the millisecond separator. Cues without a valid time line are skipped.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">cues</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Cue</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="n">blocks</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\n\s*\n&quot;</span><span class="p">,</span> <span class="n">srt_text</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
-    <span class="k">for</span> <span class="n">block</span> <span class="ow">in</span> <span class="n">blocks</span><span class="p">:</span>
-        <span class="n">lines</span> <span class="o">=</span> <span class="p">[</span><span class="n">ln</span> <span class="k">for</span> <span class="n">ln</span> <span class="ow">in</span> <span class="n">block</span><span class="o">.</span><span class="n">splitlines</span><span class="p">()</span> <span class="k">if</span> <span class="n">ln</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">!=</span> <span class="s2">&quot;&quot;</span><span class="p">]</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">lines</span><span class="p">:</span>
-            <span class="k">continue</span>
-        <span class="c1"># The first line may be the numeric index; the time line is the one</span>
-        <span class="c1"># that matches _TIME_RE (usually line 0 or 1).</span>
-        <span class="n">time_idx</span> <span class="o">=</span> <span class="nb">next</span><span class="p">((</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">ln</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span> <span class="k">if</span> <span class="n">_TIME_RE</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">ln</span><span class="p">)),</span> <span class="kc">None</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">time_idx</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">continue</span>
-        <span class="n">m</span> <span class="o">=</span> <span class="n">_TIME_RE</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">lines</span><span class="p">[</span><span class="n">time_idx</span><span class="p">])</span>
-        <span class="n">start</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">m</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">*</span> <span class="mi">3600</span> <span class="o">+</span> <span class="nb">int</span><span class="p">(</span><span class="n">m</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span> <span class="o">*</span> <span class="mi">60</span> <span class="o">+</span> <span class="nb">int</span><span class="p">(</span><span class="n">m</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span> <span class="o">+</span> <span class="nb">int</span><span class="p">(</span><span class="n">m</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span><span class="o">.</span><span class="n">ljust</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="s2">&quot;0&quot;</span><span class="p">))</span> <span class="o">/</span> <span class="mf">1000.0</span>
-        <span class="n">end</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">m</span><span class="p">[</span><span class="mi">5</span><span class="p">])</span> <span class="o">*</span> <span class="mi">3600</span> <span class="o">+</span> <span class="nb">int</span><span class="p">(</span><span class="n">m</span><span class="p">[</span><span class="mi">6</span><span class="p">])</span> <span class="o">*</span> <span class="mi">60</span> <span class="o">+</span> <span class="nb">int</span><span class="p">(</span><span class="n">m</span><span class="p">[</span><span class="mi">7</span><span class="p">])</span> <span class="o">+</span> <span class="nb">int</span><span class="p">(</span><span class="n">m</span><span class="p">[</span><span class="mi">8</span><span class="p">]</span><span class="o">.</span><span class="n">ljust</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="s2">&quot;0&quot;</span><span class="p">))</span> <span class="o">/</span> <span class="mf">1000.0</span>
-        <span class="n">idx_line</span> <span class="o">=</span> <span class="n">lines</span><span class="p">[</span><span class="n">time_idx</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="n">time_idx</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
-        <span class="n">index</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">idx_line</span><span class="p">)</span> <span class="k">if</span> <span class="n">idx_line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">isdigit</span><span class="p">()</span> <span class="k">else</span> <span class="nb">len</span><span class="p">(</span><span class="n">cues</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
-        <span class="n">text</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">[</span><span class="n">time_idx</span> <span class="o">+</span> <span class="mi">1</span> <span class="p">:])</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
-        <span class="n">cues</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Cue</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="n">index</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="n">end</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="n">text</span><span class="p">))</span>
-    <span class="k">return</span> <span class="n">cues</span></div>
-
-
-
-<div class="viewcode-block" id="dump_srt">
-<a class="viewcode-back" href="../../../module_docs/mixing/dubbing/srt.html#mixing.dubbing.dump_srt">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">dump_srt</span><span class="p">(</span><span class="n">cues</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Cue</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Serialize cues back to SRT text, renumbering from 1.&quot;&quot;&quot;</span>
-    <span class="n">parts</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">cues</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span>
-        <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="se">\n</span><span class="si">{</span><span class="n">fmt_srt_time</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">start</span><span class="p">)</span><span class="si">}</span><span class="s2"> --&gt; </span><span class="si">{</span><span class="n">fmt_srt_time</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">end</span><span class="p">)</span><span class="si">}</span><span class="se">\n</span><span class="si">{</span><span class="n">c</span><span class="o">.</span><span class="n">text</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
-        <span class="p">)</span>
-    <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span></div>
-
+<span class="n">TranslateFn</span> <span class="o">=</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="nb">str</span><span class="p">,</span> <span class="s2">&quot;str | None&quot;</span><span class="p">],</span> <span class="s2">&quot;list[str]&quot;</span><span class="p">]</span>
 
 
 <div class="viewcode-block" id="translate_srt">
-<a class="viewcode-back" href="../../../module_docs/mixing/dubbing/srt.html#mixing.dubbing.translate_srt">[docs]</a>
+<a class="viewcode-back" href="../../../module_docs/mixing/dubbing/srt.html#mixing.translate_srt">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">translate_srt</span><span class="p">(</span>
     <span class="n">srt</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Cue</span><span class="p">],</span>
     <span class="n">target_language</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -222,19 +149,19 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Translate the cue text of an SRT to ``target_language``, keeping timings.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        srt: SRT text or a list of :class:`Cue` objects.</span>
+<span class="sd">        srt: SRT text or a list of :class:`~mixing.srt.Cue` objects.</span>
 <span class="sd">        target_language: Human-readable target language (e.g. ``&quot;French&quot;``).</span>
 <span class="sd">        source_language: Optional source language hint.</span>
 <span class="sd">        translate_fn: A callable ``(texts, target_language, source_language)</span>
-<span class="sd">            -&gt; list[str]`` returning one translation per input text, in</span>
-<span class="sd">            order. Defaults to :func:`default_translate_fn` (LLM-backed).</span>
+<span class="sd">            -&gt; list[str]`` returning one translation per input text, in order.</span>
+<span class="sd">            Defaults to :func:`default_translate_fn` (LLM-backed).</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        Translated SRT text with the original cue timings.</span>
 
 <span class="sd">    Raises:</span>
-<span class="sd">        ValueError: The translator returned a different number of segments</span>
-<span class="sd">            than it was given.</span>
+<span class="sd">        ValueError: The translator returned a different number of segments than</span>
+<span class="sd">            it was given.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">cues</span> <span class="o">=</span> <span class="n">parse_srt</span><span class="p">(</span><span class="n">srt</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">srt</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="nb">list</span><span class="p">(</span><span class="n">srt</span><span class="p">)</span>
     <span class="n">translate_fn</span> <span class="o">=</span> <span class="n">translate_fn</span> <span class="ow">or</span> <span class="n">default_translate_fn</span>
@@ -254,7 +181,7 @@
 
 
 <div class="viewcode-block" id="default_translate_fn">
-<a class="viewcode-back" href="../../../module_docs/mixing/dubbing/srt.html#mixing.dubbing.default_translate_fn">[docs]</a>
+<a class="viewcode-back" href="../../../module_docs/mixing/dubbing/srt.html#mixing.default_translate_fn">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">default_translate_fn</span><span class="p">(</span>
     <span class="n">texts</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
     <span class="n">target_language</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -265,9 +192,8 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;LLM-backed translator (segment-count preserving) using ``aix.chat``.</span>
 
 <span class="sd">    Translates all segments in a single call, returning a JSON array so the</span>
-<span class="sd">    one-to-one mapping with the input cues is preserved. Falls back to a</span>
-<span class="sd">    clear error if ``aix`` is not importable — pass your own ``translate_fn``</span>
-<span class="sd">    in that case.</span>
+<span class="sd">    one-to-one mapping with the input cues is preserved. Falls back to a clear</span>
+<span class="sd">    error if ``aix`` is not importable — pass your own ``translate_fn`` then.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">aix</span><span class="w"> </span><span class="kn">import</span> <span class="n">chat</span>  <span class="c1"># provider-agnostic LLM interface</span>
@@ -300,11 +226,9 @@
     <span class="kn">import</span><span class="w"> </span><span class="nn">json</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">_json</span>
 
     <span class="n">text</span> <span class="o">=</span> <span class="n">raw</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
-    <span class="c1"># Strip code fences if present.</span>
     <span class="k">if</span> <span class="n">text</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;```&quot;</span><span class="p">):</span>
         <span class="n">text</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^```[a-zA-Z]*\n?&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span>
         <span class="n">text</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\n?```$&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
-    <span class="c1"># Grab the outermost [...] if there&#39;s surrounding prose.</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">text</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;[&quot;</span><span class="p">):</span>
         <span class="n">m</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\[.*\]&quot;</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">DOTALL</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">m</span><span class="p">:</span>

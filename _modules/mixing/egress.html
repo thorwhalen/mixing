@@ -1,0 +1,290 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>mixing.egress &mdash; mixing 0.0.22 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=96ec9c95"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../../_static/toggleprompt.js?v=d7ede5d2"></script>
+      <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            mixing
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/mixing.html">mixing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/mixing/_cache.html">mixing._cache</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/mixing/_elevenlabs.html">mixing._elevenlabs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/mixing/audio.html">mixing.audio</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/mixing/audio/audio_ops.html">mixing.audio.audio_ops</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/mixing/audio/audio_util.html">mixing.audio.audio_util</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/mixing/audio/audio_widget.html">mixing.audio.audio_widget</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/mixing/audio/segmentation.html">mixing.audio.segmentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/mixing/chapters.html">mixing.chapters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/mixing/dubbing.html">mixing.dubbing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/mixing/dubbing/dub.html">mixing.dubbing.dub</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/mixing/dubbing/srt.html">mixing.dubbing.srt</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/mixing/dubbing/tts.html">mixing.dubbing.tts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/mixing/egress.html">mixing.egress</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/mixing/srt.html">mixing.srt</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/mixing/transcript.html">mixing.transcript</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/mixing/transcript/fillers.html">mixing.transcript.fillers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/mixing/transcript/formats.html">mixing.transcript.formats</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/mixing/transcript/media.html">mixing.transcript.media</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/mixing/transcript/persist.html">mixing.transcript.persist</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/mixing/transcript/pipeline.html">mixing.transcript.pipeline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/mixing/transcript/scribe.html">mixing.transcript.scribe</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/mixing/util.html">mixing.util</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/mixing/video.html">mixing.video</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/mixing/video/_helpers.html">mixing.video._helpers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/mixing/video/genai.html">mixing.video.genai</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/mixing/video/thumbnail.html">mixing.video.thumbnail</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/mixing/video/video_concat.html">mixing.video.video_concat</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/mixing/video/video_ops.html">mixing.video.video_ops</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/mixing/video/video_subtitles.html">mixing.video.video_subtitles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/mixing/video/video_util.html">mixing.video.video_util</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">mixing</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">mixing.egress</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for mixing.egress</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Canonical *egress*: route a produced result to its destination.</span>
+
+<span class="sd">Across ``mixing``, every result-producing function takes a single ``output``</span>
+<span class="sd">parameter whose **role** is constant — &quot;what to do with the result&quot; — while its</span>
+<span class="sd">**type** is open:</span>
+
+<span class="sd">====================  ===================================================</span>
+<span class="sd">``output`` value      behavior</span>
+<span class="sd">====================  ===================================================</span>
+<span class="sd">``None``              return the in-memory result (object producers) or</span>
+<span class="sd">                      save next to the input (file producers); see below</span>
+<span class="sd">a **file path**       write the result there; return the ``Path``</span>
+<span class="sd">a **directory**       write with an auto-derived name; return the ``Path``</span>
+<span class="sd">a **callable**        return ``output(result)`` — the general escape hatch</span>
+<span class="sd">====================  ===================================================</span>
+
+<span class="sd">There are two flavors of producer, modeled by two helpers:</span>
+
+<span class="sd">- :func:`deliver` — *object-first*: ``output=None`` returns the in-memory</span>
+<span class="sd">  object (e.g. an :class:`~mixing.audio.Audio`). Used by editing functions that</span>
+<span class="sd">  build a value you may want to keep chaining.</span>
+<span class="sd">- :func:`write_egress` — *file-first*: ``output=None`` saves to a default path</span>
+<span class="sd">  (typically beside the input) and returns it. Used by file→file operations</span>
+<span class="sd">  whose whole point is to produce a file.</span>
+
+<span class="sd">Both accept the same ``output`` forms, so callers learn one mental model.</span>
+<span class="sd">``Output`` is the shared type alias.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Union</span>
+
+<span class="n">PathLike</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="s2">&quot;os.PathLike[str]&quot;</span><span class="p">]</span>
+
+<span class="c1">#: An egress target: nothing, a filesystem path/dir, or a result-consuming sink.</span>
+<span class="n">Output</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="n">PathLike</span><span class="p">,</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">Any</span><span class="p">],</span> <span class="n">Any</span><span class="p">]]</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;Output&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;PathLike&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;is_path_output&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;is_sink&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;resolve_output_path&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;deliver&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;write_egress&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+
+
+<div class="viewcode-block" id="is_path_output">
+<a class="viewcode-back" href="../../module_docs/mixing/egress.html#mixing.egress.is_path_output">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">is_path_output</span><span class="p">(</span><span class="n">output</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;True if ``output`` denotes a filesystem path (``str`` / ``os.PathLike``).&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">output</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">PathLike</span><span class="p">))</span></div>
+
+
+
+<div class="viewcode-block" id="is_sink">
+<a class="viewcode-back" href="../../module_docs/mixing/egress.html#mixing.egress.is_sink">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">is_sink</span><span class="p">(</span><span class="n">output</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;True if ``output`` is a result-consuming callable (not a path).&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="nb">callable</span><span class="p">(</span><span class="n">output</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">is_path_output</span><span class="p">(</span><span class="n">output</span><span class="p">)</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_looks_like_dir</span><span class="p">(</span><span class="n">output</span><span class="p">:</span> <span class="n">PathLike</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Heuristic: an existing directory, or a path with a trailing separator.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">Path</span><span class="p">(</span><span class="n">output</span><span class="p">)</span><span class="o">.</span><span class="n">is_dir</span><span class="p">():</span>
+        <span class="k">return</span> <span class="kc">True</span>
+    <span class="n">raw</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">fspath</span><span class="p">(</span><span class="n">output</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">raw</span><span class="o">.</span><span class="n">endswith</span><span class="p">((</span><span class="s2">&quot;/&quot;</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">sep</span><span class="p">))</span>
+
+
+<div class="viewcode-block" id="resolve_output_path">
+<a class="viewcode-back" href="../../module_docs/mixing/egress.html#mixing.egress.resolve_output_path">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">resolve_output_path</span><span class="p">(</span><span class="n">output</span><span class="p">:</span> <span class="n">PathLike</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">default_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Resolve a path/dir ``output`` to a concrete file ``Path`` (parents created).</span>
+
+<span class="sd">    A directory ``output`` (existing, or with a trailing separator) is joined</span>
+<span class="sd">    with ``default_name``. Only call this when ``output`` is a path — not</span>
+<span class="sd">    ``None`` and not a sink.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">output</span><span class="p">)</span><span class="o">.</span><span class="n">expanduser</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">_looks_like_dir</span><span class="p">(</span><span class="n">output</span><span class="p">):</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">path</span> <span class="o">/</span> <span class="n">default_name</span>
+    <span class="n">path</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">path</span></div>
+
+
+
+<div class="viewcode-block" id="deliver">
+<a class="viewcode-back" href="../../module_docs/mixing/egress.html#mixing.egress.deliver">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">deliver</span><span class="p">(</span>
+    <span class="n">result</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+    <span class="n">output</span><span class="p">:</span> <span class="n">Output</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">write</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Path</span><span class="p">],</span> <span class="n">Any</span><span class="p">],</span>
+    <span class="n">default_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Object-first egress: route an in-memory ``result`` to ``output``.</span>
+
+<span class="sd">    - ``None`` → return ``result`` unchanged (no I/O).</span>
+<span class="sd">    - sink callable → return ``output(result)``.</span>
+<span class="sd">    - path/dir → ``write(result, path)`` then return the ``Path``.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        result: the produced in-memory value (e.g. an ``Audio``).</span>
+<span class="sd">        output: the egress target (see module docstring).</span>
+<span class="sd">        write: ``write(result, path)`` persists ``result`` to ``path``.</span>
+<span class="sd">        default_name: filename to use when ``output`` is a directory.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">output</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">result</span>
+    <span class="k">if</span> <span class="n">is_sink</span><span class="p">(</span><span class="n">output</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">output</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="n">resolve_output_path</span><span class="p">(</span><span class="n">output</span><span class="p">,</span> <span class="n">default_name</span><span class="o">=</span><span class="n">default_name</span><span class="p">)</span>
+    <span class="n">write</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">path</span></div>
+
+
+
+<div class="viewcode-block" id="write_egress">
+<a class="viewcode-back" href="../../module_docs/mixing/egress.html#mixing.egress.write_egress">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">write_egress</span><span class="p">(</span>
+    <span class="n">output</span><span class="p">:</span> <span class="n">Output</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">default_path</span><span class="p">:</span> <span class="n">PathLike</span><span class="p">,</span>
+    <span class="n">write</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">Path</span><span class="p">],</span> <span class="n">Any</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;File-first egress: for operations whose primary effect is writing a file.</span>
+
+<span class="sd">    - ``None`` → write to ``default_path`` (e.g. beside the input) and return it.</span>
+<span class="sd">    - sink callable → write to ``default_path``, then return ``output(path)``.</span>
+<span class="sd">    - path/dir → write to that file (dir → ``default_path``&#39;s name inside it).</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        output: the egress target (see module docstring).</span>
+<span class="sd">        default_path: where to write when ``output`` is ``None`` / a sink, and</span>
+<span class="sd">            the source of the auto filename when ``output`` is a directory.</span>
+<span class="sd">        write: ``write(path)`` performs the actual encode to ``path``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">default_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">default_path</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">is_sink</span><span class="p">(</span><span class="n">output</span><span class="p">)</span> <span class="ow">or</span> <span class="n">output</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">target</span> <span class="o">=</span> <span class="n">default_path</span>
+    <span class="k">elif</span> <span class="n">_looks_like_dir</span><span class="p">(</span><span class="n">output</span><span class="p">):</span>
+        <span class="n">target</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">output</span><span class="p">)</span><span class="o">.</span><span class="n">expanduser</span><span class="p">()</span> <span class="o">/</span> <span class="n">default_path</span><span class="o">.</span><span class="n">name</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">target</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">output</span><span class="p">)</span><span class="o">.</span><span class="n">expanduser</span><span class="p">()</span>
+    <span class="n">target</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">write</span><span class="p">(</span><span class="n">target</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">output</span><span class="p">(</span><span class="n">target</span><span class="p">)</span> <span class="k">if</span> <span class="n">is_sink</span><span class="p">(</span><span class="n">output</span><span class="p">)</span> <span class="k">else</span> <span class="n">target</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright NO COPYRIGHT.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

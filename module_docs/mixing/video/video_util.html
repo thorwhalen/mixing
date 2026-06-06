@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>mixing.video.video_util &mdash; mixing 0.0.21 documentation</title>
+  <title>mixing.video.video_util &mdash; mixing 0.0.22 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
@@ -15,7 +15,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=a11416ff"></script>
+      <script src="../../../_static/documentation_options.js?v=96ec9c95"></script>
       <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="../../../_static/toggleprompt.js?v=d7ede5d2"></script>
@@ -49,18 +49,20 @@
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../../mixing.html">mixing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_cache.html">mixing._cache</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_elevenlabs.html">mixing._elevenlabs</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../audio.html">mixing.audio</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../audio/audio_ops.html">mixing.audio.audio_ops</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../audio/audio_util.html">mixing.audio.audio_util</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../audio/audio_widget.html">mixing.audio.audio_widget</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../audio/demo_audio_widget.html">mixing.audio.demo_audio_widget</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../audio/segmentation.html">mixing.audio.segmentation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../audio/test_audio_widget.html">mixing.audio.test_audio_widget</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../chapters.html">mixing.chapters</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../dubbing.html">mixing.dubbing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../dubbing/dub.html">mixing.dubbing.dub</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../dubbing/srt.html">mixing.dubbing.srt</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../dubbing/tts.html">mixing.dubbing.tts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../egress.html">mixing.egress</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../srt.html">mixing.srt</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../transcript.html">mixing.transcript</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../transcript/fillers.html">mixing.transcript.fillers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../transcript/formats.html">mixing.transcript.formats</a></li>
@@ -71,14 +73,13 @@
 <li class="toctree-l1"><a class="reference internal" href="../util.html">mixing.util</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../video.html">mixing.video</a></li>
 <li class="toctree-l1"><a class="reference internal" href="_helpers.html">mixing.video._helpers</a></li>
-<li class="toctree-l1"><a class="reference internal" href="audio_offset_example.html">mixing.video.audio_offset_example</a></li>
+<li class="toctree-l1"><a class="reference internal" href="genai.html">mixing.video.genai</a></li>
 <li class="toctree-l1"><a class="reference internal" href="thumbnail.html">mixing.video.thumbnail</a></li>
 <li class="toctree-l1"><a class="reference internal" href="video_concat.html">mixing.video.video_concat</a></li>
-<li class="toctree-l1"><a class="reference internal" href="video_files.html">mixing.video.video_files</a></li>
-<li class="toctree-l1"><a class="reference internal" href="video_gen.html">mixing.video.video_gen</a></li>
 <li class="toctree-l1"><a class="reference internal" href="video_ops.html">mixing.video.video_ops</a></li>
 <li class="toctree-l1"><a class="reference internal" href="video_subtitles.html">mixing.video.video_subtitles</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">mixing.video.video_util</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#mixing.video.video_util.SOCIAL_SIZES"><code class="docutils literal notranslate"><span class="pre">SOCIAL_SIZES</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#mixing.video.video_util.get_video_dimensions"><code class="docutils literal notranslate"><span class="pre">get_video_dimensions()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#mixing.video.video_util.normalize_video_dimensions"><code class="docutils literal notranslate"><span class="pre">normalize_video_dimensions()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#mixing.video.video_util.resize_to_dimensions"><code class="docutils literal notranslate"><span class="pre">resize_to_dimensions()</span></code></a></li>
@@ -114,6 +115,16 @@
 <span id="mixing-video-video-util"></span><h1>mixing.video.video_util<a class="headerlink" href="#module-mixing.video.video_util" title="Link to this heading"></a></h1>
 <p>Video utils.</p>
 <p>Utils that will be useful in multiple modules of the video package.</p>
+<dl class="py data">
+<dt class="sig sig-object py" id="mixing.video.video_util.SOCIAL_SIZES">
+<span class="sig-prename descclassname"><span class="pre">mixing.video.video_util.</span></span><span class="sig-name descname"><span class="pre">SOCIAL_SIZES</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'shorts':</span> <span class="pre">(1080,</span> <span class="pre">1920),</span> <span class="pre">'square':</span> <span class="pre">(1080,</span> <span class="pre">1080),</span> <span class="pre">'story':</span> <span class="pre">(1080,</span> <span class="pre">1920),</span> <span class="pre">'tiktok':</span> <span class="pre">(1080,</span> <span class="pre">1920),</span> <span class="pre">'youtube':</span> <span class="pre">(1920,</span> <span class="pre">1080)}</span></span><a class="headerlink" href="#mixing.video.video_util.SOCIAL_SIZES" title="Link to this definition"></a></dt>
+<dd><p>Common social-media target sizes as <code class="docutils literal notranslate"><span class="pre">(width,</span> <span class="pre">height)</span></code> pixel presets, handy
+as the <code class="docutils literal notranslate"><span class="pre">target_width</span></code>/<code class="docutils literal notranslate"><span class="pre">target_height</span></code> for <a class="reference internal" href="#mixing.video.video_util.resize_to_dimensions" title="mixing.video.video_util.resize_to_dimensions"><code class="xref py py-func docutils literal notranslate"><span class="pre">resize_to_dimensions()</span></code></a>
+and friends. Landscape <code class="docutils literal notranslate"><span class="pre">youtube</span></code> is 16:9; the vertical 9:16 presets
+(<code class="docutils literal notranslate"><span class="pre">shorts</span></code> / <code class="docutils literal notranslate"><span class="pre">story</span></code> / <code class="docutils literal notranslate"><span class="pre">tiktok</span></code>) and the 1:1 <code class="docutils literal notranslate"><span class="pre">square</span></code> cover the usual
+short-form formats.</p>
+</dd></dl>
+
 <dl class="py function">
 <dt class="sig sig-object py" id="mixing.video.video_util.get_video_dimensions">
 <span class="sig-prename descclassname"><span class="pre">mixing.video.video_util.</span></span><span class="sig-name descname"><span class="pre">get_video_dimensions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">video</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">VideoFileClip</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/mixing/video/video_util.html#get_video_dimensions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.video.video_util.get_video_dimensions" title="Link to this definition"></a></dt>

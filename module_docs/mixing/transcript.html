@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>mixing.transcript &mdash; mixing 0.0.21 documentation</title>
+  <title>mixing.transcript &mdash; mixing 0.0.22 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
@@ -15,7 +15,7 @@
   
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../_static/documentation_options.js?v=a11416ff"></script>
+      <script src="../../_static/documentation_options.js?v=96ec9c95"></script>
       <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="../../_static/toggleprompt.js?v=d7ede5d2"></script>
@@ -25,7 +25,7 @@
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="mixing.transcript.fillers" href="transcript/fillers.html" />
-    <link rel="prev" title="mixing.dubbing.tts" href="dubbing/tts.html" /> 
+    <link rel="prev" title="mixing.srt" href="srt.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -50,18 +50,20 @@
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../mixing.html">mixing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="_cache.html">mixing._cache</a></li>
+<li class="toctree-l1"><a class="reference internal" href="_elevenlabs.html">mixing._elevenlabs</a></li>
 <li class="toctree-l1"><a class="reference internal" href="audio.html">mixing.audio</a></li>
 <li class="toctree-l1"><a class="reference internal" href="audio/audio_ops.html">mixing.audio.audio_ops</a></li>
 <li class="toctree-l1"><a class="reference internal" href="audio/audio_util.html">mixing.audio.audio_util</a></li>
 <li class="toctree-l1"><a class="reference internal" href="audio/audio_widget.html">mixing.audio.audio_widget</a></li>
-<li class="toctree-l1"><a class="reference internal" href="audio/demo_audio_widget.html">mixing.audio.demo_audio_widget</a></li>
 <li class="toctree-l1"><a class="reference internal" href="audio/segmentation.html">mixing.audio.segmentation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="audio/test_audio_widget.html">mixing.audio.test_audio_widget</a></li>
 <li class="toctree-l1"><a class="reference internal" href="chapters.html">mixing.chapters</a></li>
 <li class="toctree-l1"><a class="reference internal" href="dubbing.html">mixing.dubbing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="dubbing/dub.html">mixing.dubbing.dub</a></li>
 <li class="toctree-l1"><a class="reference internal" href="dubbing/srt.html">mixing.dubbing.srt</a></li>
 <li class="toctree-l1"><a class="reference internal" href="dubbing/tts.html">mixing.dubbing.tts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="egress.html">mixing.egress</a></li>
+<li class="toctree-l1"><a class="reference internal" href="srt.html">mixing.srt</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">mixing.transcript</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#mixing.transcript.FillerRemovalResult"><code class="docutils literal notranslate"><span class="pre">FillerRemovalResult</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#mixing.transcript.apply_keeps"><code class="docutils literal notranslate"><span class="pre">apply_keeps()</span></code></a></li>
@@ -90,11 +92,9 @@
 <li class="toctree-l1"><a class="reference internal" href="util.html">mixing.util</a></li>
 <li class="toctree-l1"><a class="reference internal" href="video.html">mixing.video</a></li>
 <li class="toctree-l1"><a class="reference internal" href="video/_helpers.html">mixing.video._helpers</a></li>
-<li class="toctree-l1"><a class="reference internal" href="video/audio_offset_example.html">mixing.video.audio_offset_example</a></li>
+<li class="toctree-l1"><a class="reference internal" href="video/genai.html">mixing.video.genai</a></li>
 <li class="toctree-l1"><a class="reference internal" href="video/thumbnail.html">mixing.video.thumbnail</a></li>
 <li class="toctree-l1"><a class="reference internal" href="video/video_concat.html">mixing.video.video_concat</a></li>
-<li class="toctree-l1"><a class="reference internal" href="video/video_files.html">mixing.video.video_files</a></li>
-<li class="toctree-l1"><a class="reference internal" href="video/video_gen.html">mixing.video.video_gen</a></li>
 <li class="toctree-l1"><a class="reference internal" href="video/video_ops.html">mixing.video.video_ops</a></li>
 <li class="toctree-l1"><a class="reference internal" href="video/video_subtitles.html">mixing.video.video_subtitles</a></li>
 <li class="toctree-l1"><a class="reference internal" href="video/video_util.html">mixing.video.video_util</a></li>
@@ -216,8 +216,18 @@ then <code class="docutils literal notranslate"><span class="pre">~/.cache/</spa
 
 <dl class="py function">
 <dt class="sig sig-object py" id="mixing.transcript.fmt_srt_time">
-<span class="sig-prename descclassname"><span class="pre">mixing.transcript.</span></span><span class="sig-name descname"><span class="pre">fmt_srt_time</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../../_modules/mixing/transcript/formats.html#fmt_srt_time"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.transcript.fmt_srt_time" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">mixing.transcript.</span></span><span class="sig-name descname"><span class="pre">fmt_srt_time</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">seconds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#mixing.transcript.fmt_srt_time" title="Link to this definition"></a></dt>
 <dd><p>Format a time in seconds as an SRT timestamp <code class="docutils literal notranslate"><span class="pre">HH:MM:SS,mmm</span></code>.</p>
+<p>Milliseconds are <em>rounded</em> (not truncated), with carry handled correctly,
+and negative inputs clamp to zero.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">seconds_to_srt_time</span><span class="p">(</span><span class="mf">2592.187</span><span class="p">)</span>
+<span class="go">&#39;00:43:12,187&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">seconds_to_srt_time</span><span class="p">(</span><span class="mf">1.5</span><span class="p">)</span>
+<span class="go">&#39;00:00:01,500&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">seconds_to_srt_time</span><span class="p">(</span><span class="o">-</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">&#39;00:00:00,000&#39;</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="py function">
@@ -380,7 +390,7 @@ the cleaned media.</p>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="dubbing/tts.html" class="btn btn-neutral float-left" title="mixing.dubbing.tts" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="srt.html" class="btn btn-neutral float-left" title="mixing.srt" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="transcript/fillers.html" class="btn btn-neutral float-right" title="mixing.transcript.fillers" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 

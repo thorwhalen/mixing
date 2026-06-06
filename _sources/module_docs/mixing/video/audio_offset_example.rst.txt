@@ -1,4 +1,0 @@
-mixing.video.audio_offset_example
-=================================
-.. automodule:: mixing.video.audio_offset_example
-   :members:

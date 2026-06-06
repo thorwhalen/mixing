@@ -1,0 +1,194 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>mixing._cache &mdash; mixing 0.0.22 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=96ec9c95"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../../_static/toggleprompt.js?v=d7ede5d2"></script>
+      <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="mixing._elevenlabs" href="_elevenlabs.html" />
+    <link rel="prev" title="mixing" href="../mixing.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            mixing
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../mixing.html">mixing</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">mixing._cache</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#mixing._cache.default_cache_dir"><code class="docutils literal notranslate"><span class="pre">default_cache_dir()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mixing._cache.read_cache"><code class="docutils literal notranslate"><span class="pre">read_cache()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mixing._cache.resolve_cache_dir"><code class="docutils literal notranslate"><span class="pre">resolve_cache_dir()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mixing._cache.sha256_key"><code class="docutils literal notranslate"><span class="pre">sha256_key()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mixing._cache.write_cache"><code class="docutils literal notranslate"><span class="pre">write_cache()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="_elevenlabs.html">mixing._elevenlabs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="audio.html">mixing.audio</a></li>
+<li class="toctree-l1"><a class="reference internal" href="audio/audio_ops.html">mixing.audio.audio_ops</a></li>
+<li class="toctree-l1"><a class="reference internal" href="audio/audio_util.html">mixing.audio.audio_util</a></li>
+<li class="toctree-l1"><a class="reference internal" href="audio/audio_widget.html">mixing.audio.audio_widget</a></li>
+<li class="toctree-l1"><a class="reference internal" href="audio/segmentation.html">mixing.audio.segmentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="chapters.html">mixing.chapters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dubbing.html">mixing.dubbing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dubbing/dub.html">mixing.dubbing.dub</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dubbing/srt.html">mixing.dubbing.srt</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dubbing/tts.html">mixing.dubbing.tts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="egress.html">mixing.egress</a></li>
+<li class="toctree-l1"><a class="reference internal" href="srt.html">mixing.srt</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transcript.html">mixing.transcript</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transcript/fillers.html">mixing.transcript.fillers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transcript/formats.html">mixing.transcript.formats</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transcript/media.html">mixing.transcript.media</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transcript/persist.html">mixing.transcript.persist</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transcript/pipeline.html">mixing.transcript.pipeline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transcript/scribe.html">mixing.transcript.scribe</a></li>
+<li class="toctree-l1"><a class="reference internal" href="util.html">mixing.util</a></li>
+<li class="toctree-l1"><a class="reference internal" href="video.html">mixing.video</a></li>
+<li class="toctree-l1"><a class="reference internal" href="video/_helpers.html">mixing.video._helpers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="video/genai.html">mixing.video.genai</a></li>
+<li class="toctree-l1"><a class="reference internal" href="video/thumbnail.html">mixing.video.thumbnail</a></li>
+<li class="toctree-l1"><a class="reference internal" href="video/video_concat.html">mixing.video.video_concat</a></li>
+<li class="toctree-l1"><a class="reference internal" href="video/video_ops.html">mixing.video.video_ops</a></li>
+<li class="toctree-l1"><a class="reference internal" href="video/video_subtitles.html">mixing.video.video_subtitles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="video/video_util.html">mixing.video.video_util</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">mixing</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">mixing._cache</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/module_docs/mixing/_cache.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-mixing._cache">
+<span id="mixing-cache"></span><h1>mixing._cache<a class="headerlink" href="#module-mixing._cache" title="Link to this heading"></a></h1>
+<p>Generic on-disk content cache (internal).</p>
+<p>A tiny sharded key→bytes store used by the ElevenLabs clients
+(<a class="reference internal" href="transcript/scribe.html#module-mixing.transcript.scribe" title="mixing.transcript.scribe"><code class="xref py py-mod docutils literal notranslate"><span class="pre">mixing.transcript.scribe</span></code></a>, <a class="reference internal" href="dubbing/tts.html#module-mixing.dubbing.tts" title="mixing.dubbing.tts"><code class="xref py py-mod docutils literal notranslate"><span class="pre">mixing.dubbing.tts</span></code></a>) to avoid paying
+for the same API call twice. Values are stored as bytes under a 2-character
+shard directory; callers supply <code class="docutils literal notranslate"><span class="pre">loads</span></code>/<code class="docutils literal notranslate"><span class="pre">dumps</span></code> to cache structured data
+(e.g. JSON) on top.</p>
+<p>Not part of the public API — import the per-client <code class="docutils literal notranslate"><span class="pre">default_cache_dir</span></code> /
+<code class="docutils literal notranslate"><span class="pre">transcribe(cache=...)</span></code> / <code class="docutils literal notranslate"><span class="pre">text_to_speech(cache=...)</span></code> surfaces instead.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="mixing._cache.default_cache_dir">
+<span class="sig-prename descclassname"><span class="pre">mixing._cache.</span></span><span class="sig-name descname"><span class="pre">default_cache_dir</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subdir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">env_key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Path</span></span></span><a class="reference internal" href="../../_modules/mixing/_cache.html#default_cache_dir"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing._cache.default_cache_dir" title="Link to this definition"></a></dt>
+<dd><p>Default cache directory for <code class="docutils literal notranslate"><span class="pre">mixing/&lt;subdir&gt;</span></code>.</p>
+<p>Honors <code class="docutils literal notranslate"><span class="pre">$&lt;env_key&gt;</span></code>, then <code class="docutils literal notranslate"><span class="pre">$XDG_CACHE_HOME</span></code>, then <code class="docutils literal notranslate"><span class="pre">~/.cache/</span></code>; the
+final path segments are always <code class="docutils literal notranslate"><span class="pre">mixing/&lt;subdir&gt;</span></code> (except when overridden
+by <code class="docutils literal notranslate"><span class="pre">$&lt;env_key&gt;</span></code>, which is used verbatim).</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mixing._cache.read_cache">
+<span class="sig-prename descclassname"><span class="pre">mixing._cache.</span></span><span class="sig-name descname"><span class="pre">read_cache</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cache_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">suffix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loads</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">bytes</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">object</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/mixing/_cache.html#read_cache"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing._cache.read_cache" title="Link to this definition"></a></dt>
+<dd><p>Return the cached value for <code class="docutils literal notranslate"><span class="pre">key</span></code> (decoded via <code class="docutils literal notranslate"><span class="pre">loads</span></code>), or <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mixing._cache.resolve_cache_dir">
+<span class="sig-prename descclassname"><span class="pre">mixing._cache.</span></span><span class="sig-name descname"><span class="pre">resolve_cache_dir</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cache</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">default_factory</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Path</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/mixing/_cache.html#resolve_cache_dir"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing._cache.resolve_cache_dir" title="Link to this definition"></a></dt>
+<dd><p>Turn a <code class="docutils literal notranslate"><span class="pre">cache</span></code> argument into a directory (created) or <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">False</span></code> → <code class="docutils literal notranslate"><span class="pre">None</span></code> (disabled); <code class="docutils literal notranslate"><span class="pre">True</span></code> → <code class="docutils literal notranslate"><span class="pre">default_factory()</span></code>; a path →
+that directory. The chosen directory is created if missing.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mixing._cache.sha256_key">
+<span class="sig-prename descclassname"><span class="pre">mixing._cache.</span></span><span class="sig-name descname"><span class="pre">sha256_key</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">parts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bytes</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../../_modules/mixing/_cache.html#sha256_key"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing._cache.sha256_key" title="Link to this definition"></a></dt>
+<dd><p>SHA-256 hex digest over <code class="docutils literal notranslate"><span class="pre">parts</span></code> (<code class="docutils literal notranslate"><span class="pre">None</span></code> → empty, str → utf-8), 0-delimited.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mixing._cache.write_cache">
+<span class="sig-prename descclassname"><span class="pre">mixing._cache.</span></span><span class="sig-name descname"><span class="pre">write_cache</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cache_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">suffix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dumps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">object</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">bytes</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/mixing/_cache.html#write_cache"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing._cache.write_cache" title="Link to this definition"></a></dt>
+<dd><p>Atomically write <code class="docutils literal notranslate"><span class="pre">value</span></code> (encoded via <code class="docutils literal notranslate"><span class="pre">dumps</span></code>) under <code class="docutils literal notranslate"><span class="pre">key</span></code>.</p>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../mixing.html" class="btn btn-neutral float-left" title="mixing" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="_elevenlabs.html" class="btn btn-neutral float-right" title="mixing._elevenlabs" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright NO COPYRIGHT.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

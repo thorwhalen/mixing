@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>mixing.video.video_gen &mdash; mixing 0.0.21 documentation</title>
+  <title>mixing.video.genai &mdash; mixing 0.0.22 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
@@ -14,7 +14,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=a11416ff"></script>
+      <script src="../../../_static/documentation_options.js?v=96ec9c95"></script>
       <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="../../../_static/toggleprompt.js?v=d7ede5d2"></script>
@@ -47,18 +47,20 @@
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing.html">mixing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/_cache.html">mixing._cache</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/_elevenlabs.html">mixing._elevenlabs</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/audio.html">mixing.audio</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/audio/audio_ops.html">mixing.audio.audio_ops</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/audio/audio_util.html">mixing.audio.audio_util</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/audio/audio_widget.html">mixing.audio.audio_widget</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/audio/demo_audio_widget.html">mixing.audio.demo_audio_widget</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/audio/segmentation.html">mixing.audio.segmentation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/audio/test_audio_widget.html">mixing.audio.test_audio_widget</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/chapters.html">mixing.chapters</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/dubbing.html">mixing.dubbing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/dubbing/dub.html">mixing.dubbing.dub</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/dubbing/srt.html">mixing.dubbing.srt</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/dubbing/tts.html">mixing.dubbing.tts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/egress.html">mixing.egress</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/srt.html">mixing.srt</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/transcript.html">mixing.transcript</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/transcript/fillers.html">mixing.transcript.fillers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/transcript/formats.html">mixing.transcript.formats</a></li>
@@ -69,11 +71,9 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/util.html">mixing.util</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video.html">mixing.video</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/_helpers.html">mixing.video._helpers</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/audio_offset_example.html">mixing.video.audio_offset_example</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/genai.html">mixing.video.genai</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/thumbnail.html">mixing.video.thumbnail</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/video_concat.html">mixing.video.video_concat</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/video_files.html">mixing.video.video_files</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/video_gen.html">mixing.video.video_gen</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/video_ops.html">mixing.video.video_ops</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/video_subtitles.html">mixing.video.video_subtitles</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/video_util.html">mixing.video.video_util</a></li>
@@ -94,7 +94,7 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
-      <li class="breadcrumb-item active">mixing.video.video_gen</li>
+      <li class="breadcrumb-item active">mixing.video.genai</li>
       <li class="wy-breadcrumbs-aside">
       </li>
   </ul>
@@ -103,24 +103,29 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <h1>Source code for mixing.video.video_gen</h1><div class="highlight"><pre>
+  <h1>Source code for mixing.video.genai</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">AI Video Generation with Google Vertex AI Veo</span>
 
 <span class="sd">This module provides tools for generating videos using Google&#39;s Veo models on Vertex AI.</span>
 <span class="sd">The main workflow is simple: **generate and get a file path** to your video.</span>
 
+<span class="sd">It is an *optional* feature: it requires ``google-genai`` (``pip install</span>
+<span class="sd">&#39;mixing[gen]&#39;``) and Google Cloud credentials. Importing it pulls</span>
+<span class="sd">``from google import genai``, so it is not wired into the lazy ``mixing.video``</span>
+<span class="sd">facade — import it explicitly via ``mixing.video.genai``.</span>
+
 <span class="sd">Key features include:</span>
 
 <span class="sd">• **One-Step Generation**: Generate videos and get file paths in one call</span>
-<span class="sd">• **Flexible Egress**: Control how videos are saved with the `save_video` parameter</span>
+<span class="sd">• **Flexible Egress**: Control how videos are saved with the `output` parameter</span>
 <span class="sd">• **Multiple Input Formats**: Generate from text prompts, images, or video frames</span>
 <span class="sd">• **Smart Authentication**: Automatic environment variable detection and helpful error messages</span>
 <span class="sd">• **Multiple Video Support**: Handle models that generate multiple video variations</span>
 
 <span class="sd">Quick Start (Generate and Save):</span>
 <span class="sd">```python</span>
-<span class="sd">from mixing.video.video_gen import generate_video</span>
+<span class="sd">from mixing.video.genai import generate_video</span>
 
 <span class="sd"># Generate video and get file path in one call</span>
 <span class="sd">video_path = generate_video(&quot;A serene forest at dawn with mist&quot;)</span>
@@ -133,14 +138,14 @@
 <span class="sd">path = generate_video(&quot;prompt&quot;)</span>
 
 <span class="sd"># Save to specific location</span>
-<span class="sd">path = generate_video(&quot;prompt&quot;, save_video=&quot;/path/to/my_video.mp4&quot;)</span>
+<span class="sd">path = generate_video(&quot;prompt&quot;, output=&quot;/path/to/my_video.mp4&quot;)</span>
 
 <span class="sd"># Save to directory with auto-naming</span>
-<span class="sd">path = generate_video(&quot;prompt&quot;, save_video=&quot;/path/to/output_dir/&quot;)</span>
+<span class="sd">path = generate_video(&quot;prompt&quot;, output=&quot;/path/to/output_dir/&quot;)</span>
 
 <span class="sd"># Just return the operation (no saving)</span>
-<span class="sd">op = generate_video(&quot;prompt&quot;, save_video=False)</span>
-<span class="sd"># or: op = generate_video(&quot;prompt&quot;, save_video=lambda x: x)</span>
+<span class="sd">op = generate_video(&quot;prompt&quot;, output=False)</span>
+<span class="sd"># or: op = generate_video(&quot;prompt&quot;, output=lambda x: x)</span>
 
 <span class="sd"># Custom processing function</span>
 <span class="sd">def my_processor(operation):</span>
@@ -148,7 +153,7 @@
 <span class="sd">    print(f&quot;Saved {len(paths)} videos&quot;)</span>
 <span class="sd">    return paths</span>
 
-<span class="sd">result = generate_video(&quot;prompt&quot;, save_video=my_processor)</span>
+<span class="sd">result = generate_video(&quot;prompt&quot;, output=my_processor)</span>
 <span class="sd">```</span>
 
 <span class="sd">Authentication Setup:</span>
@@ -299,7 +304,7 @@
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_generate_output_paths</span><span class="p">(</span>
     <span class="n">generated_videos</span><span class="p">,</span>
-    <span class="n">save_filepath</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">output</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
     <span class="n">prefix</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;generated_video_&quot;</span><span class="p">,</span>
     <span class="n">directory_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;generated_video_&quot;</span><span class="p">,</span>
@@ -310,9 +315,9 @@
 
 <span class="sd">    Args:</span>
 <span class="sd">        generated_videos: List of GeneratedVideo objects</span>
-<span class="sd">        save_filepath: Output path specification (None, extension, directory, or full path)</span>
+<span class="sd">        output: Output path specification (None, extension, directory, or full path)</span>
 <span class="sd">        prefix: Prefix for auto-generated filenames</span>
-<span class="sd">        directory_name: Name to use when save_filepath is directory</span>
+<span class="sd">        directory_name: Name to use when output is directory</span>
 <span class="sd">        extension_fallback: Default extension if MIME type can&#39;t be determined</span>
 
 <span class="sd">    Returns:</span>
@@ -322,7 +327,7 @@
     <span class="n">is_single_video</span> <span class="o">=</span> <span class="n">num_videos</span> <span class="o">==</span> <span class="mi">1</span>
     <span class="n">output_paths</span> <span class="o">=</span> <span class="p">[]</span>
 
-    <span class="k">if</span> <span class="n">save_filepath</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">output</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="c1"># Auto-generate temp files</span>
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">video</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">generated_videos</span><span class="p">):</span>
             <span class="c1"># Get extension from MIME type if available (handle both new and legacy API)</span>
@@ -345,9 +350,9 @@
             <span class="n">os</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">temp_fd</span><span class="p">)</span>  <span class="c1"># Close the file descriptor since we&#39;ll write separately</span>
             <span class="n">output_paths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">output_path</span><span class="p">)</span>
 
-    <span class="k">elif</span> <span class="n">save_filepath</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">):</span>
+    <span class="k">elif</span> <span class="n">output</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">):</span>
         <span class="c1"># Extension provided</span>
-        <span class="n">ext</span> <span class="o">=</span> <span class="n">save_filepath</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>  <span class="c1"># Remove the leading dot</span>
+        <span class="n">ext</span> <span class="o">=</span> <span class="n">output</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>  <span class="c1"># Remove the leading dot</span>
 
         <span class="c1"># Validate it&#39;s a video extension</span>
         <span class="n">video_extensions</span> <span class="o">=</span> <span class="p">{</span>
@@ -378,11 +383,11 @@
             <span class="n">os</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">temp_fd</span><span class="p">)</span>
             <span class="n">output_paths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">output_path</span><span class="p">)</span>
 
-    <span class="k">elif</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">save_filepath</span><span class="p">):</span>
+    <span class="k">elif</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">output</span><span class="p">):</span>
         <span class="c1"># Directory provided - generate safe filenames</span>
         <span class="c1"># Get list of existing files in the directory for collision detection</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="n">existing_files</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">save_filepath</span><span class="p">))</span>
+            <span class="n">existing_files</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">output</span><span class="p">))</span>
         <span class="k">except</span> <span class="ne">OSError</span><span class="p">:</span>
             <span class="n">existing_files</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
 
@@ -405,7 +410,7 @@
 
             <span class="c1"># Use non_colliding_key to ensure we don&#39;t overwrite existing files</span>
             <span class="n">safe_filename</span> <span class="o">=</span> <span class="n">non_colliding_key</span><span class="p">(</span><span class="n">base_filename</span><span class="p">,</span> <span class="n">existing_files</span><span class="p">)</span>
-            <span class="n">output_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">save_filepath</span><span class="p">,</span> <span class="n">safe_filename</span><span class="p">)</span>
+            <span class="n">output_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output</span><span class="p">,</span> <span class="n">safe_filename</span><span class="p">)</span>
             <span class="n">output_paths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">output_path</span><span class="p">)</span>
 
             <span class="c1"># Add the new filename to existing_files to avoid collisions within this batch</span>
@@ -415,9 +420,9 @@
         <span class="c1"># Full path provided</span>
         <span class="k">if</span> <span class="n">is_single_video</span><span class="p">:</span>
             <span class="c1"># For single video, check if file exists and use non_colliding_key if needed</span>
-            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">save_filepath</span><span class="p">):</span>
-                <span class="n">directory</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">save_filepath</span><span class="p">)</span>
-                <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">save_filepath</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">output</span><span class="p">):</span>
+                <span class="n">directory</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">output</span><span class="p">)</span>
+                <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">output</span><span class="p">)</span>
                 <span class="k">try</span><span class="p">:</span>
                     <span class="n">existing_files</span> <span class="o">=</span> <span class="p">(</span>
                         <span class="nb">set</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">directory</span><span class="p">))</span>
@@ -433,15 +438,15 @@
                     <span class="k">else</span> <span class="n">safe_filename</span>
                 <span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">output_path</span> <span class="o">=</span> <span class="n">save_filepath</span>
+                <span class="n">output_path</span> <span class="o">=</span> <span class="n">output</span>
             <span class="n">output_paths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">output_path</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="c1"># Multiple videos - generate indexed paths using non_colliding_key</span>
-            <span class="n">base_path</span><span class="p">,</span> <span class="n">ext</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">save_filepath</span><span class="p">)</span>
+            <span class="n">base_path</span><span class="p">,</span> <span class="n">ext</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">output</span><span class="p">)</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">ext</span><span class="p">:</span>
                 <span class="n">ext</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;.</span><span class="si">{</span><span class="n">extension_fallback</span><span class="si">}</span><span class="s2">&quot;</span>
 
-            <span class="n">directory</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">save_filepath</span><span class="p">)</span>
+            <span class="n">directory</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">output</span><span class="p">)</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">existing_files</span> <span class="o">=</span> <span class="p">(</span>
                     <span class="nb">set</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">directory</span><span class="p">))</span> <span class="k">if</span> <span class="n">directory</span> <span class="k">else</span> <span class="nb">set</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">))</span>
@@ -468,10 +473,10 @@
 
 
 <div class="viewcode-block" id="save_generated_videos">
-<a class="viewcode-back" href="../../../module_docs/mixing/video/video_gen.html#mixing.video.video_gen.save_generated_videos">[docs]</a>
+<a class="viewcode-back" href="../../../module_docs/mixing/video/genai.html#mixing.video.genai.save_generated_videos">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">save_generated_videos</span><span class="p">(</span>
     <span class="n">video_input</span><span class="p">,</span>  <span class="c1"># Can be: GeneratedVideo, list[GeneratedVideo], operation.response, or operation</span>
-    <span class="n">save_filepath</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">output</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
     <span class="n">prefix</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;generated_video_&quot;</span><span class="p">,</span>
     <span class="n">directory_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;generated_video_&quot;</span><span class="p">,</span>
@@ -487,13 +492,13 @@
 <span class="sd">            - A list of GeneratedVideo objects (from op.response.generated_videos)</span>
 <span class="sd">            - An operation response object (op.response)</span>
 <span class="sd">            - A full operation object (op)</span>
-<span class="sd">        save_filepath: Output path specification. Can be:</span>
+<span class="sd">        output: Output path specification. Can be:</span>
 <span class="sd">            - None: Auto-generate temp file(s) with appropriate extension</span>
 <span class="sd">            - Path starting with &#39;.&#39;: Use as extension (e.g., &#39;.mp4&#39;)</span>
 <span class="sd">            - Full filepath: Use as-is (for single video) or add index for multiple</span>
 <span class="sd">            - Directory path: Use directory with generated names</span>
 <span class="sd">        prefix: Prefix for auto-generated filenames (keyword-only)</span>
-<span class="sd">        directory_name: Name to use when save_filepath is directory (keyword-only)</span>
+<span class="sd">        directory_name: Name to use when output is directory (keyword-only)</span>
 <span class="sd">        extension_fallback: Default extension if MIME type can&#39;t be determined (keyword-only)</span>
 
 <span class="sd">    Returns:</span>
@@ -628,7 +633,7 @@
     <span class="c1"># Generate output paths using helper function</span>
     <span class="n">output_paths</span> <span class="o">=</span> <span class="n">_generate_output_paths</span><span class="p">(</span>
         <span class="n">generated_videos</span><span class="p">,</span>
-        <span class="n">save_filepath</span><span class="p">,</span>
+        <span class="n">output</span><span class="p">,</span>
         <span class="n">prefix</span><span class="o">=</span><span class="n">prefix</span><span class="p">,</span>
         <span class="n">directory_name</span><span class="o">=</span><span class="n">directory_name</span><span class="p">,</span>
         <span class="n">extension_fallback</span><span class="o">=</span><span class="n">extension_fallback</span><span class="p">,</span>
@@ -676,9 +681,9 @@
 <span class="sd">    If it&#39;s already an image, return the original path.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">_is_video_file</span><span class="p">(</span><span class="n">media_path</span><span class="p">):</span>
-        <span class="kn">from</span><span class="w"> </span><span class="nn">.video_files</span><span class="w"> </span><span class="kn">import</span> <span class="n">save_frame</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">.video_ops</span><span class="w"> </span><span class="kn">import</span> <span class="n">save_frame</span>
 
-        <span class="k">return</span> <span class="n">save_frame</span><span class="p">(</span><span class="n">media_path</span><span class="p">,</span> <span class="n">frame_idx</span><span class="p">,</span> <span class="n">saveas</span><span class="o">=</span><span class="s2">&quot;/TMP&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">save_frame</span><span class="p">(</span><span class="n">media_path</span><span class="p">,</span> <span class="n">frame_idx</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="s2">&quot;/TMP&quot;</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">media_path</span>
 
@@ -695,13 +700,13 @@
 
 
 <div class="viewcode-block" id="generate_video">
-<a class="viewcode-back" href="../../../module_docs/mixing/video/video_gen.html#mixing.video.video_gen.generate_video">[docs]</a>
+<a class="viewcode-back" href="../../../module_docs/mixing/video/genai.html#mixing.video.genai.generate_video">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">generate_video</span><span class="p">(</span>
     <span class="n">prompt</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">first_frame</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">last_frame</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
-    <span class="n">save_video</span><span class="p">:</span> <span class="n">Callable</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">save_generated_videos</span><span class="p">,</span>
+    <span class="n">output</span><span class="p">:</span> <span class="n">Callable</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">bool</span> <span class="o">=</span> <span class="n">save_generated_videos</span><span class="p">,</span>
     <span class="n">model</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;veo-2.0-generate-001&quot;</span><span class="p">,</span>  <span class="c1"># TODO: manage models better (when aix offers model routing tools)</span>
     <span class="n">aspect_ratio</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;16:9&quot;</span><span class="p">,</span>
     <span class="n">duration_seconds</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span>
@@ -716,17 +721,21 @@
 <span class="sd">    This function provides a complete workflow: generate video(s) and get downloadable file(s).</span>
 <span class="sd">    By default, videos are automatically saved to temporary files and you get the path(s).</span>
 
+<span class="sd">    The ``output`` parameter follows the canonical :mod:`mixing.egress` protocol</span>
+<span class="sd">    (a path/dir writes there; a callable is a sink applied to the result), with</span>
+<span class="sd">    two generator-specific sentinels noted below.</span>
+
 <span class="sd">    Args:</span>
 <span class="sd">        prompt: Text prompt for video generation</span>
 <span class="sd">        first_frame: Path to image/video file for first frame</span>
 <span class="sd">        last_frame: Path to image/video file for last frame</span>
-<span class="sd">        save_video: Egress function or path specification. Controls how generated videos are processed:</span>
+<span class="sd">        output: Egress target / path specification. Controls how generated videos are processed:</span>
 <span class="sd">            - save_generated_videos (default): Auto-save to temp files, return path(s)</span>
-<span class="sd">            - &quot;/path/to/file.mp4&quot;: Save to specific file path</span>
+<span class="sd">            - &quot;/path/to/file.mp4&quot;: Save to specific file path (via mixing.egress)</span>
 <span class="sd">            - &quot;/path/to/directory/&quot;: Save to directory with auto-generated names</span>
 <span class="sd">            - &quot;.mp4&quot;: Save to temp files with specific extension</span>
-<span class="sd">            - False or lambda x: x: Return raw operation without saving</span>
-<span class="sd">            - Custom function: Process operation and return your desired result</span>
+<span class="sd">            - False: Return raw operation without saving (sentinel)</span>
+<span class="sd">            - lambda x: x or custom callable: Sink applied to the operation</span>
 <span class="sd">        model: Model to use for generation</span>
 <span class="sd">        aspect_ratio: Video aspect ratio</span>
 <span class="sd">        duration_seconds: Video duration</span>
@@ -736,9 +745,9 @@
 <span class="sd">        location: Google Cloud location</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        Depends on save_video parameter:</span>
+<span class="sd">        Depends on output parameter:</span>
 <span class="sd">        - Default: File path(s) where video(s) were saved</span>
-<span class="sd">        - save_video=False: Raw operation object</span>
+<span class="sd">        - output=False: Raw operation object</span>
 <span class="sd">        - Custom function: Whatever your function returns</span>
 
 <span class="sd">    Examples:</span>
@@ -747,19 +756,19 @@
 <span class="sd">        &gt;&gt;&gt; print(f&quot;Video saved to: {path}&quot;)  # doctest: +SKIP</span>
 
 <span class="sd">        Save to specific location:</span>
-<span class="sd">        &gt;&gt;&gt; path = generate_video(&quot;Forest scene&quot;, save_video=&quot;/my/video.mp4&quot;)  # doctest: +SKIP</span>
+<span class="sd">        &gt;&gt;&gt; path = generate_video(&quot;Forest scene&quot;, output=&quot;/my/video.mp4&quot;)  # doctest: +SKIP</span>
 
 <span class="sd">        Save to directory:</span>
-<span class="sd">        &gt;&gt;&gt; path = generate_video(&quot;Forest scene&quot;, save_video=&quot;/output/dir/&quot;)  # doctest: +SKIP</span>
+<span class="sd">        &gt;&gt;&gt; path = generate_video(&quot;Forest scene&quot;, output=&quot;/output/dir/&quot;)  # doctest: +SKIP</span>
 
 <span class="sd">        Just get the operation (no saving):</span>
-<span class="sd">        &gt;&gt;&gt; op = generate_video(&quot;Forest scene&quot;, save_video=False)  # doctest: +SKIP</span>
+<span class="sd">        &gt;&gt;&gt; op = generate_video(&quot;Forest scene&quot;, output=False)  # doctest: +SKIP</span>
 <span class="sd">        &gt;&gt;&gt; # Process op.response.generated_videos yourself</span>
 
 <span class="sd">        Custom processing:</span>
 <span class="sd">        &gt;&gt;&gt; def my_saver(op):</span>
 <span class="sd">        ...     return save_generated_videos(op, prefix=&quot;custom_&quot;, extension_fallback=&quot;webm&quot;)</span>
-<span class="sd">        &gt;&gt;&gt; paths = generate_video(&quot;Forest scene&quot;, save_video=my_saver)  # doctest: +SKIP</span>
+<span class="sd">        &gt;&gt;&gt; paths = generate_video(&quot;Forest scene&quot;, output=my_saver)  # doctest: +SKIP</span>
 
 <span class="sd">    Environment Variables:</span>
 <span class="sd">        VEO_SERVICE_ACCOUNT_FILE or GOOGLE_APPLICATION_CREDENTIALS: Service account JSON path</span>
@@ -779,14 +788,19 @@
     <span class="c1"># TODO: manage models better (when aix offers model routing tools)</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">google</span><span class="w"> </span><span class="kn">import</span> <span class="n">genai</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">google.genai.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">GenerateVideosConfig</span><span class="p">,</span> <span class="n">Image</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">mixing.egress</span><span class="w"> </span><span class="kn">import</span> <span class="n">is_path_output</span><span class="p">,</span> <span class="n">is_sink</span>
 
-    <span class="k">if</span> <span class="n">save_video</span><span class="p">:</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">save_video</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">save_video</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">):</span>
-            <span class="n">save_filepath</span> <span class="o">=</span> <span class="n">save_video</span>
-            <span class="n">save_video</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">v</span><span class="p">:</span> <span class="n">save_generated_videos</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">save_filepath</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="ow">not</span> <span class="nb">callable</span><span class="p">(</span><span class="n">save_video</span><span class="p">):</span>
+    <span class="c1"># Resolve ``output`` into an egress sink (a callable applied to the</span>
+    <span class="c1"># operation) or the ``False`` sentinel (return the raw operation).</span>
+    <span class="k">if</span> <span class="n">output</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">is_path_output</span><span class="p">(</span><span class="n">output</span><span class="p">):</span>
+            <span class="c1"># A path/dir (str): route through save_generated_videos, which</span>
+            <span class="c1"># itself delegates filename resolution to mixing.egress semantics.</span>
+            <span class="n">output_path</span> <span class="o">=</span> <span class="n">output</span>
+            <span class="n">output</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">v</span><span class="p">:</span> <span class="n">save_generated_videos</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">output_path</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="ow">not</span> <span class="n">is_sink</span><span class="p">(</span><span class="n">output</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="s2">&quot;save_video must be a callable function or &#39;save_generated_videos&#39;&quot;</span>
+                <span class="s2">&quot;output must be a path, a result-consuming callable, or False&quot;</span>
             <span class="p">)</span>
 
     <span class="c1"># Get authentication info from environment if not provided</span>
@@ -892,10 +906,11 @@
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">80</span><span class="p">)</span>
         <span class="k">raise</span>
 
-    <span class="c1"># Process the result through save_video egress function</span>
-    <span class="k">if</span> <span class="n">save_video</span><span class="p">:</span>
+    <span class="c1"># Process the result through the resolved ``output`` egress sink. The</span>
+    <span class="c1"># ``False`` sentinel falls through to returning the raw operation.</span>
+    <span class="k">if</span> <span class="n">output</span><span class="p">:</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">save_video</span><span class="p">(</span><span class="n">operation</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">output</span><span class="p">(</span><span class="n">operation</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
             <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error saving video: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
             <span class="kn">from</span><span class="w"> </span><span class="nn">xdol</span><span class="w"> </span><span class="kn">import</span> <span class="n">save_obj</span>

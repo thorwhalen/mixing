@@ -1,4 +1,0 @@
-mixing.audio.test_audio_widget
-==============================
-.. automodule:: mixing.audio.test_audio_widget
-   :members:
