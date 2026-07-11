@@ -487,13 +487,13 @@ def slow_motion_blend(
     for i, clip in enumerate(clips):
         if i == 0:
             # First clip: just slow down the end
-            slow_end = clip.subclipped(clip.duration - ramp_duration).with_speed(0.5)
+            slow_end = clip.subclipped(clip.duration - ramp_duration).with_speed_scaled(0.5)
             main_part = clip.subclipped(0, clip.duration - ramp_duration)
             yield main_part
             yield slow_end
         else:
             # Subsequent clips: slow start, normal middle, slow end
-            slow_start = clip.subclipped(0, ramp_duration).with_speed(0.5)
+            slow_start = clip.subclipped(0, ramp_duration).with_speed_scaled(0.5)
             yield slow_start
 
             if i < len(clips) - 1:
@@ -501,9 +501,9 @@ def slow_motion_blend(
                 main_part = clip.subclipped(
                     ramp_duration, clip.duration - ramp_duration
                 )
-                slow_end = clip.subclipped(clip.duration - ramp_duration).with_speed(
-                    0.5
-                )
+                slow_end = clip.subclipped(
+                    clip.duration - ramp_duration
+                ).with_speed_scaled(0.5)
                 yield main_part
                 yield slow_end
             else:
