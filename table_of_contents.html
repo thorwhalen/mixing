@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>&lt;no title&gt; &mdash; mixing 0.0.24 documentation</title>
+  <title>&lt;no title&gt; &mdash; mixing 0.0.25 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
@@ -15,7 +15,7 @@
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=f91d8841"></script>
+      <script src="_static/documentation_options.js?v=5d650c58"></script>
       <script src="_static/doctools.js?v=fd6eb6e6"></script>
       <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="_static/toggleprompt.js?v=d7ede5d2"></script>
@@ -122,12 +122,14 @@
 <li class="toctree-l2"><a class="reference internal" href="module_docs/mixing.html#mixing.concatenate_videos"><code class="docutils literal notranslate"><span class="pre">concatenate_videos()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="module_docs/mixing.html#mixing.crop_audio"><code class="docutils literal notranslate"><span class="pre">crop_audio()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="module_docs/mixing.html#mixing.crop_video"><code class="docutils literal notranslate"><span class="pre">crop_video()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="module_docs/mixing.html#mixing.crossfade_transition"><code class="docutils literal notranslate"><span class="pre">crossfade_transition()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="module_docs/mixing.html#mixing.detect_chapters"><code class="docutils literal notranslate"><span class="pre">detect_chapters()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="module_docs/mixing.html#mixing.dub_video_from_srt"><code class="docutils literal notranslate"><span class="pre">dub_video_from_srt()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="module_docs/mixing.html#mixing.dump_srt"><code class="docutils literal notranslate"><span class="pre">dump_srt()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="module_docs/mixing.html#mixing.extract_segments"><code class="docutils literal notranslate"><span class="pre">extract_segments()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="module_docs/mixing.html#mixing.fade_in"><code class="docutils literal notranslate"><span class="pre">fade_in()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="module_docs/mixing.html#mixing.fade_out"><code class="docutils literal notranslate"><span class="pre">fade_out()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="module_docs/mixing.html#mixing.fade_through_black"><code class="docutils literal notranslate"><span class="pre">fade_through_black()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="module_docs/mixing.html#mixing.find_audio_offset"><code class="docutils literal notranslate"><span class="pre">find_audio_offset()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="module_docs/mixing.html#mixing.find_segments"><code class="docutils literal notranslate"><span class="pre">find_segments()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="module_docs/mixing.html#mixing.get_video_dimensions"><code class="docutils literal notranslate"><span class="pre">get_video_dimensions()</span></code></a></li>
@@ -138,6 +140,7 @@
 <li class="toctree-l2"><a class="reference internal" href="module_docs/mixing.html#mixing.make_thumbnail"><code class="docutils literal notranslate"><span class="pre">make_thumbnail()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="module_docs/mixing.html#mixing.normalize_audio"><code class="docutils literal notranslate"><span class="pre">normalize_audio()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="module_docs/mixing.html#mixing.normalize_video_dimensions"><code class="docutils literal notranslate"><span class="pre">normalize_video_dimensions()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="module_docs/mixing.html#mixing.overlap_blend"><code class="docutils literal notranslate"><span class="pre">overlap_blend()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="module_docs/mixing.html#mixing.overlay_audio"><code class="docutils literal notranslate"><span class="pre">overlay_audio()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="module_docs/mixing.html#mixing.parse_srt"><code class="docutils literal notranslate"><span class="pre">parse_srt()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="module_docs/mixing.html#mixing.remove_fillers"><code class="docutils literal notranslate"><span class="pre">remove_fillers()</span></code></a></li>
@@ -146,11 +149,14 @@
 <li class="toctree-l2"><a class="reference internal" href="module_docs/mixing.html#mixing.save_audio_clip"><code class="docutils literal notranslate"><span class="pre">save_audio_clip()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="module_docs/mixing.html#mixing.save_frame"><code class="docutils literal notranslate"><span class="pre">save_frame()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="module_docs/mixing.html#mixing.seconds_to_srt_time"><code class="docutils literal notranslate"><span class="pre">seconds_to_srt_time()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="module_docs/mixing.html#mixing.slow_motion_blend"><code class="docutils literal notranslate"><span class="pre">slow_motion_blend()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="module_docs/mixing.html#mixing.srt_for_media"><code class="docutils literal notranslate"><span class="pre">srt_for_media()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="module_docs/mixing.html#mixing.srt_time_to_seconds"><code class="docutils literal notranslate"><span class="pre">srt_time_to_seconds()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="module_docs/mixing.html#mixing.text_to_speech"><code class="docutils literal notranslate"><span class="pre">text_to_speech()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="module_docs/mixing.html#mixing.transcribe"><code class="docutils literal notranslate"><span class="pre">transcribe()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="module_docs/mixing.html#mixing.translate_srt"><code class="docutils literal notranslate"><span class="pre">translate_srt()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="module_docs/mixing.html#mixing.trim_and_crossfade"><code class="docutils literal notranslate"><span class="pre">trim_and_crossfade()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="module_docs/mixing.html#mixing.trim_first_frame_from_subsequent_clips"><code class="docutils literal notranslate"><span class="pre">trim_first_frame_from_subsequent_clips()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="module_docs/mixing.html#mixing.write_subtitles_in_video"><code class="docutils literal notranslate"><span class="pre">write_subtitles_in_video()</span></code></a></li>
 </ul>
 </li>
