@@ -83,11 +83,11 @@ The audio codec wasn't explicitly specified when writing the video file, causing
 Explicitly specify the audio codec when writing video:
 ```python
 # Write output with audio codec specified
-if 'codec' not in save_kwargs:
-    save_kwargs['codec'] = 'libx264'
-if 'audio_codec' not in save_kwargs:
-    save_kwargs['audio_codec'] = 'aac'
-    
+if "codec" not in save_kwargs:
+    save_kwargs["codec"] = "libx264"
+if "audio_codec" not in save_kwargs:
+    save_kwargs["audio_codec"] = "aac"
+
 final_clip.write_videofile(str(output_path), **save_kwargs)
 ```
 

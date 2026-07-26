@@ -66,9 +66,9 @@ timeout=600.0, cache=True, refresh=False) -> bytes`
 ## Picking a voice
 
 ```python
-voices = list_voices()                       # account voices: voice_id, name, category, labels
-v = find_voice("Brian")                       # first whose name/labels match (case-insensitive)
-v = find_voice("french")                       # match on a label keyword
+voices = list_voices()  # account voices: voice_id, name, category, labels
+v = find_voice("Brian")  # first whose name/labels match (case-insensitive)
+v = find_voice("french")  # match on a label keyword
 voice_id = v["voice_id"]
 ```
 
@@ -92,11 +92,11 @@ synthesize_to_file("Découvrez notre offre.", voice_id, "ad_fr.mp3", language_co
 ## SRT primitives (re-exported from `mixing.srt`)
 
 ```python
-cues = parse_srt(open("promo.srt").read())     # -> list[Cue]
-cues[0].start, cues[0].end, cues[0].text       # times are seconds (float)
-srt_text = dump_srt(cues)                        # serialize, renumbered from 1
-from mixing.dubbing import srt_time_to_seconds   # "00:00:01,500" -> 1.5
-from mixing.srt import seconds_to_srt_time        # 1.5 -> "00:00:01,500"
+cues = parse_srt(open("promo.srt").read())  # -> list[Cue]
+cues[0].start, cues[0].end, cues[0].text  # times are seconds (float)
+srt_text = dump_srt(cues)  # serialize, renumbered from 1
+from mixing.dubbing import srt_time_to_seconds  # "00:00:01,500" -> 1.5
+from mixing.srt import seconds_to_srt_time  # 1.5 -> "00:00:01,500"
 ```
 
 `Cue(index: int, start: float, end: float, text: str)` — `.duration` is
@@ -106,8 +106,8 @@ from mixing.srt import seconds_to_srt_time        # 1.5 -> "00:00:01,500"
 ## Translate an SRT (timings preserved)
 
 ```python
-fr_srt = translate_srt(open("promo.srt").read(), "French")            # LLM via aix
-fr_srt = translate_srt(cues, "Spanish", source_language="English")     # cues also accepted
+fr_srt = translate_srt(open("promo.srt").read(), "French")  # LLM via aix
+fr_srt = translate_srt(cues, "Spanish", source_language="English")  # cues also accepted
 ```
 
 `translate_srt(srt, target_language, *, source_language=None, translate_fn=None)
@@ -120,7 +120,8 @@ source_language) -> list[str]` callable:
 
 ```python
 def my_translate(texts, target_language, source_language=None):
-    return [translate_one(t, target_language) for t in texts]   # your engine
+    return [translate_one(t, target_language) for t in texts]  # your engine
+
 
 fr_srt = translate_srt(srt_text, "French", translate_fn=my_translate)
 ```
@@ -129,9 +130,10 @@ fr_srt = translate_srt(srt_text, "French", translate_fn=my_translate)
 
 ```python
 dub_video_from_srt(
-    "promo.mp4", "promo.srt",          # video + (path | raw SRT text | list[Cue])
+    "promo.mp4",
+    "promo.srt",  # video + (path | raw SRT text | list[Cue])
     voice_id=voice_id,
-    output="promo.en.mp4",              # the ONE egress param (None → <stem>.<lang|dub>.mp4 beside input)
+    output="promo.en.mp4",  # the ONE egress param (None → <stem>.<lang|dub>.mp4 beside input)
     language_code="en",
 )
 ```
@@ -160,7 +162,8 @@ and muxes back over the video.
 en_srt = open("promo.srt").read()
 fr_srt = translate_srt(en_srt, "French")
 dub_video_from_srt(
-    "promo.mp4", fr_srt,                 # pass the translated SRT text directly
+    "promo.mp4",
+    fr_srt,  # pass the translated SRT text directly
     voice_id=find_voice("french")["voice_id"],
     language_code="fr",
     output="promo.fr.mp4",

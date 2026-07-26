@@ -193,6 +193,7 @@ if widget.has_selection:
     # You can now process this separately or save it
     # Save just the selection without modifying the widget
     import soundfile as sf
+
     sf.write("selection_only.wav", selected_wf, selected_sr)
 else:
     print("No selection made")
@@ -204,9 +205,9 @@ else:
 # Create widget with custom colors and size
 widget = AudioWidget(
     "audio.wav",
-    height=200,                      # Taller waveform
-    waveform_color='#FF6B6B',       # Red waveform
-    progress_color='#4ECDC4'         # Turquoise progress/playhead
+    height=200,  # Taller waveform
+    waveform_color="#FF6B6B",  # Red waveform
+    progress_color="#4ECDC4",  # Turquoise progress/playhead
 )
 display(widget)
 ```
@@ -321,6 +322,7 @@ widget.crop()  # Now it's permanent
 if widget.has_selection:
     selected_wf, selected_sr = widget.get_selection()
     import soundfile as sf
+
     sf.write("just_selection.wav", selected_wf, selected_sr)
     # Original widget is unchanged!
 ```
@@ -364,6 +366,7 @@ widget.crop()
 ```python
 # Manually initialize
 from mixing.audio.audio_widget import initialize_widget_javascript
+
 initialize_widget_javascript()
 ```
 

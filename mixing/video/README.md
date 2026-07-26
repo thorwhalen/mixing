@@ -22,7 +22,9 @@ The simplest way to generate videos is with a single function call that returns 
 from mixing.video.genai import generate_video
 
 # Generate video and get file path in one call
-video_path = generate_video("A serene forest at dawn with golden sunlight filtering through mist")
+video_path = generate_video(
+    "A serene forest at dawn with golden sunlight filtering through mist"
+)
 print(f"Video saved to: {video_path}")
 ```
 
@@ -60,7 +62,9 @@ export VEO_LOCATION="us-central1"  # Optional, defaults to us-central1
 from mixing.video.genai import generate_video
 
 # Generate video and get file path (default behavior)
-video_path = generate_video("A serene forest at dawn with golden sunlight filtering through mist")
+video_path = generate_video(
+    "A serene forest at dawn with golden sunlight filtering through mist"
+)
 print(f"Video saved to: {video_path}")
 
 # Save to specific location
@@ -85,13 +89,18 @@ path = generate_video("Forest scene", output=".webm")
 operation = generate_video("Forest scene", output=False)
 # or: operation = generate_video("Forest scene", output=lambda x: x)
 
+
 # Custom processing function
 def my_video_processor(operation):
     # Save with custom prefix and settings
     from mixing.video.genai import save_generated_videos
-    paths = save_generated_videos(operation, prefix="custom_", extension_fallback="webm")
+
+    paths = save_generated_videos(
+        operation, prefix="custom_", extension_fallback="webm"
+    )
     print(f"Processed {len(paths)} videos with custom settings")
     return paths
+
 
 result = generate_video("Forest scene", output=my_video_processor)
 ```
@@ -106,7 +115,7 @@ video_path = generate_video(
     aspect_ratio="16:9",
     duration_seconds=8,
     output="/my/custom/video.mp4",
-    project_id="your-project-id"  # Override environment
+    project_id="your-project-id",  # Override environment
 )
 ```
 
@@ -116,7 +125,7 @@ video_path = generate_video(
 video_path = generate_video(
     prompt="The camera slowly zooms out revealing a vast landscape",
     first_frame="/path/to/start_image.jpg",
-    output="/output/zoom_out.mp4"
+    output="/output/zoom_out.mp4",
 )
 ```
 
@@ -126,8 +135,8 @@ video_path = generate_video(
 video_path = generate_video(
     prompt="Smooth transition with swirling particles",
     first_frame="/path/to/video1.mp4",  # Extracts last frame
-    last_frame="/path/to/video2.mp4",   # Extracts first frame
-    output="/output/transition.mp4"
+    last_frame="/path/to/video2.mp4",  # Extracts first frame
+    output="/output/transition.mp4",
 )
 ```
 
@@ -137,7 +146,7 @@ video_path = generate_video(
 video_paths = generate_video(
     prompt="A cosmic dance of stars and galaxies",
     model="veo-3.0-generate-001",  # May generate multiple results
-    output="/output/directory/"  # Auto-indexed: cosmic_00.mp4, cosmic_01.mp4, etc.
+    output="/output/directory/",  # Auto-indexed: cosmic_00.mp4, cosmic_01.mp4, etc.
 )
 print(f"Generated {len(video_paths)} videos: {video_paths}")
 ```
@@ -147,17 +156,22 @@ print(f"Generated {len(video_paths)} videos: {video_paths}")
 # Get raw operation for custom processing
 def advanced_processor(operation):
     from mixing.video.genai import save_generated_videos
-    
+
     # Save multiple formats
-    mp4_paths = save_generated_videos(operation, "/output/mp4/", extension_fallback="mp4")
-    webm_paths = save_generated_videos(operation, "/output/webm/", extension_fallback="webm") 
-    
+    mp4_paths = save_generated_videos(
+        operation, "/output/mp4/", extension_fallback="mp4"
+    )
+    webm_paths = save_generated_videos(
+        operation, "/output/webm/", extension_fallback="webm"
+    )
+
     # Log generation details
     print(f"Generated {len(operation.response.generated_videos)} videos")
     for i, video in enumerate(operation.response.generated_videos):
         print(f"Video {i}: {getattr(video, 'mime_type', 'unknown')} format")
-    
+
     return {"mp4": mp4_paths, "webm": webm_paths}
+
 
 result = generate_video("Epic landscape timelapse", output=advanced_processor)
 ```
@@ -185,7 +199,7 @@ paths = save_generated_videos(
     "/output/",
     prefix="animation_",
     directory_name="my_video_",
-    extension_fallback="mp4"
+    extension_fallback="mp4",
 )
 ```
 
@@ -292,17 +306,17 @@ Example usage:
 from mixing.video.video_subtitles import write_subtitles_in_video
 
 # Auto-detect subtitle file
-output_path = write_subtitles_in_video("~/Downloads/some_video.mp4") 
+output_path = write_subtitles_in_video("~/Downloads/some_video.mp4")
 ```
 
 Which is syntactic sugar for the more explicit:
 
 ```python
 output_path = write_subtitles_in_video(
-    "~/Downloads/some_video.mp4", 
+    "~/Downloads/some_video.mp4",
     subtitles="~/Downloads/some_video.srt",
-    output_video="~/Downloads/some_video_with_subs.mp4"
-)  
+    output_video="~/Downloads/some_video_with_subs.mp4",
+)
 ```
 
 ## Video Concatenation (`video_concat`)
@@ -315,10 +329,7 @@ Combine multiple videos with various transition effects and automatic dimension 
 from mixing.video import concatenate_videos
 
 # Simple concatenation from a folder (auto-normalizes dimensions)
-final_video = concatenate_videos(
-    "/path/to/videos/",
-    output_path="/output/combined.mp4"
-)
+final_video = concatenate_videos("/path/to/videos/", output_path="/output/combined.mp4")
 ```
 
 ### Dimension Normalization
@@ -329,7 +340,7 @@ When concatenating videos with different dimensions (width/height), `concatenate
 # Default: Social media style (blurred background)
 concatenate_videos(
     [video1, video2, video3],  # Videos with different dimensions
-    output_path="output.mp4"
+    output_path="output.mp4",
     # normalize_dimensions='social' is the default
 )
 ```
@@ -344,26 +355,18 @@ concatenate_videos(
 
 ```python
 # Letterbox style (black bars on sides/top-bottom)
-concatenate_videos(
-    videos,
-    output_path="letterbox.mp4",
-    normalize_dimensions='fit'
-)
+concatenate_videos(videos, output_path="letterbox.mp4", normalize_dimensions="fit")
 
 # Fill mode (may crop edges to avoid distortion)
-concatenate_videos(
-    videos,
-    output_path="filled.mp4",
-    normalize_dimensions='fill'
-)
+concatenate_videos(videos, output_path="filled.mp4", normalize_dimensions="fill")
 
 # Explicit target dimensions
 concatenate_videos(
     videos,
     target_width=1920,
     target_height=1080,
-    normalize_dimensions='social',
-    output_path="1080p.mp4"
+    normalize_dimensions="social",
+    output_path="1080p.mp4",
 )
 ```
 
@@ -381,19 +384,16 @@ width, height = get_video_dimensions(video)
 print(f"Original: {width}x{height}")
 
 # Resize with social media style
-resized = resize_to_dimensions(
-    video,
-    1920, 1080,
-    method='social'
-)
+resized = resize_to_dimensions(video, 1920, 1080, method="social")
 resized.write_videofile("resized_social.mp4")
 
 # Or use letterbox
 resized = resize_to_dimensions(
     video,
-    1920, 1080,
-    method='fit',
-    bg_color=(0, 0, 0)  # Black background
+    1920,
+    1080,
+    method="fit",
+    bg_color=(0, 0, 0),  # Black background
 )
 ```
 
@@ -408,7 +408,7 @@ from mixing.video.video_concat import trim_and_crossfade
 final = concatenate_videos(
     videos,
     transform_clips=lambda clips: trim_and_crossfade(clips, duration=0.4),
-    output_path="smooth_transitions.mp4"
+    output_path="smooth_transitions.mp4",
 )
 ```
 

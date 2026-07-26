@@ -21,12 +21,13 @@ Slice, transform, and assemble video. Most ops need **ffmpeg** on PATH.
 
 ```python
 import mixing
+
 assert mixing.has_ffmpeg(), "install ffmpeg (brew install ffmpeg / apt install ffmpeg)"
 
 from mixing.video import Video, crop_video, replace_audio, make_thumbnail
 
-Video("clip.mp4")[5:15].save(output="cut.mp4")        # trim 5s–15s
-crop_video("clip.mp4", 5, 15, output="cut.mp4")       # same, one call
+Video("clip.mp4")[5:15].save(output="cut.mp4")  # trim 5s–15s
+crop_video("clip.mp4", 5, 15, output="cut.mp4")  # same, one call
 replace_audio("clip.mp4", "music.mp3", output="scored.mp4")
 make_thumbnail("clip.mp4", text="My Title", output="thumb.jpg")
 ```
@@ -70,20 +71,22 @@ with Video("movie.mp4") as v: d = v.duration       # context-managed (releases h
 ## Core transforms (all file→file, honor `output`)
 
 ```python
-crop_video("in.mp4", 5, 15, output="out.mp4")                 # trim; start==end -> single frame
-crop_video("in.mp4", 100, 500, time_unit="frames")            # by frame number
-loop_video("intro.mp4", 3, output="x3.mp4")                   # n_loops>=1, repeats the clip
-change_speed("in.mp4", 2.0, output="fast.mp4")                # 2.0=2x faster, 0.5=half (audio too)
-normalize_audio("lecture.mp4", output="leveled.mp4")          # even out volume swings
+crop_video("in.mp4", 5, 15, output="out.mp4")  # trim; start==end -> single frame
+crop_video("in.mp4", 100, 500, time_unit="frames")  # by frame number
+loop_video("intro.mp4", 3, output="x3.mp4")  # n_loops>=1, repeats the clip
+change_speed("in.mp4", 2.0, output="fast.mp4")  # 2.0=2x faster, 0.5=half (audio too)
+normalize_audio("lecture.mp4", output="leveled.mp4")  # even out volume swings
 ```
 
 ### replace_audio — swap or blend the soundtrack
 
 ```python
-replace_audio("v.mp4", "music.mp3", output="out.mp4")                 # mix_ratio=1.0 (default): only new
-replace_audio("v.mp4", "bgm.mp3", mix_ratio=0.0, output="out.mp4")    # keep original only
-replace_audio("v.mp4", "bgm.mp3", mix_ratio=0.5, output="out.mp4")    # equal blend
-replace_audio("v.mp4", "voice.mp3", mix_ratio=0.7)                    # 70% new / 30% original
+replace_audio(
+    "v.mp4", "music.mp3", output="out.mp4"
+)  # mix_ratio=1.0 (default): only new
+replace_audio("v.mp4", "bgm.mp3", mix_ratio=0.0, output="out.mp4")  # keep original only
+replace_audio("v.mp4", "bgm.mp3", mix_ratio=0.5, output="out.mp4")  # equal blend
+replace_audio("v.mp4", "voice.mp3", mix_ratio=0.7)  # 70% new / 30% original
 ```
 
 `mix_ratio` (0.0–1.0): `1.0`=only new, `0.0`=keep original, `0.5`=blend.
@@ -99,12 +102,14 @@ everything else (`output=None` lets burns auto-name beside the image).
 from mixing.video import ken_burns_video, ken_burns_film
 
 # Animate a still image into a clip (default path zooms in slightly)
-ken_burns_video("photo.jpg", duration=6.0, fps=30, output_size=(1920, 1080),
-                output="pan.mp4")
+ken_burns_video(
+    "photo.jpg", duration=6.0, fps=30, output_size=(1920, 1080), output="pan.mp4"
+)
 
 # Stitch a multi-panel film; mux a pre-built audio track over the panels.
 # Each panel is an (image, BurnsPath, duration_s) TRIPLE — the path is required.
 from burns import BurnsPath
+
 panels = [
     ("p1.jpg", BurnsPath(), 5.0),
     ("p2.jpg", BurnsPath(), 4.0),
@@ -121,8 +126,12 @@ and writes nothing when every slot is silent.
 from mixing.video import assemble_audio_track
 
 assemble_audio_track(
-    [("voice1.mp3", 5.0), (None, 3.0), ("voice2.mp3", 4.0)],  # (audio|None, duration_s) per panel
-    output="film_audio.wav",          # WAV pcm_s16le; slot-for-slot with ken_burns_film panels
+    [
+        ("voice1.mp3", 5.0),
+        (None, 3.0),
+        ("voice2.mp3", 4.0),
+    ],  # (audio|None, duration_s) per panel
+    output="film_audio.wav",  # WAV pcm_s16le; slot-for-slot with ken_burns_film panels
 )
 # then: ken_burns_film(panels, audio_path="film_audio.wav", output="film.mp4")
 ```
@@ -135,9 +144,11 @@ over-long clip is trimmed). `sample_rate=44100` by default.
 ```python
 from mixing.video import make_thumbnail, THUMBNAIL_SIZE, YOUTUBE_THUMB_SIZE
 
-make_thumbnail("video.mp4", output="thumb.jpg")                      # frame at 85% of duration
+make_thumbnail("video.mp4", output="thumb.jpg")  # frame at 85% of duration
 make_thumbnail("video.mp4", at_time=12.5, text="Episode 4", output="thumb.jpg")
-make_thumbnail("video.mp4", size=YOUTUBE_THUMB_SIZE, output="t/")    # 1280x720 (== THUMBNAIL_SIZE)
+make_thumbnail(
+    "video.mp4", size=YOUTUBE_THUMB_SIZE, output="t/"
+)  # 1280x720 (== THUMBNAIL_SIZE)
 ```
 
 `make_thumbnail(video, *, at_time=None, text=None, output=None, size=(1280,720))`
@@ -150,8 +161,8 @@ gradient band. Default `output=None` writes `<stem>.thumb.jpg` beside the video.
 from mixing.video import write_subtitles_in_video
 
 write_subtitles_in_video("v.mp4", "subs.srt", output="captioned.mp4")  # SRT path
-write_subtitles_in_video("v.mp4", srt_content_string)                  # or raw SRT text
-write_subtitles_in_video("v.mp4")                                      # None -> sibling <stem>.srt
+write_subtitles_in_video("v.mp4", srt_content_string)  # or raw SRT text
+write_subtitles_in_video("v.mp4")  # None -> sibling <stem>.srt
 ```
 
 `write_subtitles_in_video(video, subtitles=None, output=None, *, style=None,
@@ -189,7 +200,7 @@ from mixing.video import concatenate_videos
 
 final = concatenate_videos(["a.mp4", "b.mp4", "c.mp4"], output="joined.mp4")
 final.close()
-final = concatenate_videos("clips_folder/", output=True)   # auto-name from folder
+final = concatenate_videos("clips_folder/", output=True)  # auto-name from folder
 final.close()
 ```
 
@@ -205,8 +216,10 @@ ADC or a service-account JSON). Not on the lazy facade — import explicitly.
 ```python
 from mixing.video.genai import generate_video
 
-path = generate_video("A serene forest at dawn", output="forest.mp4")  # output protocol + path
-op   = generate_video("A serene forest at dawn", output=False)         # raw operation, no save
+path = generate_video(
+    "A serene forest at dawn", output="forest.mp4"
+)  # output protocol + path
+op = generate_video("A serene forest at dawn", output=False)  # raw operation, no save
 ```
 
 `generate_video(prompt, first_frame=None, last_frame=None, *, output=save_generated_videos,

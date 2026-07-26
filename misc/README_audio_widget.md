@@ -35,6 +35,7 @@ display(widget)
 
 # Or from (waveform, sample_rate) tuple
 import numpy as np
+
 sr = 44100
 t = np.linspace(0, 1, sr)
 wf = np.sin(2 * np.pi * 440 * t).astype(np.float32)
@@ -90,9 +91,9 @@ widget.apply_fade_out(duration=2.0)
 # Customize appearance
 widget = AudioWidget(
     "audio.wav",
-    height=200,                    # Waveform height in pixels
-    waveform_color='#FF6B6B',     # Color of waveform
-    progress_color='#4A90E2'       # Color of playhead
+    height=200,  # Waveform height in pixels
+    waveform_color="#FF6B6B",  # Color of waveform
+    progress_color="#4A90E2",  # Color of playhead
 )
 ```
 
@@ -154,7 +155,7 @@ wf, sr = ensure_wfsr((wf, sr))
 ```python
 # Set selection programmatically
 widget.selection_start = 2.5  # seconds
-widget.selection_end = 5.0    # seconds
+widget.selection_end = 5.0  # seconds
 widget.has_selection = True
 
 # Now perform operations
@@ -243,6 +244,7 @@ def apply_custom_effect(widget, param1, param2):
     widget.wf = processed_wf
     widget._update_audio_data()
 
+
 # Use it
 widget = AudioWidget("audio.wav")
 apply_custom_effect(widget, param1=0.5, param2=10)
@@ -293,6 +295,7 @@ jupyter labextension install @jupyter-widgets/jupyterlab-manager
 The widget auto-initializes when imported. If issues persist, manually initialize:
 ```python
 from mixing.audio.audio_widget import initialize_widget_javascript
+
 initialize_widget_javascript()
 ```
 

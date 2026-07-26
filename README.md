@@ -42,21 +42,25 @@ architectural contract they share lives in [`.claude/CLAUDE.md`](.claude/CLAUDE.
 ## Quick start
 
 ```python
-import mixing                      # cheap: no moviepy/opencv loaded yet
-assert mixing.has_ffmpeg()         # most ops need ffmpeg on PATH
+import mixing  # cheap: no moviepy/opencv loaded yet
+
+assert mixing.has_ffmpeg()  # most ops need ffmpeg on PATH
 
 # --- audio ---
 from mixing.audio import Audio
+
 Audio("song.mp3")[10:30].fade_in(2).fade_out(3).save(output="clip.mp3")
 
 # --- video ---
 from mixing.video import replace_audio, ken_burns_video
+
 replace_audio("clip.mp4", "music.mp3", mix_ratio=0.7, output="mixed.mp4")
 ken_burns_video("cover.jpg", duration=8, output="cover.mp4")
 
 # --- transcript: remove "uh"/"um" (ElevenLabs Scribe + ffmpeg) ---
 from mixing.transcript import remove_fillers
-result = remove_fillers("talk.mov", "out/")     # uses $ELEVENLABS_API_KEY
+
+result = remove_fillers("talk.mov", "out/")  # uses $ELEVENLABS_API_KEY
 print(result.cleaned_media)
 ```
 
@@ -66,10 +70,10 @@ print(result.cleaned_media)
 argument whose *role* is constant and *type* is open:
 
 ```python
-crop_video("in.mp4", 5, 15, output="out.mp4")   # file → writes it, returns Path
-crop_video("in.mp4", 5, 15, output="clips/")     # dir  → auto-named file inside
-crop_video("in.mp4", 5, 15)                       # None → saves beside the input
-fade_in("in.mp3", output=lambda audio: audio)     # callable → receives the result
+crop_video("in.mp4", 5, 15, output="out.mp4")  # file → writes it, returns Path
+crop_video("in.mp4", 5, 15, output="clips/")  # dir  → auto-named file inside
+crop_video("in.mp4", 5, 15)  # None → saves beside the input
+fade_in("in.mp3", output=lambda audio: audio)  # callable → receives the result
 ```
 
 Object producers (audio editing) return the in-memory object when `output=None`,
@@ -86,8 +90,9 @@ views:
 
 ```python
 from mixing.video import Video
+
 with Video("movie.mp4") as v:
-    v[10:30].save(output="cut.mp4")   # seconds; v[100] returns a single frame
+    v[10:30].save(output="cut.mp4")  # seconds; v[100] returns a single frame
 ```
 
 ## Requirements

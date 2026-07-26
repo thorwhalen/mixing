@@ -80,8 +80,8 @@ from mixing.audio import Audio
 from mixing.video import Video
 
 Audio("in.mp3")[10:30].fade_in(2).fade_out(3).save(output="out/clip.mp3")
-Video("in.mp4")[5:15].save(output="out/cut.mp4")            # 5s–15s
-Video("in.mp4").save_frame(10.5, output="out/frame.png")    # one frame
+Video("in.mp4")[5:15].save(output="out/cut.mp4")  # 5s–15s
+Video("in.mp4").save_frame(10.5, output="out/frame.png")  # one frame
 ```
 
 Free functions cover the rest (all use `output=`):
@@ -118,11 +118,13 @@ res = mixing.remove_fillers("talk.mp4", "out/", output_media="out/talk.clean.mp4
 # res.cleaned_media is the cleaned file path (plus res.transcript_srt, res.cleaned_srt, …)
 
 # dub: build a TTS track from an SRT and swap it in
-mixing.dub_video_from_srt("talk.mp4", "talk.fr.srt",
-                          voice_id="<voice-id>", output="out/talk.fr.mp4")
+mixing.dub_video_from_srt(
+    "talk.mp4", "talk.fr.srt", voice_id="<voice-id>", output="out/talk.fr.mp4"
+)
 
 # detect chapter markers from a transcript (LLM optional for titles)
 from mixing.chapters import detect_chapters
+
 chapters = detect_chapters(srt_text)
 ```
 

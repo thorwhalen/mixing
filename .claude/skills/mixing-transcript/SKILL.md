@@ -21,19 +21,20 @@ and transcript→chapter detection. `import mixing` is light; pull what you need
 
 ```python
 import mixing
+
 assert mixing.has_ffmpeg(), "install ffmpeg (brew install ffmpeg / apt install ffmpeg)"
 
 from mixing.transcript import srt_for_media, remove_fillers, transcribe
 
 # 1. Captions for a media file (transcribe once, persist beside it, reuse).
-srt_text, srt_path = srt_for_media("talk.mp4")          # writes talk.srt
+srt_text, srt_path = srt_for_media("talk.mp4")  # writes talk.srt
 
 # 2. Strip the ums/uhs and write cleaned media + transcripts into a folder.
-result = remove_fillers("talk.mp4", "out/")             # -> FillerRemovalResult
-print(result.cleaned_media)                              # out/talk.cleaned.mp4
+result = remove_fillers("talk.mp4", "out/")  # -> FillerRemovalResult
+print(result.cleaned_media)  # out/talk.cleaned.mp4
 
 # 3. Word-level timestamps as raw data.
-resp = transcribe("talk.mp4", cache=True)               # dict with resp["words"]
+resp = transcribe("talk.mp4", cache=True)  # dict with resp["words"]
 ```
 
 **Needs `ELEVENLABS_API_KEY`** (env var, or pass `api_key=`). Responses are cached
@@ -44,15 +45,16 @@ on disk, so re-running the same input is free and offline (`cache=`/`refresh=`).
 ### transcribe — raw Scribe response
 ```python
 from mixing.transcript import transcribe
+
 resp = transcribe(
-    "talk.mp4",                  # path (audio OR video) or raw bytes
-    cache=True,                  # on-disk cache; True=default dir, or pass a path
+    "talk.mp4",  # path (audio OR video) or raw bytes
+    cache=True,  # on-disk cache; True=default dir, or pass a path
     # api_key=..., model_id="scribe_v1",
     # timestamps_granularity="word",  # "word"(default)|"character"|"none"
     # diarize=False, language_code="en", refresh=False,
 )
-resp["words"]            # [{"text","start","end","type","confidence"}, ...]
-resp["text"]             # full plain text
+resp["words"]  # [{"text","start","end","type","confidence"}, ...]
+resp["text"]  # full plain text
 resp["audio_duration_secs"]
 ```
 `type` is `"word"`, `"spacing"`, or `"audio_event"` (e.g. `(laughs)` when
@@ -64,6 +66,7 @@ resp["audio_duration_secs"]
 ### srt_for_media — transcribe-once-persist-reuse
 ```python
 from mixing.transcript import srt_for_media
+
 srt_text, srt_path = srt_for_media(
     "talk.mp4",
     # srt_path=None,    # default: media path with .srt suffix
@@ -79,18 +82,19 @@ Returns `(srt_text, Path)`. Existing/hand-corrected SRTs are reused untouched.
 ### remove_fillers — end-to-end ums/uhs removal
 ```python
 from mixing.transcript import remove_fillers
+
 result = remove_fillers(
-    "talk.mp4",            # input media (video or audio)
-    "out/",                # output_dir (created if missing) for all artifacts
+    "talk.mp4",  # input media (video or audio)
+    "out/",  # output_dir (created if missing) for all artifacts
     # output_media=None,   # cleaned media; default out/<stem>.cleaned.mp4
     # fillers=DEFAULT_FILLER_TOKENS,        # override the filler set
     # audio_events=DEFAULT_AUDIO_EVENTS_TO_CUT,  # default removes (coughs); keeps (laughs)
     # api_key=..., scribe_kwargs={...}, apply_keeps_kwargs={...},
     # scribe_data=None,    # replay a saved Scribe dict — NO network call
 )
-result.cleaned_media   # Path to cleaned media
-result.cuts            # [{"start","end","label"}, ...]   removed ranges
-result.keeps           # [{"start","end"}, ...]           kept ranges
+result.cleaned_media  # Path to cleaned media
+result.cuts  # [{"start","end","label"}, ...]   removed ranges
+result.keeps  # [{"start","end"}, ...]           kept ranges
 # also: transcript_md/srt, cleaned_md/srt, scribe_json, cuts_json, keeps_json, duration
 ```
 This emits **multiple artifacts**, so it qualifies its destinations
@@ -100,17 +104,18 @@ re-cut with no API call — perfect for tweaking `fillers=` cheaply.
 
 ### detect_chapters — transcript → chapter markers
 ```python
-import mixing                                  # eager facade export
+import mixing  # eager facade export
+
 chapters = mixing.detect_chapters(
-    resp,                  # a Scribe dict, OR resp["words"], OR SRT text, OR a cue list
+    resp,  # a Scribe dict, OR resp["words"], OR SRT text, OR a cue list
     # duration=None,       # inferred from last timestamp if omitted
     # min_chapters=3, max_chapters=8, min_spacing=10.0,  # players need >=10s spacing
     # target_count=None,   # ~1 chapter / 90s, clamped to [min,max]
     # segment_fn=None,     # default uses an LLM (aix); see below to avoid it
     # model=None,
 )
-for ch in chapters:        # list[mixing.Chapter]
-    print(ch.start, ch.title)   # (start_seconds: float, title: str)
+for ch in chapters:  # list[mixing.Chapter]
+    print(ch.start, ch.title)  # (start_seconds: float, title: str)
 ```
 Returns `[]` when media is too short to host `min_chapters` spaced markers (first
 chapter is always forced to `0:00`). Output is target-neutral — formatting into
@@ -119,29 +124,37 @@ YouTube/PSC/ID3 is a publication-layer job (e.g. the `yb` package).
 
 **Avoid the LLM dep** ([llm]/`aix`) by passing your own `segment_fn(segments, target_count) -> [{"start","title"}]`:
 ```python
-def first_sentences(segments, target_count):       # naive, no LLM
+def first_sentences(segments, target_count):  # naive, no LLM
     step = max(1, len(segments) // target_count)
-    return [{"start": s["start"], "title": s["text"][:50]}
-            for s in segments[::step]]
+    return [{"start": s["start"], "title": s["text"][:50]} for s in segments[::step]]
+
+
 mixing.detect_chapters(resp, segment_fn=first_sentences)
 ```
 
 ## Building blocks (compose your own pipeline)
 ```python
 from mixing.transcript import (
-    is_filler, build_cuts, keeps_from_cuts,        # cut math
-    words_to_srt, words_to_prose, words_to_srt_remapped, remap_time_after_cuts,
-    extract_audio, apply_keeps,                     # ffmpeg helpers
+    is_filler,
+    build_cuts,
+    keeps_from_cuts,  # cut math
+    words_to_srt,
+    words_to_prose,
+    words_to_srt_remapped,
+    remap_time_after_cuts,
+    extract_audio,
+    apply_keeps,  # ffmpeg helpers
 )
+
 words = transcribe("talk.mp4", cache=True)["words"]
-cuts  = build_cuts(words)                           # [{"start","end","label"}]
+cuts = build_cuts(words)  # [{"start","end","label"}]
 keeps = keeps_from_cuts(cuts, duration=resp["audio_duration_secs"])
 
-words_to_srt(words, max_chars=80)                   # SRT (no removal, no remap)
-words_to_prose(words, drop_fillers=True)            # clean paragraphs
-words_to_srt_remapped(words, cuts)                  # SRT aligned to the post-cut timeline
-apply_keeps("talk.mp4", "cut.mp4", keeps)           # ffmpeg re-encode -> Path
-extract_audio("talk.mp4", "talk.mp3")               # mono 16k mp3 for STT -> Path
+words_to_srt(words, max_chars=80)  # SRT (no removal, no remap)
+words_to_prose(words, drop_fillers=True)  # clean paragraphs
+words_to_srt_remapped(words, cuts)  # SRT aligned to the post-cut timeline
+apply_keeps("talk.mp4", "cut.mp4", keeps)  # ffmpeg re-encode -> Path
+extract_audio("talk.mp4", "talk.mp3")  # mono 16k mp3 for STT -> Path
 ```
 
 ## Recipes
