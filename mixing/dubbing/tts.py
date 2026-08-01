@@ -75,7 +75,8 @@ def text_to_speech(
     timeout: float = 600.0,
     cache: CacheArg = True,
     refresh: bool = False,
-) -> bytes:
+    return_cache_status: bool = False,
+) -> bytes | tuple[bytes, bool]:
     """Synthesize ``text`` to speech with ElevenLabs and return audio bytes.
 
     Args:
@@ -97,9 +98,14 @@ def text_to_speech(
             SHA-256 of the text plus every parameter that affects the audio.
         refresh: When ``True`` and ``cache`` is enabled, force a re-call and
             overwrite the cached entry.
+        return_cache_status: When ``True``, return ``(audio, was_cached)`` instead
+            of just ``audio``. ``was_cached`` is ``True`` iff the bytes came from the
+            on-disk cache (no ElevenLabs call = no spend), so a caller can attribute
+            real cost. Default ``False`` keeps the ``bytes`` return.
 
     Returns:
-        Raw audio bytes in ``output_format`` (MP3 by default).
+        Raw audio bytes in ``output_format`` (MP3 by default) — or, when
+        ``return_cache_status`` is ``True``, a ``(audio, was_cached)`` tuple.
 
     Raises:
         RuntimeError: No API key supplied and ``ELEVENLABS_API_KEY`` unset.
@@ -119,7 +125,7 @@ def text_to_speech(
         )
         cached = _cache.read_cache(cache_dir, key, suffix=".audio")
         if cached is not None and not refresh:
-            return cached
+            return (cached, True) if return_cache_status else cached
 
     api_key = resolve_api_key(api_key)
 
@@ -150,7 +156,7 @@ def text_to_speech(
 
     if cache_dir is not None:
         _cache.write_cache(cache_dir, key, audio, suffix=".audio")
-    return audio
+    return (audio, False) if return_cache_status else audio
 
 
 def synthesize_to_file(
