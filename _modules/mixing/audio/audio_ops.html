@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>mixing.audio.audio_ops &mdash; mixing 0.0.27 documentation</title>
+  <title>mixing.audio.audio_ops &mdash; mixing 0.0.28 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
@@ -14,7 +14,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=cee5022b"></script>
+      <script src="../../../_static/documentation_options.js?v=26ffa1e9"></script>
       <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="../../../_static/toggleprompt.js?v=d7ede5d2"></script>
@@ -145,7 +145,8 @@
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Union</span><span class="p">,</span> <span class="n">TYPE_CHECKING</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Iterator</span><span class="p">,</span> <span class="n">Mapping</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Iterator</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">Sequence</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">io</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
@@ -1022,33 +1023,194 @@
 <span class="sd">        &gt;&gt;&gt; offset = find_audio_offset(&quot;camera_audio.wav&quot;, &quot;studio.mp3&quot;)  # doctest: +SKIP</span>
 <span class="sd">        &gt;&gt;&gt; print(f&quot;Studio recording starts at {offset:.2f}s in the camera audio&quot;)  # doctest: +SKIP</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">find_audio_offset_detailed</span><span class="p">(</span>
+        <span class="n">reference_audio</span><span class="p">,</span> <span class="n">query_audio</span><span class="p">,</span> <span class="n">sample_rate</span><span class="o">=</span><span class="n">sample_rate</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">offset_s</span></div>
+
+
+
+<div class="viewcode-block" id="AudioOffset">
+<a class="viewcode-back" href="../../../module_docs/mixing/audio/audio_ops.html#mixing.AudioOffset">[docs]</a>
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">AudioOffset</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;The result of aligning one recording within another.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        offset_s: Time in ``reference`` where ``query`` begins (seconds). Positive</span>
+<span class="sd">            means query starts after the reference&#39;s t=0; **negative** means query</span>
+<span class="sd">            began before it (e.g. a phone that started filming before the song).</span>
+<span class="sd">        confidence: A scale-invariant normalized cross-correlation coefficient in</span>
+<span class="sd">            ``[0, 1]`` at the best lag — comparable ACROSS clips of different loudness</span>
+<span class="sd">            and length. ~0.5+ is a strong match; near 0 means no shared component.</span>
+<span class="sd">        sample_rate: The analysis sample rate the offset was computed at.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">offset_s</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">confidence</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">sample_rate</span><span class="p">:</span> <span class="nb">int</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_load_mono_samples</span><span class="p">(</span><span class="n">source</span><span class="p">:</span> <span class="n">AudioSource</span><span class="p">,</span> <span class="n">sample_rate</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Load any :data:`AudioSource` as a mono float64 array at ``sample_rate``.&quot;&quot;&quot;</span>
+    <span class="n">seg</span> <span class="o">=</span> <span class="n">_normalize_audio_source</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">target_type</span><span class="o">=</span><span class="s2">&quot;AudioSegment&quot;</span><span class="p">)</span>
+    <span class="n">seg</span> <span class="o">=</span> <span class="n">seg</span><span class="o">.</span><span class="n">set_channels</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">set_frame_rate</span><span class="p">(</span><span class="n">sample_rate</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">seg</span><span class="o">.</span><span class="n">get_array_of_samples</span><span class="p">(),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_normalized_xcorr</span><span class="p">(</span>
+    <span class="n">ref</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">query</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">min_overlap_ratio</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.5</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Overlap-normalized cross-correlation of two mono signals.</span>
+
+<span class="sd">    Returns ``(lag_samples, coefficient)`` where ``lag_samples`` is where ``query``</span>
+<span class="sd">    begins within ``ref`` (may be negative) and ``coefficient`` is the normalized</span>
+<span class="sd">    cross-correlation in ``[0, 1]`` at that lag. Normalizing each lag by the energy of</span>
+<span class="sd">    its actual overlap makes the score scale-invariant (comparable across clips) AND</span>
+<span class="sd">    removes the triangular-overlap argmax bias for clips that extend before/after the</span>
+<span class="sd">    reference — the common multi-device case. Lags overlapping less than</span>
+<span class="sd">    ``min_overlap_ratio`` of the shorter signal are excluded so a tiny sliver of overlap</span>
+<span class="sd">    can&#39;t win.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">correlate</span> <span class="o">=</span> <span class="n">require_package</span><span class="p">(</span><span class="s2">&quot;scipy.signal&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">correlate</span>
+    <span class="n">ref</span> <span class="o">=</span> <span class="n">ref</span> <span class="o">-</span> <span class="n">ref</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+    <span class="n">query</span> <span class="o">=</span> <span class="n">query</span> <span class="o">-</span> <span class="n">query</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+    <span class="n">n_r</span><span class="p">,</span> <span class="n">n_q</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">ref</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+    <span class="n">num</span> <span class="o">=</span> <span class="n">correlate</span><span class="p">(</span><span class="n">ref</span><span class="p">,</span> <span class="n">query</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;full&quot;</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;fft&quot;</span><span class="p">)</span>
+    <span class="c1"># lag L for full-output index k is L = k - (n_q - 1)</span>
+    <span class="n">lags</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n_r</span> <span class="o">+</span> <span class="n">n_q</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">-</span> <span class="p">(</span><span class="n">n_q</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">overlap</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">minimum</span><span class="p">(</span><span class="n">n_r</span><span class="p">,</span> <span class="n">lags</span> <span class="o">+</span> <span class="n">n_q</span><span class="p">)</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">lags</span><span class="p">)</span>
+    <span class="c1"># windowed sum-of-squares of each signal over its overlap region, via cumsum</span>
+    <span class="n">cum_r</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([[</span><span class="mf">0.0</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">ref</span><span class="o">**</span><span class="mi">2</span><span class="p">)])</span>
+    <span class="n">cum_q</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([[</span><span class="mf">0.0</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">query</span><span class="o">**</span><span class="mi">2</span><span class="p">)])</span>
+    <span class="n">r_lo</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">lags</span><span class="p">)</span>
+    <span class="n">q_lo</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="n">lags</span><span class="p">)</span>
+    <span class="n">energy_r</span> <span class="o">=</span> <span class="n">cum_r</span><span class="p">[</span><span class="n">r_lo</span> <span class="o">+</span> <span class="n">overlap</span><span class="p">]</span> <span class="o">-</span> <span class="n">cum_r</span><span class="p">[</span><span class="n">r_lo</span><span class="p">]</span>
+    <span class="n">energy_q</span> <span class="o">=</span> <span class="n">cum_q</span><span class="p">[</span><span class="n">q_lo</span> <span class="o">+</span> <span class="n">overlap</span><span class="p">]</span> <span class="o">-</span> <span class="n">cum_q</span><span class="p">[</span><span class="n">q_lo</span><span class="p">]</span>
+    <span class="n">denom</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">energy_r</span> <span class="o">*</span> <span class="n">energy_q</span><span class="p">)</span>
+    <span class="n">coeff</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">denom</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="n">num</span> <span class="o">/</span> <span class="n">denom</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
+    <span class="n">valid</span> <span class="o">=</span> <span class="n">overlap</span> <span class="o">&gt;=</span> <span class="nb">max</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">min_overlap_ratio</span> <span class="o">*</span> <span class="nb">min</span><span class="p">(</span><span class="n">n_r</span><span class="p">,</span> <span class="n">n_q</span><span class="p">))</span>
+    <span class="n">scored</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">valid</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">coeff</span><span class="p">),</span> <span class="o">-</span><span class="mf">1.0</span><span class="p">)</span>
+    <span class="n">best</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">scored</span><span class="p">))</span>
+    <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">lags</span><span class="p">[</span><span class="n">best</span><span class="p">]),</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">coeff</span><span class="p">[</span><span class="n">best</span><span class="p">]))</span>
 
-    <span class="c1"># Load both as AudioSegments, convert to mono at target sample rate</span>
-    <span class="n">ref_seg</span> <span class="o">=</span> <span class="n">_normalize_audio_source</span><span class="p">(</span><span class="n">reference_audio</span><span class="p">,</span> <span class="n">target_type</span><span class="o">=</span><span class="s2">&quot;AudioSegment&quot;</span><span class="p">)</span>
-    <span class="n">query_seg</span> <span class="o">=</span> <span class="n">_normalize_audio_source</span><span class="p">(</span><span class="n">query_audio</span><span class="p">,</span> <span class="n">target_type</span><span class="o">=</span><span class="s2">&quot;AudioSegment&quot;</span><span class="p">)</span>
 
-    <span class="n">ref_seg</span> <span class="o">=</span> <span class="n">ref_seg</span><span class="o">.</span><span class="n">set_channels</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">set_frame_rate</span><span class="p">(</span><span class="n">sample_rate</span><span class="p">)</span>
-    <span class="n">query_seg</span> <span class="o">=</span> <span class="n">query_seg</span><span class="o">.</span><span class="n">set_channels</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">set_frame_rate</span><span class="p">(</span><span class="n">sample_rate</span><span class="p">)</span>
+<div class="viewcode-block" id="find_audio_offset_detailed">
+<a class="viewcode-back" href="../../../module_docs/mixing/audio/audio_ops.html#mixing.find_audio_offset_detailed">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">find_audio_offset_detailed</span><span class="p">(</span>
+    <span class="n">reference_audio</span><span class="p">:</span> <span class="n">AudioSource</span><span class="p">,</span>
+    <span class="n">query_audio</span><span class="p">:</span> <span class="n">AudioSource</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">sample_rate</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">16000</span><span class="p">,</span>
+    <span class="n">min_overlap_ratio</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AudioOffset</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Align ``query_audio`` within ``reference_audio`` — offset **and** confidence.</span>
 
-    <span class="c1"># Convert to float64 numpy arrays</span>
-    <span class="n">ref_samples</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">ref_seg</span><span class="o">.</span><span class="n">get_array_of_samples</span><span class="p">(),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
-    <span class="n">query_samples</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">query_seg</span><span class="o">.</span><span class="n">get_array_of_samples</span><span class="p">(),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+<span class="sd">    The detailed twin of :func:`find_audio_offset` (which returns just ``offset_s``).</span>
+<span class="sd">    Uses an overlap-normalized cross-correlation so the confidence is a scale-invariant</span>
+<span class="sd">    coefficient in ``[0, 1]`` — usable both as a per-clip trust gate and to compare</span>
+<span class="sd">    alignments across clips (which the multi-device / multicam case needs). Unlike the</span>
+<span class="sd">    scalar helper&#39;s assumption that ``reference`` is the longer signal, this handles a</span>
+<span class="sd">    ``query`` that is longer than, or starts before, the reference (negative offset).</span>
 
-    <span class="c1"># Remove DC offset</span>
-    <span class="n">ref_samples</span> <span class="o">-=</span> <span class="n">ref_samples</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
-    <span class="n">query_samples</span> <span class="o">-=</span> <span class="n">query_samples</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+<span class="sd">    Args:</span>
+<span class="sd">        reference_audio: The signal to align within (e.g. the clean song).</span>
+<span class="sd">        query_audio: The signal to locate (e.g. a phone recording of the song).</span>
+<span class="sd">        sample_rate: Analysis sample rate (mono). 16 kHz gives ~0.06 ms precision.</span>
+<span class="sd">        min_overlap_ratio: Reject lags overlapping less than this fraction of the</span>
+<span class="sd">            shorter signal (guards against a tiny-overlap spurious peak).</span>
 
-    <span class="c1"># Cross-correlate using FFT (much faster for long signals)</span>
-    <span class="n">correlation</span> <span class="o">=</span> <span class="n">correlate</span><span class="p">(</span><span class="n">ref_samples</span><span class="p">,</span> <span class="n">query_samples</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;full&quot;</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;fft&quot;</span><span class="p">)</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        An :class:`AudioOffset` (``offset_s``, ``confidence``, ``sample_rate``).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">ref</span> <span class="o">=</span> <span class="n">_load_mono_samples</span><span class="p">(</span><span class="n">reference_audio</span><span class="p">,</span> <span class="n">sample_rate</span><span class="p">)</span>
+    <span class="n">query</span> <span class="o">=</span> <span class="n">_load_mono_samples</span><span class="p">(</span><span class="n">query_audio</span><span class="p">,</span> <span class="n">sample_rate</span><span class="p">)</span>
+    <span class="n">lag</span><span class="p">,</span> <span class="n">coeff</span> <span class="o">=</span> <span class="n">_normalized_xcorr</span><span class="p">(</span><span class="n">ref</span><span class="p">,</span> <span class="n">query</span><span class="p">,</span> <span class="n">min_overlap_ratio</span><span class="o">=</span><span class="n">min_overlap_ratio</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">AudioOffset</span><span class="p">(</span>
+        <span class="n">offset_s</span><span class="o">=</span><span class="n">lag</span> <span class="o">/</span> <span class="n">sample_rate</span><span class="p">,</span> <span class="n">confidence</span><span class="o">=</span><span class="n">coeff</span><span class="p">,</span> <span class="n">sample_rate</span><span class="o">=</span><span class="n">sample_rate</span>
+    <span class="p">)</span></div>
 
-    <span class="c1"># The zero-lag index in the &quot;full&quot; output is at len(query) - 1.</span>
-    <span class="c1"># Peak index k corresponds to lag = k - (len(query) - 1).</span>
-    <span class="c1"># Positive lag means query starts that many samples into reference.</span>
-    <span class="n">peak_index</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">correlation</span><span class="p">)))</span>
-    <span class="n">lag_samples</span> <span class="o">=</span> <span class="n">peak_index</span> <span class="o">-</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">query_samples</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
 
-    <span class="k">return</span> <span class="n">lag_samples</span> <span class="o">/</span> <span class="n">sample_rate</span></div>
+
+<div class="viewcode-block" id="ClipAlignment">
+<a class="viewcode-back" href="../../../module_docs/mixing/audio/audio_ops.html#mixing.ClipAlignment">[docs]</a>
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ClipAlignment</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Where one clip sits on a reference (song) timeline.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        index: The clip&#39;s position in the input sequence.</span>
+<span class="sd">        offset_s: Reference-time where the clip&#39;s audio begins (may be negative).</span>
+<span class="sd">        confidence: Normalized cross-correlation coefficient in ``[0, 1]``.</span>
+<span class="sd">        duration_s: The clip&#39;s own duration (seconds).</span>
+<span class="sd">        coverage: ``(start_s, end_s)`` — the clip&#39;s span **intersected with the</span>
+<span class="sd">            reference timeline** ``[0, reference_duration]``. Empty-coverage clips</span>
+<span class="sd">            (no temporal overlap with the reference) are dropped by</span>
+<span class="sd">            :func:`align_clips_to_reference`, so ``end_s &gt; start_s`` always holds here.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">index</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">offset_s</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">confidence</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">duration_s</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">coverage</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span></div>
+
+
+
+<div class="viewcode-block" id="align_clips_to_reference">
+<a class="viewcode-back" href="../../../module_docs/mixing/audio/audio_ops.html#mixing.align_clips_to_reference">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">align_clips_to_reference</span><span class="p">(</span>
+    <span class="n">reference_audio</span><span class="p">:</span> <span class="n">AudioSource</span><span class="p">,</span>
+    <span class="n">clips</span><span class="p">:</span> <span class="s2">&quot;Sequence[AudioSource]&quot;</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">reference_duration</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">sample_rate</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">16000</span><span class="p">,</span>
+    <span class="n">min_overlap_ratio</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">ClipAlignment</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Align a SET of clips to one reference — the multi-device / multicam primitive.</span>
+
+<span class="sd">    Aligns each clip against ``reference_audio`` (e.g. the clean song) and returns its</span>
+<span class="sd">    offset, a scale-invariant confidence, and its **coverage clamped to the reference</span>
+<span class="sd">    timeline** — so a downstream editor gets valid spans and never references a time the</span>
+<span class="sd">    reference does not cover. Clips with no temporal overlap with the reference are</span>
+<span class="sd">    dropped. Preserves the original ``index`` so callers can map results back to inputs.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        reference_audio: The signal every clip is aligned to (the song).</span>
+<span class="sd">        clips: The clip audio sources (paths, arrays, or ``AudioSegment``\\ s).</span>
+<span class="sd">        reference_duration: The reference timeline length (seconds); computed from</span>
+<span class="sd">            ``reference_audio`` when omitted.</span>
+<span class="sd">        sample_rate: Analysis sample rate (mono).</span>
+<span class="sd">        min_overlap_ratio: Passed through to the alignment (see</span>
+<span class="sd">            :func:`find_audio_offset_detailed`).</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        A list of :class:`ClipAlignment`, in input order (minus dropped clips).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">ref</span> <span class="o">=</span> <span class="n">_load_mono_samples</span><span class="p">(</span><span class="n">reference_audio</span><span class="p">,</span> <span class="n">sample_rate</span><span class="p">)</span>
+    <span class="n">ref_dur</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">reference_duration</span> <span class="k">if</span> <span class="n">reference_duration</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">len</span><span class="p">(</span><span class="n">ref</span><span class="p">)</span> <span class="o">/</span> <span class="n">sample_rate</span>
+    <span class="p">)</span>
+    <span class="n">out</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">ClipAlignment</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">clip</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">clips</span><span class="p">):</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="n">_load_mono_samples</span><span class="p">(</span><span class="n">clip</span><span class="p">,</span> <span class="n">sample_rate</span><span class="p">)</span>
+        <span class="n">lag</span><span class="p">,</span> <span class="n">coeff</span> <span class="o">=</span> <span class="n">_normalized_xcorr</span><span class="p">(</span><span class="n">ref</span><span class="p">,</span> <span class="n">query</span><span class="p">,</span> <span class="n">min_overlap_ratio</span><span class="o">=</span><span class="n">min_overlap_ratio</span><span class="p">)</span>
+        <span class="n">offset_s</span> <span class="o">=</span> <span class="n">lag</span> <span class="o">/</span> <span class="n">sample_rate</span>
+        <span class="n">dur_s</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">query</span><span class="p">)</span> <span class="o">/</span> <span class="n">sample_rate</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">offset_s</span><span class="p">)</span>
+        <span class="n">end</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">ref_dur</span><span class="p">,</span> <span class="n">offset_s</span> <span class="o">+</span> <span class="n">dur_s</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">end</span> <span class="o">&lt;=</span> <span class="n">start</span><span class="p">:</span>  <span class="c1"># no overlap with the reference timeline</span>
+            <span class="k">continue</span>
+        <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="n">ClipAlignment</span><span class="p">(</span>
+                <span class="n">index</span><span class="o">=</span><span class="n">i</span><span class="p">,</span>
+                <span class="n">offset_s</span><span class="o">=</span><span class="n">offset_s</span><span class="p">,</span>
+                <span class="n">confidence</span><span class="o">=</span><span class="n">coeff</span><span class="p">,</span>
+                <span class="n">duration_s</span><span class="o">=</span><span class="n">dur_s</span><span class="p">,</span>
+                <span class="n">coverage</span><span class="o">=</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">),</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">out</span></div>
 
 </pre></div>
 

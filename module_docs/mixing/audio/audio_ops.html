@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>mixing.audio.audio_ops &mdash; mixing 0.0.27 documentation</title>
+  <title>mixing.audio.audio_ops &mdash; mixing 0.0.28 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
@@ -15,7 +15,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=cee5022b"></script>
+      <script src="../../../_static/documentation_options.js?v=26ffa1e9"></script>
       <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="../../../_static/toggleprompt.js?v=d7ede5d2"></script>
@@ -73,12 +73,28 @@
 <li class="toctree-l3"><a class="reference internal" href="#mixing.audio.audio_ops.Audio.to_mono"><code class="docutils literal notranslate"><span class="pre">Audio.to_mono()</span></code></a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="#mixing.audio.audio_ops.AudioOffset"><code class="docutils literal notranslate"><span class="pre">AudioOffset</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#mixing.audio.audio_ops.AudioOffset.offset_s"><code class="docutils literal notranslate"><span class="pre">AudioOffset.offset_s</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mixing.audio.audio_ops.AudioOffset.confidence"><code class="docutils literal notranslate"><span class="pre">AudioOffset.confidence</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mixing.audio.audio_ops.AudioOffset.sample_rate"><code class="docutils literal notranslate"><span class="pre">AudioOffset.sample_rate</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="#mixing.audio.audio_ops.AudioSamples"><code class="docutils literal notranslate"><span class="pre">AudioSamples</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mixing.audio.audio_ops.ClipAlignment"><code class="docutils literal notranslate"><span class="pre">ClipAlignment</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#mixing.audio.audio_ops.ClipAlignment.index"><code class="docutils literal notranslate"><span class="pre">ClipAlignment.index</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mixing.audio.audio_ops.ClipAlignment.offset_s"><code class="docutils literal notranslate"><span class="pre">ClipAlignment.offset_s</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mixing.audio.audio_ops.ClipAlignment.confidence"><code class="docutils literal notranslate"><span class="pre">ClipAlignment.confidence</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mixing.audio.audio_ops.ClipAlignment.duration_s"><code class="docutils literal notranslate"><span class="pre">ClipAlignment.duration_s</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mixing.audio.audio_ops.ClipAlignment.coverage"><code class="docutils literal notranslate"><span class="pre">ClipAlignment.coverage</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#mixing.audio.audio_ops.align_clips_to_reference"><code class="docutils literal notranslate"><span class="pre">align_clips_to_reference()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#mixing.audio.audio_ops.concatenate_audio"><code class="docutils literal notranslate"><span class="pre">concatenate_audio()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#mixing.audio.audio_ops.crop_audio"><code class="docutils literal notranslate"><span class="pre">crop_audio()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#mixing.audio.audio_ops.fade_in"><code class="docutils literal notranslate"><span class="pre">fade_in()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#mixing.audio.audio_ops.fade_out"><code class="docutils literal notranslate"><span class="pre">fade_out()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#mixing.audio.audio_ops.find_audio_offset"><code class="docutils literal notranslate"><span class="pre">find_audio_offset()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mixing.audio.audio_ops.find_audio_offset_detailed"><code class="docutils literal notranslate"><span class="pre">find_audio_offset_detailed()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#mixing.audio.audio_ops.overlay_audio"><code class="docutils literal notranslate"><span class="pre">overlay_audio()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#mixing.audio.audio_ops.save_audio_clip"><code class="docutils literal notranslate"><span class="pre">save_audio_clip()</span></code></a></li>
 </ul>
@@ -417,6 +433,49 @@ a callable sink. See mixing.egress.</p></li>
 </dd></dl>
 
 <dl class="py class">
+<dt class="sig sig-object py" id="mixing.audio.audio_ops.AudioOffset">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">mixing.audio.audio_ops.</span></span><span class="sig-name descname"><span class="pre">AudioOffset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">offset_s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">confidence</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_rate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/mixing/audio/audio_ops.html#AudioOffset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.audio.audio_ops.AudioOffset" title="Link to this definition"></a></dt>
+<dd><p>The result of aligning one recording within another.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mixing.audio.audio_ops.AudioOffset.offset_s">
+<span class="sig-name descname"><span class="pre">offset_s</span></span><a class="headerlink" href="#mixing.audio.audio_ops.AudioOffset.offset_s" title="Link to this definition"></a></dt>
+<dd><p>Time in <code class="docutils literal notranslate"><span class="pre">reference</span></code> where <code class="docutils literal notranslate"><span class="pre">query</span></code> begins (seconds). Positive
+means query starts after the reference’s t=0; <strong>negative</strong> means query
+began before it (e.g. a phone that started filming before the song).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mixing.audio.audio_ops.AudioOffset.confidence">
+<span class="sig-name descname"><span class="pre">confidence</span></span><a class="headerlink" href="#mixing.audio.audio_ops.AudioOffset.confidence" title="Link to this definition"></a></dt>
+<dd><p>A scale-invariant normalized cross-correlation coefficient in
+<code class="docutils literal notranslate"><span class="pre">[0,</span> <span class="pre">1]</span></code> at the best lag — comparable ACROSS clips of different loudness
+and length. ~0.5+ is a strong match; near 0 means no shared component.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mixing.audio.audio_ops.AudioOffset.sample_rate">
+<span class="sig-name descname"><span class="pre">sample_rate</span></span><a class="headerlink" href="#mixing.audio.audio_ops.AudioOffset.sample_rate" title="Link to this definition"></a></dt>
+<dd><p>The analysis sample rate the offset was computed at.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
 <dt class="sig sig-object py" id="mixing.audio.audio_ops.AudioSamples">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">mixing.audio.audio_ops.</span></span><span class="sig-name descname"><span class="pre">AudioSamples</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">audio_src</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">os.PathLike</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">AudioSegment</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_sample</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_sample</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/mixing/audio/audio_ops.html#AudioSamples"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.audio.audio_ops.AudioSamples" title="Link to this definition"></a></dt>
 <dd><p>Mapping interface to access audio samples by index.</p>
@@ -438,6 +497,97 @@ indexing and slicing. Samples are returned as normalized float values.</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">samples</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">audio_samples</span><span class="p">[</span><span class="mi">1000</span><span class="p">:</span><span class="mi">2000</span><span class="p">])</span>  <span class="c1"># Get samples 1000-1999</span>
 </pre></div>
 </div>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="mixing.audio.audio_ops.ClipAlignment">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">mixing.audio.audio_ops.</span></span><span class="sig-name descname"><span class="pre">ClipAlignment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">offset_s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">confidence</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">duration_s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coverage</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/mixing/audio/audio_ops.html#ClipAlignment"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.audio.audio_ops.ClipAlignment" title="Link to this definition"></a></dt>
+<dd><p>Where one clip sits on a reference (song) timeline.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mixing.audio.audio_ops.ClipAlignment.index">
+<span class="sig-name descname"><span class="pre">index</span></span><a class="headerlink" href="#mixing.audio.audio_ops.ClipAlignment.index" title="Link to this definition"></a></dt>
+<dd><p>The clip’s position in the input sequence.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mixing.audio.audio_ops.ClipAlignment.offset_s">
+<span class="sig-name descname"><span class="pre">offset_s</span></span><a class="headerlink" href="#mixing.audio.audio_ops.ClipAlignment.offset_s" title="Link to this definition"></a></dt>
+<dd><p>Reference-time where the clip’s audio begins (may be negative).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mixing.audio.audio_ops.ClipAlignment.confidence">
+<span class="sig-name descname"><span class="pre">confidence</span></span><a class="headerlink" href="#mixing.audio.audio_ops.ClipAlignment.confidence" title="Link to this definition"></a></dt>
+<dd><p>Normalized cross-correlation coefficient in <code class="docutils literal notranslate"><span class="pre">[0,</span> <span class="pre">1]</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mixing.audio.audio_ops.ClipAlignment.duration_s">
+<span class="sig-name descname"><span class="pre">duration_s</span></span><a class="headerlink" href="#mixing.audio.audio_ops.ClipAlignment.duration_s" title="Link to this definition"></a></dt>
+<dd><p>The clip’s own duration (seconds).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mixing.audio.audio_ops.ClipAlignment.coverage">
+<span class="sig-name descname"><span class="pre">coverage</span></span><a class="headerlink" href="#mixing.audio.audio_ops.ClipAlignment.coverage" title="Link to this definition"></a></dt>
+<dd><p><code class="docutils literal notranslate"><span class="pre">(start_s,</span> <span class="pre">end_s)</span></code> — the clip’s span <strong>intersected with the
+reference timeline</strong> <code class="docutils literal notranslate"><span class="pre">[0,</span> <span class="pre">reference_duration]</span></code>. Empty-coverage clips
+(no temporal overlap with the reference) are dropped by
+<a class="reference internal" href="#mixing.audio.audio_ops.align_clips_to_reference" title="mixing.audio.audio_ops.align_clips_to_reference"><code class="xref py py-func docutils literal notranslate"><span class="pre">align_clips_to_reference()</span></code></a>, so <code class="docutils literal notranslate"><span class="pre">end_s</span> <span class="pre">&gt;</span> <span class="pre">start_s</span></code> always holds here.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple[float, float]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mixing.audio.audio_ops.align_clips_to_reference">
+<span class="sig-prename descclassname"><span class="pre">mixing.audio.audio_ops.</span></span><span class="sig-name descname"><span class="pre">align_clips_to_reference</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reference_audio</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">AudioSegment</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clips</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">AudioSource</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">reference_duration</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_rate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">16000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_overlap_ratio</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.5</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#mixing.audio.audio_ops.ClipAlignment" title="mixing.audio.audio_ops.ClipAlignment"><span class="pre">ClipAlignment</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/mixing/audio/audio_ops.html#align_clips_to_reference"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.audio.audio_ops.align_clips_to_reference" title="Link to this definition"></a></dt>
+<dd><p>Align a SET of clips to one reference — the multi-device / multicam primitive.</p>
+<p>Aligns each clip against <code class="docutils literal notranslate"><span class="pre">reference_audio</span></code> (e.g. the clean song) and returns its
+offset, a scale-invariant confidence, and its <strong>coverage clamped to the reference
+timeline</strong> — so a downstream editor gets valid spans and never references a time the
+reference does not cover. Clips with no temporal overlap with the reference are
+dropped. Preserves the original <code class="docutils literal notranslate"><span class="pre">index</span></code> so callers can map results back to inputs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>reference_audio</strong> – The signal every clip is aligned to (the song).</p></li>
+<li><p><strong>clips</strong> – The clip audio sources (paths, arrays, or <code class="docutils literal notranslate"><span class="pre">AudioSegment</span></code>s).</p></li>
+<li><p><strong>reference_duration</strong> – The reference timeline length (seconds); computed from
+<code class="docutils literal notranslate"><span class="pre">reference_audio</span></code> when omitted.</p></li>
+<li><p><strong>sample_rate</strong> – Analysis sample rate (mono).</p></li>
+<li><p><strong>min_overlap_ratio</strong> – Passed through to the alignment (see
+<a class="reference internal" href="#mixing.audio.audio_ops.find_audio_offset_detailed" title="mixing.audio.audio_ops.find_audio_offset_detailed"><code class="xref py py-func docutils literal notranslate"><span class="pre">find_audio_offset_detailed()</span></code></a>).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A list of <a class="reference internal" href="#mixing.audio.audio_ops.ClipAlignment" title="mixing.audio.audio_ops.ClipAlignment"><code class="xref py py-class docutils literal notranslate"><span class="pre">ClipAlignment</span></code></a>, in input order (minus dropped clips).</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">
@@ -577,6 +727,32 @@ starts. Positive means query begins after the start of reference.</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Studio recording starts at </span><span class="si">{</span><span class="n">offset</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">s in the camera audio&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mixing.audio.audio_ops.find_audio_offset_detailed">
+<span class="sig-prename descclassname"><span class="pre">mixing.audio.audio_ops.</span></span><span class="sig-name descname"><span class="pre">find_audio_offset_detailed</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reference_audio</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">AudioSegment</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">query_audio</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">AudioSegment</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_rate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">16000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_overlap_ratio</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.5</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#mixing.audio.audio_ops.AudioOffset" title="mixing.audio.audio_ops.AudioOffset"><span class="pre">AudioOffset</span></a></span></span><a class="reference internal" href="../../../_modules/mixing/audio/audio_ops.html#find_audio_offset_detailed"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.audio.audio_ops.find_audio_offset_detailed" title="Link to this definition"></a></dt>
+<dd><p>Align <code class="docutils literal notranslate"><span class="pre">query_audio</span></code> within <code class="docutils literal notranslate"><span class="pre">reference_audio</span></code> — offset <strong>and</strong> confidence.</p>
+<p>The detailed twin of <a class="reference internal" href="#mixing.audio.audio_ops.find_audio_offset" title="mixing.audio.audio_ops.find_audio_offset"><code class="xref py py-func docutils literal notranslate"><span class="pre">find_audio_offset()</span></code></a> (which returns just <code class="docutils literal notranslate"><span class="pre">offset_s</span></code>).
+Uses an overlap-normalized cross-correlation so the confidence is a scale-invariant
+coefficient in <code class="docutils literal notranslate"><span class="pre">[0,</span> <span class="pre">1]</span></code> — usable both as a per-clip trust gate and to compare
+alignments across clips (which the multi-device / multicam case needs). Unlike the
+scalar helper’s assumption that <code class="docutils literal notranslate"><span class="pre">reference</span></code> is the longer signal, this handles a
+<code class="docutils literal notranslate"><span class="pre">query</span></code> that is longer than, or starts before, the reference (negative offset).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>reference_audio</strong> – The signal to align within (e.g. the clean song).</p></li>
+<li><p><strong>query_audio</strong> – The signal to locate (e.g. a phone recording of the song).</p></li>
+<li><p><strong>sample_rate</strong> – Analysis sample rate (mono). 16 kHz gives ~0.06 ms precision.</p></li>
+<li><p><strong>min_overlap_ratio</strong> – Reject lags overlapping less than this fraction of the
+shorter signal (guards against a tiny-overlap spurious peak).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>An <a class="reference internal" href="#mixing.audio.audio_ops.AudioOffset" title="mixing.audio.audio_ops.AudioOffset"><code class="xref py py-class docutils literal notranslate"><span class="pre">AudioOffset</span></code></a> (<code class="docutils literal notranslate"><span class="pre">offset_s</span></code>, <code class="docutils literal notranslate"><span class="pre">confidence</span></code>, <code class="docutils literal notranslate"><span class="pre">sample_rate</span></code>).</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">
