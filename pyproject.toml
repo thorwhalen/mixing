@@ -23,6 +23,12 @@ dependencies = [
     "pillow",
     "pydub",
     "numpy",
+    # scipy backs mixing.audio's cross-correlation alignment (find_audio_offset /
+    # find_audio_offset_detailed / align_clips_to_reference). It is imported lazily
+    # (require_package("scipy.signal")) so `import mixing` stays light, but it must be
+    # installed for alignment to run — a core mixing.audio capability, so base deps
+    # (documented as a mixing.audio dep in .claude/CLAUDE.md).
+    "scipy",
     "burns",
 ]
 

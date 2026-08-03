@@ -39,7 +39,8 @@ Design principles:
 
 from typing import Union, TYPE_CHECKING
 from pathlib import Path
-from collections.abc import Iterator, Mapping
+from collections.abc import Iterator, Mapping, Sequence
+from dataclasses import dataclass
 import io
 import os
 import tempfile
@@ -866,30 +867,179 @@ def find_audio_offset(
         >>> offset = find_audio_offset("camera_audio.wav", "studio.mp3")  # doctest: +SKIP
         >>> print(f"Studio recording starts at {offset:.2f}s in the camera audio")  # doctest: +SKIP
     """
+    return find_audio_offset_detailed(
+        reference_audio, query_audio, sample_rate=sample_rate
+    ).offset_s
+
+
+@dataclass(frozen=True)
+class AudioOffset:
+    """The result of aligning one recording within another.
+
+    Attributes:
+        offset_s: Time in ``reference`` where ``query`` begins (seconds). Positive
+            means query starts after the reference's t=0; **negative** means query
+            began before it (e.g. a phone that started filming before the song).
+        confidence: A scale-invariant normalized cross-correlation coefficient in
+            ``[0, 1]`` at the best lag — comparable ACROSS clips of different loudness
+            and length. ~0.5+ is a strong match; near 0 means no shared component.
+        sample_rate: The analysis sample rate the offset was computed at.
+    """
+
+    offset_s: float
+    confidence: float
+    sample_rate: int
+
+
+def _load_mono_samples(source: AudioSource, sample_rate: int) -> np.ndarray:
+    """Load any :data:`AudioSource` as a mono float64 array at ``sample_rate``."""
+    seg = _normalize_audio_source(source, target_type="AudioSegment")
+    seg = seg.set_channels(1).set_frame_rate(sample_rate)
+    return np.array(seg.get_array_of_samples(), dtype=np.float64)
+
+
+def _normalized_xcorr(
+    ref: np.ndarray, query: np.ndarray, *, min_overlap_ratio: float = 0.5
+) -> tuple[int, float]:
+    """Overlap-normalized cross-correlation of two mono signals.
+
+    Returns ``(lag_samples, coefficient)`` where ``lag_samples`` is where ``query``
+    begins within ``ref`` (may be negative) and ``coefficient`` is the normalized
+    cross-correlation in ``[0, 1]`` at that lag. Normalizing each lag by the energy of
+    its actual overlap makes the score scale-invariant (comparable across clips) AND
+    removes the triangular-overlap argmax bias for clips that extend before/after the
+    reference — the common multi-device case. Lags overlapping less than
+    ``min_overlap_ratio`` of the shorter signal are excluded so a tiny sliver of overlap
+    can't win.
+    """
     correlate = require_package("scipy.signal").correlate
+    ref = ref - ref.mean()
+    query = query - query.mean()
+    n_r, n_q = len(ref), len(query)
+    num = correlate(ref, query, mode="full", method="fft")
+    # lag L for full-output index k is L = k - (n_q - 1)
+    lags = np.arange(n_r + n_q - 1) - (n_q - 1)
+    overlap = np.minimum(n_r, lags + n_q) - np.maximum(0, lags)
+    # windowed sum-of-squares of each signal over its overlap region, via cumsum
+    cum_r = np.concatenate([[0.0], np.cumsum(ref**2)])
+    cum_q = np.concatenate([[0.0], np.cumsum(query**2)])
+    r_lo = np.maximum(0, lags)
+    q_lo = np.maximum(0, -lags)
+    energy_r = cum_r[r_lo + overlap] - cum_r[r_lo]
+    energy_q = cum_q[q_lo + overlap] - cum_q[q_lo]
+    denom = np.sqrt(energy_r * energy_q)
+    coeff = np.where(denom > 0, num / denom, 0.0)
+    valid = overlap >= max(1.0, min_overlap_ratio * min(n_r, n_q))
+    scored = np.where(valid, np.abs(coeff), -1.0)
+    best = int(np.argmax(scored))
+    return int(lags[best]), float(np.abs(coeff[best]))
 
-    # Load both as AudioSegments, convert to mono at target sample rate
-    ref_seg = _normalize_audio_source(reference_audio, target_type="AudioSegment")
-    query_seg = _normalize_audio_source(query_audio, target_type="AudioSegment")
 
-    ref_seg = ref_seg.set_channels(1).set_frame_rate(sample_rate)
-    query_seg = query_seg.set_channels(1).set_frame_rate(sample_rate)
+def find_audio_offset_detailed(
+    reference_audio: AudioSource,
+    query_audio: AudioSource,
+    *,
+    sample_rate: int = 16000,
+    min_overlap_ratio: float = 0.5,
+) -> AudioOffset:
+    """Align ``query_audio`` within ``reference_audio`` — offset **and** confidence.
 
-    # Convert to float64 numpy arrays
-    ref_samples = np.array(ref_seg.get_array_of_samples(), dtype=np.float64)
-    query_samples = np.array(query_seg.get_array_of_samples(), dtype=np.float64)
+    The detailed twin of :func:`find_audio_offset` (which returns just ``offset_s``).
+    Uses an overlap-normalized cross-correlation so the confidence is a scale-invariant
+    coefficient in ``[0, 1]`` — usable both as a per-clip trust gate and to compare
+    alignments across clips (which the multi-device / multicam case needs). Unlike the
+    scalar helper's assumption that ``reference`` is the longer signal, this handles a
+    ``query`` that is longer than, or starts before, the reference (negative offset).
 
-    # Remove DC offset
-    ref_samples -= ref_samples.mean()
-    query_samples -= query_samples.mean()
+    Args:
+        reference_audio: The signal to align within (e.g. the clean song).
+        query_audio: The signal to locate (e.g. a phone recording of the song).
+        sample_rate: Analysis sample rate (mono). 16 kHz gives ~0.06 ms precision.
+        min_overlap_ratio: Reject lags overlapping less than this fraction of the
+            shorter signal (guards against a tiny-overlap spurious peak).
 
-    # Cross-correlate using FFT (much faster for long signals)
-    correlation = correlate(ref_samples, query_samples, mode="full", method="fft")
+    Returns:
+        An :class:`AudioOffset` (``offset_s``, ``confidence``, ``sample_rate``).
+    """
+    ref = _load_mono_samples(reference_audio, sample_rate)
+    query = _load_mono_samples(query_audio, sample_rate)
+    lag, coeff = _normalized_xcorr(ref, query, min_overlap_ratio=min_overlap_ratio)
+    return AudioOffset(
+        offset_s=lag / sample_rate, confidence=coeff, sample_rate=sample_rate
+    )
 
-    # The zero-lag index in the "full" output is at len(query) - 1.
-    # Peak index k corresponds to lag = k - (len(query) - 1).
-    # Positive lag means query starts that many samples into reference.
-    peak_index = int(np.argmax(np.abs(correlation)))
-    lag_samples = peak_index - (len(query_samples) - 1)
 
-    return lag_samples / sample_rate
+@dataclass(frozen=True)
+class ClipAlignment:
+    """Where one clip sits on a reference (song) timeline.
+
+    Attributes:
+        index: The clip's position in the input sequence.
+        offset_s: Reference-time where the clip's audio begins (may be negative).
+        confidence: Normalized cross-correlation coefficient in ``[0, 1]``.
+        duration_s: The clip's own duration (seconds).
+        coverage: ``(start_s, end_s)`` — the clip's span **intersected with the
+            reference timeline** ``[0, reference_duration]``. Empty-coverage clips
+            (no temporal overlap with the reference) are dropped by
+            :func:`align_clips_to_reference`, so ``end_s > start_s`` always holds here.
+    """
+
+    index: int
+    offset_s: float
+    confidence: float
+    duration_s: float
+    coverage: tuple[float, float]
+
+
+def align_clips_to_reference(
+    reference_audio: AudioSource,
+    clips: "Sequence[AudioSource]",
+    *,
+    reference_duration: float | None = None,
+    sample_rate: int = 16000,
+    min_overlap_ratio: float = 0.5,
+) -> list[ClipAlignment]:
+    """Align a SET of clips to one reference — the multi-device / multicam primitive.
+
+    Aligns each clip against ``reference_audio`` (e.g. the clean song) and returns its
+    offset, a scale-invariant confidence, and its **coverage clamped to the reference
+    timeline** — so a downstream editor gets valid spans and never references a time the
+    reference does not cover. Clips with no temporal overlap with the reference are
+    dropped. Preserves the original ``index`` so callers can map results back to inputs.
+
+    Args:
+        reference_audio: The signal every clip is aligned to (the song).
+        clips: The clip audio sources (paths, arrays, or ``AudioSegment``\\ s).
+        reference_duration: The reference timeline length (seconds); computed from
+            ``reference_audio`` when omitted.
+        sample_rate: Analysis sample rate (mono).
+        min_overlap_ratio: Passed through to the alignment (see
+            :func:`find_audio_offset_detailed`).
+
+    Returns:
+        A list of :class:`ClipAlignment`, in input order (minus dropped clips).
+    """
+    ref = _load_mono_samples(reference_audio, sample_rate)
+    ref_dur = (
+        reference_duration if reference_duration is not None else len(ref) / sample_rate
+    )
+    out: list[ClipAlignment] = []
+    for i, clip in enumerate(clips):
+        query = _load_mono_samples(clip, sample_rate)
+        lag, coeff = _normalized_xcorr(ref, query, min_overlap_ratio=min_overlap_ratio)
+        offset_s = lag / sample_rate
+        dur_s = len(query) / sample_rate
+        start = max(0.0, offset_s)
+        end = min(ref_dur, offset_s + dur_s)
+        if end <= start:  # no overlap with the reference timeline
+            continue
+        out.append(
+            ClipAlignment(
+                index=i,
+                offset_s=offset_s,
+                confidence=coeff,
+                duration_s=dur_s,
+                coverage=(start, end),
+            )
+        )
+    return out

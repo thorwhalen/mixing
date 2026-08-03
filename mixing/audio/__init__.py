@@ -35,6 +35,10 @@ from .audio_ops import (
     overlay_audio,
     save_audio_clip,
     find_audio_offset,
+    find_audio_offset_detailed,
+    AudioOffset,
+    align_clips_to_reference,
+    ClipAlignment,
 )
 from .segmentation import (
     Segment,
@@ -56,6 +60,10 @@ __all__ = [
     "overlay_audio",
     "save_audio_clip",
     "find_audio_offset",
+    "find_audio_offset_detailed",
+    "AudioOffset",
+    "align_clips_to_reference",
+    "ClipAlignment",
     "Segment",
     "find_segments",
     "extract_segments",
