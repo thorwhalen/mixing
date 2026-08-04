@@ -6,7 +6,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "mixing"
-version = "0.0.29"
+version = "0.0.30"
 description = "Tools for video and audio editing"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -19,7 +19,10 @@ dependencies = [
     "config2py",
     "dol",
     "xdol",
-    "opencv-python",
+    # opencv-contrib-python (superset of opencv-python; MIT/Apache) is the single cv2 provider
+    # across the ecosystem — mediapipe + syncnet require it, so using it here avoids the
+    # unsupported double-install (both provide `cv2`) when muvid[scoring] is co-installed.
+    "opencv-contrib-python",
     "pillow",
     "pydub",
     "numpy",
@@ -49,6 +52,11 @@ audio = [
     "pydub",
     "ffmpeg-python",
     "soundfile",
+]
+# Beat / downbeat / onset analysis (mixing.audio.beat_grid). librosa is ISC
+# (commercial-clean) and lazy-imported, so `import mixing.audio` stays light.
+beats = [
+    "librosa",
 ]
 widget = [
     "ipywidgets",
