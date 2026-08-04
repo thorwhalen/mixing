@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>mixing.audio &mdash; mixing 0.0.28 documentation</title>
+  <title>mixing.audio &mdash; mixing 0.0.30 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
@@ -15,7 +15,7 @@
   
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../_static/documentation_options.js?v=26ffa1e9"></script>
+      <script src="../../_static/documentation_options.js?v=61a342a2"></script>
       <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="../../_static/toggleprompt.js?v=d7ede5d2"></script>
@@ -79,6 +79,16 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#mixing.audio.AudioSamples"><code class="docutils literal notranslate"><span class="pre">AudioSamples</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mixing.audio.BeatGrid"><code class="docutils literal notranslate"><span class="pre">BeatGrid</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#mixing.audio.BeatGrid.beat_times"><code class="docutils literal notranslate"><span class="pre">BeatGrid.beat_times</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mixing.audio.BeatGrid.downbeat_times"><code class="docutils literal notranslate"><span class="pre">BeatGrid.downbeat_times</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mixing.audio.BeatGrid.onset_env"><code class="docutils literal notranslate"><span class="pre">BeatGrid.onset_env</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mixing.audio.BeatGrid.onset_hop_s"><code class="docutils literal notranslate"><span class="pre">BeatGrid.onset_hop_s</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mixing.audio.BeatGrid.sample_rate"><code class="docutils literal notranslate"><span class="pre">BeatGrid.sample_rate</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mixing.audio.BeatGrid.tempo_bpm"><code class="docutils literal notranslate"><span class="pre">BeatGrid.tempo_bpm</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mixing.audio.BeatGrid.to_dict"><code class="docutils literal notranslate"><span class="pre">BeatGrid.to_dict()</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="#mixing.audio.ClipAlignment"><code class="docutils literal notranslate"><span class="pre">ClipAlignment</span></code></a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#mixing.audio.ClipAlignment.index"><code class="docutils literal notranslate"><span class="pre">ClipAlignment.index</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#mixing.audio.ClipAlignment.offset_s"><code class="docutils literal notranslate"><span class="pre">ClipAlignment.offset_s</span></code></a></li>
@@ -99,6 +109,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#mixing.audio.align_clips_to_reference"><code class="docutils literal notranslate"><span class="pre">align_clips_to_reference()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mixing.audio.beat_grid"><code class="docutils literal notranslate"><span class="pre">beat_grid()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#mixing.audio.concatenate_audio"><code class="docutils literal notranslate"><span class="pre">concatenate_audio()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#mixing.audio.crop_audio"><code class="docutils literal notranslate"><span class="pre">crop_audio()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#mixing.audio.extract_segments"><code class="docutils literal notranslate"><span class="pre">extract_segments()</span></code></a></li>
@@ -118,6 +129,7 @@
 <li class="toctree-l1"><a class="reference internal" href="audio/audio_ops.html">mixing.audio.audio_ops</a></li>
 <li class="toctree-l1"><a class="reference internal" href="audio/audio_util.html">mixing.audio.audio_util</a></li>
 <li class="toctree-l1"><a class="reference internal" href="audio/audio_widget.html">mixing.audio.audio_widget</a></li>
+<li class="toctree-l1"><a class="reference internal" href="audio/beats.html">mixing.audio.beats</a></li>
 <li class="toctree-l1"><a class="reference internal" href="audio/segmentation.html">mixing.audio.segmentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="chapters.html">mixing.chapters</a></li>
 <li class="toctree-l1"><a class="reference internal" href="dubbing.html">mixing.dubbing</a></li>
@@ -509,6 +521,86 @@ indexing and slicing. Samples are returned as normalized float values.</p>
 </dd></dl>
 
 <dl class="py class">
+<dt class="sig sig-object py" id="mixing.audio.BeatGrid">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">mixing.audio.</span></span><span class="sig-name descname"><span class="pre">BeatGrid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">beat_times</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">downbeat_times</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">onset_env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">onset_hop_s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_rate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tempo_bpm</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/mixing/audio/beats.html#BeatGrid"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.audio.BeatGrid" title="Link to this definition"></a></dt>
+<dd><p>Rhythmic analysis of one audio signal.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mixing.audio.BeatGrid.beat_times">
+<span class="sig-name descname"><span class="pre">beat_times</span></span><a class="headerlink" href="#mixing.audio.BeatGrid.beat_times" title="Link to this definition"></a></dt>
+<dd><p>Beat instants in seconds (ascending).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>numpy.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mixing.audio.BeatGrid.downbeat_times">
+<span class="sig-name descname"><span class="pre">downbeat_times</span></span><a class="headerlink" href="#mixing.audio.BeatGrid.downbeat_times" title="Link to this definition"></a></dt>
+<dd><p>Downbeat instants in seconds (best-effort; empty for the
+<code class="docutils literal notranslate"><span class="pre">librosa</span></code> backend, which has no downbeat tracker).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>numpy.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mixing.audio.BeatGrid.onset_env">
+<span class="sig-name descname"><span class="pre">onset_env</span></span><a class="headerlink" href="#mixing.audio.BeatGrid.onset_env" title="Link to this definition"></a></dt>
+<dd><p>The onset-strength envelope (one value per STFT hop; higher = more
+rhythmic onset energy). Its frame <em>k</em> is at time <code class="docutils literal notranslate"><span class="pre">k</span> <span class="pre">*</span> <span class="pre">onset_hop_s</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>numpy.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mixing.audio.BeatGrid.onset_hop_s">
+<span class="sig-name descname"><span class="pre">onset_hop_s</span></span><a class="headerlink" href="#mixing.audio.BeatGrid.onset_hop_s" title="Link to this definition"></a></dt>
+<dd><p>Seconds between consecutive <code class="docutils literal notranslate"><span class="pre">onset_env</span></code> frames (<code class="docutils literal notranslate"><span class="pre">hop_length/sr</span></code>).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mixing.audio.BeatGrid.sample_rate">
+<span class="sig-name descname"><span class="pre">sample_rate</span></span><a class="headerlink" href="#mixing.audio.BeatGrid.sample_rate" title="Link to this definition"></a></dt>
+<dd><p>The analysis sample rate.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mixing.audio.BeatGrid.tempo_bpm">
+<span class="sig-name descname"><span class="pre">tempo_bpm</span></span><a class="headerlink" href="#mixing.audio.BeatGrid.tempo_bpm" title="Link to this definition"></a></dt>
+<dd><p>The estimated global tempo (beats per minute).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mixing.audio.BeatGrid.to_dict">
+<span class="sig-name descname"><span class="pre">to_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="../../_modules/mixing/audio/beats.html#BeatGrid.to_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.audio.BeatGrid.to_dict" title="Link to this definition"></a></dt>
+<dd><p>JSON-round-trippable view (arrays → lists; small enough to inline).</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
 <dt class="sig sig-object py" id="mixing.audio.ClipAlignment">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">mixing.audio.</span></span><span class="sig-name descname"><span class="pre">ClipAlignment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">offset_s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">confidence</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">duration_s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coverage</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/mixing/audio/audio_ops.html#ClipAlignment"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.audio.ClipAlignment" title="Link to this definition"></a></dt>
 <dd><p>Where one clip sits on a reference (song) timeline.</p>
@@ -669,6 +761,30 @@ dropped. Preserves the original <code class="docutils literal notranslate"><span
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>A list of <a class="reference internal" href="#mixing.audio.ClipAlignment" title="mixing.audio.ClipAlignment"><code class="xref py py-class docutils literal notranslate"><span class="pre">ClipAlignment</span></code></a>, in input order (minus dropped clips).</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mixing.audio.beat_grid">
+<span class="sig-prename descclassname"><span class="pre">mixing.audio.</span></span><span class="sig-name descname"><span class="pre">beat_grid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">audio</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">AudioSource</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_rate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">22050</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hop_length</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">512</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_bpm</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">120.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">backend</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'librosa'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#mixing.audio.BeatGrid" title="mixing.audio.BeatGrid"><span class="pre">BeatGrid</span></a></span></span><a class="reference internal" href="../../_modules/mixing/audio/beats.html#beat_grid"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.audio.beat_grid" title="Link to this definition"></a></dt>
+<dd><p>Estimate beats, (best-effort) downbeats, and the onset envelope of <code class="docutils literal notranslate"><span class="pre">audio</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>audio</strong> – The audio to analyze (path, numpy array, or <code class="docutils literal notranslate"><span class="pre">AudioSegment</span></code>).</p></li>
+<li><p><strong>sample_rate</strong> – Analysis sample rate (mono).</p></li>
+<li><p><strong>hop_length</strong> – STFT hop for the onset envelope; <code class="docutils literal notranslate"><span class="pre">onset_hop_s</span> <span class="pre">=</span> <span class="pre">hop_length/sr</span></code>.</p></li>
+<li><p><strong>start_bpm</strong> – Tempo prior for the beat tracker (helps on ambiguous material).</p></li>
+<li><p><strong>backend</strong> – Only <code class="docutils literal notranslate"><span class="pre">&quot;librosa&quot;</span></code> (ISC, commercial-clean) is supported. <code class="docutils literal notranslate"><span class="pre">&quot;madmom&quot;</span></code> is
+intentionally NOT shipped — its beat models are academic-licensed.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A <a class="reference internal" href="#mixing.audio.BeatGrid" title="mixing.audio.BeatGrid"><code class="xref py py-class docutils literal notranslate"><span class="pre">BeatGrid</span></code></a>. <code class="docutils literal notranslate"><span class="pre">downbeat_times</span></code> is empty for the librosa backend.</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ValueError</strong> – for an unsupported <code class="docutils literal notranslate"><span class="pre">backend</span></code>.</p>
 </dd>
 </dl>
 </dd></dl>

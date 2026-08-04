@@ -9,6 +9,7 @@
    module_docs/mixing/audio/audio_ops
    module_docs/mixing/audio/audio_util
    module_docs/mixing/audio/audio_widget
+   module_docs/mixing/audio/beats
    module_docs/mixing/audio/segmentation
    module_docs/mixing/chapters
    module_docs/mixing/dubbing

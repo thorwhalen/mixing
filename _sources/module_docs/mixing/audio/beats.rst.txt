@@ -1,0 +1,4 @@
+mixing.audio.beats
+==================
+.. automodule:: mixing.audio.beats
+   :members:

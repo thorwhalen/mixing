@@ -1,0 +1,280 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>mixing.audio.beats &mdash; mixing 0.0.30 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=61a342a2"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../../../_static/toggleprompt.js?v=d7ede5d2"></script>
+      <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            mixing
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing.html">mixing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/_cache.html">mixing._cache</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/_elevenlabs.html">mixing._elevenlabs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/audio.html">mixing.audio</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/audio/audio_ops.html">mixing.audio.audio_ops</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/audio/audio_util.html">mixing.audio.audio_util</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/audio/audio_widget.html">mixing.audio.audio_widget</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/audio/beats.html">mixing.audio.beats</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/audio/segmentation.html">mixing.audio.segmentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/chapters.html">mixing.chapters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/dubbing.html">mixing.dubbing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/dubbing/dub.html">mixing.dubbing.dub</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/dubbing/srt.html">mixing.dubbing.srt</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/dubbing/tts.html">mixing.dubbing.tts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/egress.html">mixing.egress</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/srt.html">mixing.srt</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/transcript.html">mixing.transcript</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/transcript/fillers.html">mixing.transcript.fillers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/transcript/formats.html">mixing.transcript.formats</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/transcript/media.html">mixing.transcript.media</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/transcript/persist.html">mixing.transcript.persist</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/transcript/pipeline.html">mixing.transcript.pipeline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/transcript/scribe.html">mixing.transcript.scribe</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/util.html">mixing.util</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video.html">mixing.video</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/_helpers.html">mixing.video._helpers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/genai.html">mixing.video.genai</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/thumbnail.html">mixing.video.thumbnail</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/video_concat.html">mixing.video.video_concat</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/video_ops.html">mixing.video.video_ops</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/video_subtitles.html">mixing.video.video_subtitles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/video_util.html">mixing.video.video_util</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">mixing</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">mixing.audio.beats</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for mixing.audio.beats</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Beat / downbeat / onset analysis of an audio signal — the ``mixing[beats]`` primitive.</span>
+
+<span class="sd">A small, permissively-licensed (librosa, ISC) audio-analysis primitive that any consumer</span>
+<span class="sd">can reuse to answer &quot;where are the beats and where is the rhythmic energy in this audio&quot;.</span>
+<span class="sd">Its first customer is muvid&#39;s footage-scoring layer (thorwhalen/muvid#13), which computes a</span>
+<span class="sd">:func:`beat_grid` **once on the clean master song** and maps every clip onto it via the</span>
+<span class="sd">clip&#39;s known offset — but nothing here is footage-specific.</span>
+
+<span class="sd">Design notes:</span>
+
+<span class="sd">- **Lazy heavy import.** ``librosa`` is imported via :func:`mixing.util.require_package`</span>
+<span class="sd">  inside the function body, so ``import mixing.audio`` never pulls it. Install it with the</span>
+<span class="sd">  ``mixing[beats]`` extra.</span>
+<span class="sd">- **Permissive only.** librosa is ISC (commercial-clean). A future ``backend=&quot;madmom&quot;`` /</span>
+<span class="sd">  ``&quot;beatnet&quot;`` could fill in real downbeats, but madmom&#39;s *models* are academic-licensed,</span>
+<span class="sd">  so librosa stays the default and the sole backend shipped in the extra.</span>
+<span class="sd">- **Downbeats are best-effort.** librosa has no downbeat tracker, so ``downbeat_times`` is</span>
+<span class="sd">  empty for ``backend=&quot;librosa&quot;``; the field exists so a stronger backend can populate it</span>
+<span class="sd">  without a signature change. Consumers that want downbeats should fall back to beats when</span>
+<span class="sd">  the array is empty.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">..util</span><span class="w"> </span><span class="kn">import</span> <span class="n">require_package</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.audio_util</span><span class="w"> </span><span class="kn">import</span> <span class="n">AudioSource</span><span class="p">,</span> <span class="n">_normalize_audio_source</span>
+
+<span class="c1">#: Default analysis sample rate. 22.05 kHz is librosa&#39;s default and ample for beat/onset.</span>
+<span class="n">DEFAULT_SAMPLE_RATE</span> <span class="o">=</span> <span class="mi">22050</span>
+<span class="c1">#: Default STFT hop for the onset envelope (librosa default). onset_hop_s = hop/​sr.</span>
+<span class="n">DEFAULT_HOP_LENGTH</span> <span class="o">=</span> <span class="mi">512</span>
+
+
+<div class="viewcode-block" id="BeatGrid">
+<a class="viewcode-back" href="../../../module_docs/mixing/audio/beats.html#mixing.audio.BeatGrid">[docs]</a>
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">BeatGrid</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Rhythmic analysis of one audio signal.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        beat_times: Beat instants in seconds (ascending).</span>
+<span class="sd">        downbeat_times: Downbeat instants in seconds (best-effort; empty for the</span>
+<span class="sd">            ``librosa`` backend, which has no downbeat tracker).</span>
+<span class="sd">        onset_env: The onset-strength envelope (one value per STFT hop; higher = more</span>
+<span class="sd">            rhythmic onset energy). Its frame *k* is at time ``k * onset_hop_s``.</span>
+<span class="sd">        onset_hop_s: Seconds between consecutive ``onset_env`` frames (``hop_length/sr``).</span>
+<span class="sd">        sample_rate: The analysis sample rate.</span>
+<span class="sd">        tempo_bpm: The estimated global tempo (beats per minute).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">beat_times</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
+    <span class="n">downbeat_times</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
+    <span class="n">onset_env</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
+    <span class="n">onset_hop_s</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">sample_rate</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">tempo_bpm</span><span class="p">:</span> <span class="nb">float</span>
+
+<div class="viewcode-block" id="BeatGrid.to_dict">
+<a class="viewcode-back" href="../../../module_docs/mixing/audio/beats.html#mixing.audio.BeatGrid.to_dict">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;JSON-round-trippable view (arrays → lists; small enough to inline).&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;beat_times&quot;</span><span class="p">:</span> <span class="p">[</span><span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">t</span><span class="p">),</span> <span class="mi">4</span><span class="p">)</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">beat_times</span><span class="p">],</span>
+            <span class="s2">&quot;downbeat_times&quot;</span><span class="p">:</span> <span class="p">[</span><span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">t</span><span class="p">),</span> <span class="mi">4</span><span class="p">)</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">downbeat_times</span><span class="p">],</span>
+            <span class="s2">&quot;onset_hop_s&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">onset_hop_s</span><span class="p">,</span>
+            <span class="s2">&quot;sample_rate&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">sample_rate</span><span class="p">,</span>
+            <span class="s2">&quot;tempo_bpm&quot;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tempo_bpm</span><span class="p">),</span> <span class="mi">3</span><span class="p">),</span>
+            <span class="c1"># onset_env is dense; callers that need it persist the array separately.</span>
+        <span class="p">}</span></div>
+</div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_load_mono_float</span><span class="p">(</span><span class="n">source</span><span class="p">:</span> <span class="n">AudioSource</span><span class="p">,</span> <span class="n">sample_rate</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Load any :data:`AudioSource` as a mono float array in ~[-1, 1] at ``sample_rate``.&quot;&quot;&quot;</span>
+    <span class="n">seg</span> <span class="o">=</span> <span class="n">_normalize_audio_source</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">target_type</span><span class="o">=</span><span class="s2">&quot;AudioSegment&quot;</span><span class="p">)</span>
+    <span class="n">seg</span> <span class="o">=</span> <span class="n">seg</span><span class="o">.</span><span class="n">set_channels</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">set_frame_rate</span><span class="p">(</span><span class="n">sample_rate</span><span class="p">)</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">seg</span><span class="o">.</span><span class="n">get_array_of_samples</span><span class="p">(),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+    <span class="c1"># pydub yields integer PCM; scale to ~[-1, 1] by the sample width&#39;s full-scale value.</span>
+    <span class="n">full_scale</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="p">(</span><span class="mi">8</span> <span class="o">*</span> <span class="n">seg</span><span class="o">.</span><span class="n">sample_width</span> <span class="o">-</span> <span class="mi">1</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">full_scale</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">x</span> <span class="o">/</span> <span class="n">full_scale</span>
+    <span class="k">return</span> <span class="n">x</span>
+
+
+<div class="viewcode-block" id="beat_grid">
+<a class="viewcode-back" href="../../../module_docs/mixing/audio/beats.html#mixing.audio.beat_grid">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">beat_grid</span><span class="p">(</span>
+    <span class="n">audio</span><span class="p">:</span> <span class="n">AudioSource</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">sample_rate</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">DEFAULT_SAMPLE_RATE</span><span class="p">,</span>
+    <span class="n">hop_length</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">DEFAULT_HOP_LENGTH</span><span class="p">,</span>
+    <span class="n">start_bpm</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">120.0</span><span class="p">,</span>
+    <span class="n">backend</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;librosa&quot;</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BeatGrid</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Estimate beats, (best-effort) downbeats, and the onset envelope of ``audio``.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        audio: The audio to analyze (path, numpy array, or ``AudioSegment``).</span>
+<span class="sd">        sample_rate: Analysis sample rate (mono).</span>
+<span class="sd">        hop_length: STFT hop for the onset envelope; ``onset_hop_s = hop_length/sr``.</span>
+<span class="sd">        start_bpm: Tempo prior for the beat tracker (helps on ambiguous material).</span>
+<span class="sd">        backend: Only ``&quot;librosa&quot;`` (ISC, commercial-clean) is supported. ``&quot;madmom&quot;`` is</span>
+<span class="sd">            intentionally NOT shipped — its beat models are academic-licensed.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        A :class:`BeatGrid`. ``downbeat_times`` is empty for the librosa backend.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError: for an unsupported ``backend``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">backend</span> <span class="o">!=</span> <span class="s2">&quot;librosa&quot;</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;unsupported beat backend </span><span class="si">{</span><span class="n">backend</span><span class="si">!r}</span><span class="s2">; only &#39;librosa&#39; is shipped &quot;</span>
+            <span class="s2">&quot;(madmom&#39;s beat models are academic-licensed and deliberately excluded)&quot;</span>
+        <span class="p">)</span>
+    <span class="n">librosa</span> <span class="o">=</span> <span class="n">require_package</span><span class="p">(</span><span class="s2">&quot;librosa&quot;</span><span class="p">)</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">_load_mono_float</span><span class="p">(</span><span class="n">audio</span><span class="p">,</span> <span class="n">sample_rate</span><span class="p">)</span>
+    <span class="n">onset_env</span> <span class="o">=</span> <span class="n">librosa</span><span class="o">.</span><span class="n">onset</span><span class="o">.</span><span class="n">onset_strength</span><span class="p">(</span><span class="n">y</span><span class="o">=</span><span class="n">y</span><span class="p">,</span> <span class="n">sr</span><span class="o">=</span><span class="n">sample_rate</span><span class="p">,</span> <span class="n">hop_length</span><span class="o">=</span><span class="n">hop_length</span><span class="p">)</span>
+    <span class="n">tempo</span><span class="p">,</span> <span class="n">beat_frames</span> <span class="o">=</span> <span class="n">librosa</span><span class="o">.</span><span class="n">beat</span><span class="o">.</span><span class="n">beat_track</span><span class="p">(</span>
+        <span class="n">onset_envelope</span><span class="o">=</span><span class="n">onset_env</span><span class="p">,</span>
+        <span class="n">sr</span><span class="o">=</span><span class="n">sample_rate</span><span class="p">,</span>
+        <span class="n">hop_length</span><span class="o">=</span><span class="n">hop_length</span><span class="p">,</span>
+        <span class="n">start_bpm</span><span class="o">=</span><span class="n">start_bpm</span><span class="p">,</span>
+        <span class="n">units</span><span class="o">=</span><span class="s2">&quot;frames&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">beat_times</span> <span class="o">=</span> <span class="n">librosa</span><span class="o">.</span><span class="n">frames_to_time</span><span class="p">(</span>
+        <span class="n">beat_frames</span><span class="p">,</span> <span class="n">sr</span><span class="o">=</span><span class="n">sample_rate</span><span class="p">,</span> <span class="n">hop_length</span><span class="o">=</span><span class="n">hop_length</span>
+    <span class="p">)</span>
+    <span class="n">tempo_bpm</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">atleast_1d</span><span class="p">(</span><span class="n">tempo</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span> <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="n">tempo</span><span class="p">)</span> <span class="k">else</span> <span class="mf">0.0</span>
+    <span class="k">return</span> <span class="n">BeatGrid</span><span class="p">(</span>
+        <span class="n">beat_times</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">beat_times</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">),</span>
+        <span class="n">downbeat_times</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">),</span>  <span class="c1"># librosa: no downbeats</span>
+        <span class="n">onset_env</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">onset_env</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">),</span>
+        <span class="n">onset_hop_s</span><span class="o">=</span><span class="n">hop_length</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="n">sample_rate</span><span class="p">),</span>
+        <span class="n">sample_rate</span><span class="o">=</span><span class="n">sample_rate</span><span class="p">,</span>
+        <span class="n">tempo_bpm</span><span class="o">=</span><span class="n">tempo_bpm</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

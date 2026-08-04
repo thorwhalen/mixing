@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>&lt;no title&gt; &mdash; mixing 0.0.28 documentation</title>
+  <title>&lt;no title&gt; &mdash; mixing 0.0.30 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
@@ -15,7 +15,7 @@
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=26ffa1e9"></script>
+      <script src="_static/documentation_options.js?v=61a342a2"></script>
       <script src="_static/doctools.js?v=fd6eb6e6"></script>
       <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="_static/toggleprompt.js?v=d7ede5d2"></script>
@@ -54,6 +54,7 @@
 <li class="toctree-l1"><a class="reference internal" href="module_docs/mixing/audio/audio_ops.html">mixing.audio.audio_ops</a></li>
 <li class="toctree-l1"><a class="reference internal" href="module_docs/mixing/audio/audio_util.html">mixing.audio.audio_util</a></li>
 <li class="toctree-l1"><a class="reference internal" href="module_docs/mixing/audio/audio_widget.html">mixing.audio.audio_widget</a></li>
+<li class="toctree-l1"><a class="reference internal" href="module_docs/mixing/audio/beats.html">mixing.audio.beats</a></li>
 <li class="toctree-l1"><a class="reference internal" href="module_docs/mixing/audio/segmentation.html">mixing.audio.segmentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="module_docs/mixing/chapters.html">mixing.chapters</a></li>
 <li class="toctree-l1"><a class="reference internal" href="module_docs/mixing/dubbing.html">mixing.dubbing</a></li>
@@ -177,9 +178,11 @@
 <li class="toctree-l2"><a class="reference internal" href="module_docs/mixing/audio.html#mixing.audio.Audio"><code class="docutils literal notranslate"><span class="pre">Audio</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="module_docs/mixing/audio.html#mixing.audio.AudioOffset"><code class="docutils literal notranslate"><span class="pre">AudioOffset</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="module_docs/mixing/audio.html#mixing.audio.AudioSamples"><code class="docutils literal notranslate"><span class="pre">AudioSamples</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="module_docs/mixing/audio.html#mixing.audio.BeatGrid"><code class="docutils literal notranslate"><span class="pre">BeatGrid</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="module_docs/mixing/audio.html#mixing.audio.ClipAlignment"><code class="docutils literal notranslate"><span class="pre">ClipAlignment</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="module_docs/mixing/audio.html#mixing.audio.Segment"><code class="docutils literal notranslate"><span class="pre">Segment</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="module_docs/mixing/audio.html#mixing.audio.align_clips_to_reference"><code class="docutils literal notranslate"><span class="pre">align_clips_to_reference()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="module_docs/mixing/audio.html#mixing.audio.beat_grid"><code class="docutils literal notranslate"><span class="pre">beat_grid()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="module_docs/mixing/audio.html#mixing.audio.concatenate_audio"><code class="docutils literal notranslate"><span class="pre">concatenate_audio()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="module_docs/mixing/audio.html#mixing.audio.crop_audio"><code class="docutils literal notranslate"><span class="pre">crop_audio()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="module_docs/mixing/audio.html#mixing.audio.extract_segments"><code class="docutils literal notranslate"><span class="pre">extract_segments()</span></code></a></li>
@@ -217,6 +220,13 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="module_docs/mixing/audio/audio_widget.html">mixing.audio.audio_widget</a></li>
+<li class="toctree-l1"><a class="reference internal" href="module_docs/mixing/audio/beats.html">mixing.audio.beats</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="module_docs/mixing/audio/beats.html#mixing.audio.beats.BeatGrid"><code class="docutils literal notranslate"><span class="pre">BeatGrid</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="module_docs/mixing/audio/beats.html#mixing.audio.beats.DEFAULT_HOP_LENGTH"><code class="docutils literal notranslate"><span class="pre">DEFAULT_HOP_LENGTH</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="module_docs/mixing/audio/beats.html#mixing.audio.beats.DEFAULT_SAMPLE_RATE"><code class="docutils literal notranslate"><span class="pre">DEFAULT_SAMPLE_RATE</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="module_docs/mixing/audio/beats.html#mixing.audio.beats.beat_grid"><code class="docutils literal notranslate"><span class="pre">beat_grid()</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="module_docs/mixing/audio/segmentation.html">mixing.audio.segmentation</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="module_docs/mixing/audio/segmentation.html#mixing.audio.segmentation.Segment"><code class="docutils literal notranslate"><span class="pre">Segment</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="module_docs/mixing/audio/segmentation.html#mixing.audio.segmentation.extract_segments"><code class="docutils literal notranslate"><span class="pre">extract_segments()</span></code></a></li>
