@@ -49,6 +49,7 @@ from .segmentation import (
     segment_by_self_similarity,
     segment_by_speech_music,
 )
+from .beats import beat_grid, BeatGrid
 
 __all__ = [
     "Audio",
@@ -71,4 +72,6 @@ __all__ = [
     "segment_by_energy",
     "segment_by_self_similarity",
     "segment_by_speech_music",
+    "beat_grid",
+    "BeatGrid",
 ]
