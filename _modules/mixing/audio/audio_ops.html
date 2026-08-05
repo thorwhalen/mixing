@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>mixing.audio.audio_ops &mdash; mixing 0.0.31 documentation</title>
+  <title>mixing.audio.audio_ops &mdash; mixing 0.0.32 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
@@ -14,7 +14,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=c5dbc6bb"></script>
+      <script src="../../../_static/documentation_options.js?v=f2234cd1"></script>
       <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="../../../_static/toggleprompt.js?v=d7ede5d2"></script>
@@ -940,6 +940,310 @@
         <span class="n">output</span><span class="p">,</span>
         <span class="n">write</span><span class="o">=</span><span class="k">lambda</span> <span class="n">a</span><span class="p">,</span> <span class="n">p</span><span class="p">:</span> <span class="n">a</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="o">**</span><span class="n">save_kwargs</span><span class="p">),</span>
         <span class="n">default_name</span><span class="o">=</span><span class="s2">&quot;audio_overlay.mp3&quot;</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
+
+
+<span class="c1">#: Default crossfade (seconds) applied at every loop join in :func:`loop_audio`.</span>
+<span class="c1">#: Long enough to hide the waveform discontinuity where the tail meets the head,</span>
+<span class="c1">#: short enough not to smear the bed&#39;s content.</span>
+<span class="n">DEFAULT_LOOP_CROSSFADE_S</span> <span class="o">=</span> <span class="mf">0.5</span>
+
+<span class="c1">#: A loop crossfade may consume at most this fraction of the source&#39;s duration.</span>
+<span class="c1">#: Each join must still advance the timeline, so this can never reach ``1.0``.</span>
+<span class="n">_MAX_LOOP_CROSSFADE_FRACTION</span> <span class="o">=</span> <span class="mf">0.5</span>
+
+
+<div class="viewcode-block" id="loop_audio">
+<a class="viewcode-back" href="../../../module_docs/mixing/audio/audio_ops.html#mixing.loop_audio">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">loop_audio</span><span class="p">(</span>
+    <span class="n">source</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">,</span> <span class="n">Audio</span><span class="p">],</span>
+    <span class="n">target_duration_s</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">crossfade_s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">DEFAULT_LOOP_CROSSFADE_S</span><span class="p">,</span>
+    <span class="n">output</span><span class="p">:</span> <span class="n">Output</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">save_kwargs</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">Audio</span><span class="p">,</span> <span class="n">Path</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Tile an audio source until it fills ``target_duration_s``, seamlessly.</span>
+
+<span class="sd">    The source is appended to itself with a ``crossfade_s`` crossfade at every</span>
+<span class="sd">    join (pydub&#39;s equal-gain fade-out/fade-in), then trimmed to *exactly*</span>
+<span class="sd">    ``target_duration_s``. This is the &quot;make a 20 s ambient bed last 4 minutes&quot;</span>
+<span class="sd">    primitive: without the crossfade, every loop point is a hard splice and a</span>
+<span class="sd">    waveform discontinuity you can hear as a click.</span>
+
+<span class="sd">    A source **longer** than the target is simply trimmed — looping is only</span>
+<span class="sd">    ever additive, never a no-op guard the caller has to write.</span>
+
+<span class="sd">    Because each join consumes ``crossfade_s`` of timeline, the crossfade is</span>
+<span class="sd">    clamped to half the source&#39;s duration; otherwise a long crossfade over a</span>
+<span class="sd">    short source would never advance.</span>
+
+<span class="sd">    Note the tail is cut wherever ``target_duration_s`` lands (mid-loop is</span>
+<span class="sd">    normal), and no fade-out is applied — chain :func:`fade_out` if the bed</span>
+<span class="sd">    ends exposed.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        source: Audio to loop (filepath or :class:`Audio`).</span>
+<span class="sd">        target_duration_s: Duration of the result, in seconds (&gt; 0).</span>
+<span class="sd">        crossfade_s: Crossfade at each loop join, in seconds. ``0`` gives hard</span>
+<span class="sd">            splices. Clamped to half the source duration.</span>
+<span class="sd">        output: Where to put the result — None (return the Audio object), a file</span>
+<span class="sd">            path, a directory (auto-named), or a callable sink. See mixing.egress.</span>
+<span class="sd">        **save_kwargs: Additional save arguments.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Audio instance or Path to saved file.</span>
+
+<span class="sd">    Examples:</span>
+<span class="sd">        &gt;&gt;&gt; bed = loop_audio(&quot;room_tone.wav&quot;, 90.0)  # 90s bed  # doctest: +SKIP</span>
+<span class="sd">        &gt;&gt;&gt; loop_audio(&quot;waves.wav&quot;, 240.0, output=&quot;bed.wav&quot;)  # doctest: +SKIP</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">target_duration_s</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;target_duration_s must be &gt; 0, got </span><span class="si">{</span><span class="n">target_duration_s</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">crossfade_s</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;crossfade_s must be &gt;= 0, got </span><span class="si">{</span><span class="n">crossfade_s</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="n">audio</span> <span class="o">=</span> <span class="n">source</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">Audio</span><span class="p">)</span> <span class="k">else</span> <span class="n">Audio</span><span class="p">(</span><span class="n">source</span><span class="p">)</span>
+    <span class="n">segment</span> <span class="o">=</span> <span class="n">audio</span><span class="o">.</span><span class="n">_get_segment</span><span class="p">()</span>
+    <span class="n">source_ms</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">segment</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">source_ms</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Cannot loop an empty audio source&quot;</span><span class="p">)</span>
+
+    <span class="n">target_ms</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">target_duration_s</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">))</span>
+    <span class="n">crossfade_ms</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span>
+        <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">crossfade_s</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">)),</span>
+        <span class="nb">int</span><span class="p">(</span><span class="n">source_ms</span> <span class="o">*</span> <span class="n">_MAX_LOOP_CROSSFADE_FRACTION</span><span class="p">),</span>
+    <span class="p">)</span>
+
+    <span class="n">looped</span> <span class="o">=</span> <span class="n">segment</span>
+    <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="n">looped</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">target_ms</span><span class="p">:</span>
+        <span class="n">looped</span> <span class="o">=</span> <span class="n">looped</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">segment</span><span class="p">,</span> <span class="n">crossfade</span><span class="o">=</span><span class="n">crossfade_ms</span><span class="p">)</span>
+    <span class="n">looped</span> <span class="o">=</span> <span class="n">looped</span><span class="p">[:</span><span class="n">target_ms</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">deliver</span><span class="p">(</span>
+        <span class="n">Audio</span><span class="p">(</span><span class="n">looped</span><span class="p">,</span> <span class="n">time_unit</span><span class="o">=</span><span class="n">audio</span><span class="o">.</span><span class="n">time_unit</span><span class="p">),</span>
+        <span class="n">output</span><span class="p">,</span>
+        <span class="n">write</span><span class="o">=</span><span class="k">lambda</span> <span class="n">a</span><span class="p">,</span> <span class="n">p</span><span class="p">:</span> <span class="n">a</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="o">**</span><span class="n">save_kwargs</span><span class="p">),</span>
+        <span class="n">default_name</span><span class="o">=</span><span class="s2">&quot;audio_loop.mp3&quot;</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
+
+
+<span class="c1">#: Gain (dB) applied to the bed while the sidechain is active.</span>
+<span class="n">DEFAULT_DUCK_DB</span> <span class="o">=</span> <span class="o">-</span><span class="mf">12.0</span>
+<span class="c1">#: Sidechain frames louder than this (dBFS RMS) count as &quot;active&quot;.</span>
+<span class="n">DEFAULT_DUCK_THRESHOLD_DB</span> <span class="o">=</span> <span class="o">-</span><span class="mf">40.0</span>
+<span class="c1">#: Time constant for moving *down* to the ducked level (sidechain goes active).</span>
+<span class="n">DEFAULT_DUCK_ATTACK_S</span> <span class="o">=</span> <span class="mf">0.05</span>
+<span class="c1">#: Time constant for coming *back up* to unity (sidechain goes quiet).</span>
+<span class="n">DEFAULT_DUCK_RELEASE_S</span> <span class="o">=</span> <span class="mf">0.4</span>
+<span class="c1">#: How long the duck is held past the last active frame, so the bed rides</span>
+<span class="c1">#: through the gaps between words instead of pumping on every syllable.</span>
+<span class="n">DEFAULT_DUCK_HOLD_S</span> <span class="o">=</span> <span class="mf">0.2</span>
+<span class="c1">#: Level-detector frame size — the time resolution of the sidechain envelope.</span>
+<span class="n">DEFAULT_DUCK_FRAME_S</span> <span class="o">=</span> <span class="mf">0.02</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_frame_rms_db</span><span class="p">(</span><span class="n">segment</span><span class="p">:</span> <span class="s2">&quot;AudioSegment&quot;</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">frame_n</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Per-frame RMS level (dBFS) of ``segment``, downmixed to mono.</span>
+
+<span class="sd">    ``frame_n`` is the frame length in samples-per-channel. The final partial</span>
+<span class="sd">    frame is zero-padded, which only ever *lowers* its level — a partial frame</span>
+<span class="sd">    can&#39;t fake activity.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">samples</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">segment</span><span class="o">.</span><span class="n">get_array_of_samples</span><span class="p">(),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">segment</span><span class="o">.</span><span class="n">channels</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">samples</span> <span class="o">=</span> <span class="n">samples</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">segment</span><span class="o">.</span><span class="n">channels</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">full_scale</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="p">(</span><span class="mi">8</span> <span class="o">*</span> <span class="n">segment</span><span class="o">.</span><span class="n">sample_width</span> <span class="o">-</span> <span class="mi">1</span><span class="p">))</span>
+    <span class="n">samples</span> <span class="o">=</span> <span class="n">samples</span> <span class="o">/</span> <span class="n">full_scale</span>
+
+    <span class="n">n_frames</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">samples</span><span class="p">)</span> <span class="o">/</span> <span class="n">frame_n</span><span class="p">)))</span>
+    <span class="n">padded</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">n_frames</span> <span class="o">*</span> <span class="n">frame_n</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+    <span class="n">padded</span><span class="p">[:</span> <span class="nb">len</span><span class="p">(</span><span class="n">samples</span><span class="p">)]</span> <span class="o">=</span> <span class="n">samples</span>
+    <span class="n">rms</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">padded</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">n_frames</span><span class="p">,</span> <span class="n">frame_n</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
+    <span class="n">floor</span> <span class="o">=</span> <span class="mf">10.0</span> <span class="o">**</span> <span class="p">(</span><span class="n">_MIX_SILENCE_FLOOR_DB</span> <span class="o">/</span> <span class="mf">20.0</span><span class="p">)</span>
+    <span class="k">return</span> <span class="mf">20.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">rms</span><span class="p">,</span> <span class="n">floor</span><span class="p">))</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_hold_active</span><span class="p">(</span><span class="n">active</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">hold_frames</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Extend each active run forward by ``hold_frames`` frames.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">hold_frames</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">active</span>
+    <span class="n">indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">active</span><span class="p">))</span>
+    <span class="n">last_active</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="o">.</span><span class="n">accumulate</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">active</span><span class="p">,</span> <span class="n">indices</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">last_active</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">((</span><span class="n">indices</span> <span class="o">-</span> <span class="n">last_active</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">hold_frames</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_duck_gain_envelope</span><span class="p">(</span>
+    <span class="n">active</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">frame_s</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">duck_db</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">attack_s</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">release_s</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Per-frame gain (dB) that falls to ``duck_db`` while ``active``, else 0.</span>
+
+<span class="sd">    A one-pole smoother in the dB domain with separate attack (going down) and</span>
+<span class="sd">    release (coming back up) time constants — the standard gain-smoothing shape</span>
+<span class="sd">    of a broadcast ducker.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_coeff</span><span class="p">(</span><span class="n">time_constant_s</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">time_constant_s</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mf">1.0</span>  <span class="c1"># instantaneous</span>
+        <span class="k">return</span> <span class="mf">1.0</span> <span class="o">-</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">frame_s</span> <span class="o">/</span> <span class="n">time_constant_s</span><span class="p">))</span>
+
+    <span class="n">attack_coeff</span> <span class="o">=</span> <span class="n">_coeff</span><span class="p">(</span><span class="n">attack_s</span><span class="p">)</span>
+    <span class="n">release_coeff</span> <span class="o">=</span> <span class="n">_coeff</span><span class="p">(</span><span class="n">release_s</span><span class="p">)</span>
+
+    <span class="n">targets</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">active</span><span class="p">,</span> <span class="n">duck_db</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
+    <span class="n">gains</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">targets</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+    <span class="n">gain</span> <span class="o">=</span> <span class="mf">0.0</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">target</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">targets</span><span class="p">):</span>
+        <span class="n">coeff</span> <span class="o">=</span> <span class="n">attack_coeff</span> <span class="k">if</span> <span class="n">target</span> <span class="o">&lt;</span> <span class="n">gain</span> <span class="k">else</span> <span class="n">release_coeff</span>
+        <span class="n">gain</span> <span class="o">+=</span> <span class="p">(</span><span class="n">target</span> <span class="o">-</span> <span class="n">gain</span><span class="p">)</span> <span class="o">*</span> <span class="n">coeff</span>
+        <span class="n">gains</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">gain</span>
+    <span class="k">return</span> <span class="n">gains</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_apply_gain_envelope</span><span class="p">(</span>
+    <span class="n">segment</span><span class="p">:</span> <span class="s2">&quot;AudioSegment&quot;</span><span class="p">,</span> <span class="n">gain_db</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">frame_s</span><span class="p">:</span> <span class="nb">float</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;AudioSegment&quot;</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Apply a per-frame dB gain envelope to ``segment``, sample-interpolated.</span>
+
+<span class="sd">    Gains are linearly interpolated between frame centers so the envelope is</span>
+<span class="sd">    continuous — a per-frame staircase would add its own zipper noise.</span>
+
+<span class="sd">    Samples round-trip through numpy at the segment&#39;s own width; pydub only</span>
+<span class="sd">    ever holds 1-, 2- or 4-byte samples (its ``AudioSegment`` widens 24-bit to</span>
+<span class="sd">    32-bit on construction), so the `array` typecode always matches the frame</span>
+<span class="sd">    width and no width conversion is needed here.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">AudioSegment</span> <span class="o">=</span> <span class="n">require_package</span><span class="p">(</span><span class="s2">&quot;pydub&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">AudioSegment</span>
+
+    <span class="n">samples</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">segment</span><span class="o">.</span><span class="n">get_array_of_samples</span><span class="p">())</span>
+    <span class="n">channels</span> <span class="o">=</span> <span class="n">segment</span><span class="o">.</span><span class="n">channels</span>
+    <span class="n">per_channel</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">samples</span><span class="p">)</span> <span class="o">//</span> <span class="n">channels</span>
+    <span class="k">if</span> <span class="n">per_channel</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">segment</span>
+
+    <span class="n">sample_times</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">per_channel</span><span class="p">)</span> <span class="o">+</span> <span class="mf">0.5</span><span class="p">)</span> <span class="o">/</span> <span class="n">segment</span><span class="o">.</span><span class="n">frame_rate</span>
+    <span class="n">frame_times</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">gain_db</span><span class="p">))</span> <span class="o">+</span> <span class="mf">0.5</span><span class="p">)</span> <span class="o">*</span> <span class="n">frame_s</span>
+    <span class="n">gain_linear</span> <span class="o">=</span> <span class="mf">10.0</span> <span class="o">**</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">interp</span><span class="p">(</span><span class="n">sample_times</span><span class="p">,</span> <span class="n">frame_times</span><span class="p">,</span> <span class="n">gain_db</span><span class="p">)</span> <span class="o">/</span> <span class="mf">20.0</span><span class="p">)</span>
+
+    <span class="n">scaled</span> <span class="o">=</span> <span class="n">samples</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">channels</span><span class="p">)</span> <span class="o">*</span> <span class="n">gain_linear</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">]</span>
+    <span class="n">limits</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">iinfo</span><span class="p">(</span><span class="n">samples</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+    <span class="n">adjusted</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">rint</span><span class="p">(</span><span class="n">scaled</span><span class="p">),</span> <span class="n">limits</span><span class="o">.</span><span class="n">min</span><span class="p">,</span> <span class="n">limits</span><span class="o">.</span><span class="n">max</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">samples</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">AudioSegment</span><span class="p">(</span>
+        <span class="n">data</span><span class="o">=</span><span class="n">adjusted</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">tobytes</span><span class="p">(),</span>
+        <span class="n">sample_width</span><span class="o">=</span><span class="n">segment</span><span class="o">.</span><span class="n">sample_width</span><span class="p">,</span>
+        <span class="n">frame_rate</span><span class="o">=</span><span class="n">segment</span><span class="o">.</span><span class="n">frame_rate</span><span class="p">,</span>
+        <span class="n">channels</span><span class="o">=</span><span class="n">channels</span><span class="p">,</span>
+    <span class="p">)</span>
+
+
+<div class="viewcode-block" id="duck_audio">
+<a class="viewcode-back" href="../../../module_docs/mixing/audio/audio_ops.html#mixing.duck_audio">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">duck_audio</span><span class="p">(</span>
+    <span class="n">bed</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">,</span> <span class="n">Audio</span><span class="p">],</span>
+    <span class="n">sidechain</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">,</span> <span class="n">Audio</span><span class="p">],</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">duck_db</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">DEFAULT_DUCK_DB</span><span class="p">,</span>
+    <span class="n">threshold_db</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">DEFAULT_DUCK_THRESHOLD_DB</span><span class="p">,</span>
+    <span class="n">attack_s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">DEFAULT_DUCK_ATTACK_S</span><span class="p">,</span>
+    <span class="n">release_s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">DEFAULT_DUCK_RELEASE_S</span><span class="p">,</span>
+    <span class="n">hold_s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">DEFAULT_DUCK_HOLD_S</span><span class="p">,</span>
+    <span class="n">frame_s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">DEFAULT_DUCK_FRAME_S</span><span class="p">,</span>
+    <span class="n">output</span><span class="p">:</span> <span class="n">Output</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">save_kwargs</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">Audio</span><span class="p">,</span> <span class="n">Path</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Duck ``bed`` wherever ``sidechain`` is loud (sidechain ducking).</span>
+
+<span class="sd">    **What it does.** A level-detector sidechain ducker: the ``sidechain``</span>
+<span class="sd">    (typically the dialogue track) is framed at ``frame_s``, each frame&#39;s RMS</span>
+<span class="sd">    is compared to ``threshold_db``, active frames are extended by ``hold_s``,</span>
+<span class="sd">    and the resulting on/off signal drives a gain envelope on ``bed`` that</span>
+<span class="sd">    falls to ``duck_db`` with time constant ``attack_s`` and returns to unity</span>
+<span class="sd">    with ``release_s``. The envelope is interpolated to sample resolution</span>
+<span class="sd">    before it is applied, so there is no zipper noise. The result always has</span>
+<span class="sd">    the **bed&#39;s** duration; a shorter sidechain simply leaves the tail</span>
+<span class="sd">    un-ducked.</span>
+
+<span class="sd">    **What it does not do.** It is not a full compressor: there is no ratio,</span>
+<span class="sd">    knee, or makeup gain — the duck depth is the fixed ``duck_db``, not a</span>
+<span class="sd">    function of how loud the sidechain is. There is no lookahead, so with a</span>
+<span class="sd">    short ``attack_s`` the first few milliseconds of a sudden word can sneak</span>
+<span class="sd">    through at full bed level. Detection is **energy-based, not speech-aware**:</span>
+<span class="sd">    any loud sidechain content (music, a door slam, hiss above</span>
+<span class="sd">    ``threshold_db``) ducks the bed just as dialogue would. And the bed is</span>
+<span class="sd">    attenuated, never EQ&#39;d — it does not carve a vocal-band notch.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        bed: The audio to be ducked (filepath or :class:`Audio`).</span>
+<span class="sd">        sidechain: The audio that triggers ducking — the dialogue track.</span>
+<span class="sd">        duck_db: Gain (dB, ``&lt;= 0``) held while the sidechain is active.</span>
+<span class="sd">        threshold_db: Sidechain frames above this RMS dBFS count as active.</span>
+<span class="sd">        attack_s: Time constant for reaching the ducked level.</span>
+<span class="sd">        release_s: Time constant for returning to unity.</span>
+<span class="sd">        hold_s: How long the duck persists after the last active frame.</span>
+<span class="sd">        frame_s: Level-detector frame size (envelope time resolution).</span>
+<span class="sd">        output: Where to put the result — None (return the Audio object), a file</span>
+<span class="sd">            path, a directory (auto-named), or a callable sink. See mixing.egress.</span>
+<span class="sd">        **save_kwargs: Additional save arguments.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Audio instance or Path to saved file.</span>
+
+<span class="sd">    Examples:</span>
+<span class="sd">        &gt;&gt;&gt; quiet_bed = duck_audio(&quot;bed.wav&quot;, &quot;dialogue.wav&quot;)  # doctest: +SKIP</span>
+<span class="sd">        &gt;&gt;&gt; duck_audio(&quot;bed.wav&quot;, &quot;vo.wav&quot;, duck_db=-18)  # deeper duck  # doctest: +SKIP</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">duck_db</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;duck_db must be &lt;= 0 dB (a duck attenuates), got </span><span class="si">{</span><span class="n">duck_db</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">frame_s</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;frame_s must be &gt; 0, got </span><span class="si">{</span><span class="n">frame_s</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="p">(</span>
+        <span class="p">(</span><span class="s2">&quot;attack_s&quot;</span><span class="p">,</span> <span class="n">attack_s</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;release_s&quot;</span><span class="p">,</span> <span class="n">release_s</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;hold_s&quot;</span><span class="p">,</span> <span class="n">hold_s</span><span class="p">),</span>
+    <span class="p">):</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> must be &gt;= 0, got </span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="n">bed_audio</span> <span class="o">=</span> <span class="n">bed</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">bed</span><span class="p">,</span> <span class="n">Audio</span><span class="p">)</span> <span class="k">else</span> <span class="n">Audio</span><span class="p">(</span><span class="n">bed</span><span class="p">)</span>
+    <span class="n">side_audio</span> <span class="o">=</span> <span class="n">sidechain</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">sidechain</span><span class="p">,</span> <span class="n">Audio</span><span class="p">)</span> <span class="k">else</span> <span class="n">Audio</span><span class="p">(</span><span class="n">sidechain</span><span class="p">)</span>
+
+    <span class="n">bed_segment</span> <span class="o">=</span> <span class="n">bed_audio</span><span class="o">.</span><span class="n">_get_segment</span><span class="p">()</span>
+    <span class="n">side_segment</span> <span class="o">=</span> <span class="n">side_audio</span><span class="o">.</span><span class="n">_get_segment</span><span class="p">()</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">bed_segment</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Cannot duck an empty bed&quot;</span><span class="p">)</span>
+
+    <span class="n">n_frames</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">bed_segment</span><span class="p">)</span> <span class="o">/</span> <span class="mf">1000.0</span><span class="p">)</span> <span class="o">/</span> <span class="n">frame_s</span><span class="p">)))</span>
+    <span class="n">side_frame_n</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">frame_s</span> <span class="o">*</span> <span class="n">side_segment</span><span class="o">.</span><span class="n">frame_rate</span><span class="p">)))</span>
+
+    <span class="n">active</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">n_frames</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">side_segment</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">levels</span> <span class="o">=</span> <span class="n">_frame_rms_db</span><span class="p">(</span><span class="n">side_segment</span><span class="p">,</span> <span class="n">frame_n</span><span class="o">=</span><span class="n">side_frame_n</span><span class="p">)</span>
+        <span class="n">overlap</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">n_frames</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">levels</span><span class="p">))</span>
+        <span class="n">active</span><span class="p">[:</span><span class="n">overlap</span><span class="p">]</span> <span class="o">=</span> <span class="n">levels</span><span class="p">[:</span><span class="n">overlap</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">threshold_db</span>
+
+    <span class="n">gain_db</span> <span class="o">=</span> <span class="n">_duck_gain_envelope</span><span class="p">(</span>
+        <span class="n">_hold_active</span><span class="p">(</span><span class="n">active</span><span class="p">,</span> <span class="n">hold_frames</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">hold_s</span> <span class="o">/</span> <span class="n">frame_s</span><span class="p">))),</span>
+        <span class="n">frame_s</span><span class="o">=</span><span class="n">frame_s</span><span class="p">,</span>
+        <span class="n">duck_db</span><span class="o">=</span><span class="n">duck_db</span><span class="p">,</span>
+        <span class="n">attack_s</span><span class="o">=</span><span class="n">attack_s</span><span class="p">,</span>
+        <span class="n">release_s</span><span class="o">=</span><span class="n">release_s</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">ducked</span> <span class="o">=</span> <span class="n">_apply_gain_envelope</span><span class="p">(</span><span class="n">bed_segment</span><span class="p">,</span> <span class="n">gain_db</span><span class="p">,</span> <span class="n">frame_s</span><span class="o">=</span><span class="n">frame_s</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">deliver</span><span class="p">(</span>
+        <span class="n">Audio</span><span class="p">(</span><span class="n">ducked</span><span class="p">,</span> <span class="n">time_unit</span><span class="o">=</span><span class="n">bed_audio</span><span class="o">.</span><span class="n">time_unit</span><span class="p">),</span>
+        <span class="n">output</span><span class="p">,</span>
+        <span class="n">write</span><span class="o">=</span><span class="k">lambda</span> <span class="n">a</span><span class="p">,</span> <span class="n">p</span><span class="p">:</span> <span class="n">a</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="o">**</span><span class="n">save_kwargs</span><span class="p">),</span>
+        <span class="n">default_name</span><span class="o">=</span><span class="s2">&quot;audio_ducked.mp3&quot;</span><span class="p">,</span>
     <span class="p">)</span></div>
 
 

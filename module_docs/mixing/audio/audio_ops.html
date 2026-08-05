@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>mixing.audio.audio_ops &mdash; mixing 0.0.31 documentation</title>
+  <title>mixing.audio.audio_ops &mdash; mixing 0.0.32 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
@@ -15,7 +15,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=c5dbc6bb"></script>
+      <script src="../../../_static/documentation_options.js?v=f2234cd1"></script>
       <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="../../../_static/toggleprompt.js?v=d7ede5d2"></script>
@@ -88,13 +88,22 @@
 <li class="toctree-l3"><a class="reference internal" href="#mixing.audio.audio_ops.ClipAlignment.coverage"><code class="docutils literal notranslate"><span class="pre">ClipAlignment.coverage</span></code></a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="#mixing.audio.audio_ops.DEFAULT_DUCK_ATTACK_S"><code class="docutils literal notranslate"><span class="pre">DEFAULT_DUCK_ATTACK_S</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mixing.audio.audio_ops.DEFAULT_DUCK_DB"><code class="docutils literal notranslate"><span class="pre">DEFAULT_DUCK_DB</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mixing.audio.audio_ops.DEFAULT_DUCK_FRAME_S"><code class="docutils literal notranslate"><span class="pre">DEFAULT_DUCK_FRAME_S</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mixing.audio.audio_ops.DEFAULT_DUCK_HOLD_S"><code class="docutils literal notranslate"><span class="pre">DEFAULT_DUCK_HOLD_S</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mixing.audio.audio_ops.DEFAULT_DUCK_RELEASE_S"><code class="docutils literal notranslate"><span class="pre">DEFAULT_DUCK_RELEASE_S</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mixing.audio.audio_ops.DEFAULT_DUCK_THRESHOLD_DB"><code class="docutils literal notranslate"><span class="pre">DEFAULT_DUCK_THRESHOLD_DB</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mixing.audio.audio_ops.DEFAULT_LOOP_CROSSFADE_S"><code class="docutils literal notranslate"><span class="pre">DEFAULT_LOOP_CROSSFADE_S</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#mixing.audio.audio_ops.align_clips_to_reference"><code class="docutils literal notranslate"><span class="pre">align_clips_to_reference()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#mixing.audio.audio_ops.concatenate_audio"><code class="docutils literal notranslate"><span class="pre">concatenate_audio()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#mixing.audio.audio_ops.crop_audio"><code class="docutils literal notranslate"><span class="pre">crop_audio()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mixing.audio.audio_ops.duck_audio"><code class="docutils literal notranslate"><span class="pre">duck_audio()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#mixing.audio.audio_ops.fade_in"><code class="docutils literal notranslate"><span class="pre">fade_in()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#mixing.audio.audio_ops.fade_out"><code class="docutils literal notranslate"><span class="pre">fade_out()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#mixing.audio.audio_ops.find_audio_offset"><code class="docutils literal notranslate"><span class="pre">find_audio_offset()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#mixing.audio.audio_ops.find_audio_offset_detailed"><code class="docutils literal notranslate"><span class="pre">find_audio_offset_detailed()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mixing.audio.audio_ops.loop_audio"><code class="docutils literal notranslate"><span class="pre">loop_audio()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#mixing.audio.audio_ops.overlay_audio"><code class="docutils literal notranslate"><span class="pre">overlay_audio()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#mixing.audio.audio_ops.save_audio_clip"><code class="docutils literal notranslate"><span class="pre">save_audio_clip()</span></code></a></li>
 </ul>
@@ -564,6 +573,51 @@ reference timeline</strong> <code class="docutils literal notranslate"><span cla
 
 </dd></dl>
 
+<dl class="py data">
+<dt class="sig sig-object py" id="mixing.audio.audio_ops.DEFAULT_DUCK_ATTACK_S">
+<span class="sig-prename descclassname"><span class="pre">mixing.audio.audio_ops.</span></span><span class="sig-name descname"><span class="pre">DEFAULT_DUCK_ATTACK_S</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0.05</span></span><a class="headerlink" href="#mixing.audio.audio_ops.DEFAULT_DUCK_ATTACK_S" title="Link to this definition"></a></dt>
+<dd><p>Time constant for moving <em>down</em> to the ducked level (sidechain goes active).</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="mixing.audio.audio_ops.DEFAULT_DUCK_DB">
+<span class="sig-prename descclassname"><span class="pre">mixing.audio.audio_ops.</span></span><span class="sig-name descname"><span class="pre">DEFAULT_DUCK_DB</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">-12.0</span></span><a class="headerlink" href="#mixing.audio.audio_ops.DEFAULT_DUCK_DB" title="Link to this definition"></a></dt>
+<dd><p>Gain (dB) applied to the bed while the sidechain is active.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="mixing.audio.audio_ops.DEFAULT_DUCK_FRAME_S">
+<span class="sig-prename descclassname"><span class="pre">mixing.audio.audio_ops.</span></span><span class="sig-name descname"><span class="pre">DEFAULT_DUCK_FRAME_S</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0.02</span></span><a class="headerlink" href="#mixing.audio.audio_ops.DEFAULT_DUCK_FRAME_S" title="Link to this definition"></a></dt>
+<dd><p>Level-detector frame size — the time resolution of the sidechain envelope.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="mixing.audio.audio_ops.DEFAULT_DUCK_HOLD_S">
+<span class="sig-prename descclassname"><span class="pre">mixing.audio.audio_ops.</span></span><span class="sig-name descname"><span class="pre">DEFAULT_DUCK_HOLD_S</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0.2</span></span><a class="headerlink" href="#mixing.audio.audio_ops.DEFAULT_DUCK_HOLD_S" title="Link to this definition"></a></dt>
+<dd><p>How long the duck is held past the last active frame, so the bed rides
+through the gaps between words instead of pumping on every syllable.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="mixing.audio.audio_ops.DEFAULT_DUCK_RELEASE_S">
+<span class="sig-prename descclassname"><span class="pre">mixing.audio.audio_ops.</span></span><span class="sig-name descname"><span class="pre">DEFAULT_DUCK_RELEASE_S</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0.4</span></span><a class="headerlink" href="#mixing.audio.audio_ops.DEFAULT_DUCK_RELEASE_S" title="Link to this definition"></a></dt>
+<dd><p>Time constant for coming <em>back up</em> to unity (sidechain goes quiet).</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="mixing.audio.audio_ops.DEFAULT_DUCK_THRESHOLD_DB">
+<span class="sig-prename descclassname"><span class="pre">mixing.audio.audio_ops.</span></span><span class="sig-name descname"><span class="pre">DEFAULT_DUCK_THRESHOLD_DB</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">-40.0</span></span><a class="headerlink" href="#mixing.audio.audio_ops.DEFAULT_DUCK_THRESHOLD_DB" title="Link to this definition"></a></dt>
+<dd><p>Sidechain frames louder than this (dBFS RMS) count as “active”.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="mixing.audio.audio_ops.DEFAULT_LOOP_CROSSFADE_S">
+<span class="sig-prename descclassname"><span class="pre">mixing.audio.audio_ops.</span></span><span class="sig-name descname"><span class="pre">DEFAULT_LOOP_CROSSFADE_S</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0.5</span></span><a class="headerlink" href="#mixing.audio.audio_ops.DEFAULT_LOOP_CROSSFADE_S" title="Link to this definition"></a></dt>
+<dd><p>Default crossfade (seconds) applied at every loop join in <a class="reference internal" href="#mixing.audio.audio_ops.loop_audio" title="mixing.audio.audio_ops.loop_audio"><code class="xref py py-func docutils literal notranslate"><span class="pre">loop_audio()</span></code></a>.
+Long enough to hide the waveform discontinuity where the tail meets the head,
+short enough not to smear the bed’s content.</p>
+</dd></dl>
+
 <dl class="py function">
 <dt class="sig sig-object py" id="mixing.audio.audio_ops.align_clips_to_reference">
 <span class="sig-prename descclassname"><span class="pre">mixing.audio.audio_ops.</span></span><span class="sig-name descname"><span class="pre">align_clips_to_reference</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reference_audio</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">AudioSegment</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clips</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">AudioSource</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">reference_duration</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_rate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">16000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_overlap_ratio</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.5</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#mixing.audio.audio_ops.ClipAlignment" title="mixing.audio.audio_ops.ClipAlignment"><span class="pre">ClipAlignment</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/mixing/audio/audio_ops.html#align_clips_to_reference"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.audio.audio_ops.align_clips_to_reference" title="Link to this definition"></a></dt>
@@ -640,6 +694,54 @@ path, a directory (auto-named), or a callable sink. See mixing.egress.</p></li>
 <p class="rubric">Examples</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">crop_audio</span><span class="p">(</span><span class="s2">&quot;song.mp3&quot;</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">30</span><span class="p">)</span>  <span class="c1"># Crop 10s-30s</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">crop_audio</span><span class="p">(</span><span class="s2">&quot;song.mp3&quot;</span><span class="p">,</span> <span class="mi">44100</span><span class="p">,</span> <span class="mi">88200</span><span class="p">,</span> <span class="n">time_unit</span><span class="o">=</span><span class="s2">&quot;samples&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mixing.audio.audio_ops.duck_audio">
+<span class="sig-prename descclassname"><span class="pre">mixing.audio.audio_ops.</span></span><span class="sig-name descname"><span class="pre">duck_audio</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#mixing.audio.audio_ops.Audio" title="mixing.audio.audio_ops.Audio"><span class="pre">Audio</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">sidechain</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#mixing.audio.audio_ops.Audio" title="mixing.audio.audio_ops.Audio"><span class="pre">Audio</span></a></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">duck_db</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">-12.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold_db</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">-40.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attack_s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">release_s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hold_s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frame_s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.02</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">None</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">PathLike</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">save_kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#mixing.audio.audio_ops.Audio" title="mixing.audio.audio_ops.Audio"><span class="pre">Audio</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span></span></span><a class="reference internal" href="../../../_modules/mixing/audio/audio_ops.html#duck_audio"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.audio.audio_ops.duck_audio" title="Link to this definition"></a></dt>
+<dd><p>Duck <code class="docutils literal notranslate"><span class="pre">bed</span></code> wherever <code class="docutils literal notranslate"><span class="pre">sidechain</span></code> is loud (sidechain ducking).</p>
+<p><strong>What it does.</strong> A level-detector sidechain ducker: the <code class="docutils literal notranslate"><span class="pre">sidechain</span></code>
+(typically the dialogue track) is framed at <code class="docutils literal notranslate"><span class="pre">frame_s</span></code>, each frame’s RMS
+is compared to <code class="docutils literal notranslate"><span class="pre">threshold_db</span></code>, active frames are extended by <code class="docutils literal notranslate"><span class="pre">hold_s</span></code>,
+and the resulting on/off signal drives a gain envelope on <code class="docutils literal notranslate"><span class="pre">bed</span></code> that
+falls to <code class="docutils literal notranslate"><span class="pre">duck_db</span></code> with time constant <code class="docutils literal notranslate"><span class="pre">attack_s</span></code> and returns to unity
+with <code class="docutils literal notranslate"><span class="pre">release_s</span></code>. The envelope is interpolated to sample resolution
+before it is applied, so there is no zipper noise. The result always has
+the <strong>bed’s</strong> duration; a shorter sidechain simply leaves the tail
+un-ducked.</p>
+<p><strong>What it does not do.</strong> It is not a full compressor: there is no ratio,
+knee, or makeup gain — the duck depth is the fixed <code class="docutils literal notranslate"><span class="pre">duck_db</span></code>, not a
+function of how loud the sidechain is. There is no lookahead, so with a
+short <code class="docutils literal notranslate"><span class="pre">attack_s</span></code> the first few milliseconds of a sudden word can sneak
+through at full bed level. Detection is <strong>energy-based, not speech-aware</strong>:
+any loud sidechain content (music, a door slam, hiss above
+<code class="docutils literal notranslate"><span class="pre">threshold_db</span></code>) ducks the bed just as dialogue would. And the bed is
+attenuated, never EQ’d — it does not carve a vocal-band notch.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>bed</strong> – The audio to be ducked (filepath or <a class="reference internal" href="#mixing.audio.audio_ops.Audio" title="mixing.audio.audio_ops.Audio"><code class="xref py py-class docutils literal notranslate"><span class="pre">Audio</span></code></a>).</p></li>
+<li><p><strong>sidechain</strong> – The audio that triggers ducking — the dialogue track.</p></li>
+<li><p><strong>duck_db</strong> – Gain (dB, <code class="docutils literal notranslate"><span class="pre">&lt;=</span> <span class="pre">0</span></code>) held while the sidechain is active.</p></li>
+<li><p><strong>threshold_db</strong> – Sidechain frames above this RMS dBFS count as active.</p></li>
+<li><p><strong>attack_s</strong> – Time constant for reaching the ducked level.</p></li>
+<li><p><strong>release_s</strong> – Time constant for returning to unity.</p></li>
+<li><p><strong>hold_s</strong> – How long the duck persists after the last active frame.</p></li>
+<li><p><strong>frame_s</strong> – Level-detector frame size (envelope time resolution).</p></li>
+<li><p><strong>output</strong> – Where to put the result — None (return the Audio object), a file
+path, a directory (auto-named), or a callable sink. See mixing.egress.</p></li>
+<li><p><strong>**save_kwargs</strong> – Additional save arguments.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Audio instance or Path to saved file.</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">quiet_bed</span> <span class="o">=</span> <span class="n">duck_audio</span><span class="p">(</span><span class="s2">&quot;bed.wav&quot;</span><span class="p">,</span> <span class="s2">&quot;dialogue.wav&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">duck_audio</span><span class="p">(</span><span class="s2">&quot;bed.wav&quot;</span><span class="p">,</span> <span class="s2">&quot;vo.wav&quot;</span><span class="p">,</span> <span class="n">duck_db</span><span class="o">=-</span><span class="mi">18</span><span class="p">)</span>  <span class="c1"># deeper duck</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -754,6 +856,46 @@ shorter signal (guards against a tiny-overlap spurious peak).</p></li>
 <dd class="field-even"><p>An <a class="reference internal" href="#mixing.audio.audio_ops.AudioOffset" title="mixing.audio.audio_ops.AudioOffset"><code class="xref py py-class docutils literal notranslate"><span class="pre">AudioOffset</span></code></a> (<code class="docutils literal notranslate"><span class="pre">offset_s</span></code>, <code class="docutils literal notranslate"><span class="pre">confidence</span></code>, <code class="docutils literal notranslate"><span class="pre">sample_rate</span></code>).</p>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mixing.audio.audio_ops.loop_audio">
+<span class="sig-prename descclassname"><span class="pre">mixing.audio.audio_ops.</span></span><span class="sig-name descname"><span class="pre">loop_audio</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#mixing.audio.audio_ops.Audio" title="mixing.audio.audio_ops.Audio"><span class="pre">Audio</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_duration_s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">crossfade_s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">None</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">PathLike</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">save_kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#mixing.audio.audio_ops.Audio" title="mixing.audio.audio_ops.Audio"><span class="pre">Audio</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span></span></span><a class="reference internal" href="../../../_modules/mixing/audio/audio_ops.html#loop_audio"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.audio.audio_ops.loop_audio" title="Link to this definition"></a></dt>
+<dd><p>Tile an audio source until it fills <code class="docutils literal notranslate"><span class="pre">target_duration_s</span></code>, seamlessly.</p>
+<p>The source is appended to itself with a <code class="docutils literal notranslate"><span class="pre">crossfade_s</span></code> crossfade at every
+join (pydub’s equal-gain fade-out/fade-in), then trimmed to <em>exactly</em>
+<code class="docutils literal notranslate"><span class="pre">target_duration_s</span></code>. This is the “make a 20 s ambient bed last 4 minutes”
+primitive: without the crossfade, every loop point is a hard splice and a
+waveform discontinuity you can hear as a click.</p>
+<p>A source <strong>longer</strong> than the target is simply trimmed — looping is only
+ever additive, never a no-op guard the caller has to write.</p>
+<p>Because each join consumes <code class="docutils literal notranslate"><span class="pre">crossfade_s</span></code> of timeline, the crossfade is
+clamped to half the source’s duration; otherwise a long crossfade over a
+short source would never advance.</p>
+<p>Note the tail is cut wherever <code class="docutils literal notranslate"><span class="pre">target_duration_s</span></code> lands (mid-loop is
+normal), and no fade-out is applied — chain <a class="reference internal" href="#mixing.audio.audio_ops.fade_out" title="mixing.audio.audio_ops.fade_out"><code class="xref py py-func docutils literal notranslate"><span class="pre">fade_out()</span></code></a> if the bed
+ends exposed.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>source</strong> – Audio to loop (filepath or <a class="reference internal" href="#mixing.audio.audio_ops.Audio" title="mixing.audio.audio_ops.Audio"><code class="xref py py-class docutils literal notranslate"><span class="pre">Audio</span></code></a>).</p></li>
+<li><p><strong>target_duration_s</strong> – Duration of the result, in seconds (&gt; 0).</p></li>
+<li><p><strong>crossfade_s</strong> – Crossfade at each loop join, in seconds. <code class="docutils literal notranslate"><span class="pre">0</span></code> gives hard
+splices. Clamped to half the source duration.</p></li>
+<li><p><strong>output</strong> – Where to put the result — None (return the Audio object), a file
+path, a directory (auto-named), or a callable sink. See mixing.egress.</p></li>
+<li><p><strong>**save_kwargs</strong> – Additional save arguments.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Audio instance or Path to saved file.</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">bed</span> <span class="o">=</span> <span class="n">loop_audio</span><span class="p">(</span><span class="s2">&quot;room_tone.wav&quot;</span><span class="p">,</span> <span class="mf">90.0</span><span class="p">)</span>  <span class="c1"># 90s bed</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">loop_audio</span><span class="p">(</span><span class="s2">&quot;waves.wav&quot;</span><span class="p">,</span> <span class="mf">240.0</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="s2">&quot;bed.wav&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="py function">

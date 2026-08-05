@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>mixing &mdash; mixing 0.0.31 documentation</title>
+  <title>mixing &mdash; mixing 0.0.32 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
@@ -15,7 +15,7 @@
   
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=c5dbc6bb"></script>
+      <script src="../_static/documentation_options.js?v=f2234cd1"></script>
       <script src="../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="../_static/toggleprompt.js?v=d7ede5d2"></script>
@@ -115,6 +115,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#mixing.crossfade_transition"><code class="docutils literal notranslate"><span class="pre">crossfade_transition()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#mixing.detect_chapters"><code class="docutils literal notranslate"><span class="pre">detect_chapters()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#mixing.dub_video_from_srt"><code class="docutils literal notranslate"><span class="pre">dub_video_from_srt()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mixing.duck_audio"><code class="docutils literal notranslate"><span class="pre">duck_audio()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#mixing.dump_srt"><code class="docutils literal notranslate"><span class="pre">dump_srt()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#mixing.extract_segments"><code class="docutils literal notranslate"><span class="pre">extract_segments()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#mixing.fade_in"><code class="docutils literal notranslate"><span class="pre">fade_in()</span></code></a></li>
@@ -126,11 +127,13 @@
 <li class="toctree-l2"><a class="reference internal" href="#mixing.has_ffmpeg"><code class="docutils literal notranslate"><span class="pre">has_ffmpeg()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#mixing.ken_burns_film"><code class="docutils literal notranslate"><span class="pre">ken_burns_film()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#mixing.ken_burns_video"><code class="docutils literal notranslate"><span class="pre">ken_burns_video()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mixing.loop_audio"><code class="docutils literal notranslate"><span class="pre">loop_audio()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#mixing.loop_video"><code class="docutils literal notranslate"><span class="pre">loop_video()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#mixing.make_thumbnail"><code class="docutils literal notranslate"><span class="pre">make_thumbnail()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#mixing.normalize_audio"><code class="docutils literal notranslate"><span class="pre">normalize_audio()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#mixing.normalize_video_dimensions"><code class="docutils literal notranslate"><span class="pre">normalize_video_dimensions()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#mixing.overlap_blend"><code class="docutils literal notranslate"><span class="pre">overlap_blend()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mixing.overlay_ambient_bed"><code class="docutils literal notranslate"><span class="pre">overlay_ambient_bed()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#mixing.overlay_audio"><code class="docutils literal notranslate"><span class="pre">overlay_audio()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#mixing.parse_srt"><code class="docutils literal notranslate"><span class="pre">parse_srt()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#mixing.remove_fillers"><code class="docutils literal notranslate"><span class="pre">remove_fillers()</span></code></a></li>
@@ -1137,6 +1140,54 @@ e.g. <code class="docutils literal notranslate"><span class="pre">0.15</span></c
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="mixing.duck_audio">
+<span class="sig-prename descclassname"><span class="pre">mixing.</span></span><span class="sig-name descname"><span class="pre">duck_audio</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="mixing/audio/audio_ops.html#mixing.audio.audio_ops.Audio" title="mixing.audio.audio_ops.Audio"><span class="pre">Audio</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">sidechain</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="mixing/audio/audio_ops.html#mixing.audio.audio_ops.Audio" title="mixing.audio.audio_ops.Audio"><span class="pre">Audio</span></a></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">duck_db</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">-12.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold_db</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">-40.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attack_s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">release_s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hold_s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frame_s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.02</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">None</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">PathLike</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">save_kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="mixing/audio/audio_ops.html#mixing.audio.audio_ops.Audio" title="mixing.audio.audio_ops.Audio"><span class="pre">Audio</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span></span></span><a class="reference internal" href="../_modules/mixing/audio/audio_ops.html#duck_audio"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.duck_audio" title="Link to this definition"></a></dt>
+<dd><p>Duck <code class="docutils literal notranslate"><span class="pre">bed</span></code> wherever <code class="docutils literal notranslate"><span class="pre">sidechain</span></code> is loud (sidechain ducking).</p>
+<p><strong>What it does.</strong> A level-detector sidechain ducker: the <code class="docutils literal notranslate"><span class="pre">sidechain</span></code>
+(typically the dialogue track) is framed at <code class="docutils literal notranslate"><span class="pre">frame_s</span></code>, each frame’s RMS
+is compared to <code class="docutils literal notranslate"><span class="pre">threshold_db</span></code>, active frames are extended by <code class="docutils literal notranslate"><span class="pre">hold_s</span></code>,
+and the resulting on/off signal drives a gain envelope on <code class="docutils literal notranslate"><span class="pre">bed</span></code> that
+falls to <code class="docutils literal notranslate"><span class="pre">duck_db</span></code> with time constant <code class="docutils literal notranslate"><span class="pre">attack_s</span></code> and returns to unity
+with <code class="docutils literal notranslate"><span class="pre">release_s</span></code>. The envelope is interpolated to sample resolution
+before it is applied, so there is no zipper noise. The result always has
+the <strong>bed’s</strong> duration; a shorter sidechain simply leaves the tail
+un-ducked.</p>
+<p><strong>What it does not do.</strong> It is not a full compressor: there is no ratio,
+knee, or makeup gain — the duck depth is the fixed <code class="docutils literal notranslate"><span class="pre">duck_db</span></code>, not a
+function of how loud the sidechain is. There is no lookahead, so with a
+short <code class="docutils literal notranslate"><span class="pre">attack_s</span></code> the first few milliseconds of a sudden word can sneak
+through at full bed level. Detection is <strong>energy-based, not speech-aware</strong>:
+any loud sidechain content (music, a door slam, hiss above
+<code class="docutils literal notranslate"><span class="pre">threshold_db</span></code>) ducks the bed just as dialogue would. And the bed is
+attenuated, never EQ’d — it does not carve a vocal-band notch.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>bed</strong> – The audio to be ducked (filepath or <a class="reference internal" href="#mixing.Audio" title="mixing.Audio"><code class="xref py py-class docutils literal notranslate"><span class="pre">Audio</span></code></a>).</p></li>
+<li><p><strong>sidechain</strong> – The audio that triggers ducking — the dialogue track.</p></li>
+<li><p><strong>duck_db</strong> – Gain (dB, <code class="docutils literal notranslate"><span class="pre">&lt;=</span> <span class="pre">0</span></code>) held while the sidechain is active.</p></li>
+<li><p><strong>threshold_db</strong> – Sidechain frames above this RMS dBFS count as active.</p></li>
+<li><p><strong>attack_s</strong> – Time constant for reaching the ducked level.</p></li>
+<li><p><strong>release_s</strong> – Time constant for returning to unity.</p></li>
+<li><p><strong>hold_s</strong> – How long the duck persists after the last active frame.</p></li>
+<li><p><strong>frame_s</strong> – Level-detector frame size (envelope time resolution).</p></li>
+<li><p><strong>output</strong> – Where to put the result — None (return the Audio object), a file
+path, a directory (auto-named), or a callable sink. See mixing.egress.</p></li>
+<li><p><strong>**save_kwargs</strong> – Additional save arguments.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Audio instance or Path to saved file.</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">quiet_bed</span> <span class="o">=</span> <span class="n">duck_audio</span><span class="p">(</span><span class="s2">&quot;bed.wav&quot;</span><span class="p">,</span> <span class="s2">&quot;dialogue.wav&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">duck_audio</span><span class="p">(</span><span class="s2">&quot;bed.wav&quot;</span><span class="p">,</span> <span class="s2">&quot;vo.wav&quot;</span><span class="p">,</span> <span class="n">duck_db</span><span class="o">=-</span><span class="mi">18</span><span class="p">)</span>  <span class="c1"># deeper duck</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="mixing.dump_srt">
 <span class="sig-prename descclassname"><span class="pre">mixing.</span></span><span class="sig-name descname"><span class="pre">dump_srt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cues</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="mixing/srt.html#mixing.srt.Cue" title="mixing.srt.Cue"><span class="pre">Cue</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../_modules/mixing/srt.html#dump_srt"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.dump_srt" title="Link to this definition"></a></dt>
 <dd><p>Serialize cues back to SRT text, renumbering from 1.</p>
@@ -1391,6 +1442,46 @@ See <a class="reference internal" href="mixing/egress.html#module-mixing.egress"
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="mixing.loop_audio">
+<span class="sig-prename descclassname"><span class="pre">mixing.</span></span><span class="sig-name descname"><span class="pre">loop_audio</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="mixing/audio/audio_ops.html#mixing.audio.audio_ops.Audio" title="mixing.audio.audio_ops.Audio"><span class="pre">Audio</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_duration_s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">crossfade_s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">None</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">PathLike</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">save_kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="mixing/audio/audio_ops.html#mixing.audio.audio_ops.Audio" title="mixing.audio.audio_ops.Audio"><span class="pre">Audio</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span></span></span><a class="reference internal" href="../_modules/mixing/audio/audio_ops.html#loop_audio"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.loop_audio" title="Link to this definition"></a></dt>
+<dd><p>Tile an audio source until it fills <code class="docutils literal notranslate"><span class="pre">target_duration_s</span></code>, seamlessly.</p>
+<p>The source is appended to itself with a <code class="docutils literal notranslate"><span class="pre">crossfade_s</span></code> crossfade at every
+join (pydub’s equal-gain fade-out/fade-in), then trimmed to <em>exactly</em>
+<code class="docutils literal notranslate"><span class="pre">target_duration_s</span></code>. This is the “make a 20 s ambient bed last 4 minutes”
+primitive: without the crossfade, every loop point is a hard splice and a
+waveform discontinuity you can hear as a click.</p>
+<p>A source <strong>longer</strong> than the target is simply trimmed — looping is only
+ever additive, never a no-op guard the caller has to write.</p>
+<p>Because each join consumes <code class="docutils literal notranslate"><span class="pre">crossfade_s</span></code> of timeline, the crossfade is
+clamped to half the source’s duration; otherwise a long crossfade over a
+short source would never advance.</p>
+<p>Note the tail is cut wherever <code class="docutils literal notranslate"><span class="pre">target_duration_s</span></code> lands (mid-loop is
+normal), and no fade-out is applied — chain <a class="reference internal" href="#mixing.fade_out" title="mixing.fade_out"><code class="xref py py-func docutils literal notranslate"><span class="pre">fade_out()</span></code></a> if the bed
+ends exposed.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>source</strong> – Audio to loop (filepath or <a class="reference internal" href="#mixing.Audio" title="mixing.Audio"><code class="xref py py-class docutils literal notranslate"><span class="pre">Audio</span></code></a>).</p></li>
+<li><p><strong>target_duration_s</strong> – Duration of the result, in seconds (&gt; 0).</p></li>
+<li><p><strong>crossfade_s</strong> – Crossfade at each loop join, in seconds. <code class="docutils literal notranslate"><span class="pre">0</span></code> gives hard
+splices. Clamped to half the source duration.</p></li>
+<li><p><strong>output</strong> – Where to put the result — None (return the Audio object), a file
+path, a directory (auto-named), or a callable sink. See mixing.egress.</p></li>
+<li><p><strong>**save_kwargs</strong> – Additional save arguments.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Audio instance or Path to saved file.</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">bed</span> <span class="o">=</span> <span class="n">loop_audio</span><span class="p">(</span><span class="s2">&quot;room_tone.wav&quot;</span><span class="p">,</span> <span class="mf">90.0</span><span class="p">)</span>  <span class="c1"># 90s bed</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">loop_audio</span><span class="p">(</span><span class="s2">&quot;waves.wav&quot;</span><span class="p">,</span> <span class="mf">240.0</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="s2">&quot;bed.wav&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="mixing.loop_video">
 <span class="sig-prename descclassname"><span class="pre">mixing.</span></span><span class="sig-name descname"><span class="pre">loop_video</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">video_src</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_loops</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">output</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">None</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">PathLike</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">save_kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Path</span></span></span><a class="reference internal" href="../_modules/mixing/video/video_ops.html#loop_video"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.loop_video" title="Link to this definition"></a></dt>
 <dd><p>Create a video by looping/repeating another video.</p>
@@ -1513,6 +1604,64 @@ or a VideoFileClip instance to use as reference</p></li>
 <span class="sig-prename descclassname"><span class="pre">mixing.</span></span><span class="sig-name descname"><span class="pre">overlap_blend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">clips</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">VideoFileClip</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">overlap</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.5</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">VideoFileClip</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/mixing/video/video_concat.html#overlap_blend"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.overlap_blend" title="Link to this definition"></a></dt>
 <dd><p>Overlap clips and crossfade the overlapping region.</p>
 <p>More aggressive blending - uses more footage from both clips.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mixing.overlay_ambient_bed">
+<span class="sig-prename descclassname"><span class="pre">mixing.</span></span><span class="sig-name descname"><span class="pre">overlay_ambient_bed</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">media</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ambient</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#mixing.Audio" title="mixing.Audio"><span class="pre">Audio</span></a></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">mix_ratio</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.25</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loop</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">crossfade_s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">duck_under_dialogue</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">duck_db</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">None</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">os.PathLike</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">save_kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Path</span></span></span><a class="reference internal" href="../_modules/mixing/video/video_ops.html#overlay_ambient_bed"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.overlay_ambient_bed" title="Link to this definition"></a></dt>
+<dd><p>Lay a looping ambient bed under a cut, optionally ducked under dialogue.</p>
+<p>This is the one-call version of “soften the cuts with room tone”: the
+<code class="docutils literal notranslate"><span class="pre">ambient</span></code> clip (usually 10–30 s) is looped with crossfades to the exact
+length of <code class="docutils literal notranslate"><span class="pre">media</span></code> (<a class="reference internal" href="mixing/audio.html#mixing.audio.loop_audio" title="mixing.audio.loop_audio"><code class="xref py py-func docutils literal notranslate"><span class="pre">mixing.audio.loop_audio()</span></code></a>), optionally ducked
+against the existing dialogue (<a class="reference internal" href="mixing/audio.html#mixing.audio.duck_audio" title="mixing.audio.duck_audio"><code class="xref py py-func docutils literal notranslate"><span class="pre">mixing.audio.duck_audio()</span></code></a>), and mixed
+under the existing track (<a class="reference internal" href="mixing/audio.html#mixing.audio.overlay_audio" title="mixing.audio.overlay_audio"><code class="xref py py-func docutils literal notranslate"><span class="pre">mixing.audio.overlay_audio()</span></code></a>).</p>
+<p><code class="docutils literal notranslate"><span class="pre">media</span></code> may be a <strong>video</strong> (recognised by extension) or an <strong>audio</strong>
+file; the result is written in kind — a video keeps its picture and gets a
+new mixed audio track, an audio file becomes the mixed track. It is
+<em>file-first</em>: <code class="docutils literal notranslate"><span class="pre">output=None</span></code> writes beside the input.</p>
+<p><code class="docutils literal notranslate"><span class="pre">mix_ratio</span></code> is the bed’s prominence, exactly as in
+<a class="reference internal" href="mixing/audio.html#mixing.audio.overlay_audio" title="mixing.audio.overlay_audio"><code class="xref py py-func docutils literal notranslate"><span class="pre">overlay_audio()</span></code></a> — the bed plays at
+<code class="docutils literal notranslate"><span class="pre">20·log10(mix_ratio)</span></code> dB and the existing track is attenuated by
+<code class="docutils literal notranslate"><span class="pre">20·log10(1</span> <span class="pre">-</span> <span class="pre">mix_ratio)</span></code>. The bed is attenuated by <code class="docutils literal notranslate"><span class="pre">mix_ratio</span></code> even
+when the media has no audio at all (a silent base is synthesized), so the
+parameter means one thing everywhere.</p>
+<p><code class="docutils literal notranslate"><span class="pre">duck_under_dialogue=True</span></code> runs the bed through
+<a class="reference internal" href="mixing/audio.html#mixing.audio.duck_audio" title="mixing.audio.duck_audio"><code class="xref py py-func docutils literal notranslate"><span class="pre">duck_audio()</span></code></a> with the media’s own audio as the
+sidechain; read that function’s docstring for what the ducker does and does
+not do (energy-based detection, fixed depth, no lookahead). With no
+existing audio track there is nothing to duck against, so it is a no-op.</p>
+<p>With <code class="docutils literal notranslate"><span class="pre">loop=False</span></code> a bed shorter than the media is laid once at the start
+and the rest of the timeline has no bed; a bed longer than the media is
+always trimmed to fit, looping or not.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>media</strong> – Video or audio file to lay the bed under.</p></li>
+<li><p><strong>ambient</strong> – The ambient/room-tone clip (a path or an <a class="reference internal" href="#mixing.Audio" title="mixing.Audio"><code class="xref py py-class docutils literal notranslate"><span class="pre">Audio</span></code></a>).</p></li>
+<li><p><strong>mix_ratio</strong> – Bed prominence in <code class="docutils literal notranslate"><span class="pre">[0.0,</span> <span class="pre">1.0]</span></code> (see above).</p></li>
+<li><p><strong>loop</strong> – Loop the bed to the media’s duration when it is shorter.</p></li>
+<li><p><strong>crossfade_s</strong> – Crossfade at each loop join; <code class="docutils literal notranslate"><span class="pre">None</span></code> uses
+<code class="xref py py-data docutils literal notranslate"><span class="pre">mixing.audio.DEFAULT_LOOP_CROSSFADE_S</span></code>.</p></li>
+<li><p><strong>duck_under_dialogue</strong> – Duck the bed under the media’s existing audio.</p></li>
+<li><p><strong>duck_db</strong> – Duck depth in dB; <code class="docutils literal notranslate"><span class="pre">None</span></code> uses
+<code class="xref py py-data docutils literal notranslate"><span class="pre">mixing.audio.DEFAULT_DUCK_DB</span></code>.</p></li>
+<li><p><strong>output</strong> – Where to put the result — None (save beside the input), a file
+path, a directory (auto-named), or a callable sink. See mixing.egress.</p></li>
+<li><p><strong>**save_kwargs</strong> – Extra encode arguments — <code class="docutils literal notranslate"><span class="pre">write_videofile</span></code> kwargs for a
+video input, <code class="docutils literal notranslate"><span class="pre">Audio.save</span></code> kwargs for an audio input.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Path to the written file (or the sink’s return value).</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">overlay_ambient_bed</span><span class="p">(</span><span class="s2">&quot;cut.mp4&quot;</span><span class="p">,</span> <span class="s2">&quot;room_tone.wav&quot;</span><span class="p">,</span> <span class="n">mix_ratio</span><span class="o">=</span><span class="mf">0.2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">overlay_ambient_bed</span><span class="p">(</span>  <span class="c1"># duck under the dialogue</span>
+<span class="gp">... </span>    <span class="s2">&quot;cut.mp4&quot;</span><span class="p">,</span> <span class="s2">&quot;rain.wav&quot;</span><span class="p">,</span> <span class="n">duck_under_dialogue</span><span class="o">=</span><span class="kc">True</span>
+<span class="gp">... </span><span class="p">)</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="py function">

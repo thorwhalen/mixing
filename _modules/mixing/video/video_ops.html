@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>mixing.video.video_ops &mdash; mixing 0.0.31 documentation</title>
+  <title>mixing.video.video_ops &mdash; mixing 0.0.32 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
@@ -14,7 +14,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=c5dbc6bb"></script>
+      <script src="../../../_static/documentation_options.js?v=f2234cd1"></script>
       <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="../../../_static/toggleprompt.js?v=d7ede5d2"></script>
@@ -145,7 +145,7 @@
 <span class="sd">- Single source of truth: One class handles both time ranges and frames</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Union</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Iterator</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">Sequence</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">io</span>
@@ -160,8 +160,13 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">._helpers</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">_auto_video_path</span><span class="p">,</span>
     <span class="n">_auto_frame_path</span><span class="p">,</span>
+    <span class="n">_is_video_file</span><span class="p">,</span>
     <span class="n">_set_default_codecs</span><span class="p">,</span>
 <span class="p">)</span>
+
+
+<span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>  <span class="c1"># `mixing.audio` (pydub) is imported lazily, inside functions</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">..audio</span><span class="w"> </span><span class="kn">import</span> <span class="n">Audio</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_to_seconds</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">unit</span><span class="p">:</span> <span class="n">TimeUnit</span><span class="p">,</span> <span class="n">fps</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
@@ -1193,6 +1198,162 @@
                     <span class="k">pass</span>
 
     <span class="k">return</span> <span class="n">write_egress</span><span class="p">(</span><span class="n">output</span><span class="p">,</span> <span class="n">default_path</span><span class="o">=</span><span class="s2">&quot;audio_track.wav&quot;</span><span class="p">,</span> <span class="n">write</span><span class="o">=</span><span class="n">_write</span><span class="p">)</span></div>
+
+
+
+<span class="c1">#: Default prominence of the ambient bed in the final mix. Interpreted exactly</span>
+<span class="c1">#: as :func:`mixing.audio.overlay_audio`&#39;s ``mix_ratio``: the bed plays at</span>
+<span class="c1">#: ``20·log10(mix_ratio)`` dB (≈ -12 dB at 0.25) under the existing track.</span>
+<span class="n">DEFAULT_AMBIENT_MIX_RATIO</span> <span class="o">=</span> <span class="mf">0.25</span>
+
+<span class="c1">#: Sample rate of the synthesized silent base when the media carries no audio.</span>
+<span class="n">_AMBIENT_SILENCE_SAMPLE_RATE</span> <span class="o">=</span> <span class="mi">44100</span>
+
+
+<div class="viewcode-block" id="overlay_ambient_bed">
+<a class="viewcode-back" href="../../../module_docs/mixing/video/video_ops.html#mixing.overlay_ambient_bed">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">overlay_ambient_bed</span><span class="p">(</span>
+    <span class="n">media</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span>
+    <span class="n">ambient</span><span class="p">:</span> <span class="s2">&quot;str | Path | Audio&quot;</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">mix_ratio</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">DEFAULT_AMBIENT_MIX_RATIO</span><span class="p">,</span>
+    <span class="n">loop</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">crossfade_s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">duck_under_dialogue</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">duck_db</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">output</span><span class="p">:</span> <span class="n">Output</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">save_kwargs</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Lay a looping ambient bed under a cut, optionally ducked under dialogue.</span>
+
+<span class="sd">    This is the one-call version of &quot;soften the cuts with room tone&quot;: the</span>
+<span class="sd">    ``ambient`` clip (usually 10–30 s) is looped with crossfades to the exact</span>
+<span class="sd">    length of ``media`` (:func:`mixing.audio.loop_audio`), optionally ducked</span>
+<span class="sd">    against the existing dialogue (:func:`mixing.audio.duck_audio`), and mixed</span>
+<span class="sd">    under the existing track (:func:`mixing.audio.overlay_audio`).</span>
+
+<span class="sd">    ``media`` may be a **video** (recognised by extension) or an **audio**</span>
+<span class="sd">    file; the result is written in kind — a video keeps its picture and gets a</span>
+<span class="sd">    new mixed audio track, an audio file becomes the mixed track. It is</span>
+<span class="sd">    *file-first*: ``output=None`` writes beside the input.</span>
+
+<span class="sd">    ``mix_ratio`` is the bed&#39;s prominence, exactly as in</span>
+<span class="sd">    :func:`~mixing.audio.overlay_audio` — the bed plays at</span>
+<span class="sd">    ``20·log10(mix_ratio)`` dB and the existing track is attenuated by</span>
+<span class="sd">    ``20·log10(1 - mix_ratio)``. The bed is attenuated by ``mix_ratio`` even</span>
+<span class="sd">    when the media has no audio at all (a silent base is synthesized), so the</span>
+<span class="sd">    parameter means one thing everywhere.</span>
+
+<span class="sd">    ``duck_under_dialogue=True`` runs the bed through</span>
+<span class="sd">    :func:`~mixing.audio.duck_audio` with the media&#39;s own audio as the</span>
+<span class="sd">    sidechain; read that function&#39;s docstring for what the ducker does and does</span>
+<span class="sd">    not do (energy-based detection, fixed depth, no lookahead). With no</span>
+<span class="sd">    existing audio track there is nothing to duck against, so it is a no-op.</span>
+
+<span class="sd">    With ``loop=False`` a bed shorter than the media is laid once at the start</span>
+<span class="sd">    and the rest of the timeline has no bed; a bed longer than the media is</span>
+<span class="sd">    always trimmed to fit, looping or not.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        media: Video or audio file to lay the bed under.</span>
+<span class="sd">        ambient: The ambient/room-tone clip (a path or an :class:`Audio`).</span>
+<span class="sd">        mix_ratio: Bed prominence in ``[0.0, 1.0]`` (see above).</span>
+<span class="sd">        loop: Loop the bed to the media&#39;s duration when it is shorter.</span>
+<span class="sd">        crossfade_s: Crossfade at each loop join; ``None`` uses</span>
+<span class="sd">            :data:`mixing.audio.DEFAULT_LOOP_CROSSFADE_S`.</span>
+<span class="sd">        duck_under_dialogue: Duck the bed under the media&#39;s existing audio.</span>
+<span class="sd">        duck_db: Duck depth in dB; ``None`` uses</span>
+<span class="sd">            :data:`mixing.audio.DEFAULT_DUCK_DB`.</span>
+<span class="sd">        output: Where to put the result — None (save beside the input), a file</span>
+<span class="sd">            path, a directory (auto-named), or a callable sink. See mixing.egress.</span>
+<span class="sd">        **save_kwargs: Extra encode arguments — ``write_videofile`` kwargs for a</span>
+<span class="sd">            video input, ``Audio.save`` kwargs for an audio input.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Path to the written file (or the sink&#39;s return value).</span>
+
+<span class="sd">    Examples:</span>
+<span class="sd">        &gt;&gt;&gt; overlay_ambient_bed(&quot;cut.mp4&quot;, &quot;room_tone.wav&quot;, mix_ratio=0.2)  # doctest: +SKIP</span>
+<span class="sd">        &gt;&gt;&gt; overlay_ambient_bed(  # duck under the dialogue  # doctest: +SKIP</span>
+<span class="sd">        ...     &quot;cut.mp4&quot;, &quot;rain.wav&quot;, duck_under_dialogue=True</span>
+<span class="sd">        ... )</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">..audio</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+        <span class="n">Audio</span><span class="p">,</span>
+        <span class="n">DEFAULT_DUCK_DB</span><span class="p">,</span>
+        <span class="n">DEFAULT_LOOP_CROSSFADE_S</span><span class="p">,</span>
+        <span class="n">duck_audio</span><span class="p">,</span>
+        <span class="n">loop_audio</span><span class="p">,</span>
+        <span class="n">overlay_audio</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">crossfade_s</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">crossfade_s</span> <span class="o">=</span> <span class="n">DEFAULT_LOOP_CROSSFADE_S</span>
+    <span class="k">if</span> <span class="n">duck_db</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">duck_db</span> <span class="o">=</span> <span class="n">DEFAULT_DUCK_DB</span>
+
+    <span class="n">media_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">media</span><span class="p">)</span>
+    <span class="n">is_video</span> <span class="o">=</span> <span class="n">_is_video_file</span><span class="p">(</span><span class="n">media_path</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_mix</span><span class="p">(</span><span class="n">base</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Audio</span><span class="p">],</span> <span class="n">duration_s</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Audio</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Loop/duck the bed and mix it under ``base`` (or under silence).&quot;&quot;&quot;</span>
+        <span class="n">bed</span> <span class="o">=</span> <span class="n">ambient</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ambient</span><span class="p">,</span> <span class="n">Audio</span><span class="p">)</span> <span class="k">else</span> <span class="n">Audio</span><span class="p">(</span><span class="n">ambient</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">bed</span><span class="o">.</span><span class="n">duration</span> <span class="o">&gt;</span> <span class="n">duration_s</span><span class="p">:</span>
+            <span class="c1"># Belt-and-braces: `overlay_audio` would truncate the overlap</span>
+            <span class="c1"># anyway, but trimming here keeps the (documented) fit-to-media</span>
+            <span class="c1"># contract owned by this function, and spares the ducker from</span>
+            <span class="c1"># computing an envelope over audio that is about to be discarded.</span>
+            <span class="n">bed</span> <span class="o">=</span> <span class="n">bed</span><span class="p">[:</span><span class="n">duration_s</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="n">loop</span> <span class="ow">and</span> <span class="n">bed</span><span class="o">.</span><span class="n">duration</span> <span class="o">&lt;</span> <span class="n">duration_s</span><span class="p">:</span>
+            <span class="n">bed</span> <span class="o">=</span> <span class="n">loop_audio</span><span class="p">(</span><span class="n">bed</span><span class="p">,</span> <span class="n">duration_s</span><span class="p">,</span> <span class="n">crossfade_s</span><span class="o">=</span><span class="n">crossfade_s</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">duck_under_dialogue</span> <span class="ow">and</span> <span class="n">base</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">bed</span> <span class="o">=</span> <span class="n">duck_audio</span><span class="p">(</span><span class="n">bed</span><span class="p">,</span> <span class="n">base</span><span class="p">,</span> <span class="n">duck_db</span><span class="o">=</span><span class="n">duck_db</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">base</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="kn">from</span><span class="w"> </span><span class="nn">pydub</span><span class="w"> </span><span class="kn">import</span> <span class="n">AudioSegment</span>
+
+            <span class="n">base</span> <span class="o">=</span> <span class="n">Audio</span><span class="p">(</span>
+                <span class="n">AudioSegment</span><span class="o">.</span><span class="n">silent</span><span class="p">(</span>
+                    <span class="n">duration</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">duration_s</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">)),</span>
+                    <span class="n">frame_rate</span><span class="o">=</span><span class="n">_AMBIENT_SILENCE_SAMPLE_RATE</span><span class="p">,</span>
+                <span class="p">)</span><span class="o">.</span><span class="n">set_channels</span><span class="p">(</span><span class="n">bed</span><span class="o">.</span><span class="n">_get_segment</span><span class="p">()</span><span class="o">.</span><span class="n">channels</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">overlay_audio</span><span class="p">(</span><span class="n">base</span><span class="p">,</span> <span class="n">bed</span><span class="p">,</span> <span class="n">mix_ratio</span><span class="o">=</span><span class="n">mix_ratio</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">is_video</span><span class="p">:</span>
+        <span class="n">default_path</span> <span class="o">=</span> <span class="n">media_path</span><span class="o">.</span><span class="n">with_stem</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">media_path</span><span class="o">.</span><span class="n">stem</span><span class="si">}</span><span class="s2">_ambient&quot;</span><span class="p">)</span>
+        <span class="n">base_audio</span> <span class="o">=</span> <span class="n">Audio</span><span class="p">(</span><span class="n">media_path</span><span class="p">)</span>
+
+        <span class="k">def</span><span class="w"> </span><span class="nf">_write_audio</span><span class="p">(</span><span class="n">target</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">_mix</span><span class="p">(</span><span class="n">base_audio</span><span class="p">,</span> <span class="n">base_audio</span><span class="o">.</span><span class="n">duration</span><span class="p">)</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="o">**</span><span class="n">save_kwargs</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">write_egress</span><span class="p">(</span><span class="n">output</span><span class="p">,</span> <span class="n">default_path</span><span class="o">=</span><span class="n">default_path</span><span class="p">,</span> <span class="n">write</span><span class="o">=</span><span class="n">_write_audio</span><span class="p">)</span>
+
+    <span class="n">default_path</span> <span class="o">=</span> <span class="n">_auto_video_path</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">media_path</span><span class="p">),</span> <span class="s2">&quot;ambient&quot;</span><span class="p">)</span>
+    <span class="n">_set_default_codecs</span><span class="p">(</span><span class="n">save_kwargs</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_write_video</span><span class="p">(</span><span class="n">target</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">tmp_dir</span><span class="p">:</span>
+            <span class="n">base_wav</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">tmp_dir</span><span class="p">)</span> <span class="o">/</span> <span class="s2">&quot;base.wav&quot;</span>
+            <span class="k">with</span> <span class="n">mp</span><span class="o">.</span><span class="n">VideoFileClip</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">media_path</span><span class="p">))</span> <span class="k">as</span> <span class="n">clip</span><span class="p">:</span>
+                <span class="n">duration_s</span> <span class="o">=</span> <span class="n">clip</span><span class="o">.</span><span class="n">duration</span>
+                <span class="k">if</span> <span class="n">clip</span><span class="o">.</span><span class="n">audio</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">clip</span><span class="o">.</span><span class="n">audio</span><span class="o">.</span><span class="n">write_audiofile</span><span class="p">(</span>
+                        <span class="nb">str</span><span class="p">(</span><span class="n">base_wav</span><span class="p">),</span> <span class="n">codec</span><span class="o">=</span><span class="s2">&quot;pcm_s16le&quot;</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="kc">None</span>
+                    <span class="p">)</span>
+            <span class="n">base_audio</span> <span class="o">=</span> <span class="n">Audio</span><span class="p">(</span><span class="n">base_wav</span><span class="p">)</span> <span class="k">if</span> <span class="n">base_wav</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span> <span class="k">else</span> <span class="kc">None</span>
+            <span class="n">mixed_wav</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">tmp_dir</span><span class="p">)</span> <span class="o">/</span> <span class="s2">&quot;mixed.wav&quot;</span>
+            <span class="n">_mix</span><span class="p">(</span><span class="n">base_audio</span><span class="p">,</span> <span class="n">duration_s</span><span class="p">)</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">mixed_wav</span><span class="p">)</span>
+            <span class="n">_replace_audio_write</span><span class="p">(</span>
+                <span class="nb">str</span><span class="p">(</span><span class="n">media_path</span><span class="p">),</span>
+                <span class="nb">str</span><span class="p">(</span><span class="n">mixed_wav</span><span class="p">),</span>
+                <span class="n">target</span><span class="p">,</span>
+                <span class="n">mix_ratio</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+                <span class="n">match_duration</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="o">**</span><span class="n">save_kwargs</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Saved video with ambient bed to: </span><span class="si">{</span><span class="n">target</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">write_egress</span><span class="p">(</span><span class="n">output</span><span class="p">,</span> <span class="n">default_path</span><span class="o">=</span><span class="n">default_path</span><span class="p">,</span> <span class="n">write</span><span class="o">=</span><span class="n">_write_video</span><span class="p">)</span></div>
 
 
 
