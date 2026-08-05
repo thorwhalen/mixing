@@ -47,6 +47,7 @@ _LAZY: dict[str, str] = {
     "change_speed": "mixing.video",
     "replace_audio": "mixing.video",
     "normalize_audio": "mixing.video",
+    "overlay_ambient_bed": "mixing.video",
     "save_frame": "mixing.video",
     "ken_burns_video": "mixing.video",
     "ken_burns_film": "mixing.video",
@@ -72,6 +73,8 @@ _LAZY: dict[str, str] = {
     "crop_audio": "mixing.audio",
     "concatenate_audio": "mixing.audio",
     "overlay_audio": "mixing.audio",
+    "loop_audio": "mixing.audio",
+    "duck_audio": "mixing.audio",
     "save_audio_clip": "mixing.audio",
     "find_audio_offset": "mixing.audio",
     "Segment": "mixing.audio",
@@ -119,6 +122,8 @@ if TYPE_CHECKING:  # help static analyzers see the lazy names
         find_audio_offset,
         find_segments,
         overlay_audio,
+        loop_audio,
+        duck_audio,
         save_audio_clip,
     )
     from mixing.video import (  # noqa: F401
@@ -141,6 +146,7 @@ if TYPE_CHECKING:  # help static analyzers see the lazy names
         make_thumbnail,
         normalize_audio,
         normalize_video_dimensions,
+        overlay_ambient_bed,
         replace_audio,
         resize_to_dimensions,
         save_frame,

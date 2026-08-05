@@ -34,21 +34,9 @@ import os
 import numpy as np
 from moviepy import VideoFileClip, concatenate_videoclips, vfx
 
-VideoSource = Union[str, Path, VideoFileClip, bytes, BytesIO]
+from ._helpers import _is_video_file
 
-# Common video file extensions
-_VIDEO_EXTENSIONS = {
-    ".mp4",
-    ".avi",
-    ".mov",
-    ".mkv",
-    ".wmv",
-    ".flv",
-    ".webm",
-    ".m4v",
-    ".mpg",
-    ".mpeg",
-}
+VideoSource = Union[str, Path, VideoFileClip, bytes, BytesIO]
 
 
 def _ensure_video_clip(video_src: VideoSource) -> VideoFileClip:
@@ -69,11 +57,6 @@ def _ensure_video_clip(video_src: VideoSource) -> VideoFileClip:
     else:
         # Assume it's a file-like object
         return VideoFileClip(video_src)
-
-
-def _is_video_file(path: Path) -> bool:
-    """Check if a file path has a video extension."""
-    return path.suffix.lower() in _VIDEO_EXTENSIONS
 
 
 def _iter_video_files(folder_path: Path) -> Iterable[Path]:

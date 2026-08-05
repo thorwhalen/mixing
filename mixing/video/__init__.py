@@ -26,6 +26,8 @@ from mixing.video.video_ops import (
     loop_video,
     replace_audio,
     normalize_audio,
+    overlay_ambient_bed,
+    DEFAULT_AMBIENT_MIX_RATIO,
     change_speed,
     ken_burns_video,
     ken_burns_film,

@@ -120,8 +120,8 @@ pip install mixing[clipboard]  # get file paths from the clipboard
 
 | Subpackage | Highlights |
 |---|---|
-| `mixing.audio` | `Audio`, `fade_in/out`, `crop_audio`, `concatenate_audio`, `overlay_audio`, `find_audio_offset`, `find_segments`/`extract_segments` |
-| `mixing.video` | `Video`, `crop_video`, `loop_video`, `change_speed`, `replace_audio`, `normalize_audio`, `ken_burns_video`/`ken_burns_film`, `concatenate_videos`, `make_thumbnail`, `write_subtitles_in_video`, `SOCIAL_SIZES` |
+| `mixing.audio` | `Audio`, `fade_in/out`, `crop_audio`, `concatenate_audio`, `overlay_audio`, `loop_audio`, `duck_audio`, `find_audio_offset`, `find_segments`/`extract_segments` |
+| `mixing.video` | `Video`, `crop_video`, `loop_video`, `change_speed`, `replace_audio`, `normalize_audio`, `overlay_ambient_bed`, `ken_burns_video`/`ken_burns_film`, `concatenate_videos`, `make_thumbnail`, `write_subtitles_in_video`, `SOCIAL_SIZES` |
 | `mixing.video.genai` | `generate_video` (Vertex AI Veo) |
 | `mixing.transcript` | `transcribe`, `remove_fillers`, `srt_for_media`, `words_to_srt`/`words_to_prose` |
 | `mixing.chapters` | `detect_chapters`, `Chapter` |

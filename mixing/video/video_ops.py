@@ -38,7 +38,7 @@ Design principles:
 - Single source of truth: One class handles both time ranges and frames
 """
 
-from typing import Optional, Union
+from typing import Optional, TYPE_CHECKING, Union
 from pathlib import Path
 from collections.abc import Callable, Iterator, Mapping, Sequence
 import io
@@ -53,8 +53,13 @@ from ..egress import Output, write_egress, is_path_output
 from ._helpers import (
     _auto_video_path,
     _auto_frame_path,
+    _is_video_file,
     _set_default_codecs,
 )
+
+
+if TYPE_CHECKING:  # `mixing.audio` (pydub) is imported lazily, inside functions
+    from ..audio import Audio
 
 
 def _to_seconds(value: float, *, unit: TimeUnit, fps: float) -> float:
@@ -1051,6 +1056,159 @@ def assemble_audio_track(
                     pass
 
     return write_egress(output, default_path="audio_track.wav", write=_write)
+
+
+#: Default prominence of the ambient bed in the final mix. Interpreted exactly
+#: as :func:`mixing.audio.overlay_audio`'s ``mix_ratio``: the bed plays at
+#: ``20·log10(mix_ratio)`` dB (≈ -12 dB at 0.25) under the existing track.
+DEFAULT_AMBIENT_MIX_RATIO = 0.25
+
+#: Sample rate of the synthesized silent base when the media carries no audio.
+_AMBIENT_SILENCE_SAMPLE_RATE = 44100
+
+
+def overlay_ambient_bed(
+    media: str | Path,
+    ambient: "str | Path | Audio",
+    *,
+    mix_ratio: float = DEFAULT_AMBIENT_MIX_RATIO,
+    loop: bool = True,
+    crossfade_s: float | None = None,
+    duck_under_dialogue: bool = False,
+    duck_db: float | None = None,
+    output: Output = None,
+    **save_kwargs,
+) -> Path:
+    """Lay a looping ambient bed under a cut, optionally ducked under dialogue.
+
+    This is the one-call version of "soften the cuts with room tone": the
+    ``ambient`` clip (usually 10–30 s) is looped with crossfades to the exact
+    length of ``media`` (:func:`mixing.audio.loop_audio`), optionally ducked
+    against the existing dialogue (:func:`mixing.audio.duck_audio`), and mixed
+    under the existing track (:func:`mixing.audio.overlay_audio`).
+
+    ``media`` may be a **video** (recognised by extension) or an **audio**
+    file; the result is written in kind — a video keeps its picture and gets a
+    new mixed audio track, an audio file becomes the mixed track. It is
+    *file-first*: ``output=None`` writes beside the input.
+
+    ``mix_ratio`` is the bed's prominence, exactly as in
+    :func:`~mixing.audio.overlay_audio` — the bed plays at
+    ``20·log10(mix_ratio)`` dB and the existing track is attenuated by
+    ``20·log10(1 - mix_ratio)``. The bed is attenuated by ``mix_ratio`` even
+    when the media has no audio at all (a silent base is synthesized), so the
+    parameter means one thing everywhere.
+
+    ``duck_under_dialogue=True`` runs the bed through
+    :func:`~mixing.audio.duck_audio` with the media's own audio as the
+    sidechain; read that function's docstring for what the ducker does and does
+    not do (energy-based detection, fixed depth, no lookahead). With no
+    existing audio track there is nothing to duck against, so it is a no-op.
+
+    With ``loop=False`` a bed shorter than the media is laid once at the start
+    and the rest of the timeline has no bed; a bed longer than the media is
+    always trimmed to fit, looping or not.
+
+    Args:
+        media: Video or audio file to lay the bed under.
+        ambient: The ambient/room-tone clip (a path or an :class:`Audio`).
+        mix_ratio: Bed prominence in ``[0.0, 1.0]`` (see above).
+        loop: Loop the bed to the media's duration when it is shorter.
+        crossfade_s: Crossfade at each loop join; ``None`` uses
+            :data:`mixing.audio.DEFAULT_LOOP_CROSSFADE_S`.
+        duck_under_dialogue: Duck the bed under the media's existing audio.
+        duck_db: Duck depth in dB; ``None`` uses
+            :data:`mixing.audio.DEFAULT_DUCK_DB`.
+        output: Where to put the result — None (save beside the input), a file
+            path, a directory (auto-named), or a callable sink. See mixing.egress.
+        **save_kwargs: Extra encode arguments — ``write_videofile`` kwargs for a
+            video input, ``Audio.save`` kwargs for an audio input.
+
+    Returns:
+        Path to the written file (or the sink's return value).
+
+    Examples:
+        >>> overlay_ambient_bed("cut.mp4", "room_tone.wav", mix_ratio=0.2)  # doctest: +SKIP
+        >>> overlay_ambient_bed(  # duck under the dialogue  # doctest: +SKIP
+        ...     "cut.mp4", "rain.wav", duck_under_dialogue=True
+        ... )
+    """
+    from ..audio import (
+        Audio,
+        DEFAULT_DUCK_DB,
+        DEFAULT_LOOP_CROSSFADE_S,
+        duck_audio,
+        loop_audio,
+        overlay_audio,
+    )
+
+    if crossfade_s is None:
+        crossfade_s = DEFAULT_LOOP_CROSSFADE_S
+    if duck_db is None:
+        duck_db = DEFAULT_DUCK_DB
+
+    media_path = Path(media)
+    is_video = _is_video_file(media_path)
+
+    def _mix(base: Optional[Audio], duration_s: float) -> Audio:
+        """Loop/duck the bed and mix it under ``base`` (or under silence)."""
+        bed = ambient if isinstance(ambient, Audio) else Audio(ambient)
+        if bed.duration > duration_s:
+            # Belt-and-braces: `overlay_audio` would truncate the overlap
+            # anyway, but trimming here keeps the (documented) fit-to-media
+            # contract owned by this function, and spares the ducker from
+            # computing an envelope over audio that is about to be discarded.
+            bed = bed[:duration_s]
+        elif loop and bed.duration < duration_s:
+            bed = loop_audio(bed, duration_s, crossfade_s=crossfade_s)
+        if duck_under_dialogue and base is not None:
+            bed = duck_audio(bed, base, duck_db=duck_db)
+        if base is None:
+            from pydub import AudioSegment
+
+            base = Audio(
+                AudioSegment.silent(
+                    duration=int(round(duration_s * 1000)),
+                    frame_rate=_AMBIENT_SILENCE_SAMPLE_RATE,
+                ).set_channels(bed._get_segment().channels)
+            )
+        return overlay_audio(base, bed, mix_ratio=mix_ratio)
+
+    if not is_video:
+        default_path = media_path.with_stem(f"{media_path.stem}_ambient")
+        base_audio = Audio(media_path)
+
+        def _write_audio(target: Path) -> None:
+            _mix(base_audio, base_audio.duration).save(target, **save_kwargs)
+
+        return write_egress(output, default_path=default_path, write=_write_audio)
+
+    default_path = _auto_video_path(str(media_path), "ambient")
+    _set_default_codecs(save_kwargs)
+
+    def _write_video(target: Path) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            base_wav = Path(tmp_dir) / "base.wav"
+            with mp.VideoFileClip(str(media_path)) as clip:
+                duration_s = clip.duration
+                if clip.audio is not None:
+                    clip.audio.write_audiofile(
+                        str(base_wav), codec="pcm_s16le", logger=None
+                    )
+            base_audio = Audio(base_wav) if base_wav.exists() else None
+            mixed_wav = Path(tmp_dir) / "mixed.wav"
+            _mix(base_audio, duration_s).save(mixed_wav)
+            _replace_audio_write(
+                str(media_path),
+                str(mixed_wav),
+                target,
+                mix_ratio=1.0,
+                match_duration=True,
+                **save_kwargs,
+            )
+        print(f"Saved video with ambient bed to: {target}")
+
+    return write_egress(output, default_path=default_path, write=_write_video)
 
 
 def change_speed(

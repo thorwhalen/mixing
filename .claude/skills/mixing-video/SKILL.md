@@ -7,7 +7,7 @@ description: >
   concatenate clips, grab/extract frames, make a YouTube-style thumbnail, burn
   in subtitles, or resize for shorts/tiktok/square. Trigger on phrasings like
   "trim this video", "loop the intro", "speed up / slow down this clip",
-  "replace the audio with this music", "add a pan-zoom over this photo", "make a
+  "replace the audio with this music", "lay room tone / ambience under the cut", "add a pan-zoom over this photo", "make a
   thumbnail", "burn the subtitles in", "resize for YouTube Shorts", or "stitch
   these clips together". For audio-only work use mixing-audio; for transcription
   / filler removal use mixing-transcript; for TTS re-voicing use mixing-dubbing.
@@ -91,6 +91,26 @@ replace_audio("v.mp4", "voice.mp3", mix_ratio=0.7)  # 70% new / 30% original
 
 `mix_ratio` (0.0–1.0): `1.0`=only new, `0.0`=keep original, `0.5`=blend.
 `match_duration=True` (default) loops/trims the audio to the video length.
+
+### overlay_ambient_bed — loop a bed to length and duck it under dialogue
+
+```python
+from mixing.video import overlay_ambient_bed
+
+# Loop `room_tone.wav` to the cut's exact length and mix it 25% under the
+# existing track. Works on a VIDEO or an AUDIO file (kind chosen by extension);
+# file-first, so output=None writes `cut_ambient.mp4` beside the input.
+overlay_ambient_bed("cut.mp4", "room_tone.wav", output="cut_amb.mp4")
+overlay_ambient_bed("cut.mp4", "rain.wav", mix_ratio=0.2)  # quieter bed
+overlay_ambient_bed("cut.mp4", "rain.wav", duck_under_dialogue=True)  # sidechain duck
+overlay_ambient_bed("cut.mp4", "sting.wav", loop=False)  # lay it once at the head
+```
+
+`mix_ratio` means exactly what it does in `overlay_audio`: the **bed's
+prominence** (0.25 ≈ -12 dB under the cut). Under the hood it is
+`mixing.audio.loop_audio` → optional `mixing.audio.duck_audio` →
+`mixing.audio.overlay_audio` → mux; reach for those directly when you want the
+intermediate `Audio` objects.
 
 ## Ken Burns (pan/zoom) — mixing wrappers over the `burns` package
 
@@ -238,6 +258,12 @@ returns path(s); `output=False` returns the raw operation.
 - A `Video` integer/float index returns a **frame** (numpy BGR); a slice returns
   a `Video`. `v[15]` is the frame at 15 *seconds* (or 15 *frames* under
   `time_unit="frames"`).
+- `overlay_ambient_bed` is **file-first** (`output=None` writes beside the
+  input) even for an audio input — compose `loop_audio`/`duck_audio`/
+  `overlay_audio` yourself if you want the `Audio` object back. Its bed is
+  attenuated by `mix_ratio` even when the media is silent (a silent base is
+  synthesized), and `duck_under_dialogue=True` is a no-op when the media has no
+  audio to duck against.
 - `change_speed` and `replace_audio(match_duration=True)` change/retime audio too.
 - Subtitle `start_time=True` (or `auto_detect_audio_start=True`) needs the video
   to detect audio onset; the moviepy fallback (`use_ffmpeg=False`) is much slower.
