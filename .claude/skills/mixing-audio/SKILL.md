@@ -3,14 +3,16 @@ name: mixing-audio
 description: >
   Use for AUDIO editing with the `mixing` package: trim/crop a clip, fade in or
   fade out, join/concatenate clips (with optional crossfade), mix music under a
-  voice or overlay one track on another, normalize loudness, convert to mono,
+  voice or overlay one track on another, loop a short bed to a target length,
+  duck a bed under dialogue, normalize loudness, convert to mono,
   resample, peek at raw samples, align two recordings of the same performance,
   or split a long recording (concert, DJ mix, radio show, podcast) into
   segments. Trigger on phrasings like "trim audio", "fade out the end", "join
   these audio clips", "add background music under the narration", "make it
   louder / normalize", "convert to mono", "align two recordings", "find the
   offset between these takes", "split a concert into songs", "separate speech
-  from music". For video audio (replace/normalize a video's track) use
+  from music", "loop this ambient clip to N seconds", "duck the music under
+  the dialogue". For video audio (replace/normalize a video's track) use
   mixing-video; this skill is audio-file → audio-file.
 ---
 
@@ -86,6 +88,8 @@ from mixing.audio import (
     fade_out,
     concatenate_audio,
     overlay_audio,
+    loop_audio,
+    duck_audio,
     save_audio_clip,
     find_audio_offset,
 )
@@ -105,6 +109,13 @@ concatenate_audio("a.mp3", "b.mp3", crossfade=0.5)  # 500ms crossfade → Audio
 # music under voice: mix_ratio is the PROMINENCE OF THE OVERLAY
 #   1.0 = only overlay, 0.0 = only background, 0.5 = equal blend
 overlay_audio("music.mp3", "voice.mp3", position=5.0, mix_ratio=0.35, output="mix.mp3")
+
+# loop a short bed to a target length, crossfading every join (no click):
+bed = loop_audio("room_tone.wav", 90.0)  # -> 90s Audio
+loop_audio("waves.wav", 240.0, crossfade_s=1.0, output="bed.wav")  # -> Path
+
+# duck a bed under dialogue (sidechain ducking, NOT a constant gain):
+quiet_bed = duck_audio("bed.wav", "dialogue.wav", duck_db=-12)  # -> Audio
 
 # extract a clip (audio_src=None pulls a path from the clipboard):
 save_audio_clip("song.mp3", 10, 30, output="clip.mp3", format="mp3")
@@ -162,6 +173,12 @@ overlay_audio(
     "music.mp3", "narration.mp3", position=0.0, mix_ratio=0.3, output="podcast.mp3"
 )
 
+# Ambient bed under a dialogue track: loop to length, duck, mix at 25%:
+base = Audio("dialogue.wav")
+bed = duck_audio(loop_audio("room_tone.wav", base.duration), base)
+overlay_audio(base, bed, mix_ratio=0.25, output="with_room_tone.wav")
+# (one call over a file: mixing.video.overlay_ambient_bed — works on video too)
+
 # Align a clean studio take to a camera recording, then crop the camera to match:
 off = find_audio_offset("camera.wav", "studio.mp3")
 crop_audio("camera.wav", off, off + Audio("studio.mp3").duration, output="aligned.wav")
@@ -180,6 +197,15 @@ extract_segments("show.mp3", strategy="speech_music", output="parts/")
   the input** (auto-named) — pass an explicit `output` to control location.
 - `overlay_audio`'s `mix_ratio` is the overlay's prominence (1.0 = only overlay).
   Don't confuse it with `Audio.overlay`'s `gain_during_overlay` (a dB number).
+- `loop_audio`'s `crossfade_s` is **clamped to half the source duration** —
+  each join must still advance the timeline. The tail is cut wherever the target
+  lands (mid-loop is normal) and no fade-out is applied; chain `fade_out` if the
+  bed ends exposed.
+- `duck_audio` is a level-detector ducker, **not** a compressor and **not** a
+  VAD: fixed depth (`duck_db`, no ratio/knee), no lookahead, and *any* loud
+  sidechain content (music, a slam) ducks the bed exactly like speech would.
+  Raise `threshold_db` if room noise is triggering it. The result always has the
+  **bed's** duration; a shorter sidechain leaves the tail un-ducked.
 - `find_audio_offset` returns **seconds** (positive = query starts inside the
   reference); the two recordings need only a shared correlated component.
 - `extract_segments(output=...)` treats `output` as a **directory** (it emits

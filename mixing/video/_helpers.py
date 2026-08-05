@@ -1,6 +1,37 @@
 """Internal helper functions for video operations."""
 
+import os
 from pathlib import Path
+
+#: File extensions treated as video across ``mixing.video``. Single source of
+#: truth — every "is this a video?" check reads this set.
+_VIDEO_EXTENSIONS = frozenset(
+    {
+        ".mp4",
+        ".avi",
+        ".mov",
+        ".mkv",
+        ".wmv",
+        ".flv",
+        ".webm",
+        ".m4v",
+        ".3gp",
+        ".mpg",
+        ".mpeg",
+    }
+)
+
+
+def _is_video_file(path: str | os.PathLike) -> bool:
+    """True if ``path``'s extension is a known video extension (case-insensitive).
+
+    Examples:
+        >>> _is_video_file("cut.MP4")
+        True
+        >>> _is_video_file("bed.wav")
+        False
+    """
+    return Path(os.fspath(path)).suffix.lower() in _VIDEO_EXTENSIONS
 
 
 def _auto_video_path(src_path: str, suffix: str, *, ext: str | None = None) -> Path:

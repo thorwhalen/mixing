@@ -792,6 +792,304 @@ def overlay_audio(
     )
 
 
+#: Default crossfade (seconds) applied at every loop join in :func:`loop_audio`.
+#: Long enough to hide the waveform discontinuity where the tail meets the head,
+#: short enough not to smear the bed's content.
+DEFAULT_LOOP_CROSSFADE_S = 0.5
+
+#: A loop crossfade may consume at most this fraction of the source's duration.
+#: Each join must still advance the timeline, so this can never reach ``1.0``.
+_MAX_LOOP_CROSSFADE_FRACTION = 0.5
+
+
+def loop_audio(
+    source: Union[str, Path, Audio],
+    target_duration_s: float,
+    *,
+    crossfade_s: float = DEFAULT_LOOP_CROSSFADE_S,
+    output: Output = None,
+    **save_kwargs,
+) -> Union[Audio, Path]:
+    """Tile an audio source until it fills ``target_duration_s``, seamlessly.
+
+    The source is appended to itself with a ``crossfade_s`` crossfade at every
+    join (pydub's equal-gain fade-out/fade-in), then trimmed to *exactly*
+    ``target_duration_s``. This is the "make a 20 s ambient bed last 4 minutes"
+    primitive: without the crossfade, every loop point is a hard splice and a
+    waveform discontinuity you can hear as a click.
+
+    A source **longer** than the target is simply trimmed — looping is only
+    ever additive, never a no-op guard the caller has to write.
+
+    Because each join consumes ``crossfade_s`` of timeline, the crossfade is
+    clamped to half the source's duration; otherwise a long crossfade over a
+    short source would never advance.
+
+    Note the tail is cut wherever ``target_duration_s`` lands (mid-loop is
+    normal), and no fade-out is applied — chain :func:`fade_out` if the bed
+    ends exposed.
+
+    Args:
+        source: Audio to loop (filepath or :class:`Audio`).
+        target_duration_s: Duration of the result, in seconds (> 0).
+        crossfade_s: Crossfade at each loop join, in seconds. ``0`` gives hard
+            splices. Clamped to half the source duration.
+        output: Where to put the result — None (return the Audio object), a file
+            path, a directory (auto-named), or a callable sink. See mixing.egress.
+        **save_kwargs: Additional save arguments.
+
+    Returns:
+        Audio instance or Path to saved file.
+
+    Examples:
+        >>> bed = loop_audio("room_tone.wav", 90.0)  # 90s bed  # doctest: +SKIP
+        >>> loop_audio("waves.wav", 240.0, output="bed.wav")  # doctest: +SKIP
+    """
+    if target_duration_s <= 0:
+        raise ValueError(f"target_duration_s must be > 0, got {target_duration_s}")
+    if crossfade_s < 0:
+        raise ValueError(f"crossfade_s must be >= 0, got {crossfade_s}")
+
+    audio = source if isinstance(source, Audio) else Audio(source)
+    segment = audio._get_segment()
+    source_ms = len(segment)
+    if source_ms <= 0:
+        raise ValueError("Cannot loop an empty audio source")
+
+    target_ms = int(round(target_duration_s * 1000))
+    crossfade_ms = min(
+        int(round(crossfade_s * 1000)),
+        int(source_ms * _MAX_LOOP_CROSSFADE_FRACTION),
+    )
+
+    looped = segment
+    while len(looped) < target_ms:
+        looped = looped.append(segment, crossfade=crossfade_ms)
+    looped = looped[:target_ms]
+
+    return deliver(
+        Audio(looped, time_unit=audio.time_unit),
+        output,
+        write=lambda a, p: a.save(p, **save_kwargs),
+        default_name="audio_loop.mp3",
+    )
+
+
+#: Gain (dB) applied to the bed while the sidechain is active.
+DEFAULT_DUCK_DB = -12.0
+#: Sidechain frames louder than this (dBFS RMS) count as "active".
+DEFAULT_DUCK_THRESHOLD_DB = -40.0
+#: Time constant for moving *down* to the ducked level (sidechain goes active).
+DEFAULT_DUCK_ATTACK_S = 0.05
+#: Time constant for coming *back up* to unity (sidechain goes quiet).
+DEFAULT_DUCK_RELEASE_S = 0.4
+#: How long the duck is held past the last active frame, so the bed rides
+#: through the gaps between words instead of pumping on every syllable.
+DEFAULT_DUCK_HOLD_S = 0.2
+#: Level-detector frame size — the time resolution of the sidechain envelope.
+DEFAULT_DUCK_FRAME_S = 0.02
+
+
+def _frame_rms_db(segment: "AudioSegment", *, frame_n: int) -> np.ndarray:
+    """Per-frame RMS level (dBFS) of ``segment``, downmixed to mono.
+
+    ``frame_n`` is the frame length in samples-per-channel. The final partial
+    frame is zero-padded, which only ever *lowers* its level — a partial frame
+    can't fake activity.
+    """
+    samples = np.array(segment.get_array_of_samples(), dtype=np.float64)
+    if segment.channels > 1:
+        samples = samples.reshape(-1, segment.channels).mean(axis=1)
+    full_scale = float(1 << (8 * segment.sample_width - 1))
+    samples = samples / full_scale
+
+    n_frames = max(1, int(np.ceil(len(samples) / frame_n)))
+    padded = np.zeros(n_frames * frame_n, dtype=np.float64)
+    padded[: len(samples)] = samples
+    rms = np.sqrt(np.mean(padded.reshape(n_frames, frame_n) ** 2, axis=1))
+    floor = 10.0 ** (_MIX_SILENCE_FLOOR_DB / 20.0)
+    return 20.0 * np.log10(np.maximum(rms, floor))
+
+
+def _hold_active(active: np.ndarray, *, hold_frames: int) -> np.ndarray:
+    """Extend each active run forward by ``hold_frames`` frames."""
+    if hold_frames <= 0:
+        return active
+    indices = np.arange(len(active))
+    last_active = np.maximum.accumulate(np.where(active, indices, -1))
+    return (last_active >= 0) & ((indices - last_active) <= hold_frames)
+
+
+def _duck_gain_envelope(
+    active: np.ndarray,
+    *,
+    frame_s: float,
+    duck_db: float,
+    attack_s: float,
+    release_s: float,
+) -> np.ndarray:
+    """Per-frame gain (dB) that falls to ``duck_db`` while ``active``, else 0.
+
+    A one-pole smoother in the dB domain with separate attack (going down) and
+    release (coming back up) time constants — the standard gain-smoothing shape
+    of a broadcast ducker.
+    """
+
+    def _coeff(time_constant_s: float) -> float:
+        if time_constant_s <= 0:
+            return 1.0  # instantaneous
+        return 1.0 - float(np.exp(-frame_s / time_constant_s))
+
+    attack_coeff = _coeff(attack_s)
+    release_coeff = _coeff(release_s)
+
+    targets = np.where(active, duck_db, 0.0)
+    gains = np.empty(len(targets), dtype=np.float64)
+    gain = 0.0
+    for i, target in enumerate(targets):
+        coeff = attack_coeff if target < gain else release_coeff
+        gain += (target - gain) * coeff
+        gains[i] = gain
+    return gains
+
+
+def _apply_gain_envelope(
+    segment: "AudioSegment", gain_db: np.ndarray, *, frame_s: float
+) -> "AudioSegment":
+    """Apply a per-frame dB gain envelope to ``segment``, sample-interpolated.
+
+    Gains are linearly interpolated between frame centers so the envelope is
+    continuous — a per-frame staircase would add its own zipper noise.
+
+    Samples round-trip through numpy at the segment's own width; pydub only
+    ever holds 1-, 2- or 4-byte samples (its ``AudioSegment`` widens 24-bit to
+    32-bit on construction), so the `array` typecode always matches the frame
+    width and no width conversion is needed here.
+    """
+    AudioSegment = require_package("pydub").AudioSegment
+
+    samples = np.array(segment.get_array_of_samples())
+    channels = segment.channels
+    per_channel = len(samples) // channels
+    if per_channel == 0:
+        return segment
+
+    sample_times = (np.arange(per_channel) + 0.5) / segment.frame_rate
+    frame_times = (np.arange(len(gain_db)) + 0.5) * frame_s
+    gain_linear = 10.0 ** (np.interp(sample_times, frame_times, gain_db) / 20.0)
+
+    scaled = samples.astype(np.float64).reshape(-1, channels) * gain_linear[:, None]
+    limits = np.iinfo(samples.dtype)
+    adjusted = np.clip(np.rint(scaled), limits.min, limits.max).astype(samples.dtype)
+
+    return AudioSegment(
+        data=adjusted.reshape(-1).tobytes(),
+        sample_width=segment.sample_width,
+        frame_rate=segment.frame_rate,
+        channels=channels,
+    )
+
+
+def duck_audio(
+    bed: Union[str, Path, Audio],
+    sidechain: Union[str, Path, Audio],
+    *,
+    duck_db: float = DEFAULT_DUCK_DB,
+    threshold_db: float = DEFAULT_DUCK_THRESHOLD_DB,
+    attack_s: float = DEFAULT_DUCK_ATTACK_S,
+    release_s: float = DEFAULT_DUCK_RELEASE_S,
+    hold_s: float = DEFAULT_DUCK_HOLD_S,
+    frame_s: float = DEFAULT_DUCK_FRAME_S,
+    output: Output = None,
+    **save_kwargs,
+) -> Union[Audio, Path]:
+    """Duck ``bed`` wherever ``sidechain`` is loud (sidechain ducking).
+
+    **What it does.** A level-detector sidechain ducker: the ``sidechain``
+    (typically the dialogue track) is framed at ``frame_s``, each frame's RMS
+    is compared to ``threshold_db``, active frames are extended by ``hold_s``,
+    and the resulting on/off signal drives a gain envelope on ``bed`` that
+    falls to ``duck_db`` with time constant ``attack_s`` and returns to unity
+    with ``release_s``. The envelope is interpolated to sample resolution
+    before it is applied, so there is no zipper noise. The result always has
+    the **bed's** duration; a shorter sidechain simply leaves the tail
+    un-ducked.
+
+    **What it does not do.** It is not a full compressor: there is no ratio,
+    knee, or makeup gain — the duck depth is the fixed ``duck_db``, not a
+    function of how loud the sidechain is. There is no lookahead, so with a
+    short ``attack_s`` the first few milliseconds of a sudden word can sneak
+    through at full bed level. Detection is **energy-based, not speech-aware**:
+    any loud sidechain content (music, a door slam, hiss above
+    ``threshold_db``) ducks the bed just as dialogue would. And the bed is
+    attenuated, never EQ'd — it does not carve a vocal-band notch.
+
+    Args:
+        bed: The audio to be ducked (filepath or :class:`Audio`).
+        sidechain: The audio that triggers ducking — the dialogue track.
+        duck_db: Gain (dB, ``<= 0``) held while the sidechain is active.
+        threshold_db: Sidechain frames above this RMS dBFS count as active.
+        attack_s: Time constant for reaching the ducked level.
+        release_s: Time constant for returning to unity.
+        hold_s: How long the duck persists after the last active frame.
+        frame_s: Level-detector frame size (envelope time resolution).
+        output: Where to put the result — None (return the Audio object), a file
+            path, a directory (auto-named), or a callable sink. See mixing.egress.
+        **save_kwargs: Additional save arguments.
+
+    Returns:
+        Audio instance or Path to saved file.
+
+    Examples:
+        >>> quiet_bed = duck_audio("bed.wav", "dialogue.wav")  # doctest: +SKIP
+        >>> duck_audio("bed.wav", "vo.wav", duck_db=-18)  # deeper duck  # doctest: +SKIP
+    """
+    if duck_db > 0:
+        raise ValueError(f"duck_db must be <= 0 dB (a duck attenuates), got {duck_db}")
+    if frame_s <= 0:
+        raise ValueError(f"frame_s must be > 0, got {frame_s}")
+    for name, value in (
+        ("attack_s", attack_s),
+        ("release_s", release_s),
+        ("hold_s", hold_s),
+    ):
+        if value < 0:
+            raise ValueError(f"{name} must be >= 0, got {value}")
+
+    bed_audio = bed if isinstance(bed, Audio) else Audio(bed)
+    side_audio = sidechain if isinstance(sidechain, Audio) else Audio(sidechain)
+
+    bed_segment = bed_audio._get_segment()
+    side_segment = side_audio._get_segment()
+    if len(bed_segment) <= 0:
+        raise ValueError("Cannot duck an empty bed")
+
+    n_frames = max(1, int(np.ceil((len(bed_segment) / 1000.0) / frame_s)))
+    side_frame_n = max(1, int(round(frame_s * side_segment.frame_rate)))
+
+    active = np.zeros(n_frames, dtype=bool)
+    if len(side_segment) > 0:
+        levels = _frame_rms_db(side_segment, frame_n=side_frame_n)
+        overlap = min(n_frames, len(levels))
+        active[:overlap] = levels[:overlap] > threshold_db
+
+    gain_db = _duck_gain_envelope(
+        _hold_active(active, hold_frames=int(round(hold_s / frame_s))),
+        frame_s=frame_s,
+        duck_db=duck_db,
+        attack_s=attack_s,
+        release_s=release_s,
+    )
+    ducked = _apply_gain_envelope(bed_segment, gain_db, frame_s=frame_s)
+
+    return deliver(
+        Audio(ducked, time_unit=bed_audio.time_unit),
+        output,
+        write=lambda a, p: a.save(p, **save_kwargs),
+        default_name="audio_ducked.mp3",
+    )
+
+
 def save_audio_clip(
     audio_src: str | None = None,
     start: float = 0,

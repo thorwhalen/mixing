@@ -6,6 +6,8 @@ Main exports:
 - crop_audio: Trim audio segments
 - concatenate_audio: Join multiple audio files
 - overlay_audio: Mix/overlay audio tracks
+- loop_audio: Tile a clip (crossfaded) to a target duration
+- duck_audio: Sidechain-duck a bed under a dialogue track
 - save_audio_clip: Extract and save audio segments
 - find_audio_offset: Align two recordings via cross-correlation
 - find_segments, extract_segments: Split a long audio into pieces (songs,
@@ -33,6 +35,15 @@ from .audio_ops import (
     crop_audio,
     concatenate_audio,
     overlay_audio,
+    loop_audio,
+    duck_audio,
+    DEFAULT_LOOP_CROSSFADE_S,
+    DEFAULT_DUCK_DB,
+    DEFAULT_DUCK_THRESHOLD_DB,
+    DEFAULT_DUCK_ATTACK_S,
+    DEFAULT_DUCK_RELEASE_S,
+    DEFAULT_DUCK_HOLD_S,
+    DEFAULT_DUCK_FRAME_S,
     save_audio_clip,
     find_audio_offset,
     find_audio_offset_detailed,
@@ -59,6 +70,15 @@ __all__ = [
     "crop_audio",
     "concatenate_audio",
     "overlay_audio",
+    "loop_audio",
+    "duck_audio",
+    "DEFAULT_LOOP_CROSSFADE_S",
+    "DEFAULT_DUCK_DB",
+    "DEFAULT_DUCK_THRESHOLD_DB",
+    "DEFAULT_DUCK_ATTACK_S",
+    "DEFAULT_DUCK_RELEASE_S",
+    "DEFAULT_DUCK_HOLD_S",
+    "DEFAULT_DUCK_FRAME_S",
     "save_audio_clip",
     "find_audio_offset",
     "find_audio_offset_detailed",

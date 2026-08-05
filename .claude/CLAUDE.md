@@ -33,8 +33,8 @@ Focused subpackages, each with a clear dependency footprint:
 
 | Module | Purpose | Heavy deps |
 |---|---|---|
-| `mixing.audio` | `Audio`/`AudioSamples`, fades, crop, concat, overlay, `find_audio_offset`, segmentation | `pydub`, `numpy`, `scipy` |
-| `mixing.video` | `Video`/`VideoFrames`, crop/loop/speed, `replace_audio`, `normalize_audio`, `ken_burns_*`, `concatenate_videos`, thumbnails, subtitles | `moviepy`, `opencv`, `pillow` |
+| `mixing.audio` | `Audio`/`AudioSamples`, fades, crop, concat, overlay, `loop_audio`, `duck_audio`, `find_audio_offset`, segmentation | `pydub`, `numpy`, `scipy` |
+| `mixing.video` | `Video`/`VideoFrames`, crop/loop/speed, `replace_audio`, `normalize_audio`, `overlay_ambient_bed`, `ken_burns_*`, `concatenate_videos`, thumbnails, subtitles | `moviepy`, `opencv`, `pillow` |
 | `mixing.video.genai` | Google Vertex AI **Veo** generation | `google-genai` (extra `gen`) |
 | `mixing.transcript` | ElevenLabs **Scribe** STT (stdlib HTTP, cached), filler removal, SRT/prose | stdlib only |
 | `mixing.dubbing` | ElevenLabs **TTS** re-voice / translate (stdlib HTTP, cached) | stdlib (`dub_video_from_srt` needs `moviepy`) |

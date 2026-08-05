@@ -3,12 +3,14 @@ name: mixing
 description: >
   Use the `mixing` Python package for video and audio editing tasks: slicing
   audio/video, fades, cropping, looping, changing speed, replacing or mixing a
-  video's audio, normalizing levels, Ken Burns pan/zoom, concatenating clips,
+  video's audio, laying a looping ambient bed under a cut, normalizing levels,
+  Ken Burns pan/zoom, concatenating clips,
   thumbnails, burning in subtitles, speech-to-text + filler removal, chapter
   detection, and TTS dubbing/translation. Trigger whenever someone wants to
   edit, transform, transcribe, dub, or assemble audio/video files with Python —
   e.g. "trim this clip", "add music to a video", "remove the ums", "make a
-  thumbnail", "turn this audio into a podcast", "dub this in French". Start here
+  thumbnail", "turn this audio into a podcast", "dub this in French", "add room
+  tone under the whole cut". Start here
   to pick the right tool and the right sub-skill (mixing-audio / mixing-video /
   mixing-transcript / mixing-dubbing).
 ---
@@ -22,8 +24,8 @@ focused sub-skill for the medium you're working in.
 
 | You want to… | Sub-skill |
 |---|---|
-| Edit audio (slice, fade, crop, concat, overlay, normalize, align, segment) | **mixing-audio** |
-| Edit video (slice, crop, loop, speed, replace/normalize audio, Ken Burns, concat, thumbnail, subtitles) | **mixing-video** |
+| Edit audio (slice, fade, crop, concat, overlay, loop a bed, duck under dialogue, normalize, align, segment) | **mixing-audio** |
+| Edit video (slice, crop, loop, speed, replace/normalize audio, lay an ambient bed, Ken Burns, concat, thumbnail, subtitles) | **mixing-video** |
 | Transcribe speech, remove fillers, make SRT/prose, detect chapters | **mixing-transcript** |
 | Re-voice / translate via text-to-speech | **mixing-dubbing** |
 

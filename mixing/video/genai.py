@@ -73,6 +73,8 @@ from collections.abc import Callable
 
 from dol import non_colliding_key
 
+from ._helpers import _is_video_file
+
 
 def _print_auth_help():
     """Print helpful authentication setup information."""
@@ -546,24 +548,6 @@ def save_generated_videos(
 
 # Backward compatibility alias
 save_generated_video = save_generated_videos
-
-
-def _is_video_file(path: str) -> bool:
-    """Check if a file has a video extension."""
-    video_extensions = {
-        ".mp4",
-        ".avi",
-        ".mkv",
-        ".mov",
-        ".wmv",
-        ".flv",
-        ".webm",
-        ".m4v",
-        ".3gp",
-        ".mpg",
-        ".mpeg",
-    }
-    return os.path.splitext(path.lower())[1] in video_extensions
 
 
 def _get_frame_path(media_path: str, frame_idx: int = 0) -> str:
