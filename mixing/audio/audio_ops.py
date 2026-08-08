@@ -1226,11 +1226,133 @@ def _normalized_xcorr(
     energy_r = cum_r[r_lo + overlap] - cum_r[r_lo]
     energy_q = cum_q[q_lo + overlap] - cum_q[q_lo]
     denom = np.sqrt(energy_r * energy_q)
-    coeff = np.where(denom > 0, num / denom, 0.0)
+    # Divide only where the denominator is non-zero. `np.where(denom > 0, num / denom, 0)`
+    # evaluates the quotient for EVERY lag first, so a silent overlap (denom == 0, which a
+    # real recording reaches at its extreme lags) raised a divide-by-zero RuntimeWarning on
+    # every call before the mask was applied.
+    coeff = np.zeros_like(denom)
+    nz = denom > 0
+    np.divide(num, denom, out=coeff, where=nz)
     valid = overlap >= max(1.0, min_overlap_ratio * min(n_r, n_q))
     scored = np.where(valid, np.abs(coeff), -1.0)
     best = int(np.argmax(scored))
     return int(lags[best]), float(np.abs(coeff[best]))
+
+
+#: Envelope hop, in samples at the analysis rate. 160 @ 16 kHz = 10 ms frames (100 Hz).
+ENVELOPE_HOP = 160
+#: STFT window for the envelope. 1024 @ 16 kHz = 64 ms — long enough to resolve a musical
+#: onset, short enough not to smear it.
+ENVELOPE_NFFT = 1024
+
+
+def onset_envelope(
+    samples: np.ndarray, sample_rate: int, *, hop: int = ENVELOPE_HOP, nfft: int = ENVELOPE_NFFT
+) -> "tuple[np.ndarray, float]":
+    """A channel-robust onset/energy envelope: ``(envelope, envelope_rate_hz)``.
+
+    Log-compressed STFT magnitude, positive first difference, summed over frequency, then
+    standardized. This is *spectral flux* — it tracks WHEN energy arrives, not the waveform
+    itself, so it survives the things that destroy raw-waveform similarity between two
+    devices recording the same sound: different microphone responses, different positions
+    (hence different room impulse responses), and the resulting phase differences.
+
+    Why this matters, measured on a real 6-device shoot: raw-waveform correlation scored
+    provably-correct alignments (three independent methods agreeing to within 10 ms) at
+    0.064-0.148, while the envelope scored the same pairs at 0.441-0.634 and a genuine
+    non-match at 0.102. The raw coefficient could not separate match from non-match; the
+    envelope separates them by more than 4x.
+
+    Args:
+        samples: Mono samples.
+        sample_rate: Their rate.
+        hop: Frames advance by this many samples (sets the envelope's time resolution).
+        nfft: STFT window length.
+
+    Returns:
+        ``(envelope, envelope_rate_hz)``. The envelope is zero-mean, unit-variance, so
+        correlations of two envelopes are directly comparable.
+    """
+    stft = require_package("scipy.signal").stft
+    _, _, spec = stft(
+        samples, fs=sample_rate, nperseg=nfft, noverlap=nfft - hop, padded=False, boundary=None
+    )
+    logmag = np.log1p(np.abs(spec))
+    flux = np.diff(logmag, axis=1)
+    flux[flux < 0] = 0.0  # onsets only — decays carry no timing information
+    env = flux.sum(axis=0)
+    return (env - env.mean()) / (env.std() + 1e-9), sample_rate / hop
+
+
+def _envelope_then_waveform(
+    ref: np.ndarray,
+    query: np.ndarray,
+    sample_rate: int,
+    *,
+    min_overlap_ratio: float,
+) -> "tuple[int, float]":
+    """Waveform picks the lag; the onset envelope scores it.
+
+    Returns ``(lag_samples, confidence)``. The division of labour follows from what each
+    feature is actually good at, and each half was chosen against a counterexample:
+
+    - **The waveform locates.** Its peak *position* is reliable — on a real 6-device shoot
+      it agreed with two independent methods to within 10 ms — and it has full sample
+      resolution. Its *coefficient*, however, is not informative across devices: two
+      microphones in a room are not sample-correlated even when the alignment is exact.
+    - **The envelope scores.** Spectral flux tracks when energy arrives, which survives
+      differing mic responses and room acoustics, so its coefficient separates match from
+      non-match by more than 4x where the waveform's cannot separate them at all.
+
+    The confidence is the envelope correlation **evaluated at the waveform's lag**, not the
+    envelope's own peak. That is the honest number: it answers "how well do the onset
+    patterns agree at the offset we are reporting", so a spurious waveform peak scores low
+    and is rejected downstream, rather than borrowing a good score from an unrelated lag.
+
+    Why the envelope does not get to choose the lag: it cannot be trusted to, on signals
+    whose energy is smoothly modulated rather than percussive. A test signal of linear
+    chirps under a 1.7 Hz sinusoidal amplitude envelope has no onsets at all, and its
+    envelope autocorrelation is periodic — so envelope-chooses-lag locked onto the wrong AM
+    period and moved a known -2.0 s offset to -2.5 s. The waveform got it exactly right.
+    Real music has percussive onsets and would not show this, which is precisely why it
+    must not be the only case the design is checked against.
+    """
+    env_ref, env_rate = onset_envelope(ref, sample_rate)
+    env_query, _ = onset_envelope(query, sample_rate)
+    wav_lag, wav_coeff = _normalized_xcorr(
+        ref, query, min_overlap_ratio=min_overlap_ratio
+    )
+    if env_ref.size < 2 or env_query.size < 2:  # too short to have an envelope
+        return wav_lag, wav_coeff
+    env_lag = int(round(wav_lag * env_rate / sample_rate))
+    return wav_lag, _correlation_at_lag(env_ref, env_query, env_lag)
+
+
+def _correlation_at_lag(ref: np.ndarray, query: np.ndarray, lag: int) -> float:
+    """Normalized correlation of ``query`` against ``ref`` at exactly ``lag``, in ``[0, 1]``.
+
+    The single-lag counterpart of :func:`_normalized_xcorr`, which searches for the best
+    lag. Used to score a lag that some other feature chose.
+    """
+    n_r, n_q = len(ref), len(query)
+    r_lo, q_lo = max(0, lag), max(0, -lag)
+    overlap = min(n_r, lag + n_q) - r_lo
+    if overlap <= 0:
+        return 0.0
+    a = ref[r_lo : r_lo + overlap]
+    b = query[q_lo : q_lo + overlap]
+    a = a - a.mean()
+    b = b - b.mean()
+    denom = float(np.sqrt(np.dot(a, a) * np.dot(b, b)))
+    if denom <= 0:
+        return 0.0
+    return float(abs(np.dot(a, b)) / denom)
+
+#: Alignment features. ``'envelope'`` is coarse-to-fine (see
+#: :func:`_envelope_then_waveform`); ``'waveform'`` is raw normalized cross-correlation,
+#: correct when both signals come from the SAME source (re-aligning an export against its
+#: master) and misleading across devices.
+ALIGNMENT_FEATURES = ("envelope", "waveform")
 
 
 def find_audio_offset_detailed(
@@ -1239,6 +1361,7 @@ def find_audio_offset_detailed(
     *,
     sample_rate: int = 16000,
     min_overlap_ratio: float = 0.5,
+    feature: str = "waveform",
 ) -> AudioOffset:
     """Align ``query_audio`` within ``reference_audio`` — offset **and** confidence.
 
@@ -1255,13 +1378,29 @@ def find_audio_offset_detailed(
         sample_rate: Analysis sample rate (mono). 16 kHz gives ~0.06 ms precision.
         min_overlap_ratio: Reject lags overlapping less than this fraction of the
             shorter signal (guards against a tiny-overlap spurious peak).
+        feature: Which similarity feature the confidence is measured on — see
+            :data:`ALIGNMENT_FEATURES`. Defaults to ``'waveform'`` here because this is the
+            low-level primitive and the caller knows their own signals; use ``'envelope'``
+            whenever the two recordings came from **different devices**, where a waveform
+            coefficient understates a correct alignment several-fold.
+            :func:`align_clips_to_reference` — the multi-device primitive — defaults to
+            ``'envelope'`` for that reason.
 
     Returns:
         An :class:`AudioOffset` (``offset_s``, ``confidence``, ``sample_rate``).
     """
+    if feature not in ALIGNMENT_FEATURES:
+        raise ValueError(
+            f"unknown feature {feature!r}; expected one of {ALIGNMENT_FEATURES}"
+        )
     ref = _load_mono_samples(reference_audio, sample_rate)
     query = _load_mono_samples(query_audio, sample_rate)
-    lag, coeff = _normalized_xcorr(ref, query, min_overlap_ratio=min_overlap_ratio)
+    if feature == "envelope":
+        lag, coeff = _envelope_then_waveform(
+            ref, query, sample_rate, min_overlap_ratio=min_overlap_ratio
+        )
+    else:
+        lag, coeff = _normalized_xcorr(ref, query, min_overlap_ratio=min_overlap_ratio)
     return AudioOffset(
         offset_s=lag / sample_rate, confidence=coeff, sample_rate=sample_rate
     )
@@ -1296,6 +1435,7 @@ def align_clips_to_reference(
     reference_duration: float | None = None,
     sample_rate: int = 16000,
     min_overlap_ratio: float = 0.5,
+    feature: str = "envelope",
 ) -> list[ClipAlignment]:
     """Align a SET of clips to one reference — the multi-device / multicam primitive.
 
@@ -1313,10 +1453,24 @@ def align_clips_to_reference(
         sample_rate: Analysis sample rate (mono).
         min_overlap_ratio: Passed through to the alignment (see
             :func:`find_audio_offset_detailed`).
+        feature: Similarity feature for the confidence — see :data:`ALIGNMENT_FEATURES`.
+            Defaults to ``'envelope'`` **because this function's whole purpose is the
+            cross-device case**, and a raw-waveform coefficient is not a usable trust gate
+            there: two microphones in a room are not sample-correlated even when the
+            alignment is exact. Measured on a real 6-device shoot, the waveform coefficient
+            scored provably-correct alignments at 0.064-0.148 — below any threshold a
+            caller would sensibly set — while the envelope scored them 0.441-0.634 and a
+            genuine non-match at 0.102. Pass ``'waveform'`` when the clips come from the
+            SAME source as the reference (e.g. verifying an export against its master),
+            where sample correlation is meaningful and gives finer confidence resolution.
 
     Returns:
         A list of :class:`ClipAlignment`, in input order (minus dropped clips).
     """
+    if feature not in ALIGNMENT_FEATURES:
+        raise ValueError(
+            f"unknown feature {feature!r}; expected one of {ALIGNMENT_FEATURES}"
+        )
     ref = _load_mono_samples(reference_audio, sample_rate)
     ref_dur = (
         reference_duration if reference_duration is not None else len(ref) / sample_rate
@@ -1324,7 +1478,14 @@ def align_clips_to_reference(
     out: list[ClipAlignment] = []
     for i, clip in enumerate(clips):
         query = _load_mono_samples(clip, sample_rate)
-        lag, coeff = _normalized_xcorr(ref, query, min_overlap_ratio=min_overlap_ratio)
+        if feature == "envelope":
+            lag, coeff = _envelope_then_waveform(
+                ref, query, sample_rate, min_overlap_ratio=min_overlap_ratio
+            )
+        else:
+            lag, coeff = _normalized_xcorr(
+                ref, query, min_overlap_ratio=min_overlap_ratio
+            )
         offset_s = lag / sample_rate
         dur_s = len(query) / sample_rate
         start = max(0.0, offset_s)

@@ -50,6 +50,8 @@ from .audio_ops import (
     AudioOffset,
     align_clips_to_reference,
     ClipAlignment,
+    onset_envelope,
+    ALIGNMENT_FEATURES,
 )
 from .segmentation import (
     Segment,
@@ -85,6 +87,8 @@ __all__ = [
     "AudioOffset",
     "align_clips_to_reference",
     "ClipAlignment",
+    "onset_envelope",
+    "ALIGNMENT_FEATURES",
     "Segment",
     "find_segments",
     "extract_segments",
