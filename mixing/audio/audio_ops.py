@@ -1300,41 +1300,47 @@ def _envelope_then_waveform(
     *,
     min_overlap_ratio: float,
 ) -> "tuple[int, float]":
-    """Waveform picks the lag; the onset envelope scores it.
+    """Waveform picks the lag; the confidence is the better of two views of that lag.
 
-    Returns ``(lag_samples, confidence)``. The division of labour follows from what each
-    feature is actually good at, and each half was chosen against a counterexample:
+    Returns ``(lag_samples, confidence)``.
 
-    - **The waveform locates.** Its peak *position* is reliable — on a real 6-device shoot
-      it agreed with two independent methods to within 10 ms — and it has full sample
-      resolution. Its *coefficient*, however, is not informative across devices: two
-      microphones in a room are not sample-correlated even when the alignment is exact.
-    - **The envelope scores.** Spectral flux tracks when energy arrives, which survives
-      differing mic responses and room acoustics, so its coefficient separates match from
-      non-match by more than 4x where the waveform's cannot separate them at all.
+    **The waveform locates.** Its peak *position* is reliable — on a real 6-device shoot it
+    agreed with two independent methods to within 10 ms — and it has full sample resolution.
+    It does not get to choose alone how good the match is, and the envelope does not get to
+    choose the lag: on signals whose energy is smoothly modulated rather than percussive
+    (linear chirps under a 1.7 Hz AM), the envelope autocorrelation is periodic, and
+    letting it pick moved a known -2.0 s offset to -2.5 s.
 
-    The confidence is the envelope correlation **evaluated at the waveform's lag**, not the
-    envelope's own peak. That is the honest number: it answers "how well do the onset
-    patterns agree at the offset we are reporting", so a spurious waveform peak scores low
-    and is rejected downstream, rather than borrowing a good score from an unrelated lag.
+    **The confidence is the larger of two correlations evaluated AT that lag** — the
+    waveform's and the onset envelope's. Not a trick to inflate the score: each feature is
+    *blind* in a regime the other sees clearly, and which regime you are in is not knowable
+    in advance.
 
-    Why the envelope does not get to choose the lag: it cannot be trusted to, on signals
-    whose energy is smoothly modulated rather than percussive. A test signal of linear
-    chirps under a 1.7 Hz sinusoidal amplitude envelope has no onsets at all, and its
-    envelope autocorrelation is periodic — so envelope-chooses-lag locked onto the wrong AM
-    period and moved a known -2.0 s offset to -2.5 s. The waveform got it exactly right.
-    Real music has percussive onsets and would not show this, which is precisely why it
-    must not be the only case the design is checked against.
+    - *Same source* (an export against its master; a clip cut from the reference): the
+      waveform correlates near 1.0. The envelope may be near-useless here, because content
+      with no percussive onsets has no flux structure to correlate — measured at 0.08 for an
+      exact copy of an onset-free signal.
+    - *Different devices* (the multicam case): the waveform is near-useless, because two
+      microphones in a room are not sample-correlated even when the alignment is exact —
+      measured at 0.055-0.188 for alignments confirmed correct by two other methods. The
+      envelope reads the same pairs at 0.17-0.60.
+    - *Unrelated audio*: both are low, so the maximum is low and the pair is still rejected —
+      measured at max(0.010, 0.021) on a genuine non-match.
+
+    Taking the maximum means the score answers "how similar are these at the offset we are
+    reporting, by the most favourable of two complementary measures". Taking either alone
+    means silently returning a near-zero score for a perfectly good alignment in the other
+    feature's blind spot — which, at a downstream threshold, deletes the user's footage.
     """
     env_ref, env_rate = onset_envelope(ref, sample_rate)
     env_query, _ = onset_envelope(query, sample_rate)
-    wav_lag, wav_coeff = _normalized_xcorr(
-        ref, query, min_overlap_ratio=min_overlap_ratio
-    )
+    wav_lag, _ = _normalized_xcorr(ref, query, min_overlap_ratio=min_overlap_ratio)
+    wav_at_lag = _correlation_at_lag(ref, query, wav_lag)
     if env_ref.size < 2 or env_query.size < 2:  # too short to have an envelope
-        return wav_lag, wav_coeff
+        return wav_lag, wav_at_lag
     env_lag = int(round(wav_lag * env_rate / sample_rate))
-    return wav_lag, _correlation_at_lag(env_ref, env_query, env_lag)
+    env_at_lag = _correlation_at_lag(env_ref, env_query, env_lag)
+    return wav_lag, max(wav_at_lag, env_at_lag)
 
 
 def _correlation_at_lag(ref: np.ndarray, query: np.ndarray, lag: int) -> float:

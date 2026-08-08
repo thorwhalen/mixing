@@ -223,3 +223,45 @@ def test_no_divide_by_zero_warning_on_a_silent_overlap(reference):
     with warnings.catch_warnings():
         warnings.simplefilter("error", RuntimeWarning)
         align_clips_to_reference(ref_p, [p], sample_rate=SR)
+
+
+class TestBlindSpots:
+    """Each feature is blind in a regime the other sees; the confidence must cover both.
+
+    These pin why the score is the MAX of two correlations rather than the envelope's alone.
+    """
+
+    def test_same_source_copy_scores_high_despite_a_useless_envelope(self, tmp_path):
+        """An exact slice of the reference must score ~1, even with no onsets to track.
+
+        Onset-free content (smoothly-modulated tones) has no flux structure, so its envelope
+        correlation is near noise — measured at 0.08 for an EXACT copy. Scoring on the
+        envelope alone would report 0.08 for a perfect match, and at a 0.3 gate that deletes
+        the user's footage.
+        """
+        # Onset-free but NON-periodic: band-limited noise (a sharp, unambiguous
+        # autocorrelation peak) under a smooth amplitude contour (no onsets to track).
+        # A tone with sinusoidal AM would be onset-free but periodic, so every AM period is
+        # an equally valid lag and the offset assertion becomes meaningless.
+        rng = np.random.default_rng(11)
+        t = np.arange(20 * SR) / SR
+        carrier = lfilter(np.ones(24) / 24, [1.0], rng.normal(0, 1, len(t)))
+        smooth = carrier * (0.6 + 0.4 * np.sin(2 * np.pi * 0.11 * t))
+        smooth /= np.max(np.abs(smooth))
+        ref_p = _write(tmp_path, "smooth_ref.wav", smooth)
+        clip_p = _write(tmp_path, "smooth_clip.wav", smooth[int(3.0 * SR) : int(13.0 * SR)])
+        got = find_audio_offset_detailed(ref_p, clip_p, sample_rate=SR, feature="envelope")
+        assert got.offset_s == pytest.approx(3.0, abs=0.05)
+        assert got.confidence > 0.9, "a same-source copy must not be scored by its blind spot"
+
+    def test_unrelated_audio_is_low_under_both_features(self, reference):
+        """The maximum must not become a way for noise to sneak past.
+
+        Both correlations are low on unrelated material, so their max is low too — on a real
+        non-match the pair was max(0.010, 0.021).
+        """
+        ref_p, _ = reference
+        rng = np.random.default_rng(4242)
+        noise = _write(reference[0].parent, "pure_noise.wav", rng.normal(0, 0.3, 12 * SR))
+        got = find_audio_offset_detailed(ref_p, noise, sample_rate=SR, feature="envelope")
+        assert got.confidence < GATE
