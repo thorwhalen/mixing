@@ -1247,7 +1247,11 @@ ENVELOPE_NFFT = 1024
 
 
 def onset_envelope(
-    samples: np.ndarray, sample_rate: int, *, hop: int = ENVELOPE_HOP, nfft: int = ENVELOPE_NFFT
+    samples: np.ndarray,
+    sample_rate: int,
+    *,
+    hop: int = ENVELOPE_HOP,
+    nfft: int = ENVELOPE_NFFT,
 ) -> "tuple[np.ndarray, float]":
     """A channel-robust onset/energy envelope: ``(envelope, envelope_rate_hz)``.
 
@@ -1275,7 +1279,12 @@ def onset_envelope(
     """
     stft = require_package("scipy.signal").stft
     _, _, spec = stft(
-        samples, fs=sample_rate, nperseg=nfft, noverlap=nfft - hop, padded=False, boundary=None
+        samples,
+        fs=sample_rate,
+        nperseg=nfft,
+        noverlap=nfft - hop,
+        padded=False,
+        boundary=None,
     )
     logmag = np.log1p(np.abs(spec))
     flux = np.diff(logmag, axis=1)
@@ -1347,6 +1356,7 @@ def _correlation_at_lag(ref: np.ndarray, query: np.ndarray, lag: int) -> float:
     if denom <= 0:
         return 0.0
     return float(abs(np.dot(a, b)) / denom)
+
 
 #: Alignment features. ``'envelope'`` is coarse-to-fine (see
 #: :func:`_envelope_then_waveform`); ``'waveform'`` is raw normalized cross-correlation,
