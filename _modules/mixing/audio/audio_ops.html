@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>mixing.audio.audio_ops &mdash; mixing 0.0.33 documentation</title>
+  <title>mixing.audio.audio_ops &mdash; mixing 0.0.34 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
@@ -14,7 +14,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=565bc8c8"></script>
+      <script src="../../../_static/documentation_options.js?v=9dd25805"></script>
       <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="../../../_static/toggleprompt.js?v=d7ede5d2"></script>
@@ -1416,7 +1416,11 @@
 <div class="viewcode-block" id="onset_envelope">
 <a class="viewcode-back" href="../../../module_docs/mixing/audio/audio_ops.html#mixing.onset_envelope">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">onset_envelope</span><span class="p">(</span>
-    <span class="n">samples</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">sample_rate</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">hop</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">ENVELOPE_HOP</span><span class="p">,</span> <span class="n">nfft</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">ENVELOPE_NFFT</span>
+    <span class="n">samples</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">sample_rate</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">hop</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">ENVELOPE_HOP</span><span class="p">,</span>
+    <span class="n">nfft</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">ENVELOPE_NFFT</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;tuple[np.ndarray, float]&quot;</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;A channel-robust onset/energy envelope: ``(envelope, envelope_rate_hz)``.</span>
 
@@ -1444,7 +1448,12 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">stft</span> <span class="o">=</span> <span class="n">require_package</span><span class="p">(</span><span class="s2">&quot;scipy.signal&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">stft</span>
     <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">spec</span> <span class="o">=</span> <span class="n">stft</span><span class="p">(</span>
-        <span class="n">samples</span><span class="p">,</span> <span class="n">fs</span><span class="o">=</span><span class="n">sample_rate</span><span class="p">,</span> <span class="n">nperseg</span><span class="o">=</span><span class="n">nfft</span><span class="p">,</span> <span class="n">noverlap</span><span class="o">=</span><span class="n">nfft</span> <span class="o">-</span> <span class="n">hop</span><span class="p">,</span> <span class="n">padded</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">boundary</span><span class="o">=</span><span class="kc">None</span>
+        <span class="n">samples</span><span class="p">,</span>
+        <span class="n">fs</span><span class="o">=</span><span class="n">sample_rate</span><span class="p">,</span>
+        <span class="n">nperseg</span><span class="o">=</span><span class="n">nfft</span><span class="p">,</span>
+        <span class="n">noverlap</span><span class="o">=</span><span class="n">nfft</span> <span class="o">-</span> <span class="n">hop</span><span class="p">,</span>
+        <span class="n">padded</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">boundary</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">logmag</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log1p</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">spec</span><span class="p">))</span>
     <span class="n">flux</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">logmag</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
@@ -1461,41 +1470,47 @@
     <span class="o">*</span><span class="p">,</span>
     <span class="n">min_overlap_ratio</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;tuple[int, float]&quot;</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Waveform picks the lag; the onset envelope scores it.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Waveform picks the lag; the confidence is the better of two views of that lag.</span>
 
-<span class="sd">    Returns ``(lag_samples, confidence)``. The division of labour follows from what each</span>
-<span class="sd">    feature is actually good at, and each half was chosen against a counterexample:</span>
+<span class="sd">    Returns ``(lag_samples, confidence)``.</span>
 
-<span class="sd">    - **The waveform locates.** Its peak *position* is reliable — on a real 6-device shoot</span>
-<span class="sd">      it agreed with two independent methods to within 10 ms — and it has full sample</span>
-<span class="sd">      resolution. Its *coefficient*, however, is not informative across devices: two</span>
-<span class="sd">      microphones in a room are not sample-correlated even when the alignment is exact.</span>
-<span class="sd">    - **The envelope scores.** Spectral flux tracks when energy arrives, which survives</span>
-<span class="sd">      differing mic responses and room acoustics, so its coefficient separates match from</span>
-<span class="sd">      non-match by more than 4x where the waveform&#39;s cannot separate them at all.</span>
+<span class="sd">    **The waveform locates.** Its peak *position* is reliable — on a real 6-device shoot it</span>
+<span class="sd">    agreed with two independent methods to within 10 ms — and it has full sample resolution.</span>
+<span class="sd">    It does not get to choose alone how good the match is, and the envelope does not get to</span>
+<span class="sd">    choose the lag: on signals whose energy is smoothly modulated rather than percussive</span>
+<span class="sd">    (linear chirps under a 1.7 Hz AM), the envelope autocorrelation is periodic, and</span>
+<span class="sd">    letting it pick moved a known -2.0 s offset to -2.5 s.</span>
 
-<span class="sd">    The confidence is the envelope correlation **evaluated at the waveform&#39;s lag**, not the</span>
-<span class="sd">    envelope&#39;s own peak. That is the honest number: it answers &quot;how well do the onset</span>
-<span class="sd">    patterns agree at the offset we are reporting&quot;, so a spurious waveform peak scores low</span>
-<span class="sd">    and is rejected downstream, rather than borrowing a good score from an unrelated lag.</span>
+<span class="sd">    **The confidence is the larger of two correlations evaluated AT that lag** — the</span>
+<span class="sd">    waveform&#39;s and the onset envelope&#39;s. Not a trick to inflate the score: each feature is</span>
+<span class="sd">    *blind* in a regime the other sees clearly, and which regime you are in is not knowable</span>
+<span class="sd">    in advance.</span>
 
-<span class="sd">    Why the envelope does not get to choose the lag: it cannot be trusted to, on signals</span>
-<span class="sd">    whose energy is smoothly modulated rather than percussive. A test signal of linear</span>
-<span class="sd">    chirps under a 1.7 Hz sinusoidal amplitude envelope has no onsets at all, and its</span>
-<span class="sd">    envelope autocorrelation is periodic — so envelope-chooses-lag locked onto the wrong AM</span>
-<span class="sd">    period and moved a known -2.0 s offset to -2.5 s. The waveform got it exactly right.</span>
-<span class="sd">    Real music has percussive onsets and would not show this, which is precisely why it</span>
-<span class="sd">    must not be the only case the design is checked against.</span>
+<span class="sd">    - *Same source* (an export against its master; a clip cut from the reference): the</span>
+<span class="sd">      waveform correlates near 1.0. The envelope may be near-useless here, because content</span>
+<span class="sd">      with no percussive onsets has no flux structure to correlate — measured at 0.08 for an</span>
+<span class="sd">      exact copy of an onset-free signal.</span>
+<span class="sd">    - *Different devices* (the multicam case): the waveform is near-useless, because two</span>
+<span class="sd">      microphones in a room are not sample-correlated even when the alignment is exact —</span>
+<span class="sd">      measured at 0.055-0.188 for alignments confirmed correct by two other methods. The</span>
+<span class="sd">      envelope reads the same pairs at 0.17-0.60.</span>
+<span class="sd">    - *Unrelated audio*: both are low, so the maximum is low and the pair is still rejected —</span>
+<span class="sd">      measured at max(0.010, 0.021) on a genuine non-match.</span>
+
+<span class="sd">    Taking the maximum means the score answers &quot;how similar are these at the offset we are</span>
+<span class="sd">    reporting, by the most favourable of two complementary measures&quot;. Taking either alone</span>
+<span class="sd">    means silently returning a near-zero score for a perfectly good alignment in the other</span>
+<span class="sd">    feature&#39;s blind spot — which, at a downstream threshold, deletes the user&#39;s footage.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">env_ref</span><span class="p">,</span> <span class="n">env_rate</span> <span class="o">=</span> <span class="n">onset_envelope</span><span class="p">(</span><span class="n">ref</span><span class="p">,</span> <span class="n">sample_rate</span><span class="p">)</span>
     <span class="n">env_query</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">onset_envelope</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">sample_rate</span><span class="p">)</span>
-    <span class="n">wav_lag</span><span class="p">,</span> <span class="n">wav_coeff</span> <span class="o">=</span> <span class="n">_normalized_xcorr</span><span class="p">(</span>
-        <span class="n">ref</span><span class="p">,</span> <span class="n">query</span><span class="p">,</span> <span class="n">min_overlap_ratio</span><span class="o">=</span><span class="n">min_overlap_ratio</span>
-    <span class="p">)</span>
+    <span class="n">wav_lag</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">_normalized_xcorr</span><span class="p">(</span><span class="n">ref</span><span class="p">,</span> <span class="n">query</span><span class="p">,</span> <span class="n">min_overlap_ratio</span><span class="o">=</span><span class="n">min_overlap_ratio</span><span class="p">)</span>
+    <span class="n">wav_at_lag</span> <span class="o">=</span> <span class="n">_correlation_at_lag</span><span class="p">(</span><span class="n">ref</span><span class="p">,</span> <span class="n">query</span><span class="p">,</span> <span class="n">wav_lag</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">env_ref</span><span class="o">.</span><span class="n">size</span> <span class="o">&lt;</span> <span class="mi">2</span> <span class="ow">or</span> <span class="n">env_query</span><span class="o">.</span><span class="n">size</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>  <span class="c1"># too short to have an envelope</span>
-        <span class="k">return</span> <span class="n">wav_lag</span><span class="p">,</span> <span class="n">wav_coeff</span>
+        <span class="k">return</span> <span class="n">wav_lag</span><span class="p">,</span> <span class="n">wav_at_lag</span>
     <span class="n">env_lag</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">wav_lag</span> <span class="o">*</span> <span class="n">env_rate</span> <span class="o">/</span> <span class="n">sample_rate</span><span class="p">))</span>
-    <span class="k">return</span> <span class="n">wav_lag</span><span class="p">,</span> <span class="n">_correlation_at_lag</span><span class="p">(</span><span class="n">env_ref</span><span class="p">,</span> <span class="n">env_query</span><span class="p">,</span> <span class="n">env_lag</span><span class="p">)</span>
+    <span class="n">env_at_lag</span> <span class="o">=</span> <span class="n">_correlation_at_lag</span><span class="p">(</span><span class="n">env_ref</span><span class="p">,</span> <span class="n">env_query</span><span class="p">,</span> <span class="n">env_lag</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">wav_lag</span><span class="p">,</span> <span class="nb">max</span><span class="p">(</span><span class="n">wav_at_lag</span><span class="p">,</span> <span class="n">env_at_lag</span><span class="p">)</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_correlation_at_lag</span><span class="p">(</span><span class="n">ref</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">query</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">lag</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
@@ -1517,6 +1532,7 @@
     <span class="k">if</span> <span class="n">denom</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
         <span class="k">return</span> <span class="mf">0.0</span>
     <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">))</span> <span class="o">/</span> <span class="n">denom</span><span class="p">)</span>
+
 
 <span class="c1">#: Alignment features. ``&#39;envelope&#39;`` is coarse-to-fine (see</span>
 <span class="c1">#: :func:`_envelope_then_waveform`); ``&#39;waveform&#39;`` is raw normalized cross-correlation,</span>
