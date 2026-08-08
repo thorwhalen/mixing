@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>mixing.audio &mdash; mixing 0.0.34 documentation</title>
+  <title>mixing.audio &mdash; mixing 0.0.35 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
@@ -15,7 +15,7 @@
   
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../_static/documentation_options.js?v=9dd25805"></script>
+      <script src="../../_static/documentation_options.js?v=39aadc1c"></script>
       <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="../../_static/toggleprompt.js?v=d7ede5d2"></script>
@@ -95,6 +95,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#mixing.audio.ClipAlignment.confidence"><code class="docutils literal notranslate"><span class="pre">ClipAlignment.confidence</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#mixing.audio.ClipAlignment.duration_s"><code class="docutils literal notranslate"><span class="pre">ClipAlignment.duration_s</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#mixing.audio.ClipAlignment.coverage"><code class="docutils literal notranslate"><span class="pre">ClipAlignment.coverage</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mixing.audio.ClipAlignment.overlaps"><code class="docutils literal notranslate"><span class="pre">ClipAlignment.overlaps</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#mixing.audio.Segment"><code class="docutils literal notranslate"><span class="pre">Segment</span></code></a><ul>
@@ -607,7 +608,7 @@ rhythmic onset energy). Its frame <em>k</em> is at time <code class="docutils li
 
 <dl class="py class">
 <dt class="sig sig-object py" id="mixing.audio.ClipAlignment">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">mixing.audio.</span></span><span class="sig-name descname"><span class="pre">ClipAlignment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">offset_s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">confidence</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">duration_s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coverage</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/mixing/audio/audio_ops.html#ClipAlignment"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.audio.ClipAlignment" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">mixing.audio.</span></span><span class="sig-name descname"><span class="pre">ClipAlignment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">offset_s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">confidence</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">duration_s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coverage</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overlaps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/mixing/audio/audio_ops.html#ClipAlignment"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.audio.ClipAlignment" title="Link to this definition"></a></dt>
 <dd><p>Where one clip sits on a reference (song) timeline.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="mixing.audio.ClipAlignment.index">
@@ -657,12 +658,25 @@ rhythmic onset energy). Its frame <em>k</em> is at time <code class="docutils li
 <dt class="sig sig-object py" id="mixing.audio.ClipAlignment.coverage">
 <span class="sig-name descname"><span class="pre">coverage</span></span><a class="headerlink" href="#mixing.audio.ClipAlignment.coverage" title="Link to this definition"></a></dt>
 <dd><p><code class="docutils literal notranslate"><span class="pre">(start_s,</span> <span class="pre">end_s)</span></code> — the clip’s span <strong>intersected with the
-reference timeline</strong> <code class="docutils literal notranslate"><span class="pre">[0,</span> <span class="pre">reference_duration]</span></code>. Empty-coverage clips
-(no temporal overlap with the reference) are dropped by
-<a class="reference internal" href="#mixing.audio.align_clips_to_reference" title="mixing.audio.align_clips_to_reference"><code class="xref py py-func docutils literal notranslate"><span class="pre">align_clips_to_reference()</span></code></a>, so <code class="docutils literal notranslate"><span class="pre">end_s</span> <span class="pre">&gt;</span> <span class="pre">start_s</span></code> always holds here.</p>
+reference timeline</strong> <code class="docutils literal notranslate"><span class="pre">[0,</span> <span class="pre">reference_duration]</span></code>. When the clip does not
+overlap the reference at all this is a degenerate <code class="docutils literal notranslate"><span class="pre">(t,</span> <span class="pre">t)</span></code> and
+<a class="reference internal" href="#mixing.audio.ClipAlignment.overlaps" title="mixing.audio.ClipAlignment.overlaps"><code class="xref py py-attr docutils literal notranslate"><span class="pre">overlaps</span></code></a> is False; callers building an edit must skip those.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>tuple[float, float]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mixing.audio.ClipAlignment.overlaps">
+<span class="sig-name descname"><span class="pre">overlaps</span></span><a class="headerlink" href="#mixing.audio.ClipAlignment.overlaps" title="Link to this definition"></a></dt>
+<dd><p>Whether the clip intersects the reference timeline at all. A clip that
+does not is still RETURNED, with its measured offset and confidence — see
+<a class="reference internal" href="#mixing.audio.align_clips_to_reference" title="mixing.audio.align_clips_to_reference"><code class="xref py py-func docutils literal notranslate"><span class="pre">align_clips_to_reference()</span></code></a> for why it is not dropped.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
 </dd>
 </dl>
 </dd></dl>
@@ -750,8 +764,16 @@ reference timeline</strong> <code class="docutils literal notranslate"><span cla
 <p>Aligns each clip against <code class="docutils literal notranslate"><span class="pre">reference_audio</span></code> (e.g. the clean song) and returns its
 offset, a scale-invariant confidence, and its <strong>coverage clamped to the reference
 timeline</strong> — so a downstream editor gets valid spans and never references a time the
-reference does not cover. Clips with no temporal overlap with the reference are
-dropped. Preserves the original <code class="docutils literal notranslate"><span class="pre">index</span></code> so callers can map results back to inputs.</p>
+reference does not cover. Preserves the original <code class="docutils literal notranslate"><span class="pre">index</span></code> so callers can map results
+back to inputs.</p>
+<p><strong>Every clip gets a record.</strong> A clip with no temporal overlap is returned with
+<code class="docutils literal notranslate"><span class="pre">overlaps=False</span></code> rather than omitted, because omission is how a source silently leaves
+the addressable set: a caller that persists this list as <em>the</em> alignment artifact ends
+up with material it can no longer reference, name, or explain — the file is still there,
+but nothing downstream can point at it. Selecting what goes into an edit is a matter of
+<em>referencing</em> sources and intervals; a source must never disappear from what can be
+referenced as a side effect of being measured. Callers building an edit filter on
+<code class="docutils literal notranslate"><span class="pre">overlaps</span></code>; callers reporting to a human show all of them, with the reason.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">

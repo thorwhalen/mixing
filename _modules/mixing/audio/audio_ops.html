@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>mixing.audio.audio_ops &mdash; mixing 0.0.34 documentation</title>
+  <title>mixing.audio.audio_ops &mdash; mixing 0.0.35 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
@@ -14,7 +14,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=9dd25805"></script>
+      <script src="../../../_static/documentation_options.js?v=39aadc1c"></script>
       <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="../../../_static/toggleprompt.js?v=d7ede5d2"></script>
@@ -1607,16 +1607,20 @@
 <span class="sd">        confidence: Normalized cross-correlation coefficient in ``[0, 1]``.</span>
 <span class="sd">        duration_s: The clip&#39;s own duration (seconds).</span>
 <span class="sd">        coverage: ``(start_s, end_s)`` — the clip&#39;s span **intersected with the</span>
-<span class="sd">            reference timeline** ``[0, reference_duration]``. Empty-coverage clips</span>
-<span class="sd">            (no temporal overlap with the reference) are dropped by</span>
-<span class="sd">            :func:`align_clips_to_reference`, so ``end_s &gt; start_s`` always holds here.</span>
+<span class="sd">            reference timeline** ``[0, reference_duration]``. When the clip does not</span>
+<span class="sd">            overlap the reference at all this is a degenerate ``(t, t)`` and</span>
+<span class="sd">            :attr:`overlaps` is False; callers building an edit must skip those.</span>
+<span class="sd">        overlaps: Whether the clip intersects the reference timeline at all. A clip that</span>
+<span class="sd">            does not is still RETURNED, with its measured offset and confidence — see</span>
+<span class="sd">            :func:`align_clips_to_reference` for why it is not dropped.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">index</span><span class="p">:</span> <span class="nb">int</span>
     <span class="n">offset_s</span><span class="p">:</span> <span class="nb">float</span>
     <span class="n">confidence</span><span class="p">:</span> <span class="nb">float</span>
     <span class="n">duration_s</span><span class="p">:</span> <span class="nb">float</span>
-    <span class="n">coverage</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span></div>
+    <span class="n">coverage</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span>
+    <span class="n">overlaps</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span></div>
 
 
 
@@ -1636,8 +1640,17 @@
 <span class="sd">    Aligns each clip against ``reference_audio`` (e.g. the clean song) and returns its</span>
 <span class="sd">    offset, a scale-invariant confidence, and its **coverage clamped to the reference</span>
 <span class="sd">    timeline** — so a downstream editor gets valid spans and never references a time the</span>
-<span class="sd">    reference does not cover. Clips with no temporal overlap with the reference are</span>
-<span class="sd">    dropped. Preserves the original ``index`` so callers can map results back to inputs.</span>
+<span class="sd">    reference does not cover. Preserves the original ``index`` so callers can map results</span>
+<span class="sd">    back to inputs.</span>
+
+<span class="sd">    **Every clip gets a record.** A clip with no temporal overlap is returned with</span>
+<span class="sd">    ``overlaps=False`` rather than omitted, because omission is how a source silently leaves</span>
+<span class="sd">    the addressable set: a caller that persists this list as *the* alignment artifact ends</span>
+<span class="sd">    up with material it can no longer reference, name, or explain — the file is still there,</span>
+<span class="sd">    but nothing downstream can point at it. Selecting what goes into an edit is a matter of</span>
+<span class="sd">    *referencing* sources and intervals; a source must never disappear from what can be</span>
+<span class="sd">    referenced as a side effect of being measured. Callers building an edit filter on</span>
+<span class="sd">    ``overlaps``; callers reporting to a human show all of them, with the reason.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        reference_audio: The signal every clip is aligned to (the song).</span>
@@ -1684,15 +1697,15 @@
         <span class="n">dur_s</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">query</span><span class="p">)</span> <span class="o">/</span> <span class="n">sample_rate</span>
         <span class="n">start</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">offset_s</span><span class="p">)</span>
         <span class="n">end</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">ref_dur</span><span class="p">,</span> <span class="n">offset_s</span> <span class="o">+</span> <span class="n">dur_s</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">end</span> <span class="o">&lt;=</span> <span class="n">start</span><span class="p">:</span>  <span class="c1"># no overlap with the reference timeline</span>
-            <span class="k">continue</span>
+        <span class="n">overlaps</span> <span class="o">=</span> <span class="n">end</span> <span class="o">&gt;</span> <span class="n">start</span>
         <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
             <span class="n">ClipAlignment</span><span class="p">(</span>
                 <span class="n">index</span><span class="o">=</span><span class="n">i</span><span class="p">,</span>
                 <span class="n">offset_s</span><span class="o">=</span><span class="n">offset_s</span><span class="p">,</span>
                 <span class="n">confidence</span><span class="o">=</span><span class="n">coeff</span><span class="p">,</span>
                 <span class="n">duration_s</span><span class="o">=</span><span class="n">dur_s</span><span class="p">,</span>
-                <span class="n">coverage</span><span class="o">=</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">),</span>
+                <span class="n">coverage</span><span class="o">=</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">)</span> <span class="k">if</span> <span class="n">overlaps</span> <span class="k">else</span> <span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">start</span><span class="p">),</span>
+                <span class="n">overlaps</span><span class="o">=</span><span class="n">overlaps</span><span class="p">,</span>
             <span class="p">)</span>
         <span class="p">)</span>
     <span class="k">return</span> <span class="n">out</span></div>
