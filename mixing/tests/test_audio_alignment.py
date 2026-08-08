@@ -129,18 +129,31 @@ def test_align_handles_a_clip_that_started_before_the_song(song, tmp_path):
     assert a.coverage[0] == 0.0  # coverage starts at the song's t=0
 
 
-def test_align_drops_a_clip_with_no_overlap(song, tmp_path):
-    # A pure-noise clip won't have a valid high-overlap match beyond min_overlap; but a
-    # clip aligned entirely before t=0 must be dropped. Force it via a big negative offset
-    # by aligning a clip whose best match is a short pre-roll only is hard to synthesize;
-    # instead assert the drop path directly with an obviously-non-overlapping alignment.
+def test_every_clip_gets_a_record_however_badly_it_matches(song, tmp_path):
+    """No source may silently leave the addressable set.
+
+    This function's output is what a caller persists as *the* alignment artifact, so a clip
+    omitted here becomes material nothing downstream can reference, name, or explain — the
+    file is still on disk, but it has effectively vanished from the project. Deciding what
+    goes into an edit is a matter of REFERENCING sources and intervals; a source must never
+    disappear from what can be referenced as a side effect of being measured.
+
+    So the contract is: one record per input clip, always, carrying its original ``index``.
+    Whether it is usable is reported by ``overlaps``, not by absence.
+    """
     song_p, ref = song
     rng = np.random.default_rng(2)
-    noise_p = tmp_path / "noise.wav"
-    wavfile.write(
-        str(noise_p), SR, (rng.normal(0, 0.3, 4 * SR) * 32767).astype(np.int16)
-    )
-    aligns = align_clips_to_reference(song_p, [noise_p], sample_rate=SR)
-    # It may align somewhere with low confidence, but coverage is always valid + in-bounds.
+    clips = [_clip(tmp_path, ref, "good.wav", start_s=3.0, dur_s=6.0)]
+    for i in range(2):
+        p = tmp_path / f"noise{i}.wav"
+        wavfile.write(str(p), SR, (rng.normal(0, 0.3, 4 * SR) * 32767).astype(np.int16))
+        clips.append(p)
+
+    aligns = align_clips_to_reference(song_p, clips, sample_rate=SR)
+
+    assert len(aligns) == len(clips), "a measured clip must not vanish from the result"
+    assert sorted(a.index for a in aligns) == [0, 1, 2], "indices must map back to inputs"
     for a in aligns:
-        assert 0.0 <= a.coverage[0] < a.coverage[1] <= 20.0 + 1e-6
+        # Coverage stays inside the reference timeline whether or not it overlaps.
+        assert 0.0 <= a.coverage[0] <= a.coverage[1] <= 20.0 + 1e-6
+        assert a.overlaps == (a.coverage[1] > a.coverage[0])

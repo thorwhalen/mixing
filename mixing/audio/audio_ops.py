@@ -1432,9 +1432,12 @@ class ClipAlignment:
         confidence: Normalized cross-correlation coefficient in ``[0, 1]``.
         duration_s: The clip's own duration (seconds).
         coverage: ``(start_s, end_s)`` — the clip's span **intersected with the
-            reference timeline** ``[0, reference_duration]``. Empty-coverage clips
-            (no temporal overlap with the reference) are dropped by
-            :func:`align_clips_to_reference`, so ``end_s > start_s`` always holds here.
+            reference timeline** ``[0, reference_duration]``. When the clip does not
+            overlap the reference at all this is a degenerate ``(t, t)`` and
+            :attr:`overlaps` is False; callers building an edit must skip those.
+        overlaps: Whether the clip intersects the reference timeline at all. A clip that
+            does not is still RETURNED, with its measured offset and confidence — see
+            :func:`align_clips_to_reference` for why it is not dropped.
     """
 
     index: int
@@ -1442,6 +1445,7 @@ class ClipAlignment:
     confidence: float
     duration_s: float
     coverage: tuple[float, float]
+    overlaps: bool = True
 
 
 def align_clips_to_reference(
@@ -1458,8 +1462,17 @@ def align_clips_to_reference(
     Aligns each clip against ``reference_audio`` (e.g. the clean song) and returns its
     offset, a scale-invariant confidence, and its **coverage clamped to the reference
     timeline** — so a downstream editor gets valid spans and never references a time the
-    reference does not cover. Clips with no temporal overlap with the reference are
-    dropped. Preserves the original ``index`` so callers can map results back to inputs.
+    reference does not cover. Preserves the original ``index`` so callers can map results
+    back to inputs.
+
+    **Every clip gets a record.** A clip with no temporal overlap is returned with
+    ``overlaps=False`` rather than omitted, because omission is how a source silently leaves
+    the addressable set: a caller that persists this list as *the* alignment artifact ends
+    up with material it can no longer reference, name, or explain — the file is still there,
+    but nothing downstream can point at it. Selecting what goes into an edit is a matter of
+    *referencing* sources and intervals; a source must never disappear from what can be
+    referenced as a side effect of being measured. Callers building an edit filter on
+    ``overlaps``; callers reporting to a human show all of them, with the reason.
 
     Args:
         reference_audio: The signal every clip is aligned to (the song).
@@ -1506,15 +1519,15 @@ def align_clips_to_reference(
         dur_s = len(query) / sample_rate
         start = max(0.0, offset_s)
         end = min(ref_dur, offset_s + dur_s)
-        if end <= start:  # no overlap with the reference timeline
-            continue
+        overlaps = end > start
         out.append(
             ClipAlignment(
                 index=i,
                 offset_s=offset_s,
                 confidence=coeff,
                 duration_s=dur_s,
-                coverage=(start, end),
+                coverage=(start, end) if overlaps else (start, start),
+                overlaps=overlaps,
             )
         )
     return out
