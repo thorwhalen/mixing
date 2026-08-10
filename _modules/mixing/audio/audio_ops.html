@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>mixing.audio.audio_ops &mdash; mixing 0.0.35 documentation</title>
+  <title>mixing.audio.audio_ops &mdash; mixing 0.0.36 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
@@ -14,7 +14,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=39aadc1c"></script>
+      <script src="../../../_static/documentation_options.js?v=0e525676"></script>
       <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="../../../_static/toggleprompt.js?v=d7ede5d2"></script>
@@ -1356,11 +1356,42 @@
 
 
 
+<span class="k">def</span><span class="w"> </span><span class="nf">_resample_samples</span><span class="p">(</span>
+    <span class="n">samples</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">native_rate</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">target_rate</span><span class="p">:</span> <span class="nb">int</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Anti-aliased polyphase resample of mono ``samples`` (native → target rate).</span>
+
+<span class="sd">    Uses :func:`scipy.signal.resample_poly`, which low-pass filters before</span>
+<span class="sd">    decimating, so downsampling does not fold energy above the target Nyquist</span>
+<span class="sd">    back into the band. Rational rate ratios (e.g. 44100 → 16000 = 160/441)</span>
+<span class="sd">    are reduced exactly via :class:`fractions.Fraction`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">native_rate</span> <span class="o">==</span> <span class="n">target_rate</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">samples</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">fractions</span><span class="w"> </span><span class="kn">import</span> <span class="n">Fraction</span>
+
+    <span class="n">ratio</span> <span class="o">=</span> <span class="n">Fraction</span><span class="p">(</span><span class="n">target_rate</span><span class="p">,</span> <span class="n">native_rate</span><span class="p">)</span>
+    <span class="n">resample_poly</span> <span class="o">=</span> <span class="n">require_package</span><span class="p">(</span><span class="s2">&quot;scipy.signal&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">resample_poly</span>
+    <span class="k">return</span> <span class="n">resample_poly</span><span class="p">(</span><span class="n">samples</span><span class="p">,</span> <span class="n">ratio</span><span class="o">.</span><span class="n">numerator</span><span class="p">,</span> <span class="n">ratio</span><span class="o">.</span><span class="n">denominator</span><span class="p">)</span>
+
+
 <span class="k">def</span><span class="w"> </span><span class="nf">_load_mono_samples</span><span class="p">(</span><span class="n">source</span><span class="p">:</span> <span class="n">AudioSource</span><span class="p">,</span> <span class="n">sample_rate</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Load any :data:`AudioSource` as a mono float64 array at ``sample_rate``.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Load any :data:`AudioSource` as a mono float64 array at ``sample_rate``.</span>
+
+<span class="sd">    Decodes at the source&#39;s NATIVE rate (pydub → ffmpeg), downmixes to mono,</span>
+<span class="sd">    then resamples with an anti-aliased polyphase filter</span>
+<span class="sd">    (:func:`_resample_samples`). pydub&#39;s ``set_frame_rate`` is deliberately NOT</span>
+<span class="sd">    used for the rate change: it delegates to ``audioop.ratecv`` — linear</span>
+<span class="sd">    interpolation with no anti-alias filter — so downsampling a 48 kHz camera</span>
+<span class="sd">    track to the 16 kHz analysis rate folds everything above 8 kHz back over</span>
+<span class="sd">    the band. Measured on real multicam footage that aliasing roughly HALVED</span>
+<span class="sd">    the alignment confidence for identical (correct) offsets, making the score</span>
+<span class="sd">    depend on the decode path rather than the signal (issue #25).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">seg</span> <span class="o">=</span> <span class="n">_normalize_audio_source</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">target_type</span><span class="o">=</span><span class="s2">&quot;AudioSegment&quot;</span><span class="p">)</span>
-    <span class="n">seg</span> <span class="o">=</span> <span class="n">seg</span><span class="o">.</span><span class="n">set_channels</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">set_frame_rate</span><span class="p">(</span><span class="n">sample_rate</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">seg</span><span class="o">.</span><span class="n">get_array_of_samples</span><span class="p">(),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+    <span class="n">seg</span> <span class="o">=</span> <span class="n">seg</span><span class="o">.</span><span class="n">set_channels</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">samples</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">seg</span><span class="o">.</span><span class="n">get_array_of_samples</span><span class="p">(),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">_resample_samples</span><span class="p">(</span><span class="n">samples</span><span class="p">,</span> <span class="n">seg</span><span class="o">.</span><span class="n">frame_rate</span><span class="p">,</span> <span class="n">sample_rate</span><span class="p">)</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_normalized_xcorr</span><span class="p">(</span>
