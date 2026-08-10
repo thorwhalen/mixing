@@ -1189,11 +1189,42 @@ class AudioOffset:
     sample_rate: int
 
 
+def _resample_samples(
+    samples: np.ndarray, native_rate: int, target_rate: int
+) -> np.ndarray:
+    """Anti-aliased polyphase resample of mono ``samples`` (native → target rate).
+
+    Uses :func:`scipy.signal.resample_poly`, which low-pass filters before
+    decimating, so downsampling does not fold energy above the target Nyquist
+    back into the band. Rational rate ratios (e.g. 44100 → 16000 = 160/441)
+    are reduced exactly via :class:`fractions.Fraction`.
+    """
+    if native_rate == target_rate:
+        return samples
+    from fractions import Fraction
+
+    ratio = Fraction(target_rate, native_rate)
+    resample_poly = require_package("scipy.signal").resample_poly
+    return resample_poly(samples, ratio.numerator, ratio.denominator)
+
+
 def _load_mono_samples(source: AudioSource, sample_rate: int) -> np.ndarray:
-    """Load any :data:`AudioSource` as a mono float64 array at ``sample_rate``."""
+    """Load any :data:`AudioSource` as a mono float64 array at ``sample_rate``.
+
+    Decodes at the source's NATIVE rate (pydub → ffmpeg), downmixes to mono,
+    then resamples with an anti-aliased polyphase filter
+    (:func:`_resample_samples`). pydub's ``set_frame_rate`` is deliberately NOT
+    used for the rate change: it delegates to ``audioop.ratecv`` — linear
+    interpolation with no anti-alias filter — so downsampling a 48 kHz camera
+    track to the 16 kHz analysis rate folds everything above 8 kHz back over
+    the band. Measured on real multicam footage that aliasing roughly HALVED
+    the alignment confidence for identical (correct) offsets, making the score
+    depend on the decode path rather than the signal (issue #25).
+    """
     seg = _normalize_audio_source(source, target_type="AudioSegment")
-    seg = seg.set_channels(1).set_frame_rate(sample_rate)
-    return np.array(seg.get_array_of_samples(), dtype=np.float64)
+    seg = seg.set_channels(1)
+    samples = np.array(seg.get_array_of_samples(), dtype=np.float64)
+    return _resample_samples(samples, seg.frame_rate, sample_rate)
 
 
 def _normalized_xcorr(
