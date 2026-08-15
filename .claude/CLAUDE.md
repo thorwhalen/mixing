@@ -106,8 +106,9 @@ chapter titling + SRT translation), `clipboard` (`pyclip`), `dev`/`testing`.
 
 ## Tests = guardrails
 
-~325 tests; many are *characterization* tests in `mixing/tests/test_guard_*.py`
-that pin exact current behavior. Run `python -m pytest -q`. **Do not change a
+Run `python -m pytest -q` (that's also how you get the current test count — don't
+pin a number here, it only drifts). Many are *characterization* tests in
+`mixing/tests/test_guard_*.py` that pin exact current behavior. **Do not change a
 guardrail assertion to make a refactor pass** — if behavior must change,
 that's a deliberate decision: change the assertion *and* say why in the commit.
 Shared synthetic-media fixtures live in `conftest.py`
