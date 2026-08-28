@@ -1,0 +1,318 @@
+"""``mixing.audio.aligned_spans`` — which PARTS of a clip align, and at what offset each.
+
+``align_clips_to_reference`` answers "where does this clip sit?" with one number. That is
+the right answer only for a clip that is one continuous take. A clip that was stopped and
+restarted has no such number, and the single-offset model does not say so — it returns the
+offset of whichever part correlated best and describes the rest of the clip wrongly, with a
+confidence that looks fine. Measured below: a clip holding two takes of the same song
+scores 0.494 on the single-offset path, which passes any sane trust gate.
+
+The fixtures are small on purpose. Each window is an FFT cross-correlation against the
+whole reference, so window count is the cost axis and these run in CI.
+"""
+
+from __future__ import annotations
+
+import numpy as np
+import pytest
+from scipy.io import wavfile
+
+from mixing.audio import (
+    AlignedSpan,
+    aligned_spans,
+    find_audio_offset_detailed,
+)
+
+SR = 16000
+WIN, HOP = 10.0, 5.0
+
+
+def _reference(seconds: float = 90.0) -> np.ndarray:
+    """A non-periodic broadband 'song' — one sharp autocorrelation peak, no ambiguity."""
+    t = np.arange(int(seconds * SR)) / SR
+    x = np.zeros_like(t)
+    for f0, f1 in [(180, 520), (440, 130), (700, 900), (110, 250)]:
+        x += np.sin(2 * np.pi * (f0 + (f1 - f0) * (t / t[-1])) * t)
+    x *= 0.6 + 0.4 * np.sin(2 * np.pi * 1.7 * t)
+    return x / np.max(np.abs(x))
+
+
+@pytest.fixture(scope="module")
+def ref() -> np.ndarray:
+    return _reference()
+
+
+@pytest.fixture(scope="module")
+def song(tmp_path_factory, ref) -> str:
+    p = tmp_path_factory.mktemp("spans") / "song.wav"
+    wavfile.write(str(p), SR, (ref * 32767).astype(np.int16))
+    return str(p)
+
+
+def _noisy(seg: np.ndarray, rng, snr_db: float = 15.0) -> np.ndarray:
+    p_sig = np.mean(seg**2)
+    return seg + rng.normal(0, np.sqrt(p_sig / (10 ** (snr_db / 10))), len(seg))
+
+
+def _write(tmp_path, name: str, samples: np.ndarray) -> str:
+    p = tmp_path / name
+    wavfile.write(
+        str(p), SR, ((samples / np.max(np.abs(samples))) * 32767).astype(np.int16)
+    )
+    return str(p)
+
+
+def _take(ref, a: float, b: float, rng) -> np.ndarray:
+    return _noisy(ref[int(a * SR) : int(b * SR)].copy(), rng)
+
+
+def _spans(song, clip, **kw):
+    return aligned_spans(song, clip, sample_rate=SR, window_s=WIN, hop_s=HOP, **kw)
+
+
+# --------------------------------------------------------------------------
+# The thing it exists for
+# --------------------------------------------------------------------------
+
+
+def test_a_stopped_and_restarted_clip_yields_one_span_per_take(song, ref, tmp_path):
+    """The headline. Two takes, two spans, each with its OWN offset."""
+    rng = np.random.default_rng(0)
+    # Recorded song[5..30], stopped, then recorded song[60..85].
+    clip = _write(
+        tmp_path,
+        "two.wav",
+        np.concatenate([_take(ref, 5, 30, rng), _take(ref, 60, 85, rng)]),
+    )
+    spans = _spans(song, clip)
+
+    assert len(spans) == 2, [(s.clip_start_s, s.clip_end_s, s.offset_s) for s in spans]
+    a, b = spans
+    assert a.offset_s == pytest.approx(5.0, abs=WIN)
+    assert b.offset_s == pytest.approx(35.0, abs=WIN)  # clip t=25 -> song t=60
+    assert a.reference_span[0] == pytest.approx(5.0, abs=WIN)
+    assert b.reference_span[1] == pytest.approx(85.0, abs=WIN)
+
+
+def test_the_single_offset_model_describes_that_clip_wrongly_and_looks_confident(
+    song, ref, tmp_path
+):
+    """Why this function had to exist, stated as a measurement rather than a claim.
+
+    The single-offset answer is not merely imprecise — it is *right about one take and
+    wrong about the other*, at a confidence that clears any threshold a caller would set.
+    """
+    rng = np.random.default_rng(0)
+    clip = _write(
+        tmp_path,
+        "two.wav",
+        np.concatenate([_take(ref, 5, 30, rng), _take(ref, 60, 85, rng)]),
+    )
+    one = find_audio_offset_detailed(song, clip, sample_rate=SR, feature="envelope")
+    assert one.confidence > 0.3, "the wrong answer does not announce itself"
+    spans = _spans(song, clip)
+    # It matches ONE of the two spans and contradicts the other.
+    matches = [s for s in spans if abs(s.offset_s - one.offset_s) < WIN]
+    assert len(matches) == 1
+
+
+def test_a_continuous_take_returns_exactly_one_span(song, ref, tmp_path):
+    """The compatibility property every caller migrating off the single offset needs.
+
+    Asserted rather than assumed: if a clip that IS one take came back as several, the
+    migration would turn every healthy project into a fragmented one.
+    """
+    rng = np.random.default_rng(1)
+    clip = _write(tmp_path, "one.wav", _take(ref, 20, 70, rng))
+    spans = _spans(song, clip)
+
+    assert len(spans) == 1
+    assert spans[0].clip_start_s == pytest.approx(0.0, abs=0.01)
+    single = find_audio_offset_detailed(song, clip, sample_rate=SR, feature="envelope")
+    assert spans[0].offset_s == pytest.approx(single.offset_s, abs=WIN)
+
+
+def test_spans_are_ordered_and_never_overlap(song, ref, tmp_path):
+    """A clip instant claimed by two different offsets is not a fact about anything.
+
+    Windows overlap by ``window - hop``, so the window straddling a boundary belongs to
+    both takes; untrimmed, consecutive spans overlapped by a full hop.
+    """
+    rng = np.random.default_rng(2)
+    clip = _write(
+        tmp_path,
+        "three.wav",
+        np.concatenate(
+            [_take(ref, 5, 25, rng), _take(ref, 55, 75, rng), _take(ref, 30, 50, rng)]
+        ),
+    )
+    spans = _spans(song, clip)
+    for a, b in zip(spans, spans[1:]):
+        assert a.clip_end_s <= b.clip_start_s + 1e-9, (a, b)
+        assert a.clip_start_s < a.clip_end_s
+
+
+def test_a_clip_that_matches_nothing_returns_no_spans(song, tmp_path):
+    """Empty is a real answer, not a failure."""
+    rng = np.random.default_rng(3)
+    clip = _write(tmp_path, "noise.wav", rng.normal(0, 1, int(30 * SR)))
+    assert _spans(song, clip) == []
+
+
+# --------------------------------------------------------------------------
+# The parts that are easy to get wrong
+# --------------------------------------------------------------------------
+
+
+def test_the_offset_is_relative_to_the_clip_not_the_window(song, ref, tmp_path):
+    """`offset = lag - window_start`, and dropping the subtraction is invisible at t=0.
+
+    A clip whose match begins well INTO it is what makes the conversion observable: every
+    window would otherwise report a different offset and no two would ever group, so a
+    continuous take would come back shattered into one span per window.
+    """
+    rng = np.random.default_rng(4)
+    clip = _write(tmp_path, "late.wav", _take(ref, 10, 60, rng))
+    spans = _spans(song, clip)
+    assert len(spans) == 1, (
+        "the per-window offsets did not agree — check `lag - start_s`"
+    )
+    assert spans[0].duration_s == pytest.approx(50.0, abs=WIN)
+
+
+def test_silence_mid_take_does_not_read_as_a_stop_and_restart(song, ref, tmp_path):
+    """One continuous take with a dead patch must come back as ONE span.
+
+    Measured: 12 s of hard silence collapses the windows inside it to a confidence of
+    exactly 0.0, the run breaks, and without the merge the result is two spans BOTH
+    reporting offset 10.00 — a discontinuity that never happened. A stop and a restart
+    cannot resume in sync, so two spans AGREEING on the offset are positive evidence of
+    continuity.
+
+    This replaces a hysteresis test that could not fail: on real correlations a degraded
+    window does not dip into a band, it collapses, so no keep-threshold was ever what
+    decided.
+    """
+    rng = np.random.default_rng(5)
+    take = _take(ref, 10, 60, rng)
+    take[int(20 * SR) : int(32 * SR)] = 0.0  # twelve dead seconds mid-take
+    clip = _write(tmp_path, "dip.wav", take)
+
+    spans = _spans(song, clip)
+    assert len(spans) == 1, [(s.clip_start_s, s.clip_end_s, s.offset_s) for s in spans]
+    assert spans[0].offset_s == pytest.approx(10.0, abs=WIN)
+    assert spans[0].duration_s == pytest.approx(50.0, abs=WIN)
+
+
+def test_a_long_unverified_gap_is_not_merged_away(song, ref, tmp_path):
+    """The bound on the merge, and why it is not optional.
+
+    A clip that records the song, then a stretch of something else, then the song again
+    AT THE SAME OFFSET would otherwise be merged into one span claiming the middle
+    aligns. Correlation cannot tell "quiet" from "different material", so past the gap
+    bound both are reported and the caller decides.
+    """
+    rng = np.random.default_rng(11)
+    head = _take(ref, 10, 25, rng)
+    middle = rng.normal(
+        0, 0.5, int(30 * SR)
+    )  # unrelated material, far longer than a window
+    tail = _take(ref, 55, 70, rng)  # offset 10 again: clip t=45 -> song t=55
+    clip = _write(tmp_path, "far.wav", np.concatenate([head, middle, tail]))
+
+    spans = _spans(song, clip)
+    assert len(spans) == 2, [(s.clip_start_s, s.clip_end_s, s.offset_s) for s in spans]
+    assert spans[0].offset_s == pytest.approx(spans[1].offset_s, abs=1.0), (
+        "the fixture is only meaningful if both spans DO agree on the offset — "
+        "otherwise the offset rule would have kept them apart and the gap bound "
+        "would not be what this test measures"
+    )
+
+
+def test_the_merge_is_bounded_by_merge_gap_s_and_the_caller_can_widen_it(
+    song, ref, tmp_path
+):
+    """Same fixture, wider bound -> one span. The knob is what is under test."""
+    rng = np.random.default_rng(11)
+    clip = _write(
+        tmp_path,
+        "far.wav",
+        np.concatenate(
+            [
+                _take(ref, 10, 25, rng),
+                rng.normal(0, 0.5, int(30 * SR)),
+                _take(ref, 55, 70, rng),
+            ]
+        ),
+    )
+    assert len(_spans(song, clip, merge_gap_s=60.0)) == 1
+
+
+def test_a_clip_shorter_than_one_window_still_works(song, ref, tmp_path):
+    rng = np.random.default_rng(6)
+    clip = _write(tmp_path, "short.wav", _take(ref, 30, 36, rng))
+    spans = _spans(song, clip)
+    assert len(spans) == 1
+    assert spans[0].offset_s == pytest.approx(30.0, abs=WIN)
+
+
+def test_the_tail_of_a_clip_is_covered(song, ref, tmp_path):
+    """A clip whose length is not a whole number of hops must not lose its end.
+
+    Without the final catch-up window, up to ``window_s`` of every such clip is never
+    looked at and a span ending there is silently truncated.
+    """
+    rng = np.random.default_rng(7)
+    clip = _write(tmp_path, "tail.wav", _take(ref, 10, 47.5, rng))  # 37.5s on a 5s hop
+    spans = _spans(song, clip)
+    assert len(spans) == 1
+    assert spans[0].clip_end_s == pytest.approx(37.5, abs=0.2)
+
+
+def test_the_signals_are_decoded_once_not_once_per_window(
+    song, ref, tmp_path, monkeypatch
+):
+    """Re-decoding per window would be N times the cost AND reintroduce issue #25.
+
+    pydub's rate conversion has no anti-alias filter, so a per-window decode path is a
+    per-window chance to halve the confidence. Counting the calls is the only way to keep
+    a future refactor from quietly moving the decode inside the loop.
+    """
+    import mixing.audio.audio_ops as ops
+
+    calls = []
+    real = ops._load_mono_samples
+    monkeypatch.setattr(
+        ops, "_load_mono_samples", lambda src, sr: calls.append(1) or real(src, sr)
+    )
+    rng = np.random.default_rng(8)
+    clip = _write(tmp_path, "count.wav", _take(ref, 10, 60, rng))
+    ops.aligned_spans(song, clip, sample_rate=SR, window_s=WIN, hop_s=HOP)
+    assert len(calls) == 2, "one decode for the reference, one for the clip — no more"
+
+
+# --------------------------------------------------------------------------
+# Contract
+# --------------------------------------------------------------------------
+
+
+def test_reference_span_uses_the_same_offset_convention_as_ClipAlignment():
+    """``reference_time = clip_time + offset_s``, as `ClipAlignment.offset_s` documents."""
+    s = AlignedSpan(clip_start_s=4.0, clip_end_s=9.0, offset_s=100.0, confidence=0.5)
+    assert s.reference_span == (104.0, 109.0)
+    assert s.duration_s == 5.0
+
+
+def test_an_unknown_feature_is_refused(song, tmp_path):
+    rng = np.random.default_rng(9)
+    clip = _write(tmp_path, "f.wav", rng.normal(0, 1, int(5 * SR)))
+    with pytest.raises(ValueError, match="unknown feature"):
+        aligned_spans(song, clip, feature="vibes")
+
+
+@pytest.mark.parametrize("kw", [{"window_s": 0.0}, {"hop_s": -1.0}])
+def test_a_non_positive_window_or_hop_is_refused(song, tmp_path, kw):
+    rng = np.random.default_rng(10)
+    clip = _write(tmp_path, "w.wav", rng.normal(0, 1, int(5 * SR)))
+    with pytest.raises(ValueError, match="must be positive"):
+        aligned_spans(song, clip, **kw)

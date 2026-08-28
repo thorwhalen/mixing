@@ -123,7 +123,31 @@ save_audio_clip("song.mp3", 10, 30, output="clip.mp3", format="mp3")
 # align two recordings of the same take (cross-correlation) → offset in SECONDS:
 offset = find_audio_offset("camera_audio.wav", "studio.mp3")  # float, sample_rate=16000
 # positive => query (studio) starts `offset`s into the reference (camera)
+
+# ...and when the clip is NOT one continuous take, ask which PARTS align:
+from mixing.audio import aligned_spans
+for sp in aligned_spans("song.mp3", "phone_recording.mp4"):
+    sp.clip_start_s, sp.clip_end_s   # in the CLIP's timeline
+    sp.offset_s, sp.confidence       # reference_time = clip_time + offset_s
+    sp.reference_span                # the same extent on the SONG timeline
 ```
+
+### One offset, or several?
+
+`find_audio_offset` / `align_clips_to_reference` answer **"where does this clip sit?"**
+with a single number. That is the right answer only for one continuous take. A recording
+that was **stopped and restarted** has no such number — and the single-offset model does
+not say so, it returns the offset of whichever part correlated best and describes the rest
+of the clip wrongly, *at a confidence that clears any gate*. Measured on a clip holding two
+takes of the same song: `0.494`.
+
+`aligned_spans` is the windowed answer. A clip that IS one take returns exactly one span,
+so it is a safe replacement rather than a different tool.
+
+**Boundary resolution is `window_s` (default 20 s), and no better.** A window is evidence
+that its whole extent aligns; a boundary falling inside one degrades that window rather
+than locating itself within it. Ample for telling two takes apart, **not enough to cut
+on**. Shrink `window_s` to buy precision — cost is linear in the window count.
 
 ## Segmentation — split a long recording into pieces
 
@@ -208,6 +232,15 @@ extract_segments("show.mp3", strategy="speech_music", output="parts/")
   **bed's** duration; a shorter sidechain leaves the tail un-ducked.
 - `find_audio_offset` returns **seconds** (positive = query starts inside the
   reference); the two recordings need only a shared correlated component.
+- `aligned_spans` merges neighbours that AGREE on the offset across a gap of up to
+  one window, and that is not tidying: a dozen seconds of silence mid-take collapses
+  the windows inside it to a confidence of exactly 0, so one continuous recording
+  would otherwise come back as two spans carrying the **same** offset — a
+  stop/restart that never happened. A stop and a restart cannot resume in sync, so
+  agreement across a short gap is positive evidence of continuity. The gap bound is
+  what keeps it honest: past it, correlation cannot tell "quiet" from "different
+  material", and both spans are reported rather than one claiming a range nothing
+  measured. Widen with `merge_gap_s` if your material warrants it.
 - `extract_segments(output=...)` treats `output` as a **directory** (it emits
   many files), unlike the single-file writers. Default dir is the source's
   parent (or cwd for non-path input).
