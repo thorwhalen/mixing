@@ -1330,6 +1330,7 @@ def _envelope_then_waveform(
     sample_rate: int,
     *,
     min_overlap_ratio: float,
+    ref_envelope: "tuple[np.ndarray, float] | None" = None,
 ) -> "tuple[int, float]":
     """Waveform picks the lag; the confidence is the better of two views of that lag.
 
@@ -1363,7 +1364,13 @@ def _envelope_then_waveform(
     means silently returning a near-zero score for a perfectly good alignment in the other
     feature's blind spot — which, at a downstream threshold, deletes the user's footage.
     """
-    env_ref, env_rate = onset_envelope(ref, sample_rate)
+    # `ref_envelope` lets a caller that aligns MANY queries against ONE reference
+    # compute the reference's envelope once. Omitting it reproduces the previous
+    # behaviour exactly, so `find_audio_offset_detailed` is unchanged; supplying it
+    # measured 2.11x on `aligned_spans`, which was recomputing it per window.
+    env_ref, env_rate = (
+        onset_envelope(ref, sample_rate) if ref_envelope is None else ref_envelope
+    )
     env_query, _ = onset_envelope(query, sample_rate)
     wav_lag, _ = _normalized_xcorr(ref, query, min_overlap_ratio=min_overlap_ratio)
     wav_at_lag = _correlation_at_lag(ref, query, wav_lag)
@@ -1639,6 +1646,7 @@ def aligned_spans(
     reference_audio: AudioSource,
     clip_audio: AudioSource,
     *,
+    reference_duration: float | None = None,
     sample_rate: int = 16000,
     window_s: float = SPAN_WINDOW_S,
     hop_s: float = SPAN_HOP_S,
@@ -1656,9 +1664,21 @@ def aligned_spans(
     question for a clip that was stopped and restarted, or that holds material the
     reference does not contain.
 
-    A clip that IS one continuous take returns exactly one span. That is the
-    compatibility property a caller migrating from the single-offset model depends on,
-    and it is asserted in the tests rather than assumed.
+    A clip that is one continuous take **and that the correlation can verify
+    throughout** returns exactly one span — the compatibility property a caller
+    migrating from the single-offset model depends on. The qualification is load-bearing
+    in two ways, both measured:
+
+    - A stretch longer than ``merge_gap_s`` that nothing can verify (hard silence, a hand
+      over the mic) splits the take into two spans reporting the SAME offset. Two
+      same-offset neighbours are the *signal* that this happened, not a stop/restart.
+    - **A reference that repeats itself verbatim fragments a take**, because each window
+      picks its lag by an independent argmax and a repeated chorus makes two peaks
+      near-tied. Measured: a verse/chorus reference split one continuous take into 3
+      spans, and one of them reported a WRONG offset at 0.985 confidence. Music is the
+      material this is for, so treat a short span whose offset disagrees with its
+      neighbours as suspect. Giving the window chooser a continuity prior is the fix and
+      is not done here.
 
     **Boundary resolution is ``window_s``, and no better.** A window is evidence that its
     whole extent aligns; a boundary falling inside a window degrades that window rather
@@ -1687,14 +1707,19 @@ def aligned_spans(
         merge_gap_s: How long an unverified gap between two spans that AGREE on the
             offset may be and still be called one take. ``None`` (the default) uses one
             window. See :data:`SPAN_MERGE_GAP_S`.
+        reference_duration: The reference timeline's length (seconds); computed from the
+            decoded reference when omitted. Spans are trimmed to it, so a returned
+            extent is always one the reference can honour. Same keyword, and the same
+            purpose, as :func:`align_clips_to_reference`.
         feature: As :func:`find_audio_offset_detailed`. Defaults to ``'envelope'`` for
             the same reason :func:`align_clips_to_reference` does — the cross-device case
             is what this is for.
         min_overlap_ratio: Passed through to the correlation.
 
     Returns:
-        Spans in clip order, non-overlapping. Empty when nothing in the clip aligns —
-        which is a real answer, not a failure.
+        Spans in clip order, non-overlapping, and each lying entirely within
+        ``[0, reference_duration]`` on the reference timeline. Empty when nothing in the
+        clip aligns — which is a real answer, not a failure.
 
     >>> import numpy as np                                  # doctest: +SKIP
     >>> spans = aligned_spans(song, phone_recording)        # doctest: +SKIP
@@ -1709,6 +1734,17 @@ def aligned_spans(
         raise ValueError(
             f"window_s and hop_s must be positive, got {window_s}, {hop_s}"
         )
+    if hop_s > window_s:
+        # Not a style rule: with a hop wider than the window, the clip time BETWEEN
+        # consecutive windows is never looked at, yet a run spanning them reports one
+        # span across the whole range — asserting alignment over instants no
+        # correlation ever examined. `merge_gap_s` cannot bound it either, because the
+        # gap is inside a run rather than between two spans.
+        raise ValueError(
+            f"hop_s ({hop_s}) must not exceed window_s ({window_s}): a larger hop "
+            "leaves clip time unmeasured, and a span would then assert alignment over "
+            "instants no window ever looked at."
+        )
     ref = _load_mono_samples(reference_audio, sample_rate)
     clip = _load_mono_samples(clip_audio, sample_rate)
     measured = _window_offsets(
@@ -1720,12 +1756,14 @@ def aligned_spans(
         feature=feature,
         min_overlap_ratio=min_overlap_ratio,
     )
-    return _spans_from_windows(
+    spans = _spans_from_windows(
         measured,
         min_confidence=min_confidence,
         offset_tolerance_s=offset_tolerance_s,
         merge_gap_s=window_s if merge_gap_s is None else merge_gap_s,
     )
+    ref_dur = len(ref) / sample_rate if reference_duration is None else reference_duration
+    return _clamp_to_reference(spans, ref_dur)
 
 
 def _window_offsets(
@@ -1754,6 +1792,10 @@ def _window_offsets(
     if starts and starts[-1] + n_win < len(clip):
         starts.append(max(0, len(clip) - n_win))
 
+    # Computed once for the whole call rather than per window — 2.11x measured, and
+    # the reference does not change between windows.
+    ref_env = onset_envelope(ref, sample_rate) if feature == "envelope" else None
+
     out = []
     for s0 in starts:
         win = clip[s0 : s0 + n_win]
@@ -1761,7 +1803,11 @@ def _window_offsets(
             continue
         if feature == "envelope":
             lag, coeff = _envelope_then_waveform(
-                ref, win, sample_rate, min_overlap_ratio=min_overlap_ratio
+                ref,
+                win,
+                sample_rate,
+                min_overlap_ratio=min_overlap_ratio,
+                ref_envelope=ref_env,
             )
         else:
             lag, coeff = _normalized_xcorr(
@@ -1769,7 +1815,12 @@ def _window_offsets(
             )
         start_s = s0 / sample_rate
         out.append(
-            (start_s, (s0 + len(win)) / sample_rate, lag / sample_rate - start_s, coeff)
+            (
+                start_s,
+                (s0 + len(win)) / sample_rate,
+                lag / sample_rate - start_s,
+                coeff,
+            )
         )
     return out
 
@@ -1824,6 +1875,58 @@ def _spans_from_windows(
     return _merge_same_offset(
         _disjoin(spans), offset_tolerance_s=offset_tolerance_s, merge_gap_s=merge_gap_s
     )
+
+
+def _clamp_to_reference(
+    spans: "list[AlignedSpan]", reference_duration: float
+) -> "list[AlignedSpan]":
+    """Trim every span to the clip time that actually lands ON the reference.
+
+    A window is admitted while it overlaps the reference by ``min_overlap_ratio`` of
+    itself, so a span can run past a reference edge by up to
+    ``(1 - min_overlap_ratio) * window_s`` — and the reported extent then describes
+    reference time that does not exist. Measured on a 30 s reference:
+    ``reference_span == (-10.0, 40.0)``, a 50 s span of a 30 s reference. That is not
+    imprecise, it is impossible, and no ``window_s`` tolerance makes it fit.
+
+    The failure it produces downstream is silent and points the wrong way. A caller
+    slicing ``ref[int(-10.0 * sr):int(40.0 * sr)]`` gets numpy's negative-index
+    resolution: the start wraps to reference time 20 s and the end clamps to 30 s, so
+    the caller receives the reference's **tail** for a span whose true content is the
+    reference's **entire** length. At the head edge the same slice returns zero samples.
+    Neither raises.
+
+    **Both timelines are trimmed, not just the projection.** ``AlignedSpan`` documents
+    ``reference_time = clip_time + offset_s`` as holding inside the span; clamping
+    ``reference_span`` alone would leave the clip edges wide and make the two views
+    disagree. Because the offset is constant within a span the edges move together, so
+    trimming is exact — it recovers ground truth on both axes.
+
+    A span left with nothing is dropped: it aligned to no part of the reference, so it
+    is not an aligned span. (Unlike ``ClipAlignment``, where a non-overlapping CLIP is
+    kept with ``overlaps=False`` because a *source* must never leave the addressable set
+    as a side effect of being measured — a span is a measurement, not a source.)
+
+    **Why the clamp alone, and not also a per-window coverage penalty.** The tempting
+    root-cause fix is to scale each window's confidence by the fraction of it that lies
+    over the reference — because the correlation normalizes by the energy of its
+    OVERLAP, so a half-hanging window scores like a whole match (measured: 0.9846
+    against 0.9845 for the clean interior windows, i.e. marginally HIGHER). That
+    reasoning is sound at the window level and it was implemented; it was then removed,
+    because it changed no observable outcome. A span's confidence is the MEDIAN over its
+    windows, which absorbs the single edge window — measured, an edge-overrun span
+    reported 0.9847 against an interior span's 0.9845 with the penalty applied. The
+    extent is fixed here, exactly; a contaminated window is kept out of a run by the
+    offset-agreement rule; and a penalty that cannot change an output is decoration.
+    """
+    out: "list[AlignedSpan]" = []
+    for span in spans:
+        lo = max(span.clip_start_s, -span.offset_s)
+        hi = min(span.clip_end_s, reference_duration - span.offset_s)
+        if hi - lo <= 0:
+            continue
+        out.append(replace(span, clip_start_s=lo, clip_end_s=hi))
+    return out
 
 
 def _merge_same_offset(

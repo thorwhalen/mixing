@@ -88,10 +88,12 @@ def test_a_stopped_and_restarted_clip_yields_one_span_per_take(song, ref, tmp_pa
 
     assert len(spans) == 2, [(s.clip_start_s, s.clip_end_s, s.offset_s) for s in spans]
     a, b = spans
-    assert a.offset_s == pytest.approx(5.0, abs=WIN)
-    assert b.offset_s == pytest.approx(35.0, abs=WIN)  # clip t=25 -> song t=60
-    assert a.reference_span[0] == pytest.approx(5.0, abs=WIN)
-    assert b.reference_span[1] == pytest.approx(85.0, abs=WIN)
+    # abs=0.05, not abs=WIN: the observed error is 0.0000, and a WIN-wide tolerance
+    # would let every reported offset be wrong by a whole window with the suite green.
+    assert a.offset_s == pytest.approx(5.0, abs=0.05)
+    assert b.offset_s == pytest.approx(35.0, abs=0.05)  # clip t=25 -> song t=60
+    assert a.reference_span[0] == pytest.approx(5.0, abs=0.05)
+    assert b.reference_span[1] == pytest.approx(85.0, abs=0.05)
 
 
 def test_the_single_offset_model_describes_that_clip_wrongly_and_looks_confident(
@@ -128,8 +130,10 @@ def test_a_continuous_take_returns_exactly_one_span(song, ref, tmp_path):
 
     assert len(spans) == 1
     assert spans[0].clip_start_s == pytest.approx(0.0, abs=0.01)
+    # The most valuable assertion here — it cross-checks the windowed path against an
+    # INDEPENDENT implementation. At abs=WIN it could not fire.
     single = find_audio_offset_detailed(song, clip, sample_rate=SR, feature="envelope")
-    assert spans[0].offset_s == pytest.approx(single.offset_s, abs=WIN)
+    assert spans[0].offset_s == pytest.approx(single.offset_s, abs=0.05)
 
 
 def test_spans_are_ordered_and_never_overlap(song, ref, tmp_path):
@@ -200,7 +204,7 @@ def test_silence_mid_take_does_not_read_as_a_stop_and_restart(song, ref, tmp_pat
 
     spans = _spans(song, clip)
     assert len(spans) == 1, [(s.clip_start_s, s.clip_end_s, s.offset_s) for s in spans]
-    assert spans[0].offset_s == pytest.approx(10.0, abs=WIN)
+    assert spans[0].offset_s == pytest.approx(10.0, abs=0.05)
     assert spans[0].duration_s == pytest.approx(50.0, abs=WIN)
 
 
@@ -253,7 +257,7 @@ def test_a_clip_shorter_than_one_window_still_works(song, ref, tmp_path):
     clip = _write(tmp_path, "short.wav", _take(ref, 30, 36, rng))
     spans = _spans(song, clip)
     assert len(spans) == 1
-    assert spans[0].offset_s == pytest.approx(30.0, abs=WIN)
+    assert spans[0].offset_s == pytest.approx(30.0, abs=0.05)
 
 
 def test_the_tail_of_a_clip_is_covered(song, ref, tmp_path):
@@ -316,3 +320,112 @@ def test_a_non_positive_window_or_hop_is_refused(song, tmp_path, kw):
     clip = _write(tmp_path, "w.wav", rng.normal(0, 1, int(5 * SR)))
     with pytest.raises(ValueError, match="must be positive"):
         aligned_spans(song, clip, **kw)
+
+
+# --------------------------------------------------------------------------
+# Found by adversarial review: spans must lie ON the reference
+# --------------------------------------------------------------------------
+
+
+def test_a_span_never_reports_reference_time_the_reference_does_not_have(
+    song, ref, tmp_path
+):
+    """The reviewer's reproducer, and the worst failure mode in this module.
+
+    A window is admitted while it overlaps the reference by `min_overlap_ratio` of
+    ITSELF, so a span could run past a reference edge by `(1-ratio)*window_s`. Measured
+    before the fix on a 30 s reference: `reference_span == (-10.0, 40.0)` — a 50 s span
+    of a 30 s reference, which is not imprecise but impossible.
+
+    What made it dangerous is that it fails SILENTLY and in the wrong direction. A
+    caller slicing `ref[int(-10.0*sr):int(40.0*sr)]` gets numpy's negative-index
+    resolution: the start wraps to reference time 20 s and the end clamps to 30 s, so
+    they receive the reference's TAIL for a span whose true content is its ENTIRE
+    length. No exception either way.
+    """
+    rng = np.random.default_rng(20)
+    # clip = 20 s of junk, then the whole reference, then 20 s of junk
+    clip = _write(
+        tmp_path,
+        "overrun.wav",
+        np.concatenate(
+            [rng.normal(0, 0.5, int(20 * SR)), _noisy(ref.copy(), rng), rng.normal(0, 0.5, int(20 * SR))]
+        ),
+    )
+    ref_dur = len(ref) / SR
+    spans = _spans(song, clip)
+    assert spans
+    for sp in spans:
+        a, b = sp.reference_span
+        assert a >= -1e-6, f"reference start {a} is before the reference begins"
+        assert b <= ref_dur + 1e-6, f"reference end {b} is past the reference's {ref_dur}"
+        assert sp.duration_s <= ref_dur + 1e-6, (
+            f"a {sp.duration_s}s span cannot align to a {ref_dur}s reference at one offset"
+        )
+
+
+def test_a_clip_that_starts_before_the_reference_is_trimmed_not_negated(
+    song, ref, tmp_path
+):
+    """The preroll case — the common one, and the one that slices to EMPTY."""
+    rng = np.random.default_rng(21)
+    clip = _write(
+        tmp_path,
+        "preroll.wav",
+        np.concatenate([rng.normal(0, 0.5, int(20 * SR)), _take(ref, 0, 30, rng)]),
+    )
+    spans = _spans(song, clip)
+    assert spans
+    assert spans[0].reference_span[0] >= -1e-6
+    # ...and the CLIP edge moved with it, so the documented identity still holds.
+    for sp in spans:
+        assert sp.reference_span == pytest.approx(
+            (sp.clip_start_s + sp.offset_s, sp.clip_end_s + sp.offset_s)
+        )
+
+
+def test_hop_wider_than_the_window_is_refused(song, ref, tmp_path):
+    """It would leave clip time no correlation ever examined inside a single span."""
+    rng = np.random.default_rng(22)
+    clip = _write(tmp_path, "hop.wav", _take(ref, 10, 60, rng))
+    with pytest.raises(ValueError, match="must not exceed"):
+        aligned_spans(song, clip, sample_rate=SR, window_s=5.0, hop_s=55.0)
+
+
+def test_the_earlier_spans_end_wins_the_disputed_overlap():
+    """`_disjoin`'s documented rule, pinned directly.
+
+    A pure list operation, so this needs no audio and no tolerance — it pins the POLICY
+    rather than the correlation's accuracy, which is why the end-to-end tests (with their
+    window-wide tolerances) could not.
+    """
+    from mixing.audio.audio_ops import _disjoin
+
+    a = AlignedSpan(clip_start_s=0.0, clip_end_s=25.0, offset_s=5.0, confidence=0.9)
+    b = AlignedSpan(clip_start_s=20.0, clip_end_s=50.0, offset_s=35.0, confidence=0.9)
+    assert [(s.clip_start_s, s.clip_end_s) for s in _disjoin([a, b])] == [
+        (0.0, 25.0),
+        (25.0, 50.0),
+    ]
+
+
+def test_the_shipped_defaults_are_exercised(song, ref, tmp_path):
+    """Every other test overrides window_s/hop_s; nothing ran what users get."""
+    from mixing.audio.audio_ops import SPAN_HOP_S, SPAN_WINDOW_S
+
+    rng = np.random.default_rng(23)
+    clip = _write(tmp_path, "defaults.wav", _take(ref, 5, 85, rng))
+    spans = aligned_spans(song, clip, sample_rate=SR)  # no overrides at all
+    assert len(spans) == 1
+    assert spans[0].offset_s == pytest.approx(5.0, abs=0.05)
+    assert (SPAN_WINDOW_S, SPAN_HOP_S) == (20.0, 10.0)
+
+
+def test_reference_duration_can_be_stated_by_the_caller(song, ref, tmp_path):
+    """Parity with `align_clips_to_reference`, and it must actually bound the spans."""
+    rng = np.random.default_rng(24)
+    clip = _write(tmp_path, "rd.wav", _take(ref, 10, 80, rng))
+    spans = _spans(song, clip, reference_duration=40.0)
+    assert spans
+    for sp in spans:
+        assert sp.reference_span[1] <= 40.0 + 1e-6
