@@ -55,6 +55,7 @@ from ._helpers import (
     _auto_frame_path,
     _is_video_file,
     _set_default_codecs,
+    _validated_crop_box,
 )
 
 
@@ -458,6 +459,7 @@ class Video:
         *,
         codec: str = "libx264",
         audio_codec: str = "aac",
+        crop_box: tuple[int, int, int, int] | None = None,
         **write_kwargs,
     ) -> Path:
         """
@@ -469,18 +471,27 @@ class Video:
                 a callable sink. See mixing.egress.
             codec: Video codec to use
             audio_codec: Audio codec to use
+            crop_box: Optional spatial crop as ``(x, y, w, h)`` pixels from the
+                top-left, applied in the same encode pass as the temporal
+                slice. Width/height are floored to even values (libx264
+                rejects odd dimensions); an out-of-bounds box raises
+                ``ValueError``.
             **write_kwargs: Additional arguments for write_videofile
 
         Returns:
             Path to saved file
         """
-        default_path = _auto_video_path(
-            self.video_src, f"{int(self.start_time)}_{int(self.end_time)}"
-        )
+        suffix = f"{int(self.start_time)}_{int(self.end_time)}"
+        if crop_box is not None:
+            suffix += "_crop"
+        default_path = _auto_video_path(self.video_src, suffix)
 
         def _write(path: Path) -> None:
             with mp.VideoFileClip(self.video_src) as clip:
                 subclip = clip.subclipped(self.start_time, self.end_time)
+                if crop_box is not None:
+                    x, y, w, h = _validated_crop_box(crop_box, clip.size)
+                    subclip = subclip.cropped(x1=x, y1=y, x2=x + w, y2=y + h)
                 subclip.write_videofile(
                     str(path), codec=codec, audio_codec=audio_codec, **write_kwargs
                 )
@@ -624,6 +635,7 @@ def crop_video(
     end: float | int | None = None,
     *,
     time_unit: TimeUnit = "seconds",
+    crop_box: tuple[int, int, int, int] | None = None,
     output: Output = None,
     **save_kwargs,
 ) -> Path:
@@ -635,6 +647,10 @@ def crop_video(
         start: Start time/frame (None = beginning)
         end: End time/frame (None = end of video)
         time_unit: Unit for start/end values
+        crop_box: Optional spatial crop as ``(x, y, w, h)`` pixels from the
+            top-left, applied in the same encode pass as the temporal slice
+            (see :meth:`Video.save`). Not supported for single-frame
+            extraction (``start == end``).
         output: Where to put the result — None (save beside the input), a file
             path, a directory (auto-named), or a callable sink. See mixing.egress.
         **save_kwargs: Additional arguments for save operation
@@ -646,17 +662,23 @@ def crop_video(
         >>> crop_video("video.mp4", 10, 30)  # Crop 10s-30s  # doctest: +SKIP
         >>> crop_video("video.mp4", 100, 500, time_unit="frames")  # doctest: +SKIP
         >>> crop_video("video.mp4", 10, 10)  # Single frame at 10s  # doctest: +SKIP
+        >>> crop_video("video.mp4", 10, 15, crop_box=(549, 102, 309, 386))  # doctest: +SKIP
     """
     video = Video(video_src, time_unit=time_unit)
 
     # Handle single frame case
     if start is not None and end is not None and start == end:
+        if crop_box is not None:
+            raise ValueError(
+                "crop_box is not supported for single-frame extraction "
+                "(start == end); use save_frame and crop the image instead"
+            )
         # Extract single frame
         return video.save_frame(time_or_frame=start, output=output, **save_kwargs)
 
     # Handle segment case
     segment = video[start:end]
-    return segment.save(output, **save_kwargs)
+    return segment.save(output, crop_box=crop_box, **save_kwargs)
 
 
 def save_frame(
