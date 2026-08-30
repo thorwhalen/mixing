@@ -23,6 +23,38 @@ def has_ffmpeg() -> bool:
     return shutil.which("ffmpeg") is not None
 
 
+def ffmpeg_exe() -> str:
+    """Resolve an ffmpeg executable, preferring the pip-bundled binary.
+
+    Resolution order is ``imageio-ffmpeg`` (which itself honors the
+    ``IMAGEIO_FFMPEG_EXE`` env var, then its bundled static binary, then the
+    system ``PATH``) and finally a bare ``PATH`` lookup. This is what lets
+    subprocess-ffmpeg features work on a machine where only ``pip install``
+    ran — ``imageio-ffmpeg`` is a moviepy dependency, so it is present
+    wherever mixing's video stack is.
+
+    Raises:
+        RuntimeError: when no ffmpeg executable can be found, naming both
+            remedies (installing ``imageio-ffmpeg`` or a system ffmpeg).
+
+    >>> isinstance(ffmpeg_exe(), str)  # doctest: +SKIP
+    True
+    """
+    try:
+        import imageio_ffmpeg
+
+        return imageio_ffmpeg.get_ffmpeg_exe()
+    except Exception:
+        exe = shutil.which("ffmpeg")
+        if exe:
+            return exe
+        raise RuntimeError(
+            "No ffmpeg executable found. Install the pip-bundled binary "
+            "(`pip install imageio-ffmpeg`) or a system ffmpeg "
+            "(https://ffmpeg.org/) and ensure it is on PATH."
+        )
+
+
 def require_package(package_name: str):
     """
     Import a package, raising an informative error if not installed.

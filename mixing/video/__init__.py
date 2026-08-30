@@ -18,6 +18,7 @@ from mixing.video.video_concat import (
     trim_first_frame_from_subsequent_clips,
 )
 from mixing.video.thumbnail import make_thumbnail, THUMBNAIL_SIZE, YOUTUBE_THUMB_SIZE
+from mixing.video.gif import make_gif
 from mixing.video.video_ops import (
     Video,
     VideoFrames,

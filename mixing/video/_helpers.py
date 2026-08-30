@@ -113,6 +113,48 @@ def _set_default_codecs(
     return kwargs
 
 
+def _validated_crop_box(
+    crop_box, frame_size: tuple[int, int]
+) -> tuple[int, int, int, int]:
+    """Validate an ``(x, y, w, h)`` pixel crop box against ``frame_size=(W, H)``.
+
+    Returns the box with ``w``/``h`` floored to even values — libx264 rejects
+    odd frame dimensions, and a 1-px shave is the deterministic repair (the
+    box's origin is untouched). Raises ``ValueError`` for a malformed,
+    non-positive, or out-of-bounds box, naming the box and the frame.
+
+    Examples:
+        >>> _validated_crop_box((10, 20, 100, 50), (320, 240))
+        (10, 20, 100, 50)
+        >>> _validated_crop_box((10, 20, 101, 51), (320, 240))
+        (10, 20, 100, 50)
+        >>> _validated_crop_box((10, 20, 400, 50), (320, 240))
+        Traceback (most recent call last):
+        ...
+        ValueError: crop_box (10, 20, 400, 50) exceeds the 320x240 frame
+    """
+    try:
+        x, y, w, h = (int(round(float(v))) for v in crop_box)
+    except (TypeError, ValueError, OverflowError):
+        raise ValueError(
+            f"crop_box must be four finite numbers (x, y, w, h), got {crop_box!r}"
+        )
+    if w <= 0 or h <= 0:
+        raise ValueError(f"crop_box width/height must be positive, got {crop_box!r}")
+    frame_w, frame_h = frame_size
+    if x < 0 or y < 0 or x + w > frame_w or y + h > frame_h:
+        raise ValueError(
+            f"crop_box ({x}, {y}, {w}, {h}) exceeds the {frame_w}x{frame_h} frame"
+        )
+    w -= w % 2
+    h -= h % 2
+    if w == 0 or h == 0:
+        raise ValueError(
+            f"crop_box {crop_box!r} is under 2 pixels wide/tall after even-rounding"
+        )
+    return x, y, w, h
+
+
 def _ensure_output_path(path: str | Path) -> Path:
     """
     Convert to Path and ensure parent directory exists.
