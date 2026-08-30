@@ -21,13 +21,30 @@ SOCIAL_SIZES: dict[str, Tuple[int, int]] = {
 }
 
 
-def get_video_dimensions(video: VideoFileClip) -> Tuple[int, int]:
+def get_video_dimensions(video) -> Tuple[int, int]:
     """
-    Get the (width, height) dimensions of a video.
+    Get the (width, height) dimensions of a video — a moviepy clip, or a
+    file path (probed via cv2, so no clip is opened).
 
+    >>> width, height = get_video_dimensions('video.mp4')  # doctest: +SKIP
     >>> clip = VideoFileClip('video.mp4')  # doctest: +SKIP
     >>> width, height = get_video_dimensions(clip)  # doctest: +SKIP
     """
+    import os
+
+    if isinstance(video, (str, os.PathLike)):
+        import cv2
+
+        cap = cv2.VideoCapture(os.fspath(video))
+        try:
+            if not cap.isOpened():
+                raise ValueError(f"Cannot open video file: {video}")
+            return (
+                int(cap.get(cv2.CAP_PROP_FRAME_WIDTH)),
+                int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT)),
+            )
+        finally:
+            cap.release()
     return video.w, video.h
 
 

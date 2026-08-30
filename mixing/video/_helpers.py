@@ -135,9 +135,9 @@ def _validated_crop_box(
     """
     try:
         x, y, w, h = (int(round(float(v))) for v in crop_box)
-    except (TypeError, ValueError):
+    except (TypeError, ValueError, OverflowError):
         raise ValueError(
-            f"crop_box must be four numbers (x, y, w, h), got {crop_box!r}"
+            f"crop_box must be four finite numbers (x, y, w, h), got {crop_box!r}"
         )
     if w <= 0 or h <= 0:
         raise ValueError(f"crop_box width/height must be positive, got {crop_box!r}")

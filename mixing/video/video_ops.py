@@ -673,6 +673,13 @@ def crop_video(
                 "crop_box is not supported for single-frame extraction "
                 "(start == end); use save_frame and crop the image instead"
             )
+        frame_kwargs = {"image_format", "copy_to_clipboard"}
+        segment_only = sorted(set(save_kwargs) - frame_kwargs)
+        if segment_only:
+            raise ValueError(
+                f"{segment_only} apply to segment export; the single-frame "
+                f"path (start == end) takes only {sorted(frame_kwargs)}"
+            )
         # Extract single frame
         return video.save_frame(time_or_frame=start, output=output, **save_kwargs)
 
