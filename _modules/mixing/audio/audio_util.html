@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>mixing.audio.audio_util &mdash; mixing 0.0.37 documentation</title>
+  <title>mixing.audio.audio_util &mdash; mixing 0.0.38 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
@@ -14,7 +14,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=aa2ad26f"></script>
+      <script src="../../../_static/documentation_options.js?v=423071ad"></script>
       <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="../../../_static/toggleprompt.js?v=d7ede5d2"></script>
@@ -73,6 +73,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video.html">mixing.video</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/_helpers.html">mixing.video._helpers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/genai.html">mixing.video.genai</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/gif.html">mixing.video.gif</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/thumbnail.html">mixing.video.thumbnail</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/video_concat.html">mixing.video.video_concat</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/video_ops.html">mixing.video.video_ops</a></li>
@@ -105,7 +106,7 @@
            <div itemprop="articleBody">
              
   <h1>Source code for mixing.audio.audio_util</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Audio utility functions.&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""Audio utility functions."""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
@@ -113,23 +114,23 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">..util</span><span class="w"> </span><span class="kn">import</span> <span class="n">require_package</span>
 
 
-<span class="n">AudioSource</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="s2">&quot;AudioSegment&quot;</span><span class="p">]</span>
+<span class="n">AudioSource</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="s2">"AudioSegment"</span><span class="p">]</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_normalize_audio_source</span><span class="p">(</span><span class="n">source</span><span class="p">:</span> <span class="n">AudioSource</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">target_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;AudioSegment&quot;</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_normalize_audio_source</span><span class="p">(</span><span class="n">source</span><span class="p">:</span> <span class="n">AudioSource</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">target_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"AudioSegment"</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Convert various audio source types to a standard format.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        source: Audio source (filepath, numpy array, or AudioSegment)</span>
-<span class="sd">        target_type: Target type to convert to (&quot;AudioSegment&quot; or &quot;ndarray&quot;)</span>
+<span class="sd">        target_type: Target type to convert to ("AudioSegment" or "ndarray")</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        Audio in target format</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">AudioSegment</span> <span class="o">=</span> <span class="n">require_package</span><span class="p">(</span><span class="s2">&quot;pydub&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">AudioSegment</span>
+<span class="sd">    """</span>
+    <span class="n">AudioSegment</span> <span class="o">=</span> <span class="n">require_package</span><span class="p">(</span><span class="s2">"pydub"</span><span class="p">)</span><span class="o">.</span><span class="n">AudioSegment</span>
 
-    <span class="k">if</span> <span class="n">target_type</span> <span class="o">==</span> <span class="s2">&quot;AudioSegment&quot;</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">target_type</span> <span class="o">==</span> <span class="s2">"AudioSegment"</span><span class="p">:</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">AudioSegment</span><span class="p">):</span>
             <span class="k">return</span> <span class="n">source</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">)):</span>
@@ -146,8 +147,8 @@
                 <span class="n">channels</span><span class="o">=</span><span class="n">channels</span><span class="p">,</span>
             <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unsupported audio source type: </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">source</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-    <span class="k">elif</span> <span class="n">target_type</span> <span class="o">==</span> <span class="s2">&quot;ndarray&quot;</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Unsupported audio source type: </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">source</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">target_type</span> <span class="o">==</span> <span class="s2">"ndarray"</span><span class="p">:</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
             <span class="k">return</span> <span class="n">source</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">)):</span>
@@ -156,15 +157,15 @@
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">AudioSegment</span><span class="p">):</span>
             <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">source</span><span class="o">.</span><span class="n">get_array_of_samples</span><span class="p">())</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span> <span class="o">/</span> <span class="mf">32768.0</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unsupported audio source type: </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">source</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Unsupported audio source type: </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">source</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid target_type: </span><span class="si">{</span><span class="n">target_type</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Invalid target_type: </span><span class="si">{</span><span class="n">target_type</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="get_audio_info">
 <a class="viewcode-back" href="../../../module_docs/mixing/audio/audio_util.html#mixing.audio.audio_util.get_audio_info">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_audio_info</span><span class="p">(</span><span class="n">source</span><span class="p">:</span> <span class="n">AudioSource</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Get audio properties (duration, sample rate, channels).</span>
 
 <span class="sd">    Args:</span>
@@ -174,18 +175,18 @@
 <span class="sd">        Dictionary with audio properties</span>
 
 <span class="sd">    Examples:</span>
-<span class="sd">        &gt;&gt;&gt; info = get_audio_info(&quot;audio.mp3&quot;)  # doctest: +SKIP</span>
-<span class="sd">        &gt;&gt;&gt; info[&#39;duration_seconds&#39;]  # doctest: +SKIP</span>
+<span class="sd">        &gt;&gt;&gt; info = get_audio_info("audio.mp3")  # doctest: +SKIP</span>
+<span class="sd">        &gt;&gt;&gt; info['duration_seconds']  # doctest: +SKIP</span>
 <span class="sd">        120.5</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">audio</span> <span class="o">=</span> <span class="n">_normalize_audio_source</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">target_type</span><span class="o">=</span><span class="s2">&quot;AudioSegment&quot;</span><span class="p">)</span>
+<span class="sd">    """</span>
+    <span class="n">audio</span> <span class="o">=</span> <span class="n">_normalize_audio_source</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">target_type</span><span class="o">=</span><span class="s2">"AudioSegment"</span><span class="p">)</span>
     <span class="k">return</span> <span class="p">{</span>
-        <span class="s2">&quot;duration_seconds&quot;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">audio</span><span class="p">)</span> <span class="o">/</span> <span class="mf">1000.0</span><span class="p">,</span>
-        <span class="s2">&quot;duration_ms&quot;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">audio</span><span class="p">),</span>
-        <span class="s2">&quot;sample_rate&quot;</span><span class="p">:</span> <span class="n">audio</span><span class="o">.</span><span class="n">frame_rate</span><span class="p">,</span>
-        <span class="s2">&quot;channels&quot;</span><span class="p">:</span> <span class="n">audio</span><span class="o">.</span><span class="n">channels</span><span class="p">,</span>
-        <span class="s2">&quot;sample_width&quot;</span><span class="p">:</span> <span class="n">audio</span><span class="o">.</span><span class="n">sample_width</span><span class="p">,</span>
-        <span class="s2">&quot;frame_count&quot;</span><span class="p">:</span> <span class="n">audio</span><span class="o">.</span><span class="n">frame_count</span><span class="p">(),</span>
+        <span class="s2">"duration_seconds"</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">audio</span><span class="p">)</span> <span class="o">/</span> <span class="mf">1000.0</span><span class="p">,</span>
+        <span class="s2">"duration_ms"</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">audio</span><span class="p">),</span>
+        <span class="s2">"sample_rate"</span><span class="p">:</span> <span class="n">audio</span><span class="o">.</span><span class="n">frame_rate</span><span class="p">,</span>
+        <span class="s2">"channels"</span><span class="p">:</span> <span class="n">audio</span><span class="o">.</span><span class="n">channels</span><span class="p">,</span>
+        <span class="s2">"sample_width"</span><span class="p">:</span> <span class="n">audio</span><span class="o">.</span><span class="n">sample_width</span><span class="p">,</span>
+        <span class="s2">"frame_count"</span><span class="p">:</span> <span class="n">audio</span><span class="o">.</span><span class="n">frame_count</span><span class="p">(),</span>
     <span class="p">}</span></div>
 
 </pre></div>

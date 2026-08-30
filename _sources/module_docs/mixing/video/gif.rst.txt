@@ -1,0 +1,4 @@
+mixing.video.gif
+================
+.. automodule:: mixing.video.gif
+   :members:

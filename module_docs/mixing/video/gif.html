@@ -1,0 +1,225 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>mixing.video.gif &mdash; mixing 0.0.38 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=423071ad"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../../../_static/toggleprompt.js?v=d7ede5d2"></script>
+      <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="mixing.video.thumbnail" href="thumbnail.html" />
+    <link rel="prev" title="mixing.video.genai" href="genai.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            mixing
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../mixing.html">mixing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_cache.html">mixing._cache</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_elevenlabs.html">mixing._elevenlabs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../audio.html">mixing.audio</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../audio/audio_ops.html">mixing.audio.audio_ops</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../audio/audio_util.html">mixing.audio.audio_util</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../audio/audio_widget.html">mixing.audio.audio_widget</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../audio/beats.html">mixing.audio.beats</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../audio/segmentation.html">mixing.audio.segmentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../chapters.html">mixing.chapters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../dubbing.html">mixing.dubbing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../dubbing/dub.html">mixing.dubbing.dub</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../dubbing/srt.html">mixing.dubbing.srt</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../dubbing/tts.html">mixing.dubbing.tts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../egress.html">mixing.egress</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../srt.html">mixing.srt</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../transcript.html">mixing.transcript</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../transcript/fillers.html">mixing.transcript.fillers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../transcript/formats.html">mixing.transcript.formats</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../transcript/media.html">mixing.transcript.media</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../transcript/persist.html">mixing.transcript.persist</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../transcript/pipeline.html">mixing.transcript.pipeline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../transcript/scribe.html">mixing.transcript.scribe</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../util.html">mixing.util</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../video.html">mixing.video</a></li>
+<li class="toctree-l1"><a class="reference internal" href="_helpers.html">mixing.video._helpers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="genai.html">mixing.video.genai</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">mixing.video.gif</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#mixing.video.gif.DFLT_GIF_FPS"><code class="docutils literal notranslate"><span class="pre">DFLT_GIF_FPS</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mixing.video.gif.MIN_GIF_COLORS"><code class="docutils literal notranslate"><span class="pre">MIN_GIF_COLORS</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mixing.video.gif.STDERR_TAIL_CHARS"><code class="docutils literal notranslate"><span class="pre">STDERR_TAIL_CHARS</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mixing.video.gif.make_gif"><code class="docutils literal notranslate"><span class="pre">make_gif()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="thumbnail.html">mixing.video.thumbnail</a></li>
+<li class="toctree-l1"><a class="reference internal" href="video_concat.html">mixing.video.video_concat</a></li>
+<li class="toctree-l1"><a class="reference internal" href="video_ops.html">mixing.video.video_ops</a></li>
+<li class="toctree-l1"><a class="reference internal" href="video_subtitles.html">mixing.video.video_subtitles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="video_util.html">mixing.video.video_util</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">mixing</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">mixing.video.gif</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../_sources/module_docs/mixing/video/gif.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-mixing.video.gif">
+<span id="mixing-video-gif"></span><h1>mixing.video.gif<a class="headerlink" href="#module-mixing.video.gif" title="Link to this heading"></a></h1>
+<p>Animated-GIF export via ffmpeg’s two-pass palette pipeline.</p>
+<p>GIF quality lives or dies on the palette: a single-pass encode dithers against
+a generic 256-color table and produces large, banded files. The two-pass
+recipe here — <code class="docutils literal notranslate"><span class="pre">palettegen</span></code> (per-clip palette, <code class="docutils literal notranslate"><span class="pre">stats_mode=diff</span></code> so colors
+go to what <em>changes</em>) then <code class="docutils literal notranslate"><span class="pre">paletteuse</span></code> with ordered bayer dithering —
+produces the small, stable loops this module exists for. moviepy’s
+<code class="docutils literal notranslate"><span class="pre">write_gif</span></code> (imageio/pillow single-pass) is deliberately not used.</p>
+<p>The ffmpeg binary is resolved via <a class="reference internal" href="../util.html#mixing.util.ffmpeg_exe" title="mixing.util.ffmpeg_exe"><code class="xref py py-func docutils literal notranslate"><span class="pre">mixing.util.ffmpeg_exe()</span></code></a>, which
+prefers the pip-bundled <code class="docutils literal notranslate"><span class="pre">imageio-ffmpeg</span></code> binary — so this works on machines
+with no system ffmpeg installed.</p>
+<dl class="py data">
+<dt class="sig sig-object py" id="mixing.video.gif.DFLT_GIF_FPS">
+<span class="sig-prename descclassname"><span class="pre">mixing.video.gif.</span></span><span class="sig-name descname"><span class="pre">DFLT_GIF_FPS</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">12.5</span></span><a class="headerlink" href="#mixing.video.gif.DFLT_GIF_FPS" title="Link to this definition"></a></dt>
+<dd><p>12.5 fps halves a 25 fps
+source evenly; 460 px width keeps a portrait crop under ~2 MB for a
+few-second loop; 160 colors is where palette banding stopped being visible.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Defaults proven out on real dance-loop media</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="mixing.video.gif.MIN_GIF_COLORS">
+<span class="sig-prename descclassname"><span class="pre">mixing.video.gif.</span></span><span class="sig-name descname"><span class="pre">MIN_GIF_COLORS</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">3</span></span><a class="headerlink" href="#mixing.video.gif.MIN_GIF_COLORS" title="Link to this definition"></a></dt>
+<dd><p>palettegen reserves a transparent slot by default, so its real minimum
+for <code class="docutils literal notranslate"><span class="pre">max_colors</span></code> is 3 — ffmpeg refuses 2 outright.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="mixing.video.gif.STDERR_TAIL_CHARS">
+<span class="sig-prename descclassname"><span class="pre">mixing.video.gif.</span></span><span class="sig-name descname"><span class="pre">STDERR_TAIL_CHARS</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2000</span></span><a class="headerlink" href="#mixing.video.gif.STDERR_TAIL_CHARS" title="Link to this definition"></a></dt>
+<dd><p>How much of ffmpeg’s stderr to surface when an invocation fails.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mixing.video.gif.make_gif">
+<span class="sig-prename descclassname"><span class="pre">mixing.video.gif.</span></span><span class="sig-name descname"><span class="pre">make_gif</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">video_src</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">crop_box</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">12.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">width</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">460</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colors</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">160</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loop</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">None</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">PathLike</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Path</span></span></span><a class="reference internal" href="../../../_modules/mixing/video/gif.html#make_gif"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.video.gif.make_gif" title="Link to this definition"></a></dt>
+<dd><p>Encode a (windowed, optionally cropped) video as a looping GIF.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>video_src</strong> – Path to source video.</p></li>
+<li><p><strong>start</strong> – Window start in seconds (None = beginning; negative = from
+the end, like <code class="docutils literal notranslate"><span class="pre">crop_video</span></code>).</p></li>
+<li><p><strong>end</strong> – Window end in seconds (None = end of video; negative = from
+the end).</p></li>
+<li><p><strong>crop_box</strong> – Optional spatial crop as <code class="docutils literal notranslate"><span class="pre">(x,</span> <span class="pre">y,</span> <span class="pre">w,</span> <span class="pre">h)</span></code> pixels from the
+top-left, validated against the source frame.</p></li>
+<li><p><strong>fps</strong> – GIF frame rate. A window shorter than one frame at this rate
+yields a single-frame (static) GIF.</p></li>
+<li><p><strong>width</strong> – Output width in pixels; height follows the (cropped) aspect.
+<code class="docutils literal notranslate"><span class="pre">None</span></code> keeps the source/crop size.</p></li>
+<li><p><strong>colors</strong> – Palette size (3-256 — palettegen’s transparent-slot
+reservation makes 3 the real ffmpeg minimum).</p></li>
+<li><p><strong>loop</strong> – GIF loop count written to the file — 0 means loop forever.</p></li>
+<li><p><strong>output</strong> – Where to put the result — None (save beside the input), a
+file path, a directory (auto-named), or a callable sink. See
+mixing.egress.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Path to the saved GIF.</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">make_gif</span><span class="p">(</span><span class="s2">"video.mp4"</span><span class="p">,</span> <span class="mf">95.8</span><span class="p">,</span> <span class="mf">110.6</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">make_gif</span><span class="p">(</span><span class="s2">"video.mp4"</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="n">crop_box</span><span class="o">=</span><span class="p">(</span><span class="mi">549</span><span class="p">,</span> <span class="mi">102</span><span class="p">,</span> <span class="mi">309</span><span class="p">,</span> <span class="mi">386</span><span class="p">))</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="genai.html" class="btn btn-neutral float-left" title="mixing.video.genai" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="thumbnail.html" class="btn btn-neutral float-right" title="mixing.video.thumbnail" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

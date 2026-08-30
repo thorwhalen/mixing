@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>mixing.video.video_util &mdash; mixing 0.0.37 documentation</title>
+  <title>mixing.video.video_util &mdash; mixing 0.0.38 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
@@ -15,7 +15,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=aa2ad26f"></script>
+      <script src="../../../_static/documentation_options.js?v=423071ad"></script>
       <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="../../../_static/toggleprompt.js?v=d7ede5d2"></script>
@@ -75,6 +75,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../video.html">mixing.video</a></li>
 <li class="toctree-l1"><a class="reference internal" href="_helpers.html">mixing.video._helpers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="genai.html">mixing.video.genai</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gif.html">mixing.video.gif</a></li>
 <li class="toctree-l1"><a class="reference internal" href="thumbnail.html">mixing.video.thumbnail</a></li>
 <li class="toctree-l1"><a class="reference internal" href="video_concat.html">mixing.video.video_concat</a></li>
 <li class="toctree-l1"><a class="reference internal" href="video_ops.html">mixing.video.video_ops</a></li>
@@ -128,9 +129,11 @@ short-form formats.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="mixing.video.video_util.get_video_dimensions">
-<span class="sig-prename descclassname"><span class="pre">mixing.video.video_util.</span></span><span class="sig-name descname"><span class="pre">get_video_dimensions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">video</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">VideoFileClip</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/mixing/video/video_util.html#get_video_dimensions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.video.video_util.get_video_dimensions" title="Link to this definition"></a></dt>
-<dd><p>Get the (width, height) dimensions of a video.</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">clip</span> <span class="o">=</span> <span class="n">VideoFileClip</span><span class="p">(</span><span class="s1">&#39;video.mp4&#39;</span><span class="p">)</span>
+<span class="sig-prename descclassname"><span class="pre">mixing.video.video_util.</span></span><span class="sig-name descname"><span class="pre">get_video_dimensions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">video</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/mixing/video/video_util.html#get_video_dimensions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.video.video_util.get_video_dimensions" title="Link to this definition"></a></dt>
+<dd><p>Get the (width, height) dimensions of a video — a moviepy clip, or a
+file path (probed via cv2, so no clip is opened).</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">width</span><span class="p">,</span> <span class="n">height</span> <span class="o">=</span> <span class="n">get_video_dimensions</span><span class="p">(</span><span class="s1">'video.mp4'</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">clip</span> <span class="o">=</span> <span class="n">VideoFileClip</span><span class="p">(</span><span class="s1">'video.mp4'</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">width</span><span class="p">,</span> <span class="n">height</span> <span class="o">=</span> <span class="n">get_video_dimensions</span><span class="p">(</span><span class="n">clip</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -157,17 +160,17 @@ or a VideoFileClip instance to use as reference</p></li>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Normalize all to first video&#39;s dimensions</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Normalize all to first video's dimensions</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">normalized</span> <span class="o">=</span> <span class="n">normalize_video_dimensions</span><span class="p">(</span><span class="n">clips</span><span class="p">)</span>
 </pre></div>
 </div>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Normalize all to specific dimensions with social media style</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">normalized</span> <span class="o">=</span> <span class="n">normalize_video_dimensions</span><span class="p">(</span>
-<span class="gp">... </span>    <span class="n">clips</span><span class="p">,</span> <span class="n">target_width</span><span class="o">=</span><span class="mi">1920</span><span class="p">,</span> <span class="n">target_height</span><span class="o">=</span><span class="mi">1080</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;social&#39;</span>
+<span class="gp">... </span>    <span class="n">clips</span><span class="p">,</span> <span class="n">target_width</span><span class="o">=</span><span class="mi">1920</span><span class="p">,</span> <span class="n">target_height</span><span class="o">=</span><span class="mi">1080</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">'social'</span>
 <span class="gp">... </span><span class="p">)</span>
 </pre></div>
 </div>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Normalize to second video&#39;s dimensions</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Normalize to second video's dimensions</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">normalized</span> <span class="o">=</span> <span class="n">normalize_video_dimensions</span><span class="p">(</span><span class="n">clips</span><span class="p">,</span> <span class="n">reference_video</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -197,19 +200,19 @@ or a VideoFileClip instance to use as reference</p></li>
 </dl>
 <p class="rubric">Examples</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Stretch to exact dimensions (may distort)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">resized</span> <span class="o">=</span> <span class="n">resize_to_dimensions</span><span class="p">(</span><span class="n">clip</span><span class="p">,</span> <span class="mi">1920</span><span class="p">,</span> <span class="mi">1080</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;stretch&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">resized</span> <span class="o">=</span> <span class="n">resize_to_dimensions</span><span class="p">(</span><span class="n">clip</span><span class="p">,</span> <span class="mi">1920</span><span class="p">,</span> <span class="mi">1080</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">'stretch'</span><span class="p">)</span>
 </pre></div>
 </div>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Fit inside dimensions with black padding</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">resized</span> <span class="o">=</span> <span class="n">resize_to_dimensions</span><span class="p">(</span><span class="n">clip</span><span class="p">,</span> <span class="mi">1920</span><span class="p">,</span> <span class="mi">1080</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;fit&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">resized</span> <span class="o">=</span> <span class="n">resize_to_dimensions</span><span class="p">(</span><span class="n">clip</span><span class="p">,</span> <span class="mi">1920</span><span class="p">,</span> <span class="mi">1080</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">'fit'</span><span class="p">)</span>
 </pre></div>
 </div>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Fill dimensions (may crop edges)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">resized</span> <span class="o">=</span> <span class="n">resize_to_dimensions</span><span class="p">(</span><span class="n">clip</span><span class="p">,</span> <span class="mi">1920</span><span class="p">,</span> <span class="mi">1080</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;fill&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">resized</span> <span class="o">=</span> <span class="n">resize_to_dimensions</span><span class="p">(</span><span class="n">clip</span><span class="p">,</span> <span class="mi">1920</span><span class="p">,</span> <span class="mi">1080</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">'fill'</span><span class="p">)</span>
 </pre></div>
 </div>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Social media style with blurred background</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">resized</span> <span class="o">=</span> <span class="n">resize_to_dimensions</span><span class="p">(</span><span class="n">clip</span><span class="p">,</span> <span class="mi">1920</span><span class="p">,</span> <span class="mi">1080</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;social&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">resized</span> <span class="o">=</span> <span class="n">resize_to_dimensions</span><span class="p">(</span><span class="n">clip</span><span class="p">,</span> <span class="mi">1920</span><span class="p">,</span> <span class="mi">1080</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">'social'</span><span class="p">)</span>
 </pre></div>
 </div>
 </dd></dl>

@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>mixing.audio.segmentation &mdash; mixing 0.0.37 documentation</title>
+  <title>mixing.audio.segmentation &mdash; mixing 0.0.38 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
@@ -15,7 +15,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=aa2ad26f"></script>
+      <script src="../../../_static/documentation_options.js?v=423071ad"></script>
       <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="../../../_static/toggleprompt.js?v=d7ede5d2"></script>
@@ -95,6 +95,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../video.html">mixing.video</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../video/_helpers.html">mixing.video._helpers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../video/genai.html">mixing.video.genai</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../video/gif.html">mixing.video.gif</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../video/thumbnail.html">mixing.video.thumbnail</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../video/video_concat.html">mixing.video.video_concat</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../video/video_ops.html">mixing.video.video_ops</a></li>
@@ -171,19 +172,19 @@ common timestamp representations.</p></li>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">mixing.audio</span><span class="w"> </span><span class="kn">import</span> <span class="n">find_segments</span><span class="p">,</span> <span class="n">extract_segments</span>
 <span class="gp">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># DJ mix with silences between tracks</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">segs</span> <span class="o">=</span> <span class="n">find_segments</span><span class="p">(</span><span class="s2">&quot;mix.mp3&quot;</span><span class="p">,</span> <span class="n">strategy</span><span class="o">=</span><span class="s2">&quot;silence&quot;</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">segs</span> <span class="o">=</span> <span class="n">find_segments</span><span class="p">(</span><span class="s2">"mix.mp3"</span><span class="p">,</span> <span class="n">strategy</span><span class="o">=</span><span class="s2">"silence"</span><span class="p">,</span>
 <span class="gp">... </span>                      <span class="n">silence_thresh_db</span><span class="o">=-</span><span class="mi">40</span><span class="p">,</span> <span class="n">min_silence_len</span><span class="o">=</span><span class="mf">1.5</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># Concert: continuous audience noise, songs differ in spectral content</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">segs</span> <span class="o">=</span> <span class="n">find_segments</span><span class="p">(</span><span class="s2">&quot;concert.wav&quot;</span><span class="p">,</span> <span class="n">strategy</span><span class="o">=</span><span class="s2">&quot;self_similarity&quot;</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">segs</span> <span class="o">=</span> <span class="n">find_segments</span><span class="p">(</span><span class="s2">"concert.wav"</span><span class="p">,</span> <span class="n">strategy</span><span class="o">=</span><span class="s2">"self_similarity"</span><span class="p">,</span>
 <span class="gp">... </span>                      <span class="n">kernel_seconds</span><span class="o">=</span><span class="mf">12.0</span><span class="p">,</span>
 <span class="gp">... </span>                      <span class="n">min_peak_distance_seconds</span><span class="o">=</span><span class="mf">60.0</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># Radio show: tag speech vs music regions</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">segs</span> <span class="o">=</span> <span class="n">find_segments</span><span class="p">(</span><span class="s2">&quot;radio.mp3&quot;</span><span class="p">,</span> <span class="n">strategy</span><span class="o">=</span><span class="s2">&quot;speech_music&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">segs</span> <span class="o">=</span> <span class="n">find_segments</span><span class="p">(</span><span class="s2">"radio.mp3"</span><span class="p">,</span> <span class="n">strategy</span><span class="o">=</span><span class="s2">"speech_music"</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># Save them to disk</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">paths</span> <span class="o">=</span> <span class="n">extract_segments</span><span class="p">(</span><span class="s2">&quot;concert.wav&quot;</span><span class="p">,</span> <span class="n">segs</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="s2">&quot;songs/&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">paths</span> <span class="o">=</span> <span class="n">extract_segments</span><span class="p">(</span><span class="s2">"concert.wav"</span><span class="p">,</span> <span class="n">segs</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="s2">"songs/"</span><span class="p">)</span>
 </pre></div>
 </div>
 <dl class="py class">
@@ -295,16 +296,16 @@ if <code class="docutils literal notranslate"><span class="pre">audio</span></co
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">mixing.audio</span><span class="w"> </span><span class="kn">import</span> <span class="n">extract_segments</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># Auto-detect and save in one call</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">paths</span> <span class="o">=</span> <span class="n">extract_segments</span><span class="p">(</span>
-<span class="gp">... </span>    <span class="s2">&quot;concert.wav&quot;</span><span class="p">,</span> <span class="n">strategy</span><span class="o">=</span><span class="s2">&quot;self_similarity&quot;</span><span class="p">,</span>
-<span class="gp">... </span>    <span class="n">output</span><span class="o">=</span><span class="s2">&quot;songs/&quot;</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;mp3&quot;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="s2">"concert.wav"</span><span class="p">,</span> <span class="n">strategy</span><span class="o">=</span><span class="s2">"self_similarity"</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">output</span><span class="o">=</span><span class="s2">"songs/"</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s2">"mp3"</span><span class="p">,</span>
 <span class="gp">... </span>    <span class="n">kernel_seconds</span><span class="o">=</span><span class="mf">14.0</span><span class="p">,</span>
 <span class="gp">... </span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># Or pass timestamps you already have</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">paths</span> <span class="o">=</span> <span class="n">extract_segments</span><span class="p">(</span>
-<span class="gp">... </span>    <span class="s2">&quot;mix.mp3&quot;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="s2">"mix.mp3"</span><span class="p">,</span>
 <span class="gp">... </span>    <span class="n">segments</span><span class="o">=</span><span class="p">[(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">245</span><span class="p">),</span> <span class="p">(</span><span class="mi">247</span><span class="p">,</span> <span class="mi">445</span><span class="p">),</span> <span class="p">(</span><span class="mi">445</span><span class="p">,</span> <span class="mi">600</span><span class="p">)],</span>
-<span class="gp">... </span>    <span class="n">output</span><span class="o">=</span><span class="s2">&quot;tracks/&quot;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">output</span><span class="o">=</span><span class="s2">"tracks/"</span><span class="p">,</span>
 <span class="gp">... </span><span class="p">)</span>
 </pre></div>
 </div>
@@ -337,7 +338,7 @@ than this gap (seconds).</p></li>
 </dl>
 <p class="rubric">Examples</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">mixing.audio</span><span class="w"> </span><span class="kn">import</span> <span class="n">find_segments</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">segs</span> <span class="o">=</span> <span class="n">find_segments</span><span class="p">(</span><span class="s2">&quot;mix.mp3&quot;</span><span class="p">,</span> <span class="n">strategy</span><span class="o">=</span><span class="s2">&quot;silence&quot;</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">segs</span> <span class="o">=</span> <span class="n">find_segments</span><span class="p">(</span><span class="s2">"mix.mp3"</span><span class="p">,</span> <span class="n">strategy</span><span class="o">=</span><span class="s2">"silence"</span><span class="p">,</span>
 <span class="gp">... </span>                      <span class="n">silence_thresh_db</span><span class="o">=-</span><span class="mi">45</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="p">[</span><span class="n">s</span><span class="o">.</span><span class="n">as_offset_duration</span><span class="p">()</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">segs</span><span class="p">]</span>
 <span class="go">[(0.0, 245.3), (247.1, 198.4), ...]</span>

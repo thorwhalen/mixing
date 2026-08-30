@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>mixing.transcript.scribe &mdash; mixing 0.0.37 documentation</title>
+  <title>mixing.transcript.scribe &mdash; mixing 0.0.38 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
@@ -14,7 +14,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=aa2ad26f"></script>
+      <script src="../../../_static/documentation_options.js?v=423071ad"></script>
       <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="../../../_static/toggleprompt.js?v=d7ede5d2"></script>
@@ -73,6 +73,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video.html">mixing.video</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/_helpers.html">mixing.video._helpers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/genai.html">mixing.video.genai</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/gif.html">mixing.video.gif</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/thumbnail.html">mixing.video.thumbnail</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/video_concat.html">mixing.video.video_concat</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/video_ops.html">mixing.video.video_ops</a></li>
@@ -105,17 +106,17 @@
            <div itemprop="articleBody">
              
   <h1>Source code for mixing.transcript.scribe</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;ElevenLabs Scribe (speech-to-text) HTTP client.</span>
+<span></span><span class="sd">"""ElevenLabs Scribe (speech-to-text) HTTP client.</span>
 
 <span class="sd">Stdlib-only — no ``requests`` or ``elevenlabs`` SDK dependency, so this</span>
-<span class="sd">module adds nothing to the project&#39;s required deps. Returns the raw</span>
+<span class="sd">module adds nothing to the project's required deps. Returns the raw</span>
 <span class="sd">JSON response which includes word-level timestamps (with per-word</span>
-<span class="sd">``confidence``) when ``timestamps_granularity=&quot;word&quot;`` (the default).</span>
+<span class="sd">``confidence``) when ``timestamps_granularity="word"`` (the default).</span>
 
 <span class="sd">Optional on-disk cache: pass ``cache=True`` (default location) or</span>
 <span class="sd">``cache=&lt;path&gt;`` to skip a re-call when the same audio + params have</span>
 <span class="sd">been transcribed before.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
@@ -130,8 +131,8 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">mixing._cache</span><span class="w"> </span><span class="kn">import</span> <span class="n">CacheArg</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mixing._elevenlabs</span><span class="w"> </span><span class="kn">import</span> <span class="n">resolve_api_key</span>
 
-<span class="n">ELEVENLABS_STT_URL</span> <span class="o">=</span> <span class="s2">&quot;https://api.elevenlabs.io/v1/speech-to-text&quot;</span>
-<span class="n">CACHE_ENV_KEY</span> <span class="o">=</span> <span class="s2">&quot;MIXING_TRANSCRIPT_CACHE_DIR&quot;</span>
+<span class="n">ELEVENLABS_STT_URL</span> <span class="o">=</span> <span class="s2">"https://api.elevenlabs.io/v1/speech-to-text"</span>
+<span class="n">CACHE_ENV_KEY</span> <span class="o">=</span> <span class="s2">"MIXING_TRANSCRIPT_CACHE_DIR"</span>
 
 <span class="n">PathLike</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">]</span>
 <span class="n">AudioInput</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="n">PathLike</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">]</span>
@@ -140,12 +141,12 @@
 <div class="viewcode-block" id="default_cache_dir">
 <a class="viewcode-back" href="../../../module_docs/mixing/transcript/scribe.html#mixing.default_cache_dir">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">default_cache_dir</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Default on-disk cache for Scribe responses.</span>
+<span class="w">    </span><span class="sd">"""Default on-disk cache for Scribe responses.</span>
 
 <span class="sd">    Honors ``$MIXING_TRANSCRIPT_CACHE_DIR``, then ``$XDG_CACHE_HOME``,</span>
 <span class="sd">    then ``~/.cache/``. Final segment is always ``mixing/transcript``.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">_cache</span><span class="o">.</span><span class="n">default_cache_dir</span><span class="p">(</span><span class="s2">&quot;transcript&quot;</span><span class="p">,</span> <span class="n">env_key</span><span class="o">=</span><span class="n">CACHE_ENV_KEY</span><span class="p">)</span></div>
+<span class="sd">    """</span>
+    <span class="k">return</span> <span class="n">_cache</span><span class="o">.</span><span class="n">default_cache_dir</span><span class="p">(</span><span class="s2">"transcript"</span><span class="p">,</span> <span class="n">env_key</span><span class="o">=</span><span class="n">CACHE_ENV_KEY</span><span class="p">)</span></div>
 
 
 
@@ -155,8 +156,8 @@
     <span class="n">audio</span><span class="p">:</span> <span class="n">AudioInput</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
     <span class="n">api_key</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">model_id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;scribe_v1&quot;</span><span class="p">,</span>
-    <span class="n">timestamps_granularity</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;word&quot;</span><span class="p">,</span>
+    <span class="n">model_id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"scribe_v1"</span><span class="p">,</span>
+    <span class="n">timestamps_granularity</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"word"</span><span class="p">,</span>
     <span class="n">tag_audio_events</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="n">diarize</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">language_code</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -165,13 +166,13 @@
     <span class="n">cache</span><span class="p">:</span> <span class="n">CacheArg</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">refresh</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Transcribe ``audio`` with ElevenLabs Scribe.</span>
+<span class="w">    </span><span class="sd">"""Transcribe ``audio`` with ElevenLabs Scribe.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        audio: Path to an audio/video file, or raw bytes.</span>
 <span class="sd">        api_key: API key. Falls back to env var ``ELEVENLABS_API_KEY``.</span>
 <span class="sd">        model_id: Scribe model id (currently ``scribe_v1``).</span>
-<span class="sd">        timestamps_granularity: ``&quot;word&quot;`` (default), ``&quot;character&quot;``, or ``&quot;none&quot;``.</span>
+<span class="sd">        timestamps_granularity: ``"word"`` (default), ``"character"``, or ``"none"``.</span>
 <span class="sd">        tag_audio_events: Whether to surface ``(laughs)`` / ``(coughs)`` etc.</span>
 <span class="sd">        diarize: Speaker diarization on/off.</span>
 <span class="sd">        language_code: Optional BCP-47 hint to skip language detection.</span>
@@ -187,23 +188,23 @@
 
 <span class="sd">    Returns:</span>
 <span class="sd">        The raw JSON response from ElevenLabs (a dict). When</span>
-<span class="sd">        ``timestamps_granularity=&quot;word&quot;`` (default), the response contains</span>
-<span class="sd">        a ``&quot;words&quot;`` list where each entry has at minimum</span>
-<span class="sd">        ``{&quot;text&quot;, &quot;start&quot;, &quot;end&quot;, &quot;type&quot;, &quot;confidence&quot;}``. Non-word</span>
-<span class="sd">        events (``type != &quot;word&quot;``) include ``(laughs)`` etc. when</span>
+<span class="sd">        ``timestamps_granularity="word"`` (default), the response contains</span>
+<span class="sd">        a ``"words"`` list where each entry has at minimum</span>
+<span class="sd">        ``{"text", "start", "end", "type", "confidence"}``. Non-word</span>
+<span class="sd">        events (``type != "word"``) include ``(laughs)`` etc. when</span>
 <span class="sd">        ``tag_audio_events=True``.</span>
 
 <span class="sd">    Raises:</span>
 <span class="sd">        RuntimeError: No API key supplied and ``ELEVENLABS_API_KEY`` unset.</span>
 <span class="sd">        urllib.error.HTTPError: Request failed (4xx/5xx).</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">audio</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">)):</span>
         <span class="n">path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">audio</span><span class="p">)</span>
         <span class="n">audio_bytes</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">read_bytes</span><span class="p">()</span>
         <span class="n">filename</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">name</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">audio_bytes</span> <span class="o">=</span> <span class="n">audio</span>
-        <span class="n">filename</span> <span class="o">=</span> <span class="s2">&quot;audio.bin&quot;</span>
+        <span class="n">filename</span> <span class="o">=</span> <span class="s2">"audio.bin"</span>
 
     <span class="n">cache_dir</span> <span class="o">=</span> <span class="n">_cache</span><span class="o">.</span><span class="n">resolve_cache_dir</span><span class="p">(</span><span class="n">cache</span><span class="p">,</span> <span class="n">default_factory</span><span class="o">=</span><span class="n">default_cache_dir</span><span class="p">)</span>
 
@@ -217,20 +218,20 @@
             <span class="n">language_code</span><span class="o">=</span><span class="n">language_code</span><span class="p">,</span>
             <span class="n">extra_fields</span><span class="o">=</span><span class="n">extra_fields</span><span class="p">,</span>
         <span class="p">)</span>
-        <span class="n">cached</span> <span class="o">=</span> <span class="n">_cache</span><span class="o">.</span><span class="n">read_cache</span><span class="p">(</span><span class="n">cache_dir</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">suffix</span><span class="o">=</span><span class="s2">&quot;.json&quot;</span><span class="p">,</span> <span class="n">loads</span><span class="o">=</span><span class="n">_json_loads</span><span class="p">)</span>
+        <span class="n">cached</span> <span class="o">=</span> <span class="n">_cache</span><span class="o">.</span><span class="n">read_cache</span><span class="p">(</span><span class="n">cache_dir</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">suffix</span><span class="o">=</span><span class="s2">".json"</span><span class="p">,</span> <span class="n">loads</span><span class="o">=</span><span class="n">_json_loads</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">cached</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">refresh</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">cached</span>
 
     <span class="n">api_key</span> <span class="o">=</span> <span class="n">resolve_api_key</span><span class="p">(</span><span class="n">api_key</span><span class="p">)</span>
 
     <span class="n">fields</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s2">&quot;model_id&quot;</span><span class="p">:</span> <span class="n">model_id</span><span class="p">,</span>
-        <span class="s2">&quot;timestamps_granularity&quot;</span><span class="p">:</span> <span class="n">timestamps_granularity</span><span class="p">,</span>
-        <span class="s2">&quot;tag_audio_events&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">tag_audio_events</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span>
-        <span class="s2">&quot;diarize&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">diarize</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span>
+        <span class="s2">"model_id"</span><span class="p">:</span> <span class="n">model_id</span><span class="p">,</span>
+        <span class="s2">"timestamps_granularity"</span><span class="p">:</span> <span class="n">timestamps_granularity</span><span class="p">,</span>
+        <span class="s2">"tag_audio_events"</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">tag_audio_events</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span>
+        <span class="s2">"diarize"</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">diarize</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span>
     <span class="p">}</span>
     <span class="k">if</span> <span class="n">language_code</span><span class="p">:</span>
-        <span class="n">fields</span><span class="p">[</span><span class="s2">&quot;language_code&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">language_code</span>
+        <span class="n">fields</span><span class="p">[</span><span class="s2">"language_code"</span><span class="p">]</span> <span class="o">=</span> <span class="n">language_code</span>
     <span class="k">if</span> <span class="n">extra_fields</span><span class="p">:</span>
         <span class="n">fields</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">k</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">extra_fields</span><span class="o">.</span><span class="n">items</span><span class="p">()})</span>
 
@@ -238,14 +239,14 @@
     <span class="n">req</span> <span class="o">=</span> <span class="n">urllib</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">Request</span><span class="p">(</span>
         <span class="n">ELEVENLABS_STT_URL</span><span class="p">,</span>
         <span class="n">data</span><span class="o">=</span><span class="n">body</span><span class="p">,</span>
-        <span class="n">method</span><span class="o">=</span><span class="s2">&quot;POST&quot;</span><span class="p">,</span>
-        <span class="n">headers</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;xi-api-key&quot;</span><span class="p">:</span> <span class="n">api_key</span><span class="p">,</span> <span class="s2">&quot;Content-Type&quot;</span><span class="p">:</span> <span class="n">content_type</span><span class="p">},</span>
+        <span class="n">method</span><span class="o">=</span><span class="s2">"POST"</span><span class="p">,</span>
+        <span class="n">headers</span><span class="o">=</span><span class="p">{</span><span class="s2">"xi-api-key"</span><span class="p">:</span> <span class="n">api_key</span><span class="p">,</span> <span class="s2">"Content-Type"</span><span class="p">:</span> <span class="n">content_type</span><span class="p">},</span>
     <span class="p">)</span>
     <span class="k">with</span> <span class="n">urllib</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">urlopen</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">)</span> <span class="k">as</span> <span class="n">resp</span><span class="p">:</span>
         <span class="n">response</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">resp</span><span class="o">.</span><span class="n">read</span><span class="p">()</span><span class="o">.</span><span class="n">decode</span><span class="p">())</span>
 
     <span class="k">if</span> <span class="n">cache_dir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">_cache</span><span class="o">.</span><span class="n">write_cache</span><span class="p">(</span><span class="n">cache_dir</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">response</span><span class="p">,</span> <span class="n">suffix</span><span class="o">=</span><span class="s2">&quot;.json&quot;</span><span class="p">,</span> <span class="n">dumps</span><span class="o">=</span><span class="n">_json_dumps</span><span class="p">)</span>
+        <span class="n">_cache</span><span class="o">.</span><span class="n">write_cache</span><span class="p">(</span><span class="n">cache_dir</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">response</span><span class="p">,</span> <span class="n">suffix</span><span class="o">=</span><span class="s2">".json"</span><span class="p">,</span> <span class="n">dumps</span><span class="o">=</span><span class="n">_json_dumps</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">response</span></div>
 
 
@@ -268,40 +269,40 @@
     <span class="n">language_code</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">extra_fields</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-    <span class="n">extra</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="n">extra</span> <span class="o">=</span> <span class="s2">""</span>
     <span class="k">if</span> <span class="n">extra_fields</span><span class="p">:</span>
-        <span class="n">extra</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\0</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="n">extra_fields</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">extra_fields</span><span class="p">))</span>
+        <span class="n">extra</span> <span class="o">=</span> <span class="s2">""</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="se">\0</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="n">extra_fields</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">extra_fields</span><span class="p">))</span>
     <span class="k">return</span> <span class="n">_cache</span><span class="o">.</span><span class="n">sha256_key</span><span class="p">(</span>
         <span class="n">audio_bytes</span><span class="p">,</span>
         <span class="n">model_id</span><span class="p">,</span>
         <span class="n">timestamps_granularity</span><span class="p">,</span>
-        <span class="s2">&quot;1&quot;</span> <span class="k">if</span> <span class="n">tag_audio_events</span> <span class="k">else</span> <span class="s2">&quot;0&quot;</span><span class="p">,</span>
+        <span class="s2">"1"</span> <span class="k">if</span> <span class="n">tag_audio_events</span> <span class="k">else</span> <span class="s2">"0"</span><span class="p">,</span>
         <span class="c1"># NOTE: kept adjacent (no delimiter) to match the original key scheme.</span>
-        <span class="p">(</span><span class="s2">&quot;1&quot;</span> <span class="k">if</span> <span class="n">diarize</span> <span class="k">else</span> <span class="s2">&quot;0&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="n">language_code</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="n">extra</span><span class="p">,</span>
+        <span class="p">(</span><span class="s2">"1"</span> <span class="k">if</span> <span class="n">diarize</span> <span class="k">else</span> <span class="s2">"0"</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="n">language_code</span> <span class="ow">or</span> <span class="s2">""</span><span class="p">)</span> <span class="o">+</span> <span class="n">extra</span><span class="p">,</span>
     <span class="p">)</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_multipart_encode</span><span class="p">(</span>
     <span class="n">fields</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">file_bytes</span><span class="p">:</span> <span class="nb">bytes</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">bytes</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
-    <span class="n">boundary</span> <span class="o">=</span> <span class="s2">&quot;----mixingTranscript&quot;</span> <span class="o">+</span> <span class="n">os</span><span class="o">.</span><span class="n">urandom</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span><span class="o">.</span><span class="n">hex</span><span class="p">()</span>
+    <span class="n">boundary</span> <span class="o">=</span> <span class="s2">"----mixingTranscript"</span> <span class="o">+</span> <span class="n">os</span><span class="o">.</span><span class="n">urandom</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span><span class="o">.</span><span class="n">hex</span><span class="p">()</span>
     <span class="n">head_parts</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">bytes</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">fields</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-        <span class="n">head_parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;--</span><span class="si">{</span><span class="n">boundary</span><span class="si">}</span><span class="se">\r\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">encode</span><span class="p">())</span>
+        <span class="n">head_parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"--</span><span class="si">{</span><span class="n">boundary</span><span class="si">}</span><span class="se">\r\n</span><span class="s2">"</span><span class="o">.</span><span class="n">encode</span><span class="p">())</span>
         <span class="n">head_parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s1">&#39;Content-Disposition: form-data; name=&quot;</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s1">&quot;</span><span class="se">\r\n\r\n</span><span class="si">{</span><span class="n">v</span><span class="si">}</span><span class="se">\r\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">encode</span><span class="p">()</span>
+            <span class="sa">f</span><span class="s1">'Content-Disposition: form-data; name="</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s1">"</span><span class="se">\r\n\r\n</span><span class="si">{</span><span class="n">v</span><span class="si">}</span><span class="se">\r\n</span><span class="s1">'</span><span class="o">.</span><span class="n">encode</span><span class="p">()</span>
         <span class="p">)</span>
-    <span class="n">file_mime</span> <span class="o">=</span> <span class="n">mimetypes</span><span class="o">.</span><span class="n">guess_type</span><span class="p">(</span><span class="n">filename</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">or</span> <span class="s2">&quot;application/octet-stream&quot;</span>
+    <span class="n">file_mime</span> <span class="o">=</span> <span class="n">mimetypes</span><span class="o">.</span><span class="n">guess_type</span><span class="p">(</span><span class="n">filename</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">or</span> <span class="s2">"application/octet-stream"</span>
     <span class="n">head_parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
         <span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;--</span><span class="si">{</span><span class="n">boundary</span><span class="si">}</span><span class="se">\r\n</span><span class="s2">&quot;</span>
-            <span class="sa">f</span><span class="s1">&#39;Content-Disposition: form-data; name=&quot;file&quot;; filename=&quot;</span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s1">&quot;</span><span class="se">\r\n</span><span class="s1">&#39;</span>
-            <span class="sa">f</span><span class="s2">&quot;Content-Type: </span><span class="si">{</span><span class="n">file_mime</span><span class="si">}</span><span class="se">\r\n\r\n</span><span class="s2">&quot;</span>
+            <span class="sa">f</span><span class="s2">"--</span><span class="si">{</span><span class="n">boundary</span><span class="si">}</span><span class="se">\r\n</span><span class="s2">"</span>
+            <span class="sa">f</span><span class="s1">'Content-Disposition: form-data; name="file"; filename="</span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s1">"</span><span class="se">\r\n</span><span class="s1">'</span>
+            <span class="sa">f</span><span class="s2">"Content-Type: </span><span class="si">{</span><span class="n">file_mime</span><span class="si">}</span><span class="se">\r\n\r\n</span><span class="s2">"</span>
         <span class="p">)</span><span class="o">.</span><span class="n">encode</span><span class="p">()</span>
     <span class="p">)</span>
-    <span class="n">closing</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\r\n</span><span class="s2">--</span><span class="si">{</span><span class="n">boundary</span><span class="si">}</span><span class="s2">--</span><span class="se">\r\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">encode</span><span class="p">()</span>
-    <span class="n">body</span> <span class="o">=</span> <span class="sa">b</span><span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">head_parts</span><span class="p">)</span> <span class="o">+</span> <span class="n">file_bytes</span> <span class="o">+</span> <span class="n">closing</span>
-    <span class="k">return</span> <span class="n">body</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;multipart/form-data; boundary=</span><span class="si">{</span><span class="n">boundary</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="n">closing</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="se">\r\n</span><span class="s2">--</span><span class="si">{</span><span class="n">boundary</span><span class="si">}</span><span class="s2">--</span><span class="se">\r\n</span><span class="s2">"</span><span class="o">.</span><span class="n">encode</span><span class="p">()</span>
+    <span class="n">body</span> <span class="o">=</span> <span class="sa">b</span><span class="s2">""</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">head_parts</span><span class="p">)</span> <span class="o">+</span> <span class="n">file_bytes</span> <span class="o">+</span> <span class="n">closing</span>
+    <span class="k">return</span> <span class="n">body</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"multipart/form-data; boundary=</span><span class="si">{</span><span class="n">boundary</span><span class="si">}</span><span class="s2">"</span>
 </pre></div>
 
            </div>

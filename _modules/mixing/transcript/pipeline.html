@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>mixing.transcript.pipeline &mdash; mixing 0.0.37 documentation</title>
+  <title>mixing.transcript.pipeline &mdash; mixing 0.0.38 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
@@ -14,7 +14,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=aa2ad26f"></script>
+      <script src="../../../_static/documentation_options.js?v=423071ad"></script>
       <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="../../../_static/toggleprompt.js?v=d7ede5d2"></script>
@@ -73,6 +73,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video.html">mixing.video</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/_helpers.html">mixing.video._helpers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/genai.html">mixing.video.genai</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/gif.html">mixing.video.gif</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/thumbnail.html">mixing.video.thumbnail</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/video_concat.html">mixing.video.video_concat</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/video_ops.html">mixing.video.video_ops</a></li>
@@ -105,11 +106,11 @@
            <div itemprop="articleBody">
              
   <h1>Source code for mixing.transcript.pipeline</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;High-level filler-removal pipeline.</span>
+<span></span><span class="sd">"""High-level filler-removal pipeline.</span>
 
 <span class="sd">Orchestrates: extract audio -&gt; Scribe transcribe -&gt; filler detection -&gt;</span>
 <span class="sd">ffmpeg cut -&gt; write transcript outputs.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
@@ -139,7 +140,7 @@
 <a class="viewcode-back" href="../../../module_docs/mixing/transcript/pipeline.html#mixing.FillerRemovalResult">[docs]</a>
 <span class="nd">@dataclass</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">FillerRemovalResult</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Paths and computed ranges produced by :func:`remove_fillers`.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Paths and computed ranges produced by :func:`remove_fillers`."""</span>
 
     <span class="n">cleaned_media</span><span class="p">:</span> <span class="n">Path</span>
     <span class="n">transcript_md</span><span class="p">:</span> <span class="n">Path</span>
@@ -170,44 +171,44 @@
     <span class="n">keep_intermediate</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="n">scribe_data</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FillerRemovalResult</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;End-to-end filler removal.</span>
+<span class="w">    </span><span class="sd">"""End-to-end filler removal.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        input_media: Video or audio file to clean.</span>
 <span class="sd">        output_dir: Directory to write transcripts and intermediate files into.</span>
 <span class="sd">            Created if missing.</span>
 <span class="sd">        output_media: Output cleaned media path. Defaults to</span>
-<span class="sd">            ``output_dir / f&quot;{stem}.cleaned.mp4&quot;``.</span>
+<span class="sd">            ``output_dir / f"{stem}.cleaned.mp4"``.</span>
 <span class="sd">        fillers / audio_events: Override the default filler / event sets.</span>
 <span class="sd">        api_key: ElevenLabs API key (else env ``ELEVENLABS_API_KEY``).</span>
 <span class="sd">        scribe_kwargs: Extra kwargs forwarded to :func:`transcribe`.</span>
 <span class="sd">        apply_keeps_kwargs: Extra kwargs forwarded to :func:`apply_keeps`.</span>
 <span class="sd">        keep_intermediate: If ``False``, delete the extracted audio file.</span>
 <span class="sd">        scribe_data: If provided, skip the network call and use this dict</span>
-<span class="sd">            (must match Scribe&#39;s response shape). Useful for tests / replays.</span>
+<span class="sd">            (must match Scribe's response shape). Useful for tests / replays.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        A :class:`FillerRemovalResult` with file paths and the computed</span>
 <span class="sd">        cut/keep ranges.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">input_media</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">input_media</span><span class="p">)</span>
     <span class="n">output_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">output_dir</span><span class="p">)</span>
     <span class="n">output_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">output_media</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">output_media</span> <span class="o">=</span> <span class="n">output_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">input_media</span><span class="o">.</span><span class="n">stem</span><span class="si">}</span><span class="s2">.cleaned.mp4&quot;</span>
+        <span class="n">output_media</span> <span class="o">=</span> <span class="n">output_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">input_media</span><span class="o">.</span><span class="n">stem</span><span class="si">}</span><span class="s2">.cleaned.mp4"</span>
 
     <span class="k">if</span> <span class="n">scribe_data</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">audio_path</span> <span class="o">=</span> <span class="n">output_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">input_media</span><span class="o">.</span><span class="n">stem</span><span class="si">}</span><span class="s2">.mp3&quot;</span>
+        <span class="n">audio_path</span> <span class="o">=</span> <span class="n">output_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">input_media</span><span class="o">.</span><span class="n">stem</span><span class="si">}</span><span class="s2">.mp3"</span>
         <span class="n">extract_audio</span><span class="p">(</span><span class="n">input_media</span><span class="p">,</span> <span class="n">audio_path</span><span class="p">)</span>
         <span class="n">scribe_kw</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">scribe_kwargs</span> <span class="ow">or</span> <span class="p">{})</span>
         <span class="k">if</span> <span class="n">api_key</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">scribe_kw</span><span class="p">[</span><span class="s2">&quot;api_key&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">api_key</span>
+            <span class="n">scribe_kw</span><span class="p">[</span><span class="s2">"api_key"</span><span class="p">]</span> <span class="o">=</span> <span class="n">api_key</span>
         <span class="n">scribe_data</span> <span class="o">=</span> <span class="n">transcribe</span><span class="p">(</span><span class="n">audio_path</span><span class="p">,</span> <span class="o">**</span><span class="n">scribe_kw</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">keep_intermediate</span><span class="p">:</span>
             <span class="n">audio_path</span><span class="o">.</span><span class="n">unlink</span><span class="p">(</span><span class="n">missing_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-    <span class="n">words</span> <span class="o">=</span> <span class="n">scribe_data</span><span class="p">[</span><span class="s2">&quot;words&quot;</span><span class="p">]</span>
-    <span class="n">duration</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">scribe_data</span><span class="p">[</span><span class="s2">&quot;audio_duration_secs&quot;</span><span class="p">])</span>
+    <span class="n">words</span> <span class="o">=</span> <span class="n">scribe_data</span><span class="p">[</span><span class="s2">"words"</span><span class="p">]</span>
+    <span class="n">duration</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">scribe_data</span><span class="p">[</span><span class="s2">"audio_duration_secs"</span><span class="p">])</span>
     <span class="n">cuts</span> <span class="o">=</span> <span class="n">build_cuts</span><span class="p">(</span><span class="n">words</span><span class="p">,</span> <span class="n">fillers</span><span class="o">=</span><span class="n">fillers</span><span class="p">,</span> <span class="n">audio_events</span><span class="o">=</span><span class="n">audio_events</span><span class="p">)</span>
     <span class="n">keeps</span> <span class="o">=</span> <span class="n">keeps_from_cuts</span><span class="p">(</span><span class="n">cuts</span><span class="p">,</span> <span class="n">duration</span><span class="p">)</span>
 
@@ -244,18 +245,18 @@
     <span class="n">fillers</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
     <span class="n">audio_events</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
-    <span class="n">scribe_json</span> <span class="o">=</span> <span class="n">output_dir</span> <span class="o">/</span> <span class="s2">&quot;scribe.json&quot;</span>
-    <span class="n">cuts_json</span> <span class="o">=</span> <span class="n">output_dir</span> <span class="o">/</span> <span class="s2">&quot;cuts.json&quot;</span>
-    <span class="n">keeps_json</span> <span class="o">=</span> <span class="n">output_dir</span> <span class="o">/</span> <span class="s2">&quot;keeps.json&quot;</span>
-    <span class="n">transcript_md</span> <span class="o">=</span> <span class="n">output_dir</span> <span class="o">/</span> <span class="s2">&quot;transcript.md&quot;</span>
-    <span class="n">transcript_srt</span> <span class="o">=</span> <span class="n">output_dir</span> <span class="o">/</span> <span class="s2">&quot;transcript.srt&quot;</span>
-    <span class="n">cleaned_md</span> <span class="o">=</span> <span class="n">output_dir</span> <span class="o">/</span> <span class="s2">&quot;transcript.cleaned.md&quot;</span>
-    <span class="n">cleaned_srt</span> <span class="o">=</span> <span class="n">output_dir</span> <span class="o">/</span> <span class="s2">&quot;transcript.cleaned.srt&quot;</span>
+    <span class="n">scribe_json</span> <span class="o">=</span> <span class="n">output_dir</span> <span class="o">/</span> <span class="s2">"scribe.json"</span>
+    <span class="n">cuts_json</span> <span class="o">=</span> <span class="n">output_dir</span> <span class="o">/</span> <span class="s2">"cuts.json"</span>
+    <span class="n">keeps_json</span> <span class="o">=</span> <span class="n">output_dir</span> <span class="o">/</span> <span class="s2">"keeps.json"</span>
+    <span class="n">transcript_md</span> <span class="o">=</span> <span class="n">output_dir</span> <span class="o">/</span> <span class="s2">"transcript.md"</span>
+    <span class="n">transcript_srt</span> <span class="o">=</span> <span class="n">output_dir</span> <span class="o">/</span> <span class="s2">"transcript.srt"</span>
+    <span class="n">cleaned_md</span> <span class="o">=</span> <span class="n">output_dir</span> <span class="o">/</span> <span class="s2">"transcript.cleaned.md"</span>
+    <span class="n">cleaned_srt</span> <span class="o">=</span> <span class="n">output_dir</span> <span class="o">/</span> <span class="s2">"transcript.cleaned.srt"</span>
 
     <span class="n">scribe_json</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">scribe_data</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">))</span>
     <span class="n">cuts_json</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">cuts</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">))</span>
     <span class="n">keeps_json</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">keeps</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">))</span>
-    <span class="n">transcript_md</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="n">scribe_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;text&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">))</span>
+    <span class="n">transcript_md</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="n">scribe_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"text"</span><span class="p">,</span> <span class="s2">""</span><span class="p">))</span>
     <span class="n">transcript_srt</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="n">words_to_srt</span><span class="p">(</span><span class="n">words</span><span class="p">))</span>
     <span class="n">cleaned_md</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span>
         <span class="n">words_to_prose</span><span class="p">(</span>
@@ -266,13 +267,13 @@
         <span class="n">words_to_srt_remapped</span><span class="p">(</span><span class="n">words</span><span class="p">,</span> <span class="n">cuts</span><span class="p">,</span> <span class="n">fillers</span><span class="o">=</span><span class="n">fillers</span><span class="p">,</span> <span class="n">audio_events</span><span class="o">=</span><span class="n">audio_events</span><span class="p">)</span>
     <span class="p">)</span>
     <span class="k">return</span> <span class="p">{</span>
-        <span class="s2">&quot;scribe_json&quot;</span><span class="p">:</span> <span class="n">scribe_json</span><span class="p">,</span>
-        <span class="s2">&quot;cuts_json&quot;</span><span class="p">:</span> <span class="n">cuts_json</span><span class="p">,</span>
-        <span class="s2">&quot;keeps_json&quot;</span><span class="p">:</span> <span class="n">keeps_json</span><span class="p">,</span>
-        <span class="s2">&quot;transcript_md&quot;</span><span class="p">:</span> <span class="n">transcript_md</span><span class="p">,</span>
-        <span class="s2">&quot;transcript_srt&quot;</span><span class="p">:</span> <span class="n">transcript_srt</span><span class="p">,</span>
-        <span class="s2">&quot;cleaned_md&quot;</span><span class="p">:</span> <span class="n">cleaned_md</span><span class="p">,</span>
-        <span class="s2">&quot;cleaned_srt&quot;</span><span class="p">:</span> <span class="n">cleaned_srt</span><span class="p">,</span>
+        <span class="s2">"scribe_json"</span><span class="p">:</span> <span class="n">scribe_json</span><span class="p">,</span>
+        <span class="s2">"cuts_json"</span><span class="p">:</span> <span class="n">cuts_json</span><span class="p">,</span>
+        <span class="s2">"keeps_json"</span><span class="p">:</span> <span class="n">keeps_json</span><span class="p">,</span>
+        <span class="s2">"transcript_md"</span><span class="p">:</span> <span class="n">transcript_md</span><span class="p">,</span>
+        <span class="s2">"transcript_srt"</span><span class="p">:</span> <span class="n">transcript_srt</span><span class="p">,</span>
+        <span class="s2">"cleaned_md"</span><span class="p">:</span> <span class="n">cleaned_md</span><span class="p">,</span>
+        <span class="s2">"cleaned_srt"</span><span class="p">:</span> <span class="n">cleaned_srt</span><span class="p">,</span>
     <span class="p">}</span>
 </pre></div>
 

@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>mixing.transcript.fillers &mdash; mixing 0.0.37 documentation</title>
+  <title>mixing.transcript.fillers &mdash; mixing 0.0.38 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
@@ -14,7 +14,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=aa2ad26f"></script>
+      <script src="../../../_static/documentation_options.js?v=423071ad"></script>
       <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="../../../_static/toggleprompt.js?v=d7ede5d2"></script>
@@ -73,6 +73,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video.html">mixing.video</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/_helpers.html">mixing.video._helpers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/genai.html">mixing.video.genai</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/gif.html">mixing.video.gif</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/thumbnail.html">mixing.video.thumbnail</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/video_concat.html">mixing.video.video_concat</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/video_ops.html">mixing.video.video_ops</a></li>
@@ -105,16 +106,16 @@
            <div itemprop="articleBody">
              
   <h1>Source code for mixing.transcript.fillers</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Filler-word detection over Scribe-shaped word lists.</span>
+<span></span><span class="sd">"""Filler-word detection over Scribe-shaped word lists.</span>
 
-<span class="sd">A &quot;word list&quot; here is the ``words`` array in the ElevenLabs Scribe JSON</span>
+<span class="sd">A "word list" here is the ``words`` array in the ElevenLabs Scribe JSON</span>
 <span class="sd">response — each entry has ``text``, ``start``, ``end``, and ``type``</span>
-<span class="sd">(one of ``&quot;word&quot;``, ``&quot;spacing&quot;``, ``&quot;audio_event&quot;``).</span>
+<span class="sd">(one of ``"word"``, ``"spacing"``, ``"audio_event"``).</span>
 
 <span class="sd">The two main outputs are:</span>
 <span class="sd">- :func:`build_cuts`: time ranges to REMOVE (fillers + optional audio events).</span>
 <span class="sd">- :func:`keeps_from_cuts`: complementary KEEP ranges, suitable for ffmpeg.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
@@ -122,32 +123,32 @@
 
 <span class="n">DEFAULT_FILLER_TOKENS</span><span class="p">:</span> <span class="nb">frozenset</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">(</span>
     <span class="p">{</span>
-        <span class="s2">&quot;uh&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;um&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;umm&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;mm&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;mmm&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;mhm&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;hmm&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;ah&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;er&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;erm&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;eh&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;uhh&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;uhm&quot;</span><span class="p">,</span>
+        <span class="s2">"uh"</span><span class="p">,</span>
+        <span class="s2">"um"</span><span class="p">,</span>
+        <span class="s2">"umm"</span><span class="p">,</span>
+        <span class="s2">"mm"</span><span class="p">,</span>
+        <span class="s2">"mmm"</span><span class="p">,</span>
+        <span class="s2">"mhm"</span><span class="p">,</span>
+        <span class="s2">"hmm"</span><span class="p">,</span>
+        <span class="s2">"ah"</span><span class="p">,</span>
+        <span class="s2">"er"</span><span class="p">,</span>
+        <span class="s2">"erm"</span><span class="p">,</span>
+        <span class="s2">"eh"</span><span class="p">,</span>
+        <span class="s2">"uhh"</span><span class="p">,</span>
+        <span class="s2">"uhm"</span><span class="p">,</span>
     <span class="p">}</span>
 <span class="p">)</span>
-<span class="sd">&quot;&quot;&quot;Default filler tokens (lowercased, alpha-only, see :func:`normalize_token`).&quot;&quot;&quot;</span>
+<span class="sd">"""Default filler tokens (lowercased, alpha-only, see :func:`normalize_token`)."""</span>
 
-<span class="n">DEFAULT_AUDIO_EVENTS_TO_CUT</span><span class="p">:</span> <span class="nb">frozenset</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">({</span><span class="s2">&quot;(coughs)&quot;</span><span class="p">})</span>
-<span class="sd">&quot;&quot;&quot;Default audio-event tags to remove. ``(laughs)`` is intentionally kept.&quot;&quot;&quot;</span>
+<span class="n">DEFAULT_AUDIO_EVENTS_TO_CUT</span><span class="p">:</span> <span class="nb">frozenset</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">({</span><span class="s2">"(coughs)"</span><span class="p">})</span>
+<span class="sd">"""Default audio-event tags to remove. ``(laughs)`` is intentionally kept."""</span>
 
 
 <div class="viewcode-block" id="normalize_token">
 <a class="viewcode-back" href="../../../module_docs/mixing/transcript/fillers.html#mixing.transcript.normalize_token">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">normalize_token</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Lowercase and strip non-alpha so ``&quot;Uh,&quot;`` -&gt; ``&quot;uh&quot;``.&quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ch</span> <span class="k">for</span> <span class="n">ch</span> <span class="ow">in</span> <span class="n">text</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="k">if</span> <span class="n">ch</span><span class="o">.</span><span class="n">isalpha</span><span class="p">())</span></div>
+<span class="w">    </span><span class="sd">"""Lowercase and strip non-alpha so ``"Uh,"`` -&gt; ``"uh"``."""</span>
+    <span class="k">return</span> <span class="s2">""</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ch</span> <span class="k">for</span> <span class="n">ch</span> <span class="ow">in</span> <span class="n">text</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="k">if</span> <span class="n">ch</span><span class="o">.</span><span class="n">isalpha</span><span class="p">())</span></div>
 
 
 
@@ -159,14 +160,14 @@
     <span class="n">fillers</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">DEFAULT_FILLER_TOKENS</span><span class="p">,</span>
     <span class="n">audio_events</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">DEFAULT_AUDIO_EVENTS_TO_CUT</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return ``True`` if ``item`` is a filler word or a removable audio event.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Return ``True`` if ``item`` is a filler word or a removable audio event."""</span>
     <span class="n">fillers_set</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">fillers</span><span class="p">)</span>
     <span class="n">audio_events_set</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">audio_events</span><span class="p">)</span>
-    <span class="n">item_type</span> <span class="o">=</span> <span class="n">item</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;type&quot;</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">item_type</span> <span class="o">==</span> <span class="s2">&quot;word&quot;</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">normalize_token</span><span class="p">(</span><span class="n">item</span><span class="p">[</span><span class="s2">&quot;text&quot;</span><span class="p">])</span> <span class="ow">in</span> <span class="n">fillers_set</span>
-    <span class="k">if</span> <span class="n">item_type</span> <span class="o">==</span> <span class="s2">&quot;audio_event&quot;</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">item</span><span class="p">[</span><span class="s2">&quot;text&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="ow">in</span> <span class="n">audio_events_set</span>
+    <span class="n">item_type</span> <span class="o">=</span> <span class="n">item</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"type"</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">item_type</span> <span class="o">==</span> <span class="s2">"word"</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">normalize_token</span><span class="p">(</span><span class="n">item</span><span class="p">[</span><span class="s2">"text"</span><span class="p">])</span> <span class="ow">in</span> <span class="n">fillers_set</span>
+    <span class="k">if</span> <span class="n">item_type</span> <span class="o">==</span> <span class="s2">"audio_event"</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">item</span><span class="p">[</span><span class="s2">"text"</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="ow">in</span> <span class="n">audio_events_set</span>
     <span class="k">return</span> <span class="kc">False</span></div>
 
 
@@ -181,32 +182,32 @@
     <span class="n">absorb_trailing_space</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="n">merge_gap</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.08</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute time ranges to REMOVE.</span>
+<span class="w">    </span><span class="sd">"""Compute time ranges to REMOVE.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        words: Scribe ``words`` array.</span>
 <span class="sd">        fillers: Override the default filler set.</span>
 <span class="sd">        audio_events: Override the default audio-event set.</span>
 <span class="sd">        absorb_trailing_space: Extend each cut to the end of the trailing</span>
-<span class="sd">            ``&quot;spacing&quot;`` token, which avoids leaving a stranded pause.</span>
+<span class="sd">            ``"spacing"`` token, which avoids leaving a stranded pause.</span>
 <span class="sd">        merge_gap: Merge adjacent cuts when their gap is below this many seconds.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        List of ``{&quot;start&quot;: float, &quot;end&quot;: float, &quot;label&quot;: str}`` dicts,</span>
+<span class="sd">        List of ``{"start": float, "end": float, "label": str}`` dicts,</span>
 <span class="sd">        sorted by start time and non-overlapping.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">raw</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">words</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">w</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">words</span><span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">is_filler</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="n">fillers</span><span class="o">=</span><span class="n">fillers</span><span class="p">,</span> <span class="n">audio_events</span><span class="o">=</span><span class="n">audio_events</span><span class="p">):</span>
             <span class="k">continue</span>
-        <span class="n">start</span> <span class="o">=</span> <span class="n">w</span><span class="p">[</span><span class="s2">&quot;start&quot;</span><span class="p">]</span>
-        <span class="n">end</span> <span class="o">=</span> <span class="n">w</span><span class="p">[</span><span class="s2">&quot;end&quot;</span><span class="p">]</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="n">w</span><span class="p">[</span><span class="s2">"start"</span><span class="p">]</span>
+        <span class="n">end</span> <span class="o">=</span> <span class="n">w</span><span class="p">[</span><span class="s2">"end"</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">absorb_trailing_space</span> <span class="ow">and</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">&lt;</span> <span class="n">n</span><span class="p">:</span>
             <span class="n">nxt</span> <span class="o">=</span> <span class="n">words</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
-            <span class="k">if</span> <span class="n">nxt</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;type&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;spacing&quot;</span><span class="p">:</span>
-                <span class="n">end</span> <span class="o">=</span> <span class="n">nxt</span><span class="p">[</span><span class="s2">&quot;end&quot;</span><span class="p">]</span>
-        <span class="n">raw</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">&quot;start&quot;</span><span class="p">:</span> <span class="n">start</span><span class="p">,</span> <span class="s2">&quot;end&quot;</span><span class="p">:</span> <span class="n">end</span><span class="p">,</span> <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="n">w</span><span class="p">[</span><span class="s2">&quot;text&quot;</span><span class="p">]})</span>
+            <span class="k">if</span> <span class="n">nxt</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"type"</span><span class="p">)</span> <span class="o">==</span> <span class="s2">"spacing"</span><span class="p">:</span>
+                <span class="n">end</span> <span class="o">=</span> <span class="n">nxt</span><span class="p">[</span><span class="s2">"end"</span><span class="p">]</span>
+        <span class="n">raw</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">"start"</span><span class="p">:</span> <span class="n">start</span><span class="p">,</span> <span class="s2">"end"</span><span class="p">:</span> <span class="n">end</span><span class="p">,</span> <span class="s2">"label"</span><span class="p">:</span> <span class="n">w</span><span class="p">[</span><span class="s2">"text"</span><span class="p">]})</span>
     <span class="k">return</span> <span class="n">_merge_adjacent</span><span class="p">(</span><span class="n">raw</span><span class="p">,</span> <span class="n">gap</span><span class="o">=</span><span class="n">merge_gap</span><span class="p">)</span></div>
 
 
@@ -214,15 +215,15 @@
 <div class="viewcode-block" id="keeps_from_cuts">
 <a class="viewcode-back" href="../../../module_docs/mixing/transcript/fillers.html#mixing.transcript.keeps_from_cuts">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">keeps_from_cuts</span><span class="p">(</span><span class="n">cuts</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">dict</span><span class="p">],</span> <span class="n">duration</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return ranges to KEEP given the cut ranges and total duration.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Return ranges to KEEP given the cut ranges and total duration."""</span>
     <span class="n">keeps</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">cursor</span> <span class="o">=</span> <span class="mf">0.0</span>
     <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">cuts</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">c</span><span class="p">[</span><span class="s2">&quot;start&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">cursor</span><span class="p">:</span>
-            <span class="n">keeps</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">&quot;start&quot;</span><span class="p">:</span> <span class="n">cursor</span><span class="p">,</span> <span class="s2">&quot;end&quot;</span><span class="p">:</span> <span class="n">c</span><span class="p">[</span><span class="s2">&quot;start&quot;</span><span class="p">]})</span>
-        <span class="n">cursor</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">cursor</span><span class="p">,</span> <span class="n">c</span><span class="p">[</span><span class="s2">&quot;end&quot;</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">c</span><span class="p">[</span><span class="s2">"start"</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">cursor</span><span class="p">:</span>
+            <span class="n">keeps</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">"start"</span><span class="p">:</span> <span class="n">cursor</span><span class="p">,</span> <span class="s2">"end"</span><span class="p">:</span> <span class="n">c</span><span class="p">[</span><span class="s2">"start"</span><span class="p">]})</span>
+        <span class="n">cursor</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">cursor</span><span class="p">,</span> <span class="n">c</span><span class="p">[</span><span class="s2">"end"</span><span class="p">])</span>
     <span class="k">if</span> <span class="n">cursor</span> <span class="o">&lt;</span> <span class="n">duration</span><span class="p">:</span>
-        <span class="n">keeps</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">&quot;start&quot;</span><span class="p">:</span> <span class="n">cursor</span><span class="p">,</span> <span class="s2">&quot;end&quot;</span><span class="p">:</span> <span class="n">duration</span><span class="p">})</span>
+        <span class="n">keeps</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">"start"</span><span class="p">:</span> <span class="n">cursor</span><span class="p">,</span> <span class="s2">"end"</span><span class="p">:</span> <span class="n">duration</span><span class="p">})</span>
     <span class="k">return</span> <span class="n">keeps</span></div>
 
 
@@ -230,9 +231,9 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">_merge_adjacent</span><span class="p">(</span><span class="n">cuts</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">dict</span><span class="p">],</span> <span class="o">*</span><span class="p">,</span> <span class="n">gap</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
     <span class="n">merged</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">cuts</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">merged</span> <span class="ow">and</span> <span class="n">c</span><span class="p">[</span><span class="s2">&quot;start&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="n">merged</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="s2">&quot;end&quot;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">gap</span><span class="p">:</span>
-            <span class="n">merged</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="s2">&quot;end&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">c</span><span class="p">[</span><span class="s2">&quot;end&quot;</span><span class="p">]</span>
-            <span class="n">merged</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="s2">&quot;label&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">merged</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="s2">&quot;label&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot; + &quot;</span> <span class="o">+</span> <span class="n">c</span><span class="p">[</span><span class="s2">&quot;label&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">merged</span> <span class="ow">and</span> <span class="n">c</span><span class="p">[</span><span class="s2">"start"</span><span class="p">]</span> <span class="o">-</span> <span class="n">merged</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="s2">"end"</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">gap</span><span class="p">:</span>
+            <span class="n">merged</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="s2">"end"</span><span class="p">]</span> <span class="o">=</span> <span class="n">c</span><span class="p">[</span><span class="s2">"end"</span><span class="p">]</span>
+            <span class="n">merged</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="s2">"label"</span><span class="p">]</span> <span class="o">=</span> <span class="n">merged</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="s2">"label"</span><span class="p">]</span> <span class="o">+</span> <span class="s2">" + "</span> <span class="o">+</span> <span class="n">c</span><span class="p">[</span><span class="s2">"label"</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">merged</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="n">c</span><span class="p">))</span>
     <span class="k">return</span> <span class="n">merged</span>

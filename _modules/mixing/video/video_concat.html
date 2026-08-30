@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>mixing.video.video_concat &mdash; mixing 0.0.37 documentation</title>
+  <title>mixing.video.video_concat &mdash; mixing 0.0.38 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
@@ -14,7 +14,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=aa2ad26f"></script>
+      <script src="../../../_static/documentation_options.js?v=423071ad"></script>
       <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="../../../_static/toggleprompt.js?v=d7ede5d2"></script>
@@ -73,6 +73,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video.html">mixing.video</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/_helpers.html">mixing.video._helpers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/genai.html">mixing.video.genai</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/gif.html">mixing.video.gif</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/thumbnail.html">mixing.video.thumbnail</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/video_concat.html">mixing.video.video_concat</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/video_ops.html">mixing.video.video_ops</a></li>
@@ -105,7 +106,7 @@
            <div itemprop="articleBody">
              
   <h1>Source code for mixing.video.video_concat</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""</span>
 <span class="sd">Video concatenation utilities with smooth transitions.</span>
 
 <span class="sd">Provides tools for concatenating videos from various sources (file paths, clips,</span>
@@ -119,8 +120,8 @@
 <span class="sd">- Automatic resource management for created clips</span>
 
 <span class="sd">Basic Usage:</span>
-<span class="sd">    &gt;&gt;&gt; paths = [&#39;video1.mp4&#39;, &#39;video2.mp4&#39;, &#39;video3.mp4&#39;]</span>
-<span class="sd">    &gt;&gt;&gt; stitch_with_trim_and_crossfade(paths, &#39;output.mp4&#39;, duration=0.4)  # doctest: +SKIP</span>
+<span class="sd">    &gt;&gt;&gt; paths = ['video1.mp4', 'video2.mp4', 'video3.mp4']</span>
+<span class="sd">    &gt;&gt;&gt; stitch_with_trim_and_crossfade(paths, 'output.mp4', duration=0.4)  # doctest: +SKIP</span>
 
 <span class="sd">Transition Options:</span>
 <span class="sd">    - crossfade_transition: Simple blend between clips</span>
@@ -129,9 +130,9 @@
 <span class="sd">    - overlap_blend: Overlap and blend clips aggressively</span>
 
 <span class="sd">Frame Verification:</span>
-<span class="sd">    &gt;&gt;&gt; match, diff = verify_frame_continuity(&#39;v1.mp4&#39;, &#39;v2.mp4&#39;,</span>
-<span class="sd">    ...   save_comparison=&#39;comp.png&#39;)    # doctest: +SKIP</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    &gt;&gt;&gt; match, diff = verify_frame_continuity('v1.mp4', 'v2.mp4',</span>
+<span class="sd">    ...   save_comparison='comp.png')    # doctest: +SKIP</span>
+<span class="sd">"""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Literal</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Callable</span>
@@ -147,12 +148,12 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_ensure_video_clip</span><span class="p">(</span><span class="n">video_src</span><span class="p">:</span> <span class="n">VideoSource</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">VideoFileClip</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Convert various video source types to a VideoFileClip instance.</span>
 
 <span class="sd">    Handles file paths (str/Path), existing VideoFileClip instances,</span>
 <span class="sd">    bytes, BytesIO objects, and file-like objects.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">video_src</span><span class="p">,</span> <span class="n">VideoFileClip</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">video_src</span>
     <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">video_src</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">)):</span>
@@ -162,17 +163,17 @@
     <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">video_src</span><span class="p">,</span> <span class="n">BytesIO</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">VideoFileClip</span><span class="p">(</span><span class="n">video_src</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="c1"># Assume it&#39;s a file-like object</span>
+        <span class="c1"># Assume it's a file-like object</span>
         <span class="k">return</span> <span class="n">VideoFileClip</span><span class="p">(</span><span class="n">video_src</span><span class="p">)</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_iter_video_files</span><span class="p">(</span><span class="n">folder_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Path</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Generate video file paths from a folder in sorted order.</span>
 
 <span class="sd">    &gt;&gt;&gt; # Example (doctest would require actual folder):</span>
-<span class="sd">    &gt;&gt;&gt; # list(_iter_video_files(Path(&#39;/path/to/videos&#39;)))</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    &gt;&gt;&gt; # list(_iter_video_files(Path('/path/to/videos')))</span>
+<span class="sd">    """</span>
     <span class="k">for</span> <span class="n">filepath</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">folder_path</span><span class="o">.</span><span class="n">iterdir</span><span class="p">()):</span>
         <span class="k">if</span> <span class="n">filepath</span><span class="o">.</span><span class="n">is_file</span><span class="p">()</span> <span class="ow">and</span> <span class="n">_is_video_file</span><span class="p">(</span><span class="n">filepath</span><span class="p">):</span>
             <span class="k">yield</span> <span class="n">filepath</span>
@@ -183,7 +184,7 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">ensure_videoclip_iterable</span><span class="p">(</span>
     <span class="n">videos</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">VideoSource</span><span class="p">]],</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">VideoFileClip</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Normalize various video input formats to an iterable of VideoFileClip instances.</span>
 
 <span class="sd">    Handles:</span>
@@ -200,16 +201,16 @@
 
 <span class="sd">    Examples:</span>
 <span class="sd">        &gt;&gt;&gt; # From folder path</span>
-<span class="sd">        &gt;&gt;&gt; clips = ensure_videoclip_iterable(&#39;/path/to/videos/&#39;)  # doctest: +SKIP</span>
+<span class="sd">        &gt;&gt;&gt; clips = ensure_videoclip_iterable('/path/to/videos/')  # doctest: +SKIP</span>
 
 <span class="sd">        &gt;&gt;&gt; # From list of paths</span>
-<span class="sd">        &gt;&gt;&gt; clips = ensure_videoclip_iterable([&#39;v1.mp4&#39;, &#39;v2.mp4&#39;])  # doctest: +SKIP</span>
+<span class="sd">        &gt;&gt;&gt; clips = ensure_videoclip_iterable(['v1.mp4', 'v2.mp4'])  # doctest: +SKIP</span>
 
 <span class="sd">        &gt;&gt;&gt; # From existing clips</span>
-<span class="sd">        &gt;&gt;&gt; existing_clips = [VideoFileClip(&#39;v1.mp4&#39;)]  # doctest: +SKIP</span>
+<span class="sd">        &gt;&gt;&gt; existing_clips = [VideoFileClip('v1.mp4')]  # doctest: +SKIP</span>
 <span class="sd">        &gt;&gt;&gt; clips = ensure_videoclip_iterable(existing_clips)  # doctest: +SKIP</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="c1"># Check if it&#39;s a folder path</span>
+<span class="sd">    """</span>
+    <span class="c1"># Check if it's a folder path</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">videos</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">)):</span>
         <span class="n">folder_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">videos</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">folder_path</span><span class="o">.</span><span class="n">is_dir</span><span class="p">():</span>
@@ -218,7 +219,7 @@
             <span class="c1"># Single file path - wrap in iterable</span>
             <span class="k">return</span> <span class="nb">map</span><span class="p">(</span><span class="n">_ensure_video_clip</span><span class="p">,</span> <span class="p">[</span><span class="n">videos</span><span class="p">])</span>
 
-    <span class="c1"># It&#39;s an iterable of VideoSource items</span>
+    <span class="c1"># It's an iterable of VideoSource items</span>
     <span class="k">return</span> <span class="nb">map</span><span class="p">(</span><span class="n">_ensure_video_clip</span><span class="p">,</span> <span class="n">videos</span><span class="p">)</span></div>
 
 
@@ -232,7 +233,7 @@
     <span class="n">tolerance</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
     <span class="n">save_comparison</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Verify that the last frame of video1 matches the first frame of video2.</span>
 
 <span class="sd">    Args:</span>
@@ -247,10 +248,10 @@
 <span class="sd">        difference_score is the mean absolute difference normalized to [0, 1]</span>
 
 <span class="sd">    Example:</span>
-<span class="sd">        &gt;&gt;&gt; match, diff = verify_frame_continuity(&#39;video1.mp4&#39;, &#39;video2.mp4&#39;,</span>
-<span class="sd">        ...                                       save_comparison=&#39;comparison.png&#39;)  # doctest: +SKIP</span>
-<span class="sd">        &gt;&gt;&gt; print(f&quot;Frames match: {match}, difference: {diff:.4f}&quot;)  # doctest: +SKIP</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">        &gt;&gt;&gt; match, diff = verify_frame_continuity('video1.mp4', 'video2.mp4',</span>
+<span class="sd">        ...                                       save_comparison='comparison.png')  # doctest: +SKIP</span>
+<span class="sd">        &gt;&gt;&gt; print(f"Frames match: {match}, difference: {diff:.4f}")  # doctest: +SKIP</span>
+<span class="sd">    """</span>
     <span class="n">clips_to_close</span> <span class="o">=</span> <span class="p">[]</span>
 
     <span class="k">try</span><span class="p">:</span>
@@ -299,11 +300,11 @@
     <span class="n">difference_score</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
     <span class="n">output</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Save a side-by-side comparison of two frames with difference heatmap.</span>
 
 <span class="sd">    Creates an image showing: [Frame 1] [Frame 2] [Difference Heatmap]</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">PIL</span><span class="w"> </span><span class="kn">import</span> <span class="n">Image</span><span class="p">,</span> <span class="n">ImageDraw</span><span class="p">,</span> <span class="n">ImageFont</span>
 
     <span class="c1"># Convert numpy arrays to PIL Images</span>
@@ -313,11 +314,11 @@
     <span class="c1"># Calculate absolute difference and create heatmap</span>
     <span class="n">diff</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">frame1</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span> <span class="o">-</span> <span class="n">frame2</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">))</span>
     <span class="n">diff_gray</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">diff</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span>  <span class="c1"># Average across RGB</span>
-    <span class="n">diff_img</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">fromarray</span><span class="p">(</span><span class="n">diff_gray</span><span class="p">)</span><span class="o">.</span><span class="n">convert</span><span class="p">(</span><span class="s2">&quot;RGB&quot;</span><span class="p">)</span>
+    <span class="n">diff_img</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">fromarray</span><span class="p">(</span><span class="n">diff_gray</span><span class="p">)</span><span class="o">.</span><span class="n">convert</span><span class="p">(</span><span class="s2">"RGB"</span><span class="p">)</span>
 
     <span class="c1"># Create side-by-side composite</span>
     <span class="n">width</span><span class="p">,</span> <span class="n">height</span> <span class="o">=</span> <span class="n">img1</span><span class="o">.</span><span class="n">size</span>
-    <span class="n">composite</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="s2">&quot;RGB&quot;</span><span class="p">,</span> <span class="p">(</span><span class="n">width</span> <span class="o">*</span> <span class="mi">3</span><span class="p">,</span> <span class="n">height</span> <span class="o">+</span> <span class="mi">40</span><span class="p">))</span>
+    <span class="n">composite</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="s2">"RGB"</span><span class="p">,</span> <span class="p">(</span><span class="n">width</span> <span class="o">*</span> <span class="mi">3</span><span class="p">,</span> <span class="n">height</span> <span class="o">+</span> <span class="mi">40</span><span class="p">))</span>
     <span class="n">composite</span><span class="o">.</span><span class="n">paste</span><span class="p">(</span><span class="n">img1</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">40</span><span class="p">))</span>
     <span class="n">composite</span><span class="o">.</span><span class="n">paste</span><span class="p">(</span><span class="n">img2</span><span class="p">,</span> <span class="p">(</span><span class="n">width</span><span class="p">,</span> <span class="mi">40</span><span class="p">))</span>
     <span class="n">composite</span><span class="o">.</span><span class="n">paste</span><span class="p">(</span><span class="n">diff_img</span><span class="p">,</span> <span class="p">(</span><span class="n">width</span> <span class="o">*</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">40</span><span class="p">))</span>
@@ -326,18 +327,18 @@
     <span class="n">draw</span> <span class="o">=</span> <span class="n">ImageDraw</span><span class="o">.</span><span class="n">Draw</span><span class="p">(</span><span class="n">composite</span><span class="p">)</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="c1"># Try to use a decent font, fall back to default if not available</span>
-        <span class="n">font</span> <span class="o">=</span> <span class="n">ImageFont</span><span class="o">.</span><span class="n">truetype</span><span class="p">(</span><span class="s2">&quot;/System/Library/Fonts/Helvetica.ttc&quot;</span><span class="p">,</span> <span class="mi">24</span><span class="p">)</span>
+        <span class="n">font</span> <span class="o">=</span> <span class="n">ImageFont</span><span class="o">.</span><span class="n">truetype</span><span class="p">(</span><span class="s2">"/System/Library/Fonts/Helvetica.ttc"</span><span class="p">,</span> <span class="mi">24</span><span class="p">)</span>
     <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
         <span class="n">font</span> <span class="o">=</span> <span class="n">ImageFont</span><span class="o">.</span><span class="n">load_default</span><span class="p">()</span>
 
-    <span class="n">draw</span><span class="o">.</span><span class="n">text</span><span class="p">((</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">),</span> <span class="s2">&quot;Last Frame (Video 1)&quot;</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="s2">&quot;white&quot;</span><span class="p">,</span> <span class="n">font</span><span class="o">=</span><span class="n">font</span><span class="p">)</span>
-    <span class="n">draw</span><span class="o">.</span><span class="n">text</span><span class="p">((</span><span class="n">width</span> <span class="o">+</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">),</span> <span class="s2">&quot;First Frame (Video 2)&quot;</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="s2">&quot;white&quot;</span><span class="p">,</span> <span class="n">font</span><span class="o">=</span><span class="n">font</span><span class="p">)</span>
+    <span class="n">draw</span><span class="o">.</span><span class="n">text</span><span class="p">((</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">),</span> <span class="s2">"Last Frame (Video 1)"</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="s2">"white"</span><span class="p">,</span> <span class="n">font</span><span class="o">=</span><span class="n">font</span><span class="p">)</span>
+    <span class="n">draw</span><span class="o">.</span><span class="n">text</span><span class="p">((</span><span class="n">width</span> <span class="o">+</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">),</span> <span class="s2">"First Frame (Video 2)"</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="s2">"white"</span><span class="p">,</span> <span class="n">font</span><span class="o">=</span><span class="n">font</span><span class="p">)</span>
     <span class="n">draw</span><span class="o">.</span><span class="n">text</span><span class="p">(</span>
-        <span class="p">(</span><span class="n">width</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">+</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;Diff: </span><span class="si">{</span><span class="n">difference_score</span><span class="si">:</span><span class="s2">.1%</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="s2">&quot;white&quot;</span><span class="p">,</span> <span class="n">font</span><span class="o">=</span><span class="n">font</span>
+        <span class="p">(</span><span class="n">width</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">+</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">),</span> <span class="sa">f</span><span class="s2">"Diff: </span><span class="si">{</span><span class="n">difference_score</span><span class="si">:</span><span class="s2">.1%</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="s2">"white"</span><span class="p">,</span> <span class="n">font</span><span class="o">=</span><span class="n">font</span>
     <span class="p">)</span>
 
     <span class="n">composite</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">output</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Comparison saved to: </span><span class="si">{</span><span class="n">output</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Comparison saved to: </span><span class="si">{</span><span class="n">output</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="concatenate_videos">
@@ -347,15 +348,15 @@
     <span class="o">*</span><span class="p">,</span>
     <span class="n">transform_clips</span><span class="p">:</span> <span class="kc">None</span>
     <span class="o">|</span> <span class="p">(</span><span class="n">Callable</span><span class="p">[[</span><span class="nb">list</span><span class="p">[</span><span class="n">VideoFileClip</span><span class="p">]],</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">VideoFileClip</span><span class="p">]])</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">normalize_dimensions</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;stretch&quot;</span><span class="p">,</span> <span class="s2">&quot;fit&quot;</span><span class="p">,</span> <span class="s2">&quot;fill&quot;</span><span class="p">,</span> <span class="s2">&quot;social&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;social&quot;</span><span class="p">,</span>
+    <span class="n">normalize_dimensions</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"stretch"</span><span class="p">,</span> <span class="s2">"fit"</span><span class="p">,</span> <span class="s2">"fill"</span><span class="p">,</span> <span class="s2">"social"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"social"</span><span class="p">,</span>
     <span class="n">target_width</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">target_height</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">output</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">codec</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;libx264&quot;</span><span class="p">,</span>
-    <span class="n">audio_codec</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;aac&quot;</span><span class="p">,</span>
+    <span class="n">codec</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"libx264"</span><span class="p">,</span>
+    <span class="n">audio_codec</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"aac"</span><span class="p">,</span>
     <span class="o">**</span><span class="n">concat_kwargs</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">VideoFileClip</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Concatenate multiple videos with optional clip transformation and dimension normalization.</span>
 
 <span class="sd">    Audio from all input videos is automatically concatenated and included in the output.</span>
@@ -370,51 +371,51 @@
 <span class="sd">                        Receives a list of clips, returns an iterable of clips.</span>
 <span class="sd">        normalize_dimensions: How to handle videos with different dimensions:</span>
 <span class="sd">            - False: No normalization (may cause issues if dimensions differ)</span>
-<span class="sd">            - &#39;stretch&#39;: Stretch all videos to match first video&#39;s dimensions</span>
-<span class="sd">            - &#39;fit&#39;: Scale to fit inside dimensions with padding (letterbox/pillarbox)</span>
-<span class="sd">            - &#39;fill&#39;: Scale to fill dimensions (may crop edges)</span>
-<span class="sd">            - &#39;social&#39;: Scale with blurred/zoomed background (social media style) [DEFAULT]</span>
-<span class="sd">            - True: Same as &#39;social&#39;</span>
-<span class="sd">        target_width: Explicit target width (overrides first video&#39;s dimensions)</span>
-<span class="sd">        target_height: Explicit target height (overrides first video&#39;s dimensions)</span>
+<span class="sd">            - 'stretch': Stretch all videos to match first video's dimensions</span>
+<span class="sd">            - 'fit': Scale to fit inside dimensions with padding (letterbox/pillarbox)</span>
+<span class="sd">            - 'fill': Scale to fill dimensions (may crop edges)</span>
+<span class="sd">            - 'social': Scale with blurred/zoomed background (social media style) [DEFAULT]</span>
+<span class="sd">            - True: Same as 'social'</span>
+<span class="sd">        target_width: Explicit target width (overrides first video's dimensions)</span>
+<span class="sd">        target_height: Explicit target height (overrides first video's dimensions)</span>
 <span class="sd">        output: Optional path to save the concatenated video file.</span>
 <span class="sd">                    If True and videos is a folder path, generates filename from folder name.</span>
 <span class="sd">                    If True and videos is not a folder, raises ValueError.</span>
-<span class="sd">        codec: Video codec to use when writing file (default: &#39;libx264&#39;)</span>
-<span class="sd">        audio_codec: Audio codec to use when writing file (default: &#39;aac&#39;)</span>
-<span class="sd">        **concat_kwargs: Additional arguments passed to moviepy&#39;s concatenate_videoclips</span>
+<span class="sd">        codec: Video codec to use when writing file (default: 'libx264')</span>
+<span class="sd">        audio_codec: Audio codec to use when writing file (default: 'aac')</span>
+<span class="sd">        **concat_kwargs: Additional arguments passed to moviepy's concatenate_videoclips</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        Concatenated VideoFileClip with audio. Caller is responsible for closing this clip.</span>
 
 <span class="sd">    Examples:</span>
 <span class="sd">        &gt;&gt;&gt; # From folder path with auto dimension handling (social media style)</span>
-<span class="sd">        &gt;&gt;&gt; final = concatenate_videos(&#39;/path/to/videos/&#39;)  # doctest: +SKIP</span>
+<span class="sd">        &gt;&gt;&gt; final = concatenate_videos('/path/to/videos/')  # doctest: +SKIP</span>
 
 <span class="sd">        &gt;&gt;&gt; # From folder path with explicit output and letterboxing</span>
 <span class="sd">        &gt;&gt;&gt; final = concatenate_videos(</span>
-<span class="sd">        ...     &#39;/path/to/videos/&#39;,</span>
-<span class="sd">        ...     normalize_dimensions=&#39;fit&#39;,</span>
-<span class="sd">        ...     output=&#39;/path/output.mp4&#39;</span>
+<span class="sd">        ...     '/path/to/videos/',</span>
+<span class="sd">        ...     normalize_dimensions='fit',</span>
+<span class="sd">        ...     output='/path/output.mp4'</span>
 <span class="sd">        ... )  # doctest: +SKIP</span>
 
 <span class="sd">        &gt;&gt;&gt; # From list of paths with transformation and specific dimensions</span>
 <span class="sd">        &gt;&gt;&gt; def trim_first_frame(clips):</span>
-<span class="sd">        ...     &#39;&#39;&#39;Keep first clip intact, trim first frame from rest.&#39;&#39;&#39;</span>
+<span class="sd">        ...     '''Keep first clip intact, trim first frame from rest.'''</span>
 <span class="sd">        ...     yield clips[0]</span>
 <span class="sd">        ...     for clip in clips[1:]:</span>
 <span class="sd">        ...         yield clip.subclipped(1 / clip.fps)  # doctest: +SKIP</span>
-<span class="sd">        &gt;&gt;&gt; paths = [&#39;video1.mp4&#39;, &#39;video2.mp4&#39;, &#39;video3.mp4&#39;]  # doctest: +SKIP</span>
+<span class="sd">        &gt;&gt;&gt; paths = ['video1.mp4', 'video2.mp4', 'video3.mp4']  # doctest: +SKIP</span>
 <span class="sd">        &gt;&gt;&gt; final = concatenate_videos(</span>
 <span class="sd">        ...     paths,</span>
 <span class="sd">        ...     transform_clips=trim_first_frame,</span>
 <span class="sd">        ...     target_width=1920,</span>
 <span class="sd">        ...     target_height=1080,</span>
-<span class="sd">        ...     normalize_dimensions=&#39;social&#39;</span>
+<span class="sd">        ...     normalize_dimensions='social'</span>
 <span class="sd">        ... )  # doctest: +SKIP</span>
-<span class="sd">        &gt;&gt;&gt; final.write_videofile(&#39;output.mp4&#39;)  # doctest: +SKIP</span>
+<span class="sd">        &gt;&gt;&gt; final.write_videofile('output.mp4')  # doctest: +SKIP</span>
 <span class="sd">        &gt;&gt;&gt; final.close()  # doctest: +SKIP</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">clips_to_close</span> <span class="o">=</span> <span class="p">[]</span>
 
     <span class="k">try</span><span class="p">:</span>
@@ -424,11 +425,11 @@
                 <span class="n">folder_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">videos</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">folder_path</span><span class="o">.</span><span class="n">is_dir</span><span class="p">():</span>
                     <span class="c1"># Generate output filename from folder name</span>
-                    <span class="n">output</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">folder_path</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">folder_path</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">.mp4&quot;</span><span class="p">)</span>
+                    <span class="n">output</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">folder_path</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">folder_path</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">.mp4"</span><span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
-                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;output=True requires videos to be a folder path&quot;</span><span class="p">)</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"output=True requires videos to be a folder path"</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;output=True requires videos to be a folder path&quot;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"output=True requires videos to be a folder path"</span><span class="p">)</span>
 
         <span class="c1"># Normalize input to iterable of VideoFileClips</span>
         <span class="c1"># All clips created by ensure_videoclip_iterable need to be closed by us</span>
@@ -439,8 +440,8 @@
         <span class="k">if</span> <span class="n">normalize_dimensions</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">False</span><span class="p">:</span>
             <span class="kn">from</span><span class="w"> </span><span class="nn">mixing.video.video_util</span><span class="w"> </span><span class="kn">import</span> <span class="n">normalize_video_dimensions</span>
 
-            <span class="c1"># Handle normalize_dimensions=True -&gt; &#39;social&#39;</span>
-            <span class="n">method</span> <span class="o">=</span> <span class="s2">&quot;social&quot;</span> <span class="k">if</span> <span class="n">normalize_dimensions</span> <span class="ow">is</span> <span class="kc">True</span> <span class="k">else</span> <span class="n">normalize_dimensions</span>
+            <span class="c1"># Handle normalize_dimensions=True -&gt; 'social'</span>
+            <span class="n">method</span> <span class="o">=</span> <span class="s2">"social"</span> <span class="k">if</span> <span class="n">normalize_dimensions</span> <span class="ow">is</span> <span class="kc">True</span> <span class="k">else</span> <span class="n">normalize_dimensions</span>
 
             <span class="n">normalized_clips</span> <span class="o">=</span> <span class="n">normalize_video_dimensions</span><span class="p">(</span>
                 <span class="n">clips</span><span class="p">,</span>
@@ -498,7 +499,7 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">trim_first_frame_from_subsequent_clips</span><span class="p">(</span>
     <span class="n">clips</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">VideoFileClip</span><span class="p">],</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">VideoFileClip</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Keep first clip intact, trim first frame from subsequent clips.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Keep first clip intact, trim first frame from subsequent clips."""</span>
     <span class="k">yield</span> <span class="n">clips</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
     <span class="k">for</span> <span class="n">clip</span> <span class="ow">in</span> <span class="n">clips</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
         <span class="k">yield</span> <span class="n">clip</span><span class="o">.</span><span class="n">subclipped</span><span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="n">clip</span><span class="o">.</span><span class="n">fps</span><span class="p">)</span></div>
@@ -510,14 +511,14 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">crossfade_transition</span><span class="p">(</span>
     <span class="n">clips</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">VideoFileClip</span><span class="p">],</span> <span class="o">*</span><span class="p">,</span> <span class="n">duration</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.5</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">VideoFileClip</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Crossfade between clips to smoothly blend spatial and temporal discontinuities.</span>
 
 <span class="sd">    Best for hiding both pixel differences and motion changes.</span>
 <span class="sd">    Recommended: duration=0.3 to 0.8 seconds.</span>
 
 <span class="sd">    Uses CrossFadeOut on end of clips and CrossFadeIn on start of clips.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">clip</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">clips</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="c1"># First clip: just fade out at the end</span>
@@ -538,11 +539,11 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">trim_and_crossfade</span><span class="p">(</span>
     <span class="n">clips</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">VideoFileClip</span><span class="p">],</span> <span class="o">*</span><span class="p">,</span> <span class="n">duration</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.4</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">VideoFileClip</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Trim first frame from subsequent clips, then crossfade.</span>
 
 <span class="sd">    Combines frame removal with smooth blending.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">clip</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">clips</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="c1"># First clip: just fade out at the end</span>
@@ -566,11 +567,11 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">fade_through_black</span><span class="p">(</span>
     <span class="n">clips</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">VideoFileClip</span><span class="p">],</span> <span class="o">*</span><span class="p">,</span> <span class="n">duration</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.3</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">VideoFileClip</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Fade out to black, then fade in from black between clips.</span>
 
 <span class="sd">    More dramatic transition - clearly separates scenes.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">clip</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">clips</span><span class="p">):</span>
         <span class="n">effects</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">if</span> <span class="n">i</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
@@ -591,12 +592,12 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">slow_motion_blend</span><span class="p">(</span>
     <span class="n">clips</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">VideoFileClip</span><span class="p">],</span> <span class="o">*</span><span class="p">,</span> <span class="n">ramp_duration</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.5</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">VideoFileClip</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Slow down the end of each clip and beginning of next for smoother motion transition.</span>
 
 <span class="sd">    Helps with motion discontinuity by creating a speed buffer zone.</span>
 <span class="sd">    Note: This changes timing, so final video will be slightly longer.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">clip</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">clips</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="c1"># First clip: just slow down the end</span>
@@ -633,11 +634,11 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">overlap_blend</span><span class="p">(</span>
     <span class="n">clips</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">VideoFileClip</span><span class="p">],</span> <span class="o">*</span><span class="p">,</span> <span class="n">overlap</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.5</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">VideoFileClip</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Overlap clips and crossfade the overlapping region.</span>
 
 <span class="sd">    More aggressive blending - uses more footage from both clips.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">clip</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">clips</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">yield</span> <span class="n">clip</span>

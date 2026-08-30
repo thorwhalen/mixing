@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>mixing.util &mdash; mixing 0.0.37 documentation</title>
+  <title>mixing.util &mdash; mixing 0.0.38 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
@@ -15,7 +15,7 @@
   
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../_static/documentation_options.js?v=aa2ad26f"></script>
+      <script src="../../_static/documentation_options.js?v=423071ad"></script>
       <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="../../_static/toggleprompt.js?v=d7ede5d2"></script>
@@ -74,6 +74,7 @@
 <li class="toctree-l1"><a class="reference internal" href="transcript/scribe.html">mixing.transcript.scribe</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">mixing.util</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#mixing.util.copy_to_clipboard"><code class="docutils literal notranslate"><span class="pre">copy_to_clipboard()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mixing.util.ffmpeg_exe"><code class="docutils literal notranslate"><span class="pre">ffmpeg_exe()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#mixing.util.get_path_from_clipboard"><code class="docutils literal notranslate"><span class="pre">get_path_from_clipboard()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#mixing.util.has_ffmpeg"><code class="docutils literal notranslate"><span class="pre">has_ffmpeg()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#mixing.util.require_package"><code class="docutils literal notranslate"><span class="pre">require_package()</span></code></a></li>
@@ -83,6 +84,7 @@
 <li class="toctree-l1"><a class="reference internal" href="video.html">mixing.video</a></li>
 <li class="toctree-l1"><a class="reference internal" href="video/_helpers.html">mixing.video._helpers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="video/genai.html">mixing.video.genai</a></li>
+<li class="toctree-l1"><a class="reference internal" href="video/gif.html">mixing.video.gif</a></li>
 <li class="toctree-l1"><a class="reference internal" href="video/thumbnail.html">mixing.video.thumbnail</a></li>
 <li class="toctree-l1"><a class="reference internal" href="video/video_concat.html">mixing.video.video_concat</a></li>
 <li class="toctree-l1"><a class="reference internal" href="video/video_ops.html">mixing.video.video_ops</a></li>
@@ -129,6 +131,28 @@
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="mixing.util.ffmpeg_exe">
+<span class="sig-prename descclassname"><span class="pre">mixing.util.</span></span><span class="sig-name descname"><span class="pre">ffmpeg_exe</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../../_modules/mixing/util.html#ffmpeg_exe"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.util.ffmpeg_exe" title="Link to this definition"></a></dt>
+<dd><p>Resolve an ffmpeg executable, preferring the pip-bundled binary.</p>
+<p>Resolution order is <code class="docutils literal notranslate"><span class="pre">imageio-ffmpeg</span></code> (which itself honors the
+<code class="docutils literal notranslate"><span class="pre">IMAGEIO_FFMPEG_EXE</span></code> env var, then its bundled static binary, then the
+system <code class="docutils literal notranslate"><span class="pre">PATH</span></code>) and finally a bare <code class="docutils literal notranslate"><span class="pre">PATH</span></code> lookup. This is what lets
+subprocess-ffmpeg features work on a machine where only <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span></code>
+ran — <code class="docutils literal notranslate"><span class="pre">imageio-ffmpeg</span></code> is a moviepy dependency, so it is present
+wherever mixing’s video stack is.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>RuntimeError</strong> – when no ffmpeg executable can be found, naming both
+    remedies (installing <code class="docutils literal notranslate"><span class="pre">imageio-ffmpeg</span></code> or a system ffmpeg).</p>
+</dd>
+</dl>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">isinstance</span><span class="p">(</span><span class="n">ffmpeg_exe</span><span class="p">(),</span> <span class="nb">str</span><span class="p">)</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="mixing.util.get_path_from_clipboard">
 <span class="sig-prename descclassname"><span class="pre">mixing.util.</span></span><span class="sig-name descname"><span class="pre">get_path_from_clipboard</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../../_modules/mixing/util.html#get_path_from_clipboard"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.util.get_path_from_clipboard" title="Link to this definition"></a></dt>
 <dd><p>Get file path from clipboard and validate it.</p>
@@ -157,7 +181,7 @@ startup and refuse to run rather than emit broken media.</p>
 <dt class="sig sig-object py" id="mixing.util.require_package">
 <span class="sig-prename descclassname"><span class="pre">mixing.util.</span></span><span class="sig-name descname"><span class="pre">require_package</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">package_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/mixing/util.html#require_package"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.util.require_package" title="Link to this definition"></a></dt>
 <dd><p>Import a package, raising an informative error if not installed.</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">math</span> <span class="o">=</span> <span class="n">require_package</span><span class="p">(</span><span class="s1">&#39;math&#39;</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">math</span> <span class="o">=</span> <span class="n">require_package</span><span class="p">(</span><span class="s1">'math'</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">math</span><span class="o">.</span><span class="n">pi</span>
 <span class="go">3.141592653589793</span>
 </pre></div>
@@ -181,11 +205,11 @@ startup and refuse to run rather than emit broken media.</p>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">to_seconds</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s2">&quot;seconds&quot;</span><span class="p">,</span> <span class="n">rate</span><span class="o">=</span><span class="mi">24</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">to_seconds</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s2">"seconds"</span><span class="p">,</span> <span class="n">rate</span><span class="o">=</span><span class="mi">24</span><span class="p">)</span>
 <span class="go">10.0</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">to_seconds</span><span class="p">(</span><span class="mi">240</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s2">&quot;frames&quot;</span><span class="p">,</span> <span class="n">rate</span><span class="o">=</span><span class="mi">24</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">to_seconds</span><span class="p">(</span><span class="mi">240</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s2">"frames"</span><span class="p">,</span> <span class="n">rate</span><span class="o">=</span><span class="mi">24</span><span class="p">)</span>
 <span class="go">10.0</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">to_seconds</span><span class="p">(</span><span class="mi">10000</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s2">&quot;milliseconds&quot;</span><span class="p">,</span> <span class="n">rate</span><span class="o">=</span><span class="mi">24</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">to_seconds</span><span class="p">(</span><span class="mi">10000</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s2">"milliseconds"</span><span class="p">,</span> <span class="n">rate</span><span class="o">=</span><span class="mi">24</span><span class="p">)</span>
 <span class="go">10.0</span>
 </pre></div>
 </div>

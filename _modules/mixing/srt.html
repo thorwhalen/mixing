@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>mixing.srt &mdash; mixing 0.0.37 documentation</title>
+  <title>mixing.srt &mdash; mixing 0.0.38 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
@@ -14,7 +14,7 @@
   
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../_static/documentation_options.js?v=aa2ad26f"></script>
+      <script src="../../_static/documentation_options.js?v=423071ad"></script>
       <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="../../_static/toggleprompt.js?v=d7ede5d2"></script>
@@ -73,6 +73,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../module_docs/mixing/video.html">mixing.video</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../module_docs/mixing/video/_helpers.html">mixing.video._helpers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../module_docs/mixing/video/genai.html">mixing.video.genai</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/mixing/video/gif.html">mixing.video.gif</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../module_docs/mixing/video/thumbnail.html">mixing.video.thumbnail</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../module_docs/mixing/video/video_concat.html">mixing.video.video_concat</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../module_docs/mixing/video/video_ops.html">mixing.video.video_ops</a></li>
@@ -105,7 +106,7 @@
            <div itemprop="articleBody">
              
   <h1>Source code for mixing.srt</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Canonical SRT / timeline parsing and formatting (pure, dependency-free).</span>
+<span></span><span class="sd">"""Canonical SRT / timeline parsing and formatting (pure, dependency-free).</span>
 
 <span class="sd">This is the single source of truth for SubRip (``.srt``) time handling in</span>
 <span class="sd">``mixing``. Before consolidation the same logic was reimplemented in three</span>
@@ -121,7 +122,7 @@
 <span class="sd">  in seconds, and ``text`` (which may contain embedded newlines).</span>
 
 <span class="sd">Times are always seconds (``float``) everywhere except the timestamp string.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
@@ -130,21 +131,21 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Iterable</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="s2">&quot;Cue&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;TIME_RE&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;srt_time_to_seconds&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;seconds_to_srt_time&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;fmt_srt_time&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;to_srt_time&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;parse_srt&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dump_srt&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;shift_srt_timestamps&quot;</span><span class="p">,</span>
+    <span class="s2">"Cue"</span><span class="p">,</span>
+    <span class="s2">"TIME_RE"</span><span class="p">,</span>
+    <span class="s2">"srt_time_to_seconds"</span><span class="p">,</span>
+    <span class="s2">"seconds_to_srt_time"</span><span class="p">,</span>
+    <span class="s2">"fmt_srt_time"</span><span class="p">,</span>
+    <span class="s2">"to_srt_time"</span><span class="p">,</span>
+    <span class="s2">"parse_srt"</span><span class="p">,</span>
+    <span class="s2">"dump_srt"</span><span class="p">,</span>
+    <span class="s2">"shift_srt_timestamps"</span><span class="p">,</span>
 <span class="p">]</span>
 
 <span class="c1">#: Matches an SRT cue time line, tolerant of ``,`` or ``.`` as the ms separator.</span>
 <span class="n">TIME_RE</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
-    <span class="sa">r</span><span class="s2">&quot;(\d{1,2}):(\d</span><span class="si">{2}</span><span class="s2">):(\d</span><span class="si">{2}</span><span class="s2">)[,.](\d{1,3})\s*--&gt;\s*&quot;</span>
-    <span class="sa">r</span><span class="s2">&quot;(\d{1,2}):(\d</span><span class="si">{2}</span><span class="s2">):(\d</span><span class="si">{2}</span><span class="s2">)[,.](\d{1,3})&quot;</span>
+    <span class="sa">r</span><span class="s2">"(\d{1,2}):(\d</span><span class="si">{2}</span><span class="s2">):(\d</span><span class="si">{2}</span><span class="s2">)[,.](\d{1,3})\s*--&gt;\s*"</span>
+    <span class="sa">r</span><span class="s2">"(\d{1,2}):(\d</span><span class="si">{2}</span><span class="s2">):(\d</span><span class="si">{2}</span><span class="s2">)[,.](\d{1,3})"</span>
 <span class="p">)</span>
 
 
@@ -152,14 +153,14 @@
 <a class="viewcode-back" href="../../module_docs/mixing/srt.html#mixing.Cue">[docs]</a>
 <span class="nd">@dataclass</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">Cue</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;One SRT subtitle cue.</span>
+<span class="w">    </span><span class="sd">"""One SRT subtitle cue.</span>
 
 <span class="sd">    Attributes:</span>
 <span class="sd">        index: 1-based cue number.</span>
 <span class="sd">        start: Start time in seconds.</span>
 <span class="sd">        end: End time in seconds.</span>
 <span class="sd">        text: Cue text (may contain embedded newlines).</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="n">index</span><span class="p">:</span> <span class="nb">int</span>
     <span class="n">start</span><span class="p">:</span> <span class="nb">float</span>
@@ -168,7 +169,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">duration</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Cue duration in seconds (never negative).&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Cue duration in seconds (never negative)."""</span>
         <span class="k">return</span> <span class="nb">max</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">end</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">start</span><span class="p">)</span></div>
 
 
@@ -176,38 +177,38 @@
 <div class="viewcode-block" id="srt_time_to_seconds">
 <a class="viewcode-back" href="../../module_docs/mixing/srt.html#mixing.srt_time_to_seconds">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">srt_time_to_seconds</span><span class="p">(</span><span class="n">timestamp</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Parse an ``HH:MM:SS,mmm`` (or ``.mmm``) SRT timestamp to seconds.</span>
+<span class="w">    </span><span class="sd">"""Parse an ``HH:MM:SS,mmm`` (or ``.mmm``) SRT timestamp to seconds.</span>
 
-<span class="sd">    &gt;&gt;&gt; srt_time_to_seconds(&#39;00:43:12,187&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; srt_time_to_seconds('00:43:12,187')</span>
 <span class="sd">    2592.187</span>
-<span class="sd">    &gt;&gt;&gt; srt_time_to_seconds(&#39;00:00:01.500&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; srt_time_to_seconds('00:00:01.500')</span>
 <span class="sd">    1.5</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">h</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="n">sec</span><span class="p">,</span> <span class="n">ms</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;[:,.]&quot;</span><span class="p">,</span> <span class="n">timestamp</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
-    <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">h</span><span class="p">)</span> <span class="o">*</span> <span class="mi">3600</span> <span class="o">+</span> <span class="nb">int</span><span class="p">(</span><span class="n">m</span><span class="p">)</span> <span class="o">*</span> <span class="mi">60</span> <span class="o">+</span> <span class="nb">int</span><span class="p">(</span><span class="n">sec</span><span class="p">)</span> <span class="o">+</span> <span class="nb">int</span><span class="p">(</span><span class="n">ms</span><span class="o">.</span><span class="n">ljust</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="s2">&quot;0&quot;</span><span class="p">))</span> <span class="o">/</span> <span class="mf">1000.0</span></div>
+<span class="sd">    """</span>
+    <span class="n">h</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="n">sec</span><span class="p">,</span> <span class="n">ms</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="sa">r</span><span class="s2">"[:,.]"</span><span class="p">,</span> <span class="n">timestamp</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+    <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">h</span><span class="p">)</span> <span class="o">*</span> <span class="mi">3600</span> <span class="o">+</span> <span class="nb">int</span><span class="p">(</span><span class="n">m</span><span class="p">)</span> <span class="o">*</span> <span class="mi">60</span> <span class="o">+</span> <span class="nb">int</span><span class="p">(</span><span class="n">sec</span><span class="p">)</span> <span class="o">+</span> <span class="nb">int</span><span class="p">(</span><span class="n">ms</span><span class="o">.</span><span class="n">ljust</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="s2">"0"</span><span class="p">))</span> <span class="o">/</span> <span class="mf">1000.0</span></div>
 
 
 
 <div class="viewcode-block" id="seconds_to_srt_time">
 <a class="viewcode-back" href="../../module_docs/mixing/srt.html#mixing.seconds_to_srt_time">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">seconds_to_srt_time</span><span class="p">(</span><span class="n">seconds</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Format a time in seconds as an SRT timestamp ``HH:MM:SS,mmm``.</span>
+<span class="w">    </span><span class="sd">"""Format a time in seconds as an SRT timestamp ``HH:MM:SS,mmm``.</span>
 
 <span class="sd">    Milliseconds are *rounded* (not truncated), with carry handled correctly,</span>
 <span class="sd">    and negative inputs clamp to zero.</span>
 
 <span class="sd">    &gt;&gt;&gt; seconds_to_srt_time(2592.187)</span>
-<span class="sd">    &#39;00:43:12,187&#39;</span>
+<span class="sd">    '00:43:12,187'</span>
 <span class="sd">    &gt;&gt;&gt; seconds_to_srt_time(1.5)</span>
-<span class="sd">    &#39;00:00:01,500&#39;</span>
+<span class="sd">    '00:00:01,500'</span>
 <span class="sd">    &gt;&gt;&gt; seconds_to_srt_time(-3)</span>
-<span class="sd">    &#39;00:00:00,000&#39;</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    '00:00:00,000'</span>
+<span class="sd">    """</span>
     <span class="n">ms_total</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">seconds</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">)))</span>
     <span class="n">h</span><span class="p">,</span> <span class="n">ms_total</span> <span class="o">=</span> <span class="nb">divmod</span><span class="p">(</span><span class="n">ms_total</span><span class="p">,</span> <span class="mi">3600</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">)</span>
     <span class="n">m</span><span class="p">,</span> <span class="n">ms_total</span> <span class="o">=</span> <span class="nb">divmod</span><span class="p">(</span><span class="n">ms_total</span><span class="p">,</span> <span class="mi">60</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">)</span>
     <span class="n">s</span><span class="p">,</span> <span class="n">ms</span> <span class="o">=</span> <span class="nb">divmod</span><span class="p">(</span><span class="n">ms_total</span><span class="p">,</span> <span class="mi">1000</span><span class="p">)</span>
-    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">h</span><span class="si">:</span><span class="s2">02d</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">m</span><span class="si">:</span><span class="s2">02d</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">s</span><span class="si">:</span><span class="s2">02d</span><span class="si">}</span><span class="s2">,</span><span class="si">{</span><span class="n">ms</span><span class="si">:</span><span class="s2">03d</span><span class="si">}</span><span class="s2">&quot;</span></div>
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">h</span><span class="si">:</span><span class="s2">02d</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">m</span><span class="si">:</span><span class="s2">02d</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">s</span><span class="si">:</span><span class="s2">02d</span><span class="si">}</span><span class="s2">,</span><span class="si">{</span><span class="n">ms</span><span class="si">:</span><span class="s2">03d</span><span class="si">}</span><span class="s2">"</span></div>
 
 
 
@@ -219,14 +220,14 @@
 <div class="viewcode-block" id="parse_srt">
 <a class="viewcode-back" href="../../module_docs/mixing/srt.html#mixing.parse_srt">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">parse_srt</span><span class="p">(</span><span class="n">srt_text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Cue</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Parse SRT text into a list of :class:`Cue` objects.</span>
+<span class="w">    </span><span class="sd">"""Parse SRT text into a list of :class:`Cue` objects.</span>
 
 <span class="sd">    Tolerant of blank-line spacing variations and of either ``,`` or ``.`` as</span>
 <span class="sd">    the millisecond separator. Cues without a valid time line are skipped.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">cues</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Cue</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">block</span> <span class="ow">in</span> <span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\n\s*\n&quot;</span><span class="p">,</span> <span class="n">srt_text</span><span class="o">.</span><span class="n">strip</span><span class="p">()):</span>
-        <span class="n">lines</span> <span class="o">=</span> <span class="p">[</span><span class="n">ln</span> <span class="k">for</span> <span class="n">ln</span> <span class="ow">in</span> <span class="n">block</span><span class="o">.</span><span class="n">splitlines</span><span class="p">()</span> <span class="k">if</span> <span class="n">ln</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">!=</span> <span class="s2">&quot;&quot;</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">block</span> <span class="ow">in</span> <span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="sa">r</span><span class="s2">"\n\s*\n"</span><span class="p">,</span> <span class="n">srt_text</span><span class="o">.</span><span class="n">strip</span><span class="p">()):</span>
+        <span class="n">lines</span> <span class="o">=</span> <span class="p">[</span><span class="n">ln</span> <span class="k">for</span> <span class="n">ln</span> <span class="ow">in</span> <span class="n">block</span><span class="o">.</span><span class="n">splitlines</span><span class="p">()</span> <span class="k">if</span> <span class="n">ln</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">!=</span> <span class="s2">""</span><span class="p">]</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">lines</span><span class="p">:</span>
             <span class="k">continue</span>
         <span class="c1"># The time line is the one matching TIME_RE (usually line 0 or 1; the</span>
@@ -239,17 +240,17 @@
             <span class="nb">int</span><span class="p">(</span><span class="n">m</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">*</span> <span class="mi">3600</span>
             <span class="o">+</span> <span class="nb">int</span><span class="p">(</span><span class="n">m</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span> <span class="o">*</span> <span class="mi">60</span>
             <span class="o">+</span> <span class="nb">int</span><span class="p">(</span><span class="n">m</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span>
-            <span class="o">+</span> <span class="nb">int</span><span class="p">(</span><span class="n">m</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span><span class="o">.</span><span class="n">ljust</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="s2">&quot;0&quot;</span><span class="p">))</span> <span class="o">/</span> <span class="mf">1000.0</span>
+            <span class="o">+</span> <span class="nb">int</span><span class="p">(</span><span class="n">m</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span><span class="o">.</span><span class="n">ljust</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="s2">"0"</span><span class="p">))</span> <span class="o">/</span> <span class="mf">1000.0</span>
         <span class="p">)</span>
         <span class="n">end</span> <span class="o">=</span> <span class="p">(</span>
             <span class="nb">int</span><span class="p">(</span><span class="n">m</span><span class="p">[</span><span class="mi">5</span><span class="p">])</span> <span class="o">*</span> <span class="mi">3600</span>
             <span class="o">+</span> <span class="nb">int</span><span class="p">(</span><span class="n">m</span><span class="p">[</span><span class="mi">6</span><span class="p">])</span> <span class="o">*</span> <span class="mi">60</span>
             <span class="o">+</span> <span class="nb">int</span><span class="p">(</span><span class="n">m</span><span class="p">[</span><span class="mi">7</span><span class="p">])</span>
-            <span class="o">+</span> <span class="nb">int</span><span class="p">(</span><span class="n">m</span><span class="p">[</span><span class="mi">8</span><span class="p">]</span><span class="o">.</span><span class="n">ljust</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="s2">&quot;0&quot;</span><span class="p">))</span> <span class="o">/</span> <span class="mf">1000.0</span>
+            <span class="o">+</span> <span class="nb">int</span><span class="p">(</span><span class="n">m</span><span class="p">[</span><span class="mi">8</span><span class="p">]</span><span class="o">.</span><span class="n">ljust</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="s2">"0"</span><span class="p">))</span> <span class="o">/</span> <span class="mf">1000.0</span>
         <span class="p">)</span>
-        <span class="n">idx_line</span> <span class="o">=</span> <span class="n">lines</span><span class="p">[</span><span class="n">time_idx</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="n">time_idx</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+        <span class="n">idx_line</span> <span class="o">=</span> <span class="n">lines</span><span class="p">[</span><span class="n">time_idx</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="n">time_idx</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="s2">""</span>
         <span class="n">index</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">idx_line</span><span class="p">)</span> <span class="k">if</span> <span class="n">idx_line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">isdigit</span><span class="p">()</span> <span class="k">else</span> <span class="nb">len</span><span class="p">(</span><span class="n">cues</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
-        <span class="n">text</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">[</span><span class="n">time_idx</span> <span class="o">+</span> <span class="mi">1</span> <span class="p">:])</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="n">text</span> <span class="o">=</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">[</span><span class="n">time_idx</span> <span class="o">+</span> <span class="mi">1</span> <span class="p">:])</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
         <span class="n">cues</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Cue</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="n">index</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="n">end</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="n">text</span><span class="p">))</span>
     <span class="k">return</span> <span class="n">cues</span></div>
 
@@ -258,37 +259,37 @@
 <div class="viewcode-block" id="dump_srt">
 <a class="viewcode-back" href="../../module_docs/mixing/srt.html#mixing.dump_srt">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">dump_srt</span><span class="p">(</span><span class="n">cues</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Cue</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Serialize cues back to SRT text, renumbering from 1.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Serialize cues back to SRT text, renumbering from 1."""</span>
     <span class="n">parts</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="se">\n</span><span class="si">{</span><span class="n">seconds_to_srt_time</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">start</span><span class="p">)</span><span class="si">}</span><span class="s2"> --&gt; </span><span class="si">{</span><span class="n">seconds_to_srt_time</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">end</span><span class="p">)</span><span class="si">}</span><span class="se">\n</span><span class="si">{</span><span class="n">c</span><span class="o">.</span><span class="n">text</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="se">\n</span><span class="si">{</span><span class="n">seconds_to_srt_time</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">start</span><span class="p">)</span><span class="si">}</span><span class="s2"> --&gt; </span><span class="si">{</span><span class="n">seconds_to_srt_time</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">end</span><span class="p">)</span><span class="si">}</span><span class="se">\n</span><span class="si">{</span><span class="n">c</span><span class="o">.</span><span class="n">text</span><span class="si">}</span><span class="se">\n</span><span class="s2">"</span>
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">cues</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
     <span class="p">]</span>
-    <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span></div>
 
 
 
 <div class="viewcode-block" id="shift_srt_timestamps">
 <a class="viewcode-back" href="../../module_docs/mixing/srt.html#mixing.shift_srt_timestamps">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">shift_srt_timestamps</span><span class="p">(</span><span class="n">srt_text</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">shift_seconds</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Shift every cue time line in ``srt_text`` by ``shift_seconds``.</span>
+<span class="w">    </span><span class="sd">"""Shift every cue time line in ``srt_text`` by ``shift_seconds``.</span>
 
 <span class="sd">    Negative values shift earlier; resulting negative times clamp to zero.</span>
 
-<span class="sd">    &gt;&gt;&gt; srt = &#39;1\\n00:43:12,187 --&gt; 00:43:13,817\\nHello world&#39;</span>
-<span class="sd">    &gt;&gt;&gt; &#39;00:00:00,187 --&gt; 00:00:01,817&#39; in shift_srt_timestamps(srt, -2592)</span>
+<span class="sd">    &gt;&gt;&gt; srt = '1\\n00:43:12,187 --&gt; 00:43:13,817\\nHello world'</span>
+<span class="sd">    &gt;&gt;&gt; '00:00:00,187 --&gt; 00:00:01,817' in shift_srt_timestamps(srt, -2592)</span>
 <span class="sd">    True</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_shift_line</span><span class="p">(</span><span class="n">line</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="n">m</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\s*([\d:,.]+)\s*--&gt;\s*([\d:,.]+)&quot;</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span>
+        <span class="n">m</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">"\s*([\d:,.]+)\s*--&gt;\s*([\d:,.]+)"</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">m</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">line</span>
         <span class="n">start</span> <span class="o">=</span> <span class="n">srt_time_to_seconds</span><span class="p">(</span><span class="n">m</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">+</span> <span class="n">shift_seconds</span>
         <span class="n">end</span> <span class="o">=</span> <span class="n">srt_time_to_seconds</span><span class="p">(</span><span class="n">m</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span> <span class="o">+</span> <span class="n">shift_seconds</span>
-        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">seconds_to_srt_time</span><span class="p">(</span><span class="n">start</span><span class="p">)</span><span class="si">}</span><span class="s2"> --&gt; </span><span class="si">{</span><span class="n">seconds_to_srt_time</span><span class="p">(</span><span class="n">end</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">seconds_to_srt_time</span><span class="p">(</span><span class="n">start</span><span class="p">)</span><span class="si">}</span><span class="s2"> --&gt; </span><span class="si">{</span><span class="n">seconds_to_srt_time</span><span class="p">(</span><span class="n">end</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span>
 
-    <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-        <span class="n">_shift_line</span><span class="p">(</span><span class="n">line</span><span class="p">)</span> <span class="k">if</span> <span class="s2">&quot;--&gt;&quot;</span> <span class="ow">in</span> <span class="n">line</span> <span class="k">else</span> <span class="n">line</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">srt_text</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+        <span class="n">_shift_line</span><span class="p">(</span><span class="n">line</span><span class="p">)</span> <span class="k">if</span> <span class="s2">"--&gt;"</span> <span class="ow">in</span> <span class="n">line</span> <span class="k">else</span> <span class="n">line</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">srt_text</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
     <span class="p">)</span></div>
 
 </pre></div>

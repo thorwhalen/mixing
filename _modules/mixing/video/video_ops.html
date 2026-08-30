@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>mixing.video.video_ops &mdash; mixing 0.0.37 documentation</title>
+  <title>mixing.video.video_ops &mdash; mixing 0.0.38 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
@@ -14,7 +14,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=aa2ad26f"></script>
+      <script src="../../../_static/documentation_options.js?v=423071ad"></script>
       <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="../../../_static/toggleprompt.js?v=d7ede5d2"></script>
@@ -73,6 +73,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video.html">mixing.video</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/_helpers.html">mixing.video._helpers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/genai.html">mixing.video.genai</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/gif.html">mixing.video.gif</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/thumbnail.html">mixing.video.thumbnail</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/video_concat.html">mixing.video.video_concat</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/video_ops.html">mixing.video.video_ops</a></li>
@@ -105,7 +106,7 @@
            <div itemprop="articleBody">
              
   <h1>Source code for mixing.video.video_ops</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""</span>
 <span class="sd">Video cropping via slicing interface.</span>
 
 <span class="sd">Provides a lazy view into video segments without copying the underlying file.</span>
@@ -118,9 +119,9 @@
 <span class="sd">- Frame extraction via integer indexing</span>
 
 <span class="sd">Examples:</span>
-<span class="sd">    &gt;&gt;&gt; video = Video(&quot;my_video.mp4&quot;)  # doctest: +SKIP</span>
+<span class="sd">    &gt;&gt;&gt; video = Video("my_video.mp4")  # doctest: +SKIP</span>
 <span class="sd">    &gt;&gt;&gt; segment = video[10:20]  # Lazy view, no copying  # doctest: +SKIP</span>
-<span class="sd">    &gt;&gt;&gt; segment.save(&quot;clip.mp4&quot;)  # Only then does it process  # doctest: +SKIP</span>
+<span class="sd">    &gt;&gt;&gt; segment.save("clip.mp4")  # Only then does it process  # doctest: +SKIP</span>
 
 <span class="sd">    &gt;&gt;&gt; # Extract single frame</span>
 <span class="sd">    &gt;&gt;&gt; frame = video[100]  # Returns numpy array (frame 100)  # doctest: +SKIP</span>
@@ -128,22 +129,22 @@
 <span class="sd">    &gt;&gt;&gt; frame_video = video[10.5:10.5]  # Single frame at 10.5s  # doctest: +SKIP</span>
 
 <span class="sd">    &gt;&gt;&gt; # Use frame numbers instead</span>
-<span class="sd">    &gt;&gt;&gt; video = Video(&quot;movie.mp4&quot;, time_unit=&quot;frames&quot;)  # doctest: +SKIP</span>
+<span class="sd">    &gt;&gt;&gt; video = Video("movie.mp4", time_unit="frames")  # doctest: +SKIP</span>
 <span class="sd">    &gt;&gt;&gt; segment = video[100:500]  # Use frame numbers  # doctest: +SKIP</span>
 
 <span class="sd">    &gt;&gt;&gt; # Get a clip for further processing</span>
 <span class="sd">    &gt;&gt;&gt; with video[5:15].to_clip() as clip:  # doctest: +SKIP</span>
 <span class="sd">    ...     reversed = clip.fx(mp.vfx.time_mirror)  # doctest: +SKIP</span>
-<span class="sd">    ...     reversed.write_videofile(&quot;output.mp4&quot;)  # doctest: +SKIP</span>
+<span class="sd">    ...     reversed.write_videofile("output.mp4")  # doctest: +SKIP</span>
 
 <span class="sd">Design principles:</span>
 <span class="sd">- Lazy evaluation: Slicing creates views, not copies</span>
 <span class="sd">- Facade pattern: Clean interface over moviepy/cv2 complexity</span>
-<span class="sd">- Standard library interfaces: Uses Python&#39;s slice notation</span>
+<span class="sd">- Standard library interfaces: Uses Python's slice notation</span>
 <span class="sd">- Dependency injection: Configurable time units and codecs</span>
 <span class="sd">- Open-closed: Extensible via keyword arguments</span>
 <span class="sd">- Single source of truth: One class handles both time ranges and frames</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Union</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
@@ -162,6 +163,7 @@
     <span class="n">_auto_frame_path</span><span class="p">,</span>
     <span class="n">_is_video_file</span><span class="p">,</span>
     <span class="n">_set_default_codecs</span><span class="p">,</span>
+    <span class="n">_validated_crop_box</span><span class="p">,</span>
 <span class="p">)</span>
 
 
@@ -170,26 +172,26 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_to_seconds</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">unit</span><span class="p">:</span> <span class="n">TimeUnit</span><span class="p">,</span> <span class="n">fps</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert time value to seconds based on unit (wraps util.to_seconds with fps as rate).&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Convert time value to seconds based on unit (wraps util.to_seconds with fps as rate)."""</span>
     <span class="k">return</span> <span class="n">to_seconds</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="n">unit</span><span class="p">,</span> <span class="n">rate</span><span class="o">=</span><span class="n">fps</span><span class="p">)</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_get_video_path_from_clipboard</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get video file path from clipboard and validate it.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Get video file path from clipboard and validate it."""</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">..util</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_path_from_clipboard</span>
 
     <span class="k">return</span> <span class="n">get_path_from_clipboard</span><span class="p">()</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_copy_frame_to_clipboard</span><span class="p">(</span><span class="n">frame</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Copy a cv2 frame (numpy array) to system clipboard as pasteable image.</span>
 
 <span class="sd">    Requires: pillow, pyclip</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">..util</span><span class="w"> </span><span class="kn">import</span> <span class="n">copy_to_clipboard</span>
 
-    <span class="n">PIL_Image</span> <span class="o">=</span> <span class="n">require_package</span><span class="p">(</span><span class="s2">&quot;PIL.Image&quot;</span><span class="p">)</span>
+    <span class="n">PIL_Image</span> <span class="o">=</span> <span class="n">require_package</span><span class="p">(</span><span class="s2">"PIL.Image"</span><span class="p">)</span>
 
     <span class="c1"># Convert BGR (OpenCV) to RGB (PIL)</span>
     <span class="n">rgb_frame</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">cvtColor</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">COLOR_BGR2RGB</span><span class="p">)</span>
@@ -197,7 +199,7 @@
 
     <span class="c1"># Convert PIL Image to bytes for clipboard</span>
     <span class="n">buffer</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">BytesIO</span><span class="p">()</span>
-    <span class="n">image</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;PNG&quot;</span><span class="p">)</span>
+    <span class="n">image</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s2">"PNG"</span><span class="p">)</span>
     <span class="n">image_bytes</span> <span class="o">=</span> <span class="n">buffer</span><span class="o">.</span><span class="n">getvalue</span><span class="p">()</span>
 
     <span class="n">copy_to_clipboard</span><span class="p">(</span><span class="n">image_bytes</span><span class="p">)</span>
@@ -206,7 +208,7 @@
 <div class="viewcode-block" id="VideoFrames">
 <a class="viewcode-back" href="../../../module_docs/mixing/video/video_ops.html#mixing.VideoFrames">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">VideoFrames</span><span class="p">(</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Mapping interface to access video frames by index.</span>
 
 <span class="sd">    Provides dictionary-like access to video frames with support for negative</span>
@@ -218,11 +220,11 @@
 <span class="sd">        end_frame: Ending frame index (for segments)</span>
 
 <span class="sd">    Examples:</span>
-<span class="sd">        &gt;&gt;&gt; vf = VideoFrames(&quot;test_video.mp4&quot;)  # doctest: +SKIP</span>
+<span class="sd">        &gt;&gt;&gt; vf = VideoFrames("test_video.mp4")  # doctest: +SKIP</span>
 <span class="sd">        &gt;&gt;&gt; frame = vf[0]  # Get first frame  # doctest: +SKIP</span>
 <span class="sd">        &gt;&gt;&gt; last_frame = vf[-1]  # Get last frame  # doctest: +SKIP</span>
 <span class="sd">        &gt;&gt;&gt; frames = list(vf[10:20])  # Get frames 10-19  # doctest: +SKIP</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">video_src</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">start_frame</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">end_frame</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
@@ -230,7 +232,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">video_src</span> <span class="o">=</span> <span class="n">video_src</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_cap</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">VideoCapture</span><span class="p">(</span><span class="n">video_src</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cap</span><span class="o">.</span><span class="n">isOpened</span><span class="p">():</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Cannot open video file: </span><span class="si">{</span><span class="n">video_src</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Cannot open video file: </span><span class="si">{</span><span class="n">video_src</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
         <span class="n">total_frames</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_cap</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">cv2</span><span class="o">.</span><span class="n">CAP_PROP_FRAME_COUNT</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_cap</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
 
@@ -239,29 +241,29 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_frame_count</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">end_frame</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_frame</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return number of frames in this view.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return number of frames in this view."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_frame_count</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Iterate over frame indices in this view.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Iterate over frame indices in this view."""</span>
         <span class="k">return</span> <span class="nb">iter</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">start_frame</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">end_frame</span><span class="p">))</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_normalize_index</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">idx</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Convert negative indices to positive, relative to this view.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Convert negative indices to positive, relative to this view."""</span>
         <span class="k">if</span> <span class="n">idx</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
             <span class="n">idx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_frame_count</span> <span class="o">+</span> <span class="n">idx</span>
         <span class="k">if</span> <span class="n">idx</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">idx</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_frame_count</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">IndexError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Frame index </span><span class="si">{</span><span class="n">idx</span><span class="si">}</span><span class="s2"> out of range [0, </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_frame_count</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">IndexError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Frame index </span><span class="si">{</span><span class="n">idx</span><span class="si">}</span><span class="s2"> out of range [0, </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_frame_count</span><span class="si">}</span><span class="s2">)"</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_frame</span> <span class="o">+</span> <span class="n">idx</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_read_frame_at_index</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">idx</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Read a single frame at the given absolute index.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Read a single frame at the given absolute index."""</span>
         <span class="n">cap</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">VideoCapture</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">video_src</span><span class="p">)</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">cap</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">cv2</span><span class="o">.</span><span class="n">CAP_PROP_POS_FRAMES</span><span class="p">,</span> <span class="n">idx</span><span class="p">)</span>
             <span class="n">ret</span><span class="p">,</span> <span class="n">frame</span> <span class="o">=</span> <span class="n">cap</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">ret</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to read frame at index </span><span class="si">{</span><span class="n">idx</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Failed to read frame at index </span><span class="si">{</span><span class="n">idx</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">frame</span>
         <span class="k">finally</span><span class="p">:</span>
             <span class="n">cap</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
@@ -269,7 +271,7 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">_iterate_frames</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">start</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">stop</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">step</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Iterate over frames in the given range.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Iterate over frames in the given range."""</span>
         <span class="c1"># Normalize indices relative to this view</span>
         <span class="k">if</span> <span class="n">start</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
             <span class="n">start</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_frame_count</span> <span class="o">+</span> <span class="n">start</span><span class="p">)</span>
@@ -301,7 +303,7 @@
                 <span class="k">yield</span> <span class="bp">self</span><span class="o">.</span><span class="n">_read_frame_at_index</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">slice</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Get frame(s) by index or slice.</span>
 
 <span class="sd">        Args:</span>
@@ -310,7 +312,7 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            Single frame (np.ndarray) for integer index,</span>
 <span class="sd">            or iterator of frames for slice</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="nb">slice</span><span class="p">):</span>
             <span class="n">start</span><span class="p">,</span> <span class="n">stop</span><span class="p">,</span> <span class="n">step</span> <span class="o">=</span> <span class="n">key</span><span class="o">.</span><span class="n">indices</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_frame_count</span><span class="p">)</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_iterate_frames</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">stop</span><span class="p">,</span> <span class="n">step</span> <span class="ow">or</span> <span class="mi">1</span><span class="p">)</span>
@@ -319,7 +321,7 @@
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_read_frame_at_index</span><span class="p">(</span><span class="n">abs_idx</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Indices must be integers or slices, not </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">key</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="sa">f</span><span class="s2">"Indices must be integers or slices, not </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">key</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">"</span>
             <span class="p">)</span></div>
 
 
@@ -327,7 +329,7 @@
 <div class="viewcode-block" id="Video">
 <a class="viewcode-back" href="../../../module_docs/mixing/video/video_ops.html#mixing.Video">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">Video</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Sliceable interface for videos supporting both time ranges and frame extraction.</span>
 
 <span class="sd">    Provides lazy views into video segments using slice notation, and direct frame</span>
@@ -336,22 +338,22 @@
 
 <span class="sd">    Args:</span>
 <span class="sd">        video_src: Path to source video file</span>
-<span class="sd">        time_unit: Unit for slice indices (&#39;seconds&#39;, &#39;frames&#39;, &#39;milliseconds&#39;)</span>
+<span class="sd">        time_unit: Unit for slice indices ('seconds', 'frames', 'milliseconds')</span>
 <span class="sd">        start_time: Start time in seconds (for creating sub-views)</span>
 <span class="sd">        end_time: End time in seconds (for creating sub-views)</span>
 
 <span class="sd">    Examples:</span>
-<span class="sd">        &gt;&gt;&gt; video = Video(&quot;movie.mp4&quot;)  # doctest: +SKIP</span>
+<span class="sd">        &gt;&gt;&gt; video = Video("movie.mp4")  # doctest: +SKIP</span>
 <span class="sd">        &gt;&gt;&gt;</span>
 <span class="sd">        &gt;&gt;&gt; # Get segment from 10s to 20s (returns Video)</span>
 <span class="sd">        &gt;&gt;&gt; segment = video[10:20]  # doctest: +SKIP</span>
-<span class="sd">        &gt;&gt;&gt; segment.save(&quot;clip.mp4&quot;)  # doctest: +SKIP</span>
+<span class="sd">        &gt;&gt;&gt; segment.save("clip.mp4")  # doctest: +SKIP</span>
 <span class="sd">        &gt;&gt;&gt;</span>
 <span class="sd">        &gt;&gt;&gt; # Extract single frame (returns numpy array)</span>
 <span class="sd">        &gt;&gt;&gt; frame = video[100]  # Frame at 100 seconds  # doctest: +SKIP</span>
 <span class="sd">        &gt;&gt;&gt;</span>
 <span class="sd">        &gt;&gt;&gt; # Use frame numbers as unit</span>
-<span class="sd">        &gt;&gt;&gt; video_frames = Video(&quot;movie.mp4&quot;, time_unit=&quot;frames&quot;)  # doctest: +SKIP</span>
+<span class="sd">        &gt;&gt;&gt; video_frames = Video("movie.mp4", time_unit="frames")  # doctest: +SKIP</span>
 <span class="sd">        &gt;&gt;&gt; segment = video_frames[100:500]  # Frames 100-500  # doctest: +SKIP</span>
 <span class="sd">        &gt;&gt;&gt; single_frame = video_frames[250]  # Single frame  # doctest: +SKIP</span>
 <span class="sd">        &gt;&gt;&gt;</span>
@@ -361,14 +363,14 @@
 <span class="sd">        &gt;&gt;&gt; # Chain operations with moviepy</span>
 <span class="sd">        &gt;&gt;&gt; with video[5:15].to_clip() as clip:  # doctest: +SKIP</span>
 <span class="sd">        ...     reversed_clip = clip.fx(mp.vfx.time_mirror)  # doctest: +SKIP</span>
-<span class="sd">        ...     reversed_clip.write_videofile(&quot;reversed.mp4&quot;)  # doctest: +SKIP</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">        ...     reversed_clip.write_videofile("reversed.mp4")  # doctest: +SKIP</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">video_src</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
-        <span class="n">time_unit</span><span class="p">:</span> <span class="n">TimeUnit</span> <span class="o">=</span> <span class="s2">&quot;seconds&quot;</span><span class="p">,</span>
+        <span class="n">time_unit</span><span class="p">:</span> <span class="n">TimeUnit</span> <span class="o">=</span> <span class="s2">"seconds"</span><span class="p">,</span>
         <span class="n">start_time</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">end_time</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
@@ -382,17 +384,17 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">start_time</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Start time in seconds (0.0 if not set).&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Start time in seconds (0.0 if not set)."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_start_time</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_start_time</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="mf">0.0</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">end_time</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;End time in seconds (video duration if not set).&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""End time in seconds (video duration if not set)."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_end_time</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_end_time</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">full_duration</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">full_duration</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Duration of the source video in seconds.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Duration of the source video in seconds."""</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_duration</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">with</span> <span class="n">mp</span><span class="o">.</span><span class="n">VideoFileClip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">video_src</span><span class="p">)</span> <span class="k">as</span> <span class="n">clip</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_duration</span> <span class="o">=</span> <span class="n">clip</span><span class="o">.</span><span class="n">duration</span>
@@ -400,12 +402,12 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">duration</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Duration of this video/segment in seconds.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Duration of this video/segment in seconds."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">end_time</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_time</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">fps</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Frames per second of video.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Frames per second of video."""</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fps</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">with</span> <span class="n">mp</span><span class="o">.</span><span class="n">VideoFileClip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">video_src</span><span class="p">)</span> <span class="k">as</span> <span class="n">clip</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_fps</span> <span class="o">=</span> <span class="n">clip</span><span class="o">.</span><span class="n">fps</span>
@@ -413,7 +415,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">frame_count</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Total number of frames in source video.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Total number of frames in source video."""</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_frame_count</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">cap</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">VideoCapture</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">video_src</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_frame_count</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">cap</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">cv2</span><span class="o">.</span><span class="n">CAP_PROP_FRAME_COUNT</span><span class="p">))</span>
@@ -421,7 +423,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_frame_count</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_find_last_readable_frame</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Find the last actually readable frame index (some videos have corrupted end frames).&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Find the last actually readable frame index (some videos have corrupted end frames)."""</span>
         <span class="n">cap</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">VideoCapture</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">video_src</span><span class="p">)</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">reported_count</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">cap</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">cv2</span><span class="o">.</span><span class="n">CAP_PROP_FRAME_COUNT</span><span class="p">))</span>
@@ -446,7 +448,7 @@
             <span class="n">cap</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_resolve_time</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">idx</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">is_start</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Convert index to absolute time in seconds, handling negative indices.</span>
 
 <span class="sd">        Centralizes time/index resolution logic used throughout the class.</span>
@@ -457,7 +459,7 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            Absolute time in seconds, clamped to segment bounds</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="n">idx</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_time</span> <span class="k">if</span> <span class="n">is_start</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">end_time</span>
 
@@ -471,11 +473,11 @@
             <span class="c1"># Positive indices are relative to segment start</span>
             <span class="n">idx_seconds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_time</span> <span class="o">+</span> <span class="n">idx_seconds</span>
 
-        <span class="c1"># Clamp to segment&#39;s valid range</span>
+        <span class="c1"># Clamp to segment's valid range</span>
         <span class="k">return</span> <span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">start_time</span><span class="p">,</span> <span class="nb">min</span><span class="p">(</span><span class="n">idx_seconds</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">end_time</span><span class="p">))</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_get_frame_at_time</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">time_seconds</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Extract a single frame at the given time in seconds.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Extract a single frame at the given time in seconds."""</span>
         <span class="c1"># Convert time to absolute frame index</span>
         <span class="n">frame_idx</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">time_seconds</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">fps</span><span class="p">)</span>
         <span class="n">frame_idx</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">min</span><span class="p">(</span><span class="n">frame_idx</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">frame_count</span> <span class="o">-</span> <span class="mi">1</span><span class="p">))</span>
@@ -499,16 +501,16 @@
 
                 <span class="c1"># Still failed - raise error</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;Failed to read frame at time </span><span class="si">{</span><span class="n">time_seconds</span><span class="si">}</span><span class="s2">s (frame </span><span class="si">{</span><span class="n">frame_idx</span><span class="si">}</span><span class="s2">). &quot;</span>
-                    <span class="sa">f</span><span class="s2">&quot;Last readable frame: </span><span class="si">{</span><span class="n">last_readable</span><span class="si">}</span><span class="s2">&quot;</span>
+                    <span class="sa">f</span><span class="s2">"Failed to read frame at time </span><span class="si">{</span><span class="n">time_seconds</span><span class="si">}</span><span class="s2">s (frame </span><span class="si">{</span><span class="n">frame_idx</span><span class="si">}</span><span class="s2">). "</span>
+                    <span class="sa">f</span><span class="s2">"Last readable frame: </span><span class="si">{</span><span class="n">last_readable</span><span class="si">}</span><span class="s2">"</span>
                 <span class="p">)</span>
 
             <span class="k">return</span> <span class="n">frame</span>
         <span class="k">finally</span><span class="p">:</span>
             <span class="n">cap</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">slice</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="s2">&quot;Video&quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">slice</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="s2">"Video"</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Get a video segment or single frame using slice/index notation.</span>
 
 <span class="sd">        Args:</span>
@@ -518,21 +520,21 @@
 <span class="sd">            Video for slice, numpy array (frame) for integer/float</span>
 
 <span class="sd">        Examples:</span>
-<span class="sd">            &gt;&gt;&gt; video = Video(&quot;test.mp4&quot;)  # doctest: +SKIP</span>
+<span class="sd">            &gt;&gt;&gt; video = Video("test.mp4")  # doctest: +SKIP</span>
 <span class="sd">            &gt;&gt;&gt; segment = video[10:20]  # 10s to 20s (Video)  # doctest: +SKIP</span>
 <span class="sd">            &gt;&gt;&gt; frame = video[15]  # Frame at 15 seconds (np.ndarray)  # doctest: +SKIP</span>
 <span class="sd">            &gt;&gt;&gt; ending = video[-30:]  # Last 30 seconds  # doctest: +SKIP</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="nb">slice</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">key</span><span class="o">.</span><span class="n">step</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Step is not supported for video cropping&quot;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"Step is not supported for video cropping"</span><span class="p">)</span>
 
             <span class="n">start</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resolve_time</span><span class="p">(</span><span class="n">key</span><span class="o">.</span><span class="n">start</span><span class="p">,</span> <span class="n">is_start</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
             <span class="n">end</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resolve_time</span><span class="p">(</span><span class="n">key</span><span class="o">.</span><span class="n">stop</span><span class="p">,</span> <span class="n">is_start</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
             <span class="k">if</span> <span class="n">start</span> <span class="o">&gt;=</span> <span class="n">end</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;Invalid time range: start (</span><span class="si">{</span><span class="n">start</span><span class="si">}</span><span class="s2">s) must be before end (</span><span class="si">{</span><span class="n">end</span><span class="si">}</span><span class="s2">s)&quot;</span>
+                    <span class="sa">f</span><span class="s2">"Invalid time range: start (</span><span class="si">{</span><span class="n">start</span><span class="si">}</span><span class="s2">s) must be before end (</span><span class="si">{</span><span class="n">end</span><span class="si">}</span><span class="s2">s)"</span>
                 <span class="p">)</span>
 
             <span class="c1"># Return new Video instance</span>
@@ -561,7 +563,7 @@
 
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Video indexing requires int/float or slice, got </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">key</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="sa">f</span><span class="s2">"Video indexing requires int/float or slice, got </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">key</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">"</span>
             <span class="p">)</span>
 
 <div class="viewcode-block" id="Video.save">
@@ -570,11 +572,12 @@
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">output</span><span class="p">:</span> <span class="n">Output</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
-        <span class="n">codec</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;libx264&quot;</span><span class="p">,</span>
-        <span class="n">audio_codec</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;aac&quot;</span><span class="p">,</span>
+        <span class="n">codec</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"libx264"</span><span class="p">,</span>
+        <span class="n">audio_codec</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"aac"</span><span class="p">,</span>
+        <span class="n">crop_box</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="o">**</span><span class="n">write_kwargs</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Save this video/segment to a new video file.</span>
 
 <span class="sd">        Args:</span>
@@ -583,18 +586,27 @@
 <span class="sd">                a callable sink. See mixing.egress.</span>
 <span class="sd">            codec: Video codec to use</span>
 <span class="sd">            audio_codec: Audio codec to use</span>
+<span class="sd">            crop_box: Optional spatial crop as ``(x, y, w, h)`` pixels from the</span>
+<span class="sd">                top-left, applied in the same encode pass as the temporal</span>
+<span class="sd">                slice. Width/height are floored to even values (libx264</span>
+<span class="sd">                rejects odd dimensions); an out-of-bounds box raises</span>
+<span class="sd">                ``ValueError``.</span>
 <span class="sd">            **write_kwargs: Additional arguments for write_videofile</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            Path to saved file</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">default_path</span> <span class="o">=</span> <span class="n">_auto_video_path</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">video_src</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">start_time</span><span class="p">)</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">end_time</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
-        <span class="p">)</span>
+<span class="sd">        """</span>
+        <span class="n">suffix</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">start_time</span><span class="p">)</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">end_time</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span>
+        <span class="k">if</span> <span class="n">crop_box</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">suffix</span> <span class="o">+=</span> <span class="s2">"_crop"</span>
+        <span class="n">default_path</span> <span class="o">=</span> <span class="n">_auto_video_path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">video_src</span><span class="p">,</span> <span class="n">suffix</span><span class="p">)</span>
 
         <span class="k">def</span><span class="w"> </span><span class="nf">_write</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">with</span> <span class="n">mp</span><span class="o">.</span><span class="n">VideoFileClip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">video_src</span><span class="p">)</span> <span class="k">as</span> <span class="n">clip</span><span class="p">:</span>
                 <span class="n">subclip</span> <span class="o">=</span> <span class="n">clip</span><span class="o">.</span><span class="n">subclipped</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">start_time</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">end_time</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">crop_box</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span> <span class="o">=</span> <span class="n">_validated_crop_box</span><span class="p">(</span><span class="n">crop_box</span><span class="p">,</span> <span class="n">clip</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>
+                    <span class="n">subclip</span> <span class="o">=</span> <span class="n">subclip</span><span class="o">.</span><span class="n">cropped</span><span class="p">(</span><span class="n">x1</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">y1</span><span class="o">=</span><span class="n">y</span><span class="p">,</span> <span class="n">x2</span><span class="o">=</span><span class="n">x</span> <span class="o">+</span> <span class="n">w</span><span class="p">,</span> <span class="n">y2</span><span class="o">=</span><span class="n">y</span> <span class="o">+</span> <span class="n">h</span><span class="p">)</span>
                 <span class="n">subclip</span><span class="o">.</span><span class="n">write_videofile</span><span class="p">(</span>
                     <span class="nb">str</span><span class="p">(</span><span class="n">path</span><span class="p">),</span> <span class="n">codec</span><span class="o">=</span><span class="n">codec</span><span class="p">,</span> <span class="n">audio_codec</span><span class="o">=</span><span class="n">audio_codec</span><span class="p">,</span> <span class="o">**</span><span class="n">write_kwargs</span>
                 <span class="p">)</span>
@@ -609,17 +621,17 @@
         <span class="n">time_or_frame</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">output</span><span class="p">:</span> <span class="n">Output</span> <span class="o">|</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
-        <span class="n">image_format</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;png&quot;</span><span class="p">,</span>
+        <span class="n">image_format</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"png"</span><span class="p">,</span>
         <span class="n">copy_to_clipboard</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Save a single frame as an image and/or copy to clipboard.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            time_or_frame: Time/frame index (None = start of segment)</span>
 <span class="sd">            output: Where to put the frame — None (save beside the input with an</span>
 <span class="sd">                auto-derived name), a file path, a directory (auto-named), or a</span>
-<span class="sd">                callable sink. ``False`` means &quot;don&#39;t save to file&quot; (clipboard</span>
+<span class="sd">                callable sink. ``False`` means "don't save to file" (clipboard</span>
 <span class="sd">                only). See mixing.egress.</span>
 <span class="sd">            image_format: Image format (png, jpg, etc.)</span>
 <span class="sd">            copy_to_clipboard: If True, copy image to system clipboard</span>
@@ -628,14 +640,14 @@
 <span class="sd">            Path to saved image, or None if only copied to clipboard</span>
 
 <span class="sd">        Examples:</span>
-<span class="sd">            &gt;&gt;&gt; video = Video(&quot;movie.mp4&quot;)  # doctest: +SKIP</span>
+<span class="sd">            &gt;&gt;&gt; video = Video("movie.mp4")  # doctest: +SKIP</span>
 <span class="sd">            &gt;&gt;&gt; video.save_frame(10.5)  # Save frame at 10.5s  # doctest: +SKIP</span>
 <span class="sd">            &gt;&gt;&gt; video.save_frame(10.5, copy_to_clipboard=True)  # Save and copy  # doctest: +SKIP</span>
 <span class="sd">            &gt;&gt;&gt; video.save_frame(10.5, output=False, copy_to_clipboard=True)  # Clipboard only  # doctest: +SKIP</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="n">output</span> <span class="ow">is</span> <span class="kc">False</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">copy_to_clipboard</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="s2">&quot;Must specify at least one output: set output or copy_to_clipboard=True&quot;</span>
+                <span class="s2">"Must specify at least one output: set output or copy_to_clipboard=True"</span>
             <span class="p">)</span>
 
         <span class="k">if</span> <span class="n">time_or_frame</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -646,7 +658,7 @@
 
         <span class="c1"># Copy to clipboard if requested</span>
         <span class="k">if</span> <span class="n">copy_to_clipboard</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Copying image to clipboard...&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">"Copying image to clipboard..."</span><span class="p">)</span>
             <span class="n">_copy_frame_to_clipboard</span><span class="p">(</span><span class="n">frame</span><span class="p">)</span>
 
         <span class="c1"># Save to file if requested</span>
@@ -658,11 +670,11 @@
 
             <span class="c1"># An explicit file path without a suffix gets the image_format ext.</span>
             <span class="k">if</span> <span class="n">is_path_output</span><span class="p">(</span><span class="n">output</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">Path</span><span class="p">(</span><span class="n">output</span><span class="p">)</span><span class="o">.</span><span class="n">suffix</span><span class="p">:</span>
-                <span class="n">output</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">output</span><span class="p">)</span><span class="o">.</span><span class="n">with_suffix</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;.</span><span class="si">{</span><span class="n">image_format</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">))</span>
+                <span class="n">output</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">output</span><span class="p">)</span><span class="o">.</span><span class="n">with_suffix</span><span class="p">(</span><span class="sa">f</span><span class="s2">".</span><span class="si">{</span><span class="n">image_format</span><span class="si">}</span><span class="s2">"</span><span class="p">))</span>
 
             <span class="k">def</span><span class="w"> </span><span class="nf">_write</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">cv2</span><span class="o">.</span><span class="n">imwrite</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">path</span><span class="p">),</span> <span class="n">frame</span><span class="p">)</span>
-                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Saved frame to: </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Saved frame to: </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
             <span class="k">return</span> <span class="n">write_egress</span><span class="p">(</span><span class="n">output</span><span class="p">,</span> <span class="n">default_path</span><span class="o">=</span><span class="n">default_path</span><span class="p">,</span> <span class="n">write</span><span class="o">=</span><span class="n">_write</span><span class="p">)</span>
 
@@ -672,11 +684,11 @@
 <div class="viewcode-block" id="Video.to_clip">
 <a class="viewcode-back" href="../../../module_docs/mixing/video/video_ops.html#mixing.Video.to_clip">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">to_clip</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">mp</span><span class="o">.</span><span class="n">VideoFileClip</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Get a moviepy VideoFileClip for this segment.</span>
 
 <span class="sd">        Note: Caller is responsible for closing the clip.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">clip</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">VideoFileClip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">video_src</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">clip</span><span class="o">.</span><span class="n">subclipped</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">start_time</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">end_time</span><span class="p">)</span></div>
 
@@ -684,22 +696,22 @@
     <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_start_time</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_end_time</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Video(&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">video_src</span><span class="si">}</span><span class="s2">&#39;, &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;time_unit=&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">time_unit</span><span class="si">}</span><span class="s2">&#39;, &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;start=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">start_time</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">s, &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;end=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">end_time</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">s, &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;duration=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">duration</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">s)&quot;</span>
+                <span class="sa">f</span><span class="s2">"Video('</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">video_src</span><span class="si">}</span><span class="s2">', "</span>
+                <span class="sa">f</span><span class="s2">"time_unit='</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">time_unit</span><span class="si">}</span><span class="s2">', "</span>
+                <span class="sa">f</span><span class="s2">"start=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">start_time</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">s, "</span>
+                <span class="sa">f</span><span class="s2">"end=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">end_time</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">s, "</span>
+                <span class="sa">f</span><span class="s2">"duration=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">duration</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">s)"</span>
             <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Video(&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">video_src</span><span class="si">}</span><span class="s2">&#39;, &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;time_unit=&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">time_unit</span><span class="si">}</span><span class="s2">&#39;, &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;duration=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">full_duration</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">s)&quot;</span>
+                <span class="sa">f</span><span class="s2">"Video('</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">video_src</span><span class="si">}</span><span class="s2">', "</span>
+                <span class="sa">f</span><span class="s2">"time_unit='</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">time_unit</span><span class="si">}</span><span class="s2">', "</span>
+                <span class="sa">f</span><span class="s2">"duration=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">full_duration</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">s)"</span>
             <span class="p">)</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">frames</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;VideoFrames&quot;</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get frame-by-frame Mapping interface for this video/segment.&quot;&quot;&quot;</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">frames</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"VideoFrames"</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Get frame-by-frame Mapping interface for this video/segment."""</span>
         <span class="k">return</span> <span class="n">VideoFrames</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">video_src</span><span class="p">,</span>
             <span class="n">start_frame</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">start_time</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">fps</span><span class="p">),</span>
@@ -709,22 +721,22 @@
 <div class="viewcode-block" id="Video.close">
 <a class="viewcode-back" href="../../../module_docs/mixing/video/video_ops.html#mixing.Video.close">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Release any backend handles (moviepy clip / cv2 capture) held.</span>
+<span class="w">        </span><span class="sd">"""Release any backend handles (moviepy clip / cv2 capture) held.</span>
 
 <span class="sd">        ``Video`` is path-backed: most operations open a moviepy clip or cv2</span>
 <span class="sd">        capture inside a ``with`` / ``try-finally`` block and release it</span>
 <span class="sd">        immediately. ``close`` defensively releases any handle that *was*</span>
 <span class="sd">        cached on the instance (``_clip`` / ``_cap``), so it is safe to call</span>
 <span class="sd">        even when nothing is open, and future-proof if a handle is ever cached.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">clip</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;_clip&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+<span class="sd">        """</span>
+        <span class="n">clip</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">"_clip"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">clip</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">clip</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
             <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
                 <span class="k">pass</span>  <span class="c1"># best-effort cleanup</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_clip</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="n">cap</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;_cap&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">cap</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">"_cap"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">cap</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">cap</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
@@ -733,12 +745,12 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_cap</span> <span class="o">=</span> <span class="kc">None</span></div>
 
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__enter__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Video&quot;</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Support ``with Video(path) as v: ...`` — returns ``self``.&quot;&quot;&quot;</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__enter__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Video"</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Support ``with Video(path) as v: ...`` — returns ``self``."""</span>
         <span class="k">return</span> <span class="bp">self</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__exit__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exc_type</span><span class="p">,</span> <span class="n">exc_value</span><span class="p">,</span> <span class="n">traceback</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Release backend handles on context exit (see :meth:`close`).&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Release backend handles on context exit (see :meth:`close`)."""</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
 
 
@@ -750,11 +762,12 @@
     <span class="n">start</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">end</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
-    <span class="n">time_unit</span><span class="p">:</span> <span class="n">TimeUnit</span> <span class="o">=</span> <span class="s2">&quot;seconds&quot;</span><span class="p">,</span>
+    <span class="n">time_unit</span><span class="p">:</span> <span class="n">TimeUnit</span> <span class="o">=</span> <span class="s2">"seconds"</span><span class="p">,</span>
+    <span class="n">crop_box</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">output</span><span class="p">:</span> <span class="n">Output</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="o">**</span><span class="n">save_kwargs</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Convenience function to crop and save a video segment or frame.</span>
 
 <span class="sd">    Args:</span>
@@ -762,6 +775,10 @@
 <span class="sd">        start: Start time/frame (None = beginning)</span>
 <span class="sd">        end: End time/frame (None = end of video)</span>
 <span class="sd">        time_unit: Unit for start/end values</span>
+<span class="sd">        crop_box: Optional spatial crop as ``(x, y, w, h)`` pixels from the</span>
+<span class="sd">            top-left, applied in the same encode pass as the temporal slice</span>
+<span class="sd">            (see :meth:`Video.save`). Not supported for single-frame</span>
+<span class="sd">            extraction (``start == end``).</span>
 <span class="sd">        output: Where to put the result — None (save beside the input), a file</span>
 <span class="sd">            path, a directory (auto-named), or a callable sink. See mixing.egress.</span>
 <span class="sd">        **save_kwargs: Additional arguments for save operation</span>
@@ -770,20 +787,33 @@
 <span class="sd">        Path to saved cropped video</span>
 
 <span class="sd">    Examples:</span>
-<span class="sd">        &gt;&gt;&gt; crop_video(&quot;video.mp4&quot;, 10, 30)  # Crop 10s-30s  # doctest: +SKIP</span>
-<span class="sd">        &gt;&gt;&gt; crop_video(&quot;video.mp4&quot;, 100, 500, time_unit=&quot;frames&quot;)  # doctest: +SKIP</span>
-<span class="sd">        &gt;&gt;&gt; crop_video(&quot;video.mp4&quot;, 10, 10)  # Single frame at 10s  # doctest: +SKIP</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">        &gt;&gt;&gt; crop_video("video.mp4", 10, 30)  # Crop 10s-30s  # doctest: +SKIP</span>
+<span class="sd">        &gt;&gt;&gt; crop_video("video.mp4", 100, 500, time_unit="frames")  # doctest: +SKIP</span>
+<span class="sd">        &gt;&gt;&gt; crop_video("video.mp4", 10, 10)  # Single frame at 10s  # doctest: +SKIP</span>
+<span class="sd">        &gt;&gt;&gt; crop_video("video.mp4", 10, 15, crop_box=(549, 102, 309, 386))  # doctest: +SKIP</span>
+<span class="sd">    """</span>
     <span class="n">video</span> <span class="o">=</span> <span class="n">Video</span><span class="p">(</span><span class="n">video_src</span><span class="p">,</span> <span class="n">time_unit</span><span class="o">=</span><span class="n">time_unit</span><span class="p">)</span>
 
     <span class="c1"># Handle single frame case</span>
     <span class="k">if</span> <span class="n">start</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">end</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">start</span> <span class="o">==</span> <span class="n">end</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">crop_box</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">"crop_box is not supported for single-frame extraction "</span>
+                <span class="s2">"(start == end); use save_frame and crop the image instead"</span>
+            <span class="p">)</span>
+        <span class="n">frame_kwargs</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"image_format"</span><span class="p">,</span> <span class="s2">"copy_to_clipboard"</span><span class="p">}</span>
+        <span class="n">segment_only</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">save_kwargs</span><span class="p">)</span> <span class="o">-</span> <span class="n">frame_kwargs</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">segment_only</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">segment_only</span><span class="si">}</span><span class="s2"> apply to segment export; the single-frame "</span>
+                <span class="sa">f</span><span class="s2">"path (start == end) takes only </span><span class="si">{</span><span class="nb">sorted</span><span class="p">(</span><span class="n">frame_kwargs</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span>
+            <span class="p">)</span>
         <span class="c1"># Extract single frame</span>
         <span class="k">return</span> <span class="n">video</span><span class="o">.</span><span class="n">save_frame</span><span class="p">(</span><span class="n">time_or_frame</span><span class="o">=</span><span class="n">start</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="n">output</span><span class="p">,</span> <span class="o">**</span><span class="n">save_kwargs</span><span class="p">)</span>
 
     <span class="c1"># Handle segment case</span>
     <span class="n">segment</span> <span class="o">=</span> <span class="n">video</span><span class="p">[</span><span class="n">start</span><span class="p">:</span><span class="n">end</span><span class="p">]</span>
-    <span class="k">return</span> <span class="n">segment</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">output</span><span class="p">,</span> <span class="o">**</span><span class="n">save_kwargs</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="n">segment</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">output</span><span class="p">,</span> <span class="n">crop_box</span><span class="o">=</span><span class="n">crop_box</span><span class="p">,</span> <span class="o">**</span><span class="n">save_kwargs</span><span class="p">)</span></div>
 
 
 
@@ -795,24 +825,24 @@
     <span class="o">*</span><span class="p">,</span>
     <span class="n">time_unit</span><span class="p">:</span> <span class="n">TimeUnit</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">output</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">image_format</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;png&quot;</span><span class="p">,</span>
+    <span class="n">image_format</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"png"</span><span class="p">,</span>
     <span class="n">copy_to_clipboard</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Extract and save a frame from a video file.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        video_src: Path to the video file. If None, gets from clipboard.</span>
 <span class="sd">        time_or_frame: Time/frame index of the frame to extract (default: 0)</span>
-<span class="sd">        time_unit: Unit for time_or_frame (&#39;seconds&#39;, &#39;frames&#39;, &#39;milliseconds&#39;).</span>
-<span class="sd">            If None, defaults to &#39;seconds&#39;, unless time_or_frame is a negative integer,</span>
-<span class="sd">            in which case it defaults to &#39;frames&#39;.</span>
+<span class="sd">        time_unit: Unit for time_or_frame ('seconds', 'frames', 'milliseconds').</span>
+<span class="sd">            If None, defaults to 'seconds', unless time_or_frame is a negative integer,</span>
+<span class="sd">            in which case it defaults to 'frames'.</span>
 <span class="sd">        output: Where to put the frame — None (save beside the input with an</span>
 <span class="sd">            auto-derived name), a file path, a directory (auto-named), or a</span>
 <span class="sd">            callable sink. See mixing.egress. Two extra string shorthands are</span>
-<span class="sd">            honored: ``&quot;&quot;`` (same as None), a value starting with ``&quot;.&quot;`` (used</span>
-<span class="sd">            as the image extension), and ``&quot;/TMP&quot;`` (save to the temp dir).</span>
-<span class="sd">            ``False`` means &quot;don&#39;t save to file&quot; (requires copy_to_clipboard).</span>
+<span class="sd">            honored: ``""`` (same as None), a value starting with ``"."`` (used</span>
+<span class="sd">            as the image extension), and ``"/TMP"`` (save to the temp dir).</span>
+<span class="sd">            ``False`` means "don't save to file" (requires copy_to_clipboard).</span>
 <span class="sd">        image_format: Default image format if not specified in output</span>
 <span class="sd">        copy_to_clipboard: If True, copy image to system clipboard</span>
 
@@ -820,18 +850,18 @@
 <span class="sd">        Path to the saved image file, or None if only copied to clipboard</span>
 
 <span class="sd">    Examples:</span>
-<span class="sd">        &gt;&gt;&gt; save_frame(&quot;video.mp4&quot;)  # Saves frame 0  # doctest: +SKIP</span>
-<span class="sd">        &gt;&gt;&gt; save_frame(&quot;video.mp4&quot;, 10)  # Saves frame at 10s  # doctest: +SKIP</span>
-<span class="sd">        &gt;&gt;&gt; save_frame(&quot;video.mp4&quot;, -1)  # Saves last frame (frame-based)  # doctest: +SKIP</span>
-<span class="sd">        &gt;&gt;&gt; save_frame(&quot;video.mp4&quot;, 100, time_unit=&quot;frames&quot;)  # Frame 100  # doctest: +SKIP</span>
-<span class="sd">        &gt;&gt;&gt; save_frame(&quot;video.mp4&quot;, 5, output=&quot;.jpg&quot;)  # doctest: +SKIP</span>
-<span class="sd">        &gt;&gt;&gt; save_frame(&quot;video.mp4&quot;, 5, output=&quot;/TMP&quot;)  # doctest: +SKIP</span>
+<span class="sd">        &gt;&gt;&gt; save_frame("video.mp4")  # Saves frame 0  # doctest: +SKIP</span>
+<span class="sd">        &gt;&gt;&gt; save_frame("video.mp4", 10)  # Saves frame at 10s  # doctest: +SKIP</span>
+<span class="sd">        &gt;&gt;&gt; save_frame("video.mp4", -1)  # Saves last frame (frame-based)  # doctest: +SKIP</span>
+<span class="sd">        &gt;&gt;&gt; save_frame("video.mp4", 100, time_unit="frames")  # Frame 100  # doctest: +SKIP</span>
+<span class="sd">        &gt;&gt;&gt; save_frame("video.mp4", 5, output=".jpg")  # doctest: +SKIP</span>
+<span class="sd">        &gt;&gt;&gt; save_frame("video.mp4", 5, output="/TMP")  # doctest: +SKIP</span>
 <span class="sd">        &gt;&gt;&gt; save_frame(time_or_frame=3, copy_to_clipboard=True)  # From clipboard  # doctest: +SKIP</span>
 <span class="sd">        &gt;&gt;&gt; save_frame(time_or_frame=3, output=False, copy_to_clipboard=True)  # Clipboard only  # doctest: +SKIP</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="n">output</span> <span class="ow">is</span> <span class="kc">False</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">copy_to_clipboard</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="s2">&quot;Must specify at least one output: set output or copy_to_clipboard=True&quot;</span>
+            <span class="s2">"Must specify at least one output: set output or copy_to_clipboard=True"</span>
         <span class="p">)</span>
 
     <span class="k">if</span> <span class="n">video_src</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -840,31 +870,31 @@
     <span class="c1"># Smart defaulting for time_unit</span>
     <span class="k">if</span> <span class="n">time_unit</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">time_or_frame</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">and</span> <span class="n">time_or_frame</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="n">time_unit</span> <span class="o">=</span> <span class="s2">&quot;frames&quot;</span>
+            <span class="n">time_unit</span> <span class="o">=</span> <span class="s2">"frames"</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">time_unit</span> <span class="o">=</span> <span class="s2">&quot;seconds&quot;</span>
+            <span class="n">time_unit</span> <span class="o">=</span> <span class="s2">"seconds"</span>
 
     <span class="n">video</span> <span class="o">=</span> <span class="n">Video</span><span class="p">(</span><span class="n">video_src</span><span class="p">,</span> <span class="n">time_unit</span><span class="o">=</span><span class="n">time_unit</span><span class="p">)</span>
 
-    <span class="c1"># Resolve time using the Video&#39;s _resolve_time method</span>
+    <span class="c1"># Resolve time using the Video's _resolve_time method</span>
     <span class="n">time_seconds</span> <span class="o">=</span> <span class="n">video</span><span class="o">.</span><span class="n">_resolve_time</span><span class="p">(</span><span class="n">time_or_frame</span><span class="p">,</span> <span class="n">is_start</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
     <span class="c1"># Determine output path based on the output parameter</span>
     <span class="n">output_path</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="k">if</span> <span class="n">output</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
         <span class="n">output_path</span> <span class="o">=</span> <span class="kc">False</span>
-    <span class="k">elif</span> <span class="n">output</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">output</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span><span class="p">:</span>
+    <span class="k">elif</span> <span class="n">output</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">output</span> <span class="o">==</span> <span class="s2">""</span><span class="p">:</span>
         <span class="c1"># Auto-generate: video_dir/video_name_frameIdx.ext</span>
         <span class="n">output_path</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># Let Video.save_frame auto-generate</span>
-    <span class="k">elif</span> <span class="n">output</span> <span class="o">==</span> <span class="s2">&quot;/TMP&quot;</span><span class="p">:</span>
+    <span class="k">elif</span> <span class="n">output</span> <span class="o">==</span> <span class="s2">"/TMP"</span><span class="p">:</span>
         <span class="c1"># Save to temporary directory</span>
         <span class="n">temp_dir</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">gettempdir</span><span class="p">()</span>
         <span class="n">video_name</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">video_src</span><span class="p">)</span><span class="o">.</span><span class="n">stem</span>
         <span class="n">frame_idx_int</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">time_seconds</span> <span class="o">*</span> <span class="n">video</span><span class="o">.</span><span class="n">fps</span><span class="p">)</span>
         <span class="n">output_path</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="n">Path</span><span class="p">(</span><span class="n">temp_dir</span><span class="p">)</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">video_name</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">frame_idx_int</span><span class="si">:</span><span class="s2">06d</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">image_format</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="n">Path</span><span class="p">(</span><span class="n">temp_dir</span><span class="p">)</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">video_name</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">frame_idx_int</span><span class="si">:</span><span class="s2">06d</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">image_format</span><span class="si">}</span><span class="s2">"</span>
         <span class="p">)</span>
-    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">output</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="n">output</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">):</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">output</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="n">output</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"."</span><span class="p">):</span>
         <span class="c1"># Extension provided: use it as format</span>
         <span class="n">image_format</span> <span class="o">=</span> <span class="n">output</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
         <span class="n">output_path</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># Let Video.save_frame auto-generate with new format</span>
@@ -890,7 +920,7 @@
     <span class="n">output</span><span class="p">:</span> <span class="n">Output</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="o">**</span><span class="n">save_kwargs</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Create a video by looping/repeating another video.</span>
 
 <span class="sd">    Args:</span>
@@ -904,13 +934,13 @@
 <span class="sd">        Path to saved looped video</span>
 
 <span class="sd">    Examples:</span>
-<span class="sd">        &gt;&gt;&gt; loop_video(&quot;intro.mp4&quot;, 3)  # Repeat 3 times  # doctest: +SKIP</span>
-<span class="sd">        &gt;&gt;&gt; loop_video(&quot;short_clip.mp4&quot;, 5, output=&quot;extended.mp4&quot;)  # doctest: +SKIP</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">        &gt;&gt;&gt; loop_video("intro.mp4", 3)  # Repeat 3 times  # doctest: +SKIP</span>
+<span class="sd">        &gt;&gt;&gt; loop_video("short_clip.mp4", 5, output="extended.mp4")  # doctest: +SKIP</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="n">n_loops</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;n_loops must be at least 1, got </span><span class="si">{</span><span class="n">n_loops</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"n_loops must be at least 1, got </span><span class="si">{</span><span class="n">n_loops</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
-    <span class="n">default_path</span> <span class="o">=</span> <span class="n">_auto_video_path</span><span class="p">(</span><span class="n">video_src</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;loop</span><span class="si">{</span><span class="n">n_loops</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">default_path</span> <span class="o">=</span> <span class="n">_auto_video_path</span><span class="p">(</span><span class="n">video_src</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"loop</span><span class="si">{</span><span class="n">n_loops</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
     <span class="c1"># Set default codecs</span>
     <span class="n">_set_default_codecs</span><span class="p">(</span><span class="n">save_kwargs</span><span class="p">)</span>
@@ -930,7 +960,7 @@
             <span class="c1"># Clean up</span>
             <span class="n">looped</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Saved looped video to: </span><span class="si">{</span><span class="n">output_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Saved looped video to: </span><span class="si">{</span><span class="n">output_path</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">write_egress</span><span class="p">(</span><span class="n">output</span><span class="p">,</span> <span class="n">default_path</span><span class="o">=</span><span class="n">default_path</span><span class="p">,</span> <span class="n">write</span><span class="o">=</span><span class="n">_write</span><span class="p">)</span></div>
 
@@ -947,7 +977,7 @@
     <span class="n">match_duration</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="o">**</span><span class="n">save_kwargs</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Replace or mix audio in a video with new audio.</span>
 
 <span class="sd">    Args:</span>
@@ -964,15 +994,15 @@
 <span class="sd">        Path to saved video with new/mixed audio</span>
 
 <span class="sd">    Examples:</span>
-<span class="sd">        &gt;&gt;&gt; replace_audio(&quot;video.mp4&quot;, &quot;music.mp3&quot;)  # Replace audio completely  # doctest: +SKIP</span>
-<span class="sd">        &gt;&gt;&gt; replace_audio(&quot;video.mp4&quot;, &quot;bgm.mp3&quot;, mix_ratio=0.5)  # Equal mix  # doctest: +SKIP</span>
-<span class="sd">        &gt;&gt;&gt; replace_audio(&quot;video.mp4&quot;, &quot;voice.mp3&quot;, mix_ratio=0.7)  # 70% new, 30% original  # doctest: +SKIP</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">        &gt;&gt;&gt; replace_audio("video.mp4", "music.mp3")  # Replace audio completely  # doctest: +SKIP</span>
+<span class="sd">        &gt;&gt;&gt; replace_audio("video.mp4", "bgm.mp3", mix_ratio=0.5)  # Equal mix  # doctest: +SKIP</span>
+<span class="sd">        &gt;&gt;&gt; replace_audio("video.mp4", "voice.mp3", mix_ratio=0.7)  # 70% new, 30% original  # doctest: +SKIP</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="mf">0.0</span> <span class="o">&lt;=</span> <span class="n">mix_ratio</span> <span class="o">&lt;=</span> <span class="mf">1.0</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;mix_ratio must be between 0.0 and 1.0, got </span><span class="si">{</span><span class="n">mix_ratio</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"mix_ratio must be between 0.0 and 1.0, got </span><span class="si">{</span><span class="n">mix_ratio</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
     <span class="n">audio_name</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">audio_src</span><span class="p">)</span><span class="o">.</span><span class="n">stem</span>
-    <span class="n">default_path</span> <span class="o">=</span> <span class="n">_auto_video_path</span><span class="p">(</span><span class="n">video_src</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;audio_</span><span class="si">{</span><span class="n">audio_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">default_path</span> <span class="o">=</span> <span class="n">_auto_video_path</span><span class="p">(</span><span class="n">video_src</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"audio_</span><span class="si">{</span><span class="n">audio_name</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
     <span class="c1"># Set default codecs</span>
     <span class="n">_set_default_codecs</span><span class="p">(</span><span class="n">save_kwargs</span><span class="p">)</span>
@@ -986,7 +1016,7 @@
             <span class="n">match_duration</span><span class="o">=</span><span class="n">match_duration</span><span class="p">,</span>
             <span class="o">**</span><span class="n">save_kwargs</span><span class="p">,</span>
         <span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Saved video with audio to: </span><span class="si">{</span><span class="n">output_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Saved video with audio to: </span><span class="si">{</span><span class="n">output_path</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">write_egress</span><span class="p">(</span><span class="n">output</span><span class="p">,</span> <span class="n">default_path</span><span class="o">=</span><span class="n">default_path</span><span class="p">,</span> <span class="n">write</span><span class="o">=</span><span class="n">_write</span><span class="p">)</span></div>
 
@@ -1001,7 +1031,7 @@
     <span class="n">match_duration</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
     <span class="o">**</span><span class="n">save_kwargs</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Perform the actual audio replace/mix and encode to ``output_path``.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Perform the actual audio replace/mix and encode to ``output_path``."""</span>
     <span class="c1"># Load video and audio</span>
     <span class="k">with</span> <span class="n">mp</span><span class="o">.</span><span class="n">VideoFileClip</span><span class="p">(</span><span class="n">video_src</span><span class="p">)</span> <span class="k">as</span> <span class="n">video_clip</span><span class="p">:</span>
         <span class="c1"># Load new audio</span>
@@ -1066,7 +1096,7 @@
     <span class="n">output</span><span class="p">:</span> <span class="n">Output</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="o">**</span><span class="n">save_kwargs</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Normalize audio levels in a video to reduce volume fluctuations.</span>
 
 <span class="sd">    This function adjusts the audio so that the loudest parts reach a consistent</span>
@@ -1084,13 +1114,13 @@
 
 <span class="sd">    Examples:</span>
 <span class="sd">        &gt;&gt;&gt; # Normalize audio in a video with varying narrator volume</span>
-<span class="sd">        &gt;&gt;&gt; normalize_audio(&quot;lecture.mp4&quot;)  # doctest: +SKIP</span>
+<span class="sd">        &gt;&gt;&gt; normalize_audio("lecture.mp4")  # doctest: +SKIP</span>
 <span class="sd">        &gt;&gt;&gt; # Output: lecture_normalized.mp4</span>
 
 <span class="sd">        &gt;&gt;&gt; # Specify custom output path</span>
-<span class="sd">        &gt;&gt;&gt; normalize_audio(&quot;interview.mp4&quot;, output=&quot;interview_fixed.mp4&quot;)  # doctest: +SKIP</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">default_path</span> <span class="o">=</span> <span class="n">_auto_video_path</span><span class="p">(</span><span class="n">video_src</span><span class="p">,</span> <span class="s2">&quot;normalized&quot;</span><span class="p">)</span>
+<span class="sd">        &gt;&gt;&gt; normalize_audio("interview.mp4", output="interview_fixed.mp4")  # doctest: +SKIP</span>
+<span class="sd">    """</span>
+    <span class="n">default_path</span> <span class="o">=</span> <span class="n">_auto_video_path</span><span class="p">(</span><span class="n">video_src</span><span class="p">,</span> <span class="s2">"normalized"</span><span class="p">)</span>
 
     <span class="c1"># Set default codecs</span>
     <span class="n">_set_default_codecs</span><span class="p">(</span><span class="n">save_kwargs</span><span class="p">)</span>
@@ -1106,12 +1136,12 @@
                 <span class="n">final_clip</span> <span class="o">=</span> <span class="n">clip</span><span class="o">.</span><span class="n">with_audio</span><span class="p">(</span><span class="n">normalized_audio</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="c1"># No audio to normalize</span>
-                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Warning: </span><span class="si">{</span><span class="n">video_src</span><span class="si">}</span><span class="s2"> has no audio track&quot;</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Warning: </span><span class="si">{</span><span class="n">video_src</span><span class="si">}</span><span class="s2"> has no audio track"</span><span class="p">)</span>
                 <span class="n">final_clip</span> <span class="o">=</span> <span class="n">clip</span>
 
             <span class="n">final_clip</span><span class="o">.</span><span class="n">write_videofile</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">output_path</span><span class="p">),</span> <span class="o">**</span><span class="n">save_kwargs</span><span class="p">)</span>
 
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Saved video with normalized audio to: </span><span class="si">{</span><span class="n">output_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Saved video with normalized audio to: </span><span class="si">{</span><span class="n">output_path</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">write_egress</span><span class="p">(</span><span class="n">output</span><span class="p">,</span> <span class="n">default_path</span><span class="o">=</span><span class="n">default_path</span><span class="p">,</span> <span class="n">write</span><span class="o">=</span><span class="n">_write</span><span class="p">)</span></div>
 
@@ -1125,7 +1155,7 @@
     <span class="n">output</span><span class="p">:</span> <span class="n">Output</span><span class="p">,</span>
     <span class="n">sample_rate</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">44100</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Assemble per-segment ``(audio, duration_s)`` pairs into one audio track.</span>
+<span class="w">    </span><span class="sd">"""Assemble per-segment ``(audio, duration_s)`` pairs into one audio track.</span>
 
 <span class="sd">    Each segment occupies *exactly* ``duration_s`` seconds of the output:</span>
 <span class="sd">    its audio clip (when given) followed by silence padding up to the</span>
@@ -1151,21 +1181,21 @@
 <span class="sd">        sample_rate: sample rate of the generated silence, in Hz.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        The path to the written track (or the sink&#39;s return value), or ``None``</span>
+<span class="sd">        The path to the written track (or the sink's return value), or ``None``</span>
 <span class="sd">        when no segment carries audio (the track would be wholly silent —</span>
 <span class="sd">        nothing is written, callers can skip muxing).</span>
 
 <span class="sd">    Examples:</span>
 <span class="sd">        &gt;&gt;&gt; assemble_audio_track(  # doctest: +SKIP</span>
-<span class="sd">        ...     [(&quot;voice1.mp3&quot;, 5.0), (None, 3.0), (&quot;voice2.mp3&quot;, 4.0)],</span>
-<span class="sd">        ...     output=&quot;film_audio.wav&quot;,</span>
+<span class="sd">        ...     [("voice1.mp3", 5.0), (None, 3.0), ("voice2.mp3", 4.0)],</span>
+<span class="sd">        ...     output="film_audio.wav",</span>
 <span class="sd">        ... )</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="n">audio</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">audio</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">segments</span><span class="p">):</span>
         <span class="k">return</span> <span class="kc">None</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">_silence</span><span class="p">(</span><span class="n">dur</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;mp.AudioArrayClip&quot;</span><span class="p">:</span>
-        <span class="c1"># 2-channel zero array — matches moviepy&#39;s default stereo and avoids</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_silence</span><span class="p">(</span><span class="n">dur</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"mp.AudioArrayClip"</span><span class="p">:</span>
+        <span class="c1"># 2-channel zero array — matches moviepy's default stereo and avoids</span>
         <span class="c1"># a mono/stereo concat mismatch with TTS clips that return stereo.</span>
         <span class="n">n</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">dur</span> <span class="o">*</span> <span class="n">sample_rate</span><span class="p">)))</span>
         <span class="k">return</span> <span class="n">mp</span><span class="o">.</span><span class="n">AudioArrayClip</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">n</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">),</span> <span class="n">fps</span><span class="o">=</span><span class="n">sample_rate</span><span class="p">)</span>
@@ -1189,7 +1219,7 @@
                     <span class="k">if</span> <span class="n">pad</span> <span class="o">&gt;</span> <span class="mf">1e-3</span><span class="p">:</span>
                         <span class="n">sections</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_silence</span><span class="p">(</span><span class="n">pad</span><span class="p">))</span>
             <span class="n">track</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">concatenate_audioclips</span><span class="p">(</span><span class="n">sections</span><span class="p">)</span>
-            <span class="n">track</span><span class="o">.</span><span class="n">write_audiofile</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">target</span><span class="p">),</span> <span class="n">codec</span><span class="o">=</span><span class="s2">&quot;pcm_s16le&quot;</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+            <span class="n">track</span><span class="o">.</span><span class="n">write_audiofile</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">target</span><span class="p">),</span> <span class="n">codec</span><span class="o">=</span><span class="s2">"pcm_s16le"</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
         <span class="k">finally</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">clip</span> <span class="ow">in</span> <span class="n">opened</span><span class="p">:</span>
                 <span class="k">try</span><span class="p">:</span>
@@ -1197,12 +1227,12 @@
                 <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
                     <span class="k">pass</span>
 
-    <span class="k">return</span> <span class="n">write_egress</span><span class="p">(</span><span class="n">output</span><span class="p">,</span> <span class="n">default_path</span><span class="o">=</span><span class="s2">&quot;audio_track.wav&quot;</span><span class="p">,</span> <span class="n">write</span><span class="o">=</span><span class="n">_write</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="n">write_egress</span><span class="p">(</span><span class="n">output</span><span class="p">,</span> <span class="n">default_path</span><span class="o">=</span><span class="s2">"audio_track.wav"</span><span class="p">,</span> <span class="n">write</span><span class="o">=</span><span class="n">_write</span><span class="p">)</span></div>
 
 
 
 <span class="c1">#: Default prominence of the ambient bed in the final mix. Interpreted exactly</span>
-<span class="c1">#: as :func:`mixing.audio.overlay_audio`&#39;s ``mix_ratio``: the bed plays at</span>
+<span class="c1">#: as :func:`mixing.audio.overlay_audio`'s ``mix_ratio``: the bed plays at</span>
 <span class="c1">#: ``20·log10(mix_ratio)`` dB (≈ -12 dB at 0.25) under the existing track.</span>
 <span class="n">DEFAULT_AMBIENT_MIX_RATIO</span> <span class="o">=</span> <span class="mf">0.25</span>
 
@@ -1214,7 +1244,7 @@
 <a class="viewcode-back" href="../../../module_docs/mixing/video/video_ops.html#mixing.overlay_ambient_bed">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">overlay_ambient_bed</span><span class="p">(</span>
     <span class="n">media</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span>
-    <span class="n">ambient</span><span class="p">:</span> <span class="s2">&quot;str | Path | Audio&quot;</span><span class="p">,</span>
+    <span class="n">ambient</span><span class="p">:</span> <span class="s2">"str | Path | Audio"</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
     <span class="n">mix_ratio</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">DEFAULT_AMBIENT_MIX_RATIO</span><span class="p">,</span>
     <span class="n">loop</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
@@ -1224,9 +1254,9 @@
     <span class="n">output</span><span class="p">:</span> <span class="n">Output</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="o">**</span><span class="n">save_kwargs</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Lay a looping ambient bed under a cut, optionally ducked under dialogue.</span>
+<span class="w">    </span><span class="sd">"""Lay a looping ambient bed under a cut, optionally ducked under dialogue.</span>
 
-<span class="sd">    This is the one-call version of &quot;soften the cuts with room tone&quot;: the</span>
+<span class="sd">    This is the one-call version of "soften the cuts with room tone": the</span>
 <span class="sd">    ``ambient`` clip (usually 10–30 s) is looped with crossfades to the exact</span>
 <span class="sd">    length of ``media`` (:func:`mixing.audio.loop_audio`), optionally ducked</span>
 <span class="sd">    against the existing dialogue (:func:`mixing.audio.duck_audio`), and mixed</span>
@@ -1237,7 +1267,7 @@
 <span class="sd">    new mixed audio track, an audio file becomes the mixed track. It is</span>
 <span class="sd">    *file-first*: ``output=None`` writes beside the input.</span>
 
-<span class="sd">    ``mix_ratio`` is the bed&#39;s prominence, exactly as in</span>
+<span class="sd">    ``mix_ratio`` is the bed's prominence, exactly as in</span>
 <span class="sd">    :func:`~mixing.audio.overlay_audio` — the bed plays at</span>
 <span class="sd">    ``20·log10(mix_ratio)`` dB and the existing track is attenuated by</span>
 <span class="sd">    ``20·log10(1 - mix_ratio)``. The bed is attenuated by ``mix_ratio`` even</span>
@@ -1245,8 +1275,8 @@
 <span class="sd">    parameter means one thing everywhere.</span>
 
 <span class="sd">    ``duck_under_dialogue=True`` runs the bed through</span>
-<span class="sd">    :func:`~mixing.audio.duck_audio` with the media&#39;s own audio as the</span>
-<span class="sd">    sidechain; read that function&#39;s docstring for what the ducker does and does</span>
+<span class="sd">    :func:`~mixing.audio.duck_audio` with the media's own audio as the</span>
+<span class="sd">    sidechain; read that function's docstring for what the ducker does and does</span>
 <span class="sd">    not do (energy-based detection, fixed depth, no lookahead). With no</span>
 <span class="sd">    existing audio track there is nothing to duck against, so it is a no-op.</span>
 
@@ -1258,10 +1288,10 @@
 <span class="sd">        media: Video or audio file to lay the bed under.</span>
 <span class="sd">        ambient: The ambient/room-tone clip (a path or an :class:`Audio`).</span>
 <span class="sd">        mix_ratio: Bed prominence in ``[0.0, 1.0]`` (see above).</span>
-<span class="sd">        loop: Loop the bed to the media&#39;s duration when it is shorter.</span>
+<span class="sd">        loop: Loop the bed to the media's duration when it is shorter.</span>
 <span class="sd">        crossfade_s: Crossfade at each loop join; ``None`` uses</span>
 <span class="sd">            :data:`mixing.audio.DEFAULT_LOOP_CROSSFADE_S`.</span>
-<span class="sd">        duck_under_dialogue: Duck the bed under the media&#39;s existing audio.</span>
+<span class="sd">        duck_under_dialogue: Duck the bed under the media's existing audio.</span>
 <span class="sd">        duck_db: Duck depth in dB; ``None`` uses</span>
 <span class="sd">            :data:`mixing.audio.DEFAULT_DUCK_DB`.</span>
 <span class="sd">        output: Where to put the result — None (save beside the input), a file</span>
@@ -1270,14 +1300,14 @@
 <span class="sd">            video input, ``Audio.save`` kwargs for an audio input.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        Path to the written file (or the sink&#39;s return value).</span>
+<span class="sd">        Path to the written file (or the sink's return value).</span>
 
 <span class="sd">    Examples:</span>
-<span class="sd">        &gt;&gt;&gt; overlay_ambient_bed(&quot;cut.mp4&quot;, &quot;room_tone.wav&quot;, mix_ratio=0.2)  # doctest: +SKIP</span>
+<span class="sd">        &gt;&gt;&gt; overlay_ambient_bed("cut.mp4", "room_tone.wav", mix_ratio=0.2)  # doctest: +SKIP</span>
 <span class="sd">        &gt;&gt;&gt; overlay_ambient_bed(  # duck under the dialogue  # doctest: +SKIP</span>
-<span class="sd">        ...     &quot;cut.mp4&quot;, &quot;rain.wav&quot;, duck_under_dialogue=True</span>
+<span class="sd">        ...     "cut.mp4", "rain.wav", duck_under_dialogue=True</span>
 <span class="sd">        ... )</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">..audio</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
         <span class="n">Audio</span><span class="p">,</span>
         <span class="n">DEFAULT_DUCK_DB</span><span class="p">,</span>
@@ -1296,7 +1326,7 @@
     <span class="n">is_video</span> <span class="o">=</span> <span class="n">_is_video_file</span><span class="p">(</span><span class="n">media_path</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_mix</span><span class="p">(</span><span class="n">base</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Audio</span><span class="p">],</span> <span class="n">duration_s</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Audio</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Loop/duck the bed and mix it under ``base`` (or under silence).&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Loop/duck the bed and mix it under ``base`` (or under silence)."""</span>
         <span class="n">bed</span> <span class="o">=</span> <span class="n">ambient</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ambient</span><span class="p">,</span> <span class="n">Audio</span><span class="p">)</span> <span class="k">else</span> <span class="n">Audio</span><span class="p">(</span><span class="n">ambient</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">bed</span><span class="o">.</span><span class="n">duration</span> <span class="o">&gt;</span> <span class="n">duration_s</span><span class="p">:</span>
             <span class="c1"># Belt-and-braces: `overlay_audio` would truncate the overlap</span>
@@ -1320,7 +1350,7 @@
         <span class="k">return</span> <span class="n">overlay_audio</span><span class="p">(</span><span class="n">base</span><span class="p">,</span> <span class="n">bed</span><span class="p">,</span> <span class="n">mix_ratio</span><span class="o">=</span><span class="n">mix_ratio</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="n">is_video</span><span class="p">:</span>
-        <span class="n">default_path</span> <span class="o">=</span> <span class="n">media_path</span><span class="o">.</span><span class="n">with_stem</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">media_path</span><span class="o">.</span><span class="n">stem</span><span class="si">}</span><span class="s2">_ambient&quot;</span><span class="p">)</span>
+        <span class="n">default_path</span> <span class="o">=</span> <span class="n">media_path</span><span class="o">.</span><span class="n">with_stem</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">media_path</span><span class="o">.</span><span class="n">stem</span><span class="si">}</span><span class="s2">_ambient"</span><span class="p">)</span>
         <span class="n">base_audio</span> <span class="o">=</span> <span class="n">Audio</span><span class="p">(</span><span class="n">media_path</span><span class="p">)</span>
 
         <span class="k">def</span><span class="w"> </span><span class="nf">_write_audio</span><span class="p">(</span><span class="n">target</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -1328,20 +1358,20 @@
 
         <span class="k">return</span> <span class="n">write_egress</span><span class="p">(</span><span class="n">output</span><span class="p">,</span> <span class="n">default_path</span><span class="o">=</span><span class="n">default_path</span><span class="p">,</span> <span class="n">write</span><span class="o">=</span><span class="n">_write_audio</span><span class="p">)</span>
 
-    <span class="n">default_path</span> <span class="o">=</span> <span class="n">_auto_video_path</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">media_path</span><span class="p">),</span> <span class="s2">&quot;ambient&quot;</span><span class="p">)</span>
+    <span class="n">default_path</span> <span class="o">=</span> <span class="n">_auto_video_path</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">media_path</span><span class="p">),</span> <span class="s2">"ambient"</span><span class="p">)</span>
     <span class="n">_set_default_codecs</span><span class="p">(</span><span class="n">save_kwargs</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_write_video</span><span class="p">(</span><span class="n">target</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">tmp_dir</span><span class="p">:</span>
-            <span class="n">base_wav</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">tmp_dir</span><span class="p">)</span> <span class="o">/</span> <span class="s2">&quot;base.wav&quot;</span>
+            <span class="n">base_wav</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">tmp_dir</span><span class="p">)</span> <span class="o">/</span> <span class="s2">"base.wav"</span>
             <span class="k">with</span> <span class="n">mp</span><span class="o">.</span><span class="n">VideoFileClip</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">media_path</span><span class="p">))</span> <span class="k">as</span> <span class="n">clip</span><span class="p">:</span>
                 <span class="n">duration_s</span> <span class="o">=</span> <span class="n">clip</span><span class="o">.</span><span class="n">duration</span>
                 <span class="k">if</span> <span class="n">clip</span><span class="o">.</span><span class="n">audio</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                     <span class="n">clip</span><span class="o">.</span><span class="n">audio</span><span class="o">.</span><span class="n">write_audiofile</span><span class="p">(</span>
-                        <span class="nb">str</span><span class="p">(</span><span class="n">base_wav</span><span class="p">),</span> <span class="n">codec</span><span class="o">=</span><span class="s2">&quot;pcm_s16le&quot;</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="kc">None</span>
+                        <span class="nb">str</span><span class="p">(</span><span class="n">base_wav</span><span class="p">),</span> <span class="n">codec</span><span class="o">=</span><span class="s2">"pcm_s16le"</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="kc">None</span>
                     <span class="p">)</span>
             <span class="n">base_audio</span> <span class="o">=</span> <span class="n">Audio</span><span class="p">(</span><span class="n">base_wav</span><span class="p">)</span> <span class="k">if</span> <span class="n">base_wav</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span> <span class="k">else</span> <span class="kc">None</span>
-            <span class="n">mixed_wav</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">tmp_dir</span><span class="p">)</span> <span class="o">/</span> <span class="s2">&quot;mixed.wav&quot;</span>
+            <span class="n">mixed_wav</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">tmp_dir</span><span class="p">)</span> <span class="o">/</span> <span class="s2">"mixed.wav"</span>
             <span class="n">_mix</span><span class="p">(</span><span class="n">base_audio</span><span class="p">,</span> <span class="n">duration_s</span><span class="p">)</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">mixed_wav</span><span class="p">)</span>
             <span class="n">_replace_audio_write</span><span class="p">(</span>
                 <span class="nb">str</span><span class="p">(</span><span class="n">media_path</span><span class="p">),</span>
@@ -1351,7 +1381,7 @@
                 <span class="n">match_duration</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                 <span class="o">**</span><span class="n">save_kwargs</span><span class="p">,</span>
             <span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Saved video with ambient bed to: </span><span class="si">{</span><span class="n">target</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Saved video with ambient bed to: </span><span class="si">{</span><span class="n">target</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">write_egress</span><span class="p">(</span><span class="n">output</span><span class="p">,</span> <span class="n">default_path</span><span class="o">=</span><span class="n">default_path</span><span class="p">,</span> <span class="n">write</span><span class="o">=</span><span class="n">_write_video</span><span class="p">)</span></div>
 
@@ -1366,7 +1396,7 @@
     <span class="n">output</span><span class="p">:</span> <span class="n">Output</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="o">**</span><span class="n">save_kwargs</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Change the playback speed of a video.</span>
 
 <span class="sd">    Creates a new video that plays faster or slower than the original while</span>
@@ -1387,17 +1417,17 @@
 
 <span class="sd">    Examples:</span>
 <span class="sd">        &gt;&gt;&gt; # Create slow-motion video at half speed</span>
-<span class="sd">        &gt;&gt;&gt; change_speed(&quot;action.mp4&quot;, 0.5)  # doctest: +SKIP</span>
+<span class="sd">        &gt;&gt;&gt; change_speed("action.mp4", 0.5)  # doctest: +SKIP</span>
 <span class="sd">        &gt;&gt;&gt; # Output: action_speed_0.5x.mp4</span>
 
 <span class="sd">        &gt;&gt;&gt; # Speed up video 2x</span>
-<span class="sd">        &gt;&gt;&gt; change_speed(&quot;lecture.mp4&quot;, 2.0, output=&quot;fast_lecture.mp4&quot;)  # doctest: +SKIP</span>
+<span class="sd">        &gt;&gt;&gt; change_speed("lecture.mp4", 2.0, output="fast_lecture.mp4")  # doctest: +SKIP</span>
 
 <span class="sd">        &gt;&gt;&gt; # Extreme slow motion</span>
-<span class="sd">        &gt;&gt;&gt; change_speed(&quot;jump.mp4&quot;, 0.25)  # doctest: +SKIP</span>
+<span class="sd">        &gt;&gt;&gt; change_speed("jump.mp4", 0.25)  # doctest: +SKIP</span>
 <span class="sd">        &gt;&gt;&gt; # Output: jump_speed_0.25x.mp4</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">default_path</span> <span class="o">=</span> <span class="n">_auto_video_path</span><span class="p">(</span><span class="n">video_src</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;speed_</span><span class="si">{</span><span class="n">speed_factor</span><span class="si">}</span><span class="s2">x&quot;</span><span class="p">)</span>
+<span class="sd">    """</span>
+    <span class="n">default_path</span> <span class="o">=</span> <span class="n">_auto_video_path</span><span class="p">(</span><span class="n">video_src</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"speed_</span><span class="si">{</span><span class="n">speed_factor</span><span class="si">}</span><span class="s2">x"</span><span class="p">)</span>
 
     <span class="c1"># Set default codecs</span>
     <span class="n">_set_default_codecs</span><span class="p">(</span><span class="n">save_kwargs</span><span class="p">)</span>
@@ -1414,7 +1444,7 @@
             <span class="c1"># Clean up</span>
             <span class="n">sped_clip</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Saved </span><span class="si">{</span><span class="n">speed_factor</span><span class="si">}</span><span class="s2">x speed video to: </span><span class="si">{</span><span class="n">output_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Saved </span><span class="si">{</span><span class="n">speed_factor</span><span class="si">}</span><span class="s2">x speed video to: </span><span class="si">{</span><span class="n">output_path</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">write_egress</span><span class="p">(</span><span class="n">output</span><span class="p">,</span> <span class="n">default_path</span><span class="o">=</span><span class="n">default_path</span><span class="p">,</span> <span class="n">write</span><span class="o">=</span><span class="n">_write</span><span class="p">)</span></div>
 
@@ -1446,7 +1476,7 @@
     <span class="n">output_size</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="o">**</span><span class="n">write_kwargs</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Render one image into a pan/zoom video (thin wrapper over ``burns``).</span>
+<span class="w">    </span><span class="sd">"""Render one image into a pan/zoom video (thin wrapper over ``burns``).</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        image: path / ``PIL.Image`` / ``np.ndarray``.</span>
@@ -1460,8 +1490,8 @@
 <span class="sd">        write_kwargs: forwarded to the ffmpeg write (codec, audio_codec, ...).</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        The ``Path`` written (or the sink&#39;s return value).</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">        The ``Path`` written (or the sink's return value).</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_render</span><span class="p">(</span><span class="n">saveas</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">_burns_ken_burns_video</span><span class="p">(</span>
@@ -1474,13 +1504,13 @@
             <span class="o">**</span><span class="n">write_kwargs</span><span class="p">,</span>
         <span class="p">)</span>
 
-    <span class="c1"># output=None defers to burns&#39; own (nice) &quot;beside the image&quot; auto-naming.</span>
+    <span class="c1"># output=None defers to burns' own (nice) "beside the image" auto-naming.</span>
     <span class="k">if</span> <span class="n">output</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">_render</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
     <span class="n">stem</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="n">Path</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">image</span><span class="p">))</span><span class="o">.</span><span class="n">stem</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">PathLike</span><span class="p">))</span> <span class="k">else</span> <span class="s2">&quot;ken_burns&quot;</span>
+        <span class="n">Path</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">image</span><span class="p">))</span><span class="o">.</span><span class="n">stem</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">PathLike</span><span class="p">))</span> <span class="k">else</span> <span class="s2">"ken_burns"</span>
     <span class="p">)</span>
-    <span class="n">default_path</span> <span class="o">=</span> <span class="n">Path</span><span class="o">.</span><span class="n">cwd</span><span class="p">()</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">stem</span><span class="si">}</span><span class="s2">_kenburns.mp4&quot;</span>
+    <span class="n">default_path</span> <span class="o">=</span> <span class="n">Path</span><span class="o">.</span><span class="n">cwd</span><span class="p">()</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">stem</span><span class="si">}</span><span class="s2">_kenburns.mp4"</span>
     <span class="k">return</span> <span class="n">write_egress</span><span class="p">(</span>
         <span class="n">output</span><span class="p">,</span> <span class="n">default_path</span><span class="o">=</span><span class="n">default_path</span><span class="p">,</span> <span class="n">write</span><span class="o">=</span><span class="k">lambda</span> <span class="n">p</span><span class="p">:</span> <span class="n">_render</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">p</span><span class="p">))</span>
     <span class="p">)</span></div>
@@ -1497,7 +1527,7 @@
     <span class="n">audio_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="o">**</span><span class="n">write_kwargs</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Stitch ``(image, BurnsPath, duration_s)`` panels into one film (wraps ``burns``).</span>
+<span class="w">    </span><span class="sd">"""Stitch ``(image, BurnsPath, duration_s)`` panels into one film (wraps ``burns``).</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        panels: ordered ``(image, BurnsPath, duration_s)`` triples.</span>
@@ -1508,9 +1538,9 @@
 <span class="sd">        write_kwargs: forwarded to the ffmpeg write.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        The ``Path`` written (or the sink&#39;s return value).</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">default_path</span> <span class="o">=</span> <span class="n">Path</span><span class="o">.</span><span class="n">cwd</span><span class="p">()</span> <span class="o">/</span> <span class="s2">&quot;ken_burns_film.mp4&quot;</span>
+<span class="sd">        The ``Path`` written (or the sink's return value).</span>
+<span class="sd">    """</span>
+    <span class="n">default_path</span> <span class="o">=</span> <span class="n">Path</span><span class="o">.</span><span class="n">cwd</span><span class="p">()</span> <span class="o">/</span> <span class="s2">"ken_burns_film.mp4"</span>
     <span class="k">return</span> <span class="n">write_egress</span><span class="p">(</span>
         <span class="n">output</span><span class="p">,</span>
         <span class="n">default_path</span><span class="o">=</span><span class="n">default_path</span><span class="p">,</span>

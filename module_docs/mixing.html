@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>mixing &mdash; mixing 0.0.37 documentation</title>
+  <title>mixing &mdash; mixing 0.0.38 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
@@ -15,7 +15,7 @@
   
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=aa2ad26f"></script>
+      <script src="../_static/documentation_options.js?v=423071ad"></script>
       <script src="../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="../_static/toggleprompt.js?v=d7ede5d2"></script>
@@ -129,6 +129,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#mixing.ken_burns_video"><code class="docutils literal notranslate"><span class="pre">ken_burns_video()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#mixing.loop_audio"><code class="docutils literal notranslate"><span class="pre">loop_audio()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#mixing.loop_video"><code class="docutils literal notranslate"><span class="pre">loop_video()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mixing.make_gif"><code class="docutils literal notranslate"><span class="pre">make_gif()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#mixing.make_thumbnail"><code class="docutils literal notranslate"><span class="pre">make_thumbnail()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#mixing.normalize_audio"><code class="docutils literal notranslate"><span class="pre">normalize_audio()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#mixing.normalize_video_dimensions"><code class="docutils literal notranslate"><span class="pre">normalize_video_dimensions()</span></code></a></li>
@@ -179,6 +180,7 @@
 <li class="toctree-l1"><a class="reference internal" href="mixing/video.html">mixing.video</a></li>
 <li class="toctree-l1"><a class="reference internal" href="mixing/video/_helpers.html">mixing.video._helpers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="mixing/video/genai.html">mixing.video.genai</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mixing/video/gif.html">mixing.video.gif</a></li>
 <li class="toctree-l1"><a class="reference internal" href="mixing/video/thumbnail.html">mixing.video.thumbnail</a></li>
 <li class="toctree-l1"><a class="reference internal" href="mixing/video/video_concat.html">mixing.video.video_concat</a></li>
 <li class="toctree-l1"><a class="reference internal" href="mixing/video/video_ops.html">mixing.video.video_ops</a></li>
@@ -251,14 +253,14 @@ new Audio instances (not copies), enabling chained operations.</p>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">audio</span> <span class="o">=</span> <span class="n">Audio</span><span class="p">(</span><span class="s2">&quot;song.mp3&quot;</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">audio</span> <span class="o">=</span> <span class="n">Audio</span><span class="p">(</span><span class="s2">"song.mp3"</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># Get segment from 10s to 20s (returns Audio)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">segment</span> <span class="o">=</span> <span class="n">audio</span><span class="p">[</span><span class="mi">10</span><span class="p">:</span><span class="mi">20</span><span class="p">]</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">segment</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s2">&quot;clip.mp3&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">segment</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s2">"clip.mp3"</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># Use sample numbers as unit</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">audio_samples</span> <span class="o">=</span> <span class="n">Audio</span><span class="p">(</span><span class="s2">&quot;song.mp3&quot;</span><span class="p">,</span> <span class="n">time_unit</span><span class="o">=</span><span class="s2">&quot;samples&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">audio_samples</span> <span class="o">=</span> <span class="n">Audio</span><span class="p">(</span><span class="s2">"song.mp3"</span><span class="p">,</span> <span class="n">time_unit</span><span class="o">=</span><span class="s2">"samples"</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">segment</span> <span class="o">=</span> <span class="n">audio_samples</span><span class="p">[</span><span class="mi">44100</span><span class="p">:</span><span class="mi">88200</span><span class="p">]</span>  <span class="c1"># 1 second at 44.1kHz</span>
 <span class="gp">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># Get last 30 seconds</span>
@@ -267,7 +269,7 @@ new Audio instances (not copies), enabling chained operations.</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># Chain operations</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">trimmed</span> <span class="o">=</span> <span class="n">audio</span><span class="p">[</span><span class="mi">5</span><span class="p">:</span><span class="mi">120</span><span class="p">]</span>  <span class="c1"># Trim to 5s-120s</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">faded</span> <span class="o">=</span> <span class="n">trimmed</span><span class="o">.</span><span class="n">fade_in</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">fade_out</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>  <span class="c1"># Apply fades</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">faded</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s2">&quot;final.mp3&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">faded</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s2">"final.mp3"</span><span class="p">)</span>
 </pre></div>
 </div>
 <dl class="py property">
@@ -311,7 +313,7 @@ afterwards.</p>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">audio</span> <span class="o">=</span> <span class="n">Audio</span><span class="p">(</span><span class="s2">&quot;song.mp3&quot;</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">audio</span> <span class="o">=</span> <span class="n">Audio</span><span class="p">(</span><span class="s2">"song.mp3"</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">faded</span> <span class="o">=</span> <span class="n">audio</span><span class="o">.</span><span class="n">fade_in</span><span class="p">(</span><span class="mf">2.0</span><span class="p">)</span>  <span class="c1"># 2 second fade in</span>
 </pre></div>
 </div>
@@ -330,7 +332,7 @@ afterwards.</p>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">audio</span> <span class="o">=</span> <span class="n">Audio</span><span class="p">(</span><span class="s2">&quot;song.mp3&quot;</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">audio</span> <span class="o">=</span> <span class="n">Audio</span><span class="p">(</span><span class="s2">"song.mp3"</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">faded</span> <span class="o">=</span> <span class="n">audio</span><span class="o">.</span><span class="n">fade_out</span><span class="p">(</span><span class="mf">3.0</span><span class="p">)</span>  <span class="c1"># 3 second fade out</span>
 </pre></div>
 </div>
@@ -357,7 +359,7 @@ dB below 0 dBFS. Pure pydub — adds no new dependency.</p>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">audio</span> <span class="o">=</span> <span class="n">Audio</span><span class="p">(</span><span class="s2">&quot;song.mp3&quot;</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">audio</span> <span class="o">=</span> <span class="n">Audio</span><span class="p">(</span><span class="s2">"song.mp3"</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">louder</span> <span class="o">=</span> <span class="n">audio</span><span class="o">.</span><span class="n">normalize</span><span class="p">()</span>
 </pre></div>
 </div>
@@ -380,8 +382,8 @@ dB below 0 dBFS. Pure pydub — adds no new dependency.</p>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">bg</span> <span class="o">=</span> <span class="n">Audio</span><span class="p">(</span><span class="s2">&quot;background.mp3&quot;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">voice</span> <span class="o">=</span> <span class="n">Audio</span><span class="p">(</span><span class="s2">&quot;voice.mp3&quot;</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">bg</span> <span class="o">=</span> <span class="n">Audio</span><span class="p">(</span><span class="s2">"background.mp3"</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">voice</span> <span class="o">=</span> <span class="n">Audio</span><span class="p">(</span><span class="s2">"voice.mp3"</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">mixed</span> <span class="o">=</span> <span class="n">bg</span><span class="o">.</span><span class="n">overlay</span><span class="p">(</span><span class="n">voice</span><span class="p">,</span> <span class="n">position</span><span class="o">=</span><span class="mf">5.0</span><span class="p">,</span> <span class="n">gain_during_overlay</span><span class="o">=-</span><span class="mi">6</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -401,7 +403,7 @@ dependency.</p>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">audio</span> <span class="o">=</span> <span class="n">Audio</span><span class="p">(</span><span class="s2">&quot;song.mp3&quot;</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">audio</span> <span class="o">=</span> <span class="n">Audio</span><span class="p">(</span><span class="s2">"song.mp3"</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">downsampled</span> <span class="o">=</span> <span class="n">audio</span><span class="o">.</span><span class="n">resample</span><span class="p">(</span><span class="mi">16000</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -445,9 +447,9 @@ a callable sink. See mixing.egress.</p></li>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">audio</span> <span class="o">=</span> <span class="n">Audio</span><span class="p">(</span><span class="s2">&quot;song.mp3&quot;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">audio</span><span class="p">[</span><span class="mi">10</span><span class="p">:</span><span class="mi">30</span><span class="p">]</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s2">&quot;clip.mp3&quot;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">audio</span><span class="p">[</span><span class="mi">10</span><span class="p">:</span><span class="mi">30</span><span class="p">]</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s2">&quot;clip.wav&quot;</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;wav&quot;</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">audio</span> <span class="o">=</span> <span class="n">Audio</span><span class="p">(</span><span class="s2">"song.mp3"</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">audio</span><span class="p">[</span><span class="mi">10</span><span class="p">:</span><span class="mi">30</span><span class="p">]</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s2">"clip.mp3"</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">audio</span><span class="p">[</span><span class="mi">10</span><span class="p">:</span><span class="mi">30</span><span class="p">]</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s2">"clip.wav"</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s2">"wav"</span><span class="p">)</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -468,7 +470,7 @@ a callable sink. See mixing.egress.</p></li>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">audio</span> <span class="o">=</span> <span class="n">Audio</span><span class="p">(</span><span class="s2">&quot;stereo.mp3&quot;</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">audio</span> <span class="o">=</span> <span class="n">Audio</span><span class="p">(</span><span class="s2">"stereo.mp3"</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">mono</span> <span class="o">=</span> <span class="n">audio</span><span class="o">.</span><span class="n">to_mono</span><span class="p">()</span>
 </pre></div>
 </div>
@@ -492,7 +494,7 @@ indexing and slicing. Samples are returned as normalized float values.</p>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">audio_samples</span> <span class="o">=</span> <span class="n">AudioSamples</span><span class="p">(</span><span class="s2">&quot;test_audio.mp3&quot;</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">audio_samples</span> <span class="o">=</span> <span class="n">AudioSamples</span><span class="p">(</span><span class="s2">"test_audio.mp3"</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">sample</span> <span class="o">=</span> <span class="n">audio_samples</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>  <span class="c1"># Get first sample</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">last_sample</span> <span class="o">=</span> <span class="n">audio_samples</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>  <span class="c1"># Get last sample</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">samples</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">audio_samples</span><span class="p">[</span><span class="mi">1000</span><span class="p">:</span><span class="mi">2000</span><span class="p">])</span>  <span class="c1"># Get samples 1000-1999</span>
@@ -660,17 +662,17 @@ access using integer indexing. Slicing returns new Video instances
 </dd>
 </dl>
 <p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">video</span> <span class="o">=</span> <span class="n">Video</span><span class="p">(</span><span class="s2">&quot;movie.mp4&quot;</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">video</span> <span class="o">=</span> <span class="n">Video</span><span class="p">(</span><span class="s2">"movie.mp4"</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># Get segment from 10s to 20s (returns Video)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">segment</span> <span class="o">=</span> <span class="n">video</span><span class="p">[</span><span class="mi">10</span><span class="p">:</span><span class="mi">20</span><span class="p">]</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">segment</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s2">&quot;clip.mp4&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">segment</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s2">"clip.mp4"</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># Extract single frame (returns numpy array)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">frame</span> <span class="o">=</span> <span class="n">video</span><span class="p">[</span><span class="mi">100</span><span class="p">]</span>  <span class="c1"># Frame at 100 seconds</span>
 <span class="gp">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># Use frame numbers as unit</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">video_frames</span> <span class="o">=</span> <span class="n">Video</span><span class="p">(</span><span class="s2">&quot;movie.mp4&quot;</span><span class="p">,</span> <span class="n">time_unit</span><span class="o">=</span><span class="s2">&quot;frames&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">video_frames</span> <span class="o">=</span> <span class="n">Video</span><span class="p">(</span><span class="s2">"movie.mp4"</span><span class="p">,</span> <span class="n">time_unit</span><span class="o">=</span><span class="s2">"frames"</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">segment</span> <span class="o">=</span> <span class="n">video_frames</span><span class="p">[</span><span class="mi">100</span><span class="p">:</span><span class="mi">500</span><span class="p">]</span>  <span class="c1"># Frames 100-500</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">single_frame</span> <span class="o">=</span> <span class="n">video_frames</span><span class="p">[</span><span class="mi">250</span><span class="p">]</span>  <span class="c1"># Single frame</span>
 <span class="gp">&gt;&gt;&gt;</span>
@@ -680,7 +682,7 @@ access using integer indexing. Slicing returns new Video instances
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># Chain operations with moviepy</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">with</span> <span class="n">video</span><span class="p">[</span><span class="mi">5</span><span class="p">:</span><span class="mi">15</span><span class="p">]</span><span class="o">.</span><span class="n">to_clip</span><span class="p">()</span> <span class="k">as</span> <span class="n">clip</span><span class="p">:</span>
 <span class="gp">... </span>    <span class="n">reversed_clip</span> <span class="o">=</span> <span class="n">clip</span><span class="o">.</span><span class="n">fx</span><span class="p">(</span><span class="n">mp</span><span class="o">.</span><span class="n">vfx</span><span class="o">.</span><span class="n">time_mirror</span><span class="p">)</span>
-<span class="gp">... </span>    <span class="n">reversed_clip</span><span class="o">.</span><span class="n">write_videofile</span><span class="p">(</span><span class="s2">&quot;reversed.mp4&quot;</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="n">reversed_clip</span><span class="o">.</span><span class="n">write_videofile</span><span class="p">(</span><span class="s2">"reversed.mp4"</span><span class="p">)</span>
 </pre></div>
 </div>
 <dl class="py method">
@@ -732,7 +734,7 @@ even when nothing is open, and future-proof if a handle is ever cached.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="mixing.Video.save">
-<span class="sig-name descname"><span class="pre">save</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">output</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">None</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">PathLike</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">codec</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'libx264'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">audio_codec</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'aac'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">write_kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Path</span></span></span><a class="reference internal" href="../_modules/mixing/video/video_ops.html#Video.save"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.Video.save" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">save</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">output</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">None</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">PathLike</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">codec</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'libx264'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">audio_codec</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'aac'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">crop_box</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">write_kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Path</span></span></span><a class="reference internal" href="../_modules/mixing/video/video_ops.html#Video.save"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.Video.save" title="Link to this definition"></a></dt>
 <dd><p>Save this video/segment to a new video file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -742,6 +744,11 @@ an auto-derived name), a file path, a directory (auto-named), or
 a callable sink. See mixing.egress.</p></li>
 <li><p><strong>codec</strong> – Video codec to use</p></li>
 <li><p><strong>audio_codec</strong> – Audio codec to use</p></li>
+<li><p><strong>crop_box</strong> – Optional spatial crop as <code class="docutils literal notranslate"><span class="pre">(x,</span> <span class="pre">y,</span> <span class="pre">w,</span> <span class="pre">h)</span></code> pixels from the
+top-left, applied in the same encode pass as the temporal
+slice. Width/height are floored to even values (libx264
+rejects odd dimensions); an out-of-bounds box raises
+<code class="docutils literal notranslate"><span class="pre">ValueError</span></code>.</p></li>
 <li><p><strong>**write_kwargs</strong> – Additional arguments for write_videofile</p></li>
 </ul>
 </dd>
@@ -772,7 +779,7 @@ only). See mixing.egress.</p></li>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">video</span> <span class="o">=</span> <span class="n">Video</span><span class="p">(</span><span class="s2">&quot;movie.mp4&quot;</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">video</span> <span class="o">=</span> <span class="n">Video</span><span class="p">(</span><span class="s2">"movie.mp4"</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">video</span><span class="o">.</span><span class="n">save_frame</span><span class="p">(</span><span class="mf">10.5</span><span class="p">)</span>  <span class="c1"># Save frame at 10.5s</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">video</span><span class="o">.</span><span class="n">save_frame</span><span class="p">(</span><span class="mf">10.5</span><span class="p">,</span> <span class="n">copy_to_clipboard</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>  <span class="c1"># Save and copy</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">video</span><span class="o">.</span><span class="n">save_frame</span><span class="p">(</span><span class="mf">10.5</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">copy_to_clipboard</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>  <span class="c1"># Clipboard only</span>
@@ -811,7 +818,7 @@ indexing and slicing. Frames are returned as numpy arrays (BGR format).</p>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">vf</span> <span class="o">=</span> <span class="n">VideoFrames</span><span class="p">(</span><span class="s2">&quot;test_video.mp4&quot;</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">vf</span> <span class="o">=</span> <span class="n">VideoFrames</span><span class="p">(</span><span class="s2">"test_video.mp4"</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">frame</span> <span class="o">=</span> <span class="n">vf</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>  <span class="c1"># Get first frame</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">last_frame</span> <span class="o">=</span> <span class="n">vf</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>  <span class="c1"># Get last frame</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">frames</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">vf</span><span class="p">[</span><span class="mi">10</span><span class="p">:</span><span class="mi">20</span><span class="p">])</span>  <span class="c1"># Get frames 10-19</span>
@@ -855,8 +862,8 @@ nothing is written, callers can skip muxing).</p>
 </dl>
 <p class="rubric">Examples</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">assemble_audio_track</span><span class="p">(</span>
-<span class="gp">... </span>    <span class="p">[(</span><span class="s2">&quot;voice1.mp3&quot;</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">),</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;voice2.mp3&quot;</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">)],</span>
-<span class="gp">... </span>    <span class="n">output</span><span class="o">=</span><span class="s2">&quot;film_audio.wav&quot;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="p">[(</span><span class="s2">"voice1.mp3"</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">),</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">),</span> <span class="p">(</span><span class="s2">"voice2.mp3"</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">)],</span>
+<span class="gp">... </span>    <span class="n">output</span><span class="o">=</span><span class="s2">"film_audio.wav"</span><span class="p">,</span>
 <span class="gp">... </span><span class="p">)</span>
 </pre></div>
 </div>
@@ -887,16 +894,16 @@ path, a directory (auto-named), or a callable sink. See mixing.egress.</p></li>
 </dl>
 <p class="rubric">Examples</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Create slow-motion video at half speed</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">change_speed</span><span class="p">(</span><span class="s2">&quot;action.mp4&quot;</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">change_speed</span><span class="p">(</span><span class="s2">"action.mp4"</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># Output: action_speed_0.5x.mp4</span>
 </pre></div>
 </div>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Speed up video 2x</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">change_speed</span><span class="p">(</span><span class="s2">&quot;lecture.mp4&quot;</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="s2">&quot;fast_lecture.mp4&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">change_speed</span><span class="p">(</span><span class="s2">"lecture.mp4"</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="s2">"fast_lecture.mp4"</span><span class="p">)</span>
 </pre></div>
 </div>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Extreme slow motion</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">change_speed</span><span class="p">(</span><span class="s2">&quot;jump.mp4&quot;</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">change_speed</span><span class="p">(</span><span class="s2">"jump.mp4"</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># Output: jump_speed_0.25x.mp4</span>
 </pre></div>
 </div>
@@ -921,9 +928,9 @@ path, a directory (auto-named), or a callable sink. See mixing.egress.</p></li>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">concatenate_audio</span><span class="p">(</span><span class="s2">&quot;intro.mp3&quot;</span><span class="p">,</span> <span class="s2">&quot;main.mp3&quot;</span><span class="p">,</span> <span class="s2">&quot;outro.mp3&quot;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">concatenate_audio</span><span class="p">(</span><span class="s2">&quot;a.mp3&quot;</span><span class="p">,</span> <span class="s2">&quot;b.mp3&quot;</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="s2">&quot;combined.mp3&quot;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">concatenate_audio</span><span class="p">(</span><span class="s2">&quot;a.mp3&quot;</span><span class="p">,</span> <span class="s2">&quot;b.mp3&quot;</span><span class="p">,</span> <span class="n">crossfade</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>  <span class="c1"># 500ms crossfade</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">concatenate_audio</span><span class="p">(</span><span class="s2">"intro.mp3"</span><span class="p">,</span> <span class="s2">"main.mp3"</span><span class="p">,</span> <span class="s2">"outro.mp3"</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">concatenate_audio</span><span class="p">(</span><span class="s2">"a.mp3"</span><span class="p">,</span> <span class="s2">"b.mp3"</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="s2">"combined.mp3"</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">concatenate_audio</span><span class="p">(</span><span class="s2">"a.mp3"</span><span class="p">,</span> <span class="s2">"b.mp3"</span><span class="p">,</span> <span class="n">crossfade</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>  <span class="c1"># 500ms crossfade</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -969,32 +976,32 @@ If True and videos is not a folder, raises ValueError.</p></li>
 </dl>
 <p class="rubric">Examples</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># From folder path with auto dimension handling (social media style)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">final</span> <span class="o">=</span> <span class="n">concatenate_videos</span><span class="p">(</span><span class="s1">&#39;/path/to/videos/&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">final</span> <span class="o">=</span> <span class="n">concatenate_videos</span><span class="p">(</span><span class="s1">'/path/to/videos/'</span><span class="p">)</span>
 </pre></div>
 </div>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># From folder path with explicit output and letterboxing</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">final</span> <span class="o">=</span> <span class="n">concatenate_videos</span><span class="p">(</span>
-<span class="gp">... </span>    <span class="s1">&#39;/path/to/videos/&#39;</span><span class="p">,</span>
-<span class="gp">... </span>    <span class="n">normalize_dimensions</span><span class="o">=</span><span class="s1">&#39;fit&#39;</span><span class="p">,</span>
-<span class="gp">... </span>    <span class="n">output</span><span class="o">=</span><span class="s1">&#39;/path/output.mp4&#39;</span>
+<span class="gp">... </span>    <span class="s1">'/path/to/videos/'</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">normalize_dimensions</span><span class="o">=</span><span class="s1">'fit'</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">output</span><span class="o">=</span><span class="s1">'/path/output.mp4'</span>
 <span class="gp">... </span><span class="p">)</span>
 </pre></div>
 </div>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># From list of paths with transformation and specific dimensions</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">def</span><span class="w"> </span><span class="nf">trim_first_frame</span><span class="p">(</span><span class="n">clips</span><span class="p">):</span>
-<span class="gp">... </span><span class="w">    </span><span class="sd">&#39;&#39;&#39;Keep first clip intact, trim first frame from rest.&#39;&#39;&#39;</span>
+<span class="gp">... </span><span class="w">    </span><span class="sd">'''Keep first clip intact, trim first frame from rest.'''</span>
 <span class="gp">... </span>    <span class="k">yield</span> <span class="n">clips</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 <span class="gp">... </span>    <span class="k">for</span> <span class="n">clip</span> <span class="ow">in</span> <span class="n">clips</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
 <span class="gp">... </span>        <span class="k">yield</span> <span class="n">clip</span><span class="o">.</span><span class="n">subclipped</span><span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="n">clip</span><span class="o">.</span><span class="n">fps</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">paths</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;video1.mp4&#39;</span><span class="p">,</span> <span class="s1">&#39;video2.mp4&#39;</span><span class="p">,</span> <span class="s1">&#39;video3.mp4&#39;</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">paths</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'video1.mp4'</span><span class="p">,</span> <span class="s1">'video2.mp4'</span><span class="p">,</span> <span class="s1">'video3.mp4'</span><span class="p">]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">final</span> <span class="o">=</span> <span class="n">concatenate_videos</span><span class="p">(</span>
 <span class="gp">... </span>    <span class="n">paths</span><span class="p">,</span>
 <span class="gp">... </span>    <span class="n">transform_clips</span><span class="o">=</span><span class="n">trim_first_frame</span><span class="p">,</span>
 <span class="gp">... </span>    <span class="n">target_width</span><span class="o">=</span><span class="mi">1920</span><span class="p">,</span>
 <span class="gp">... </span>    <span class="n">target_height</span><span class="o">=</span><span class="mi">1080</span><span class="p">,</span>
-<span class="gp">... </span>    <span class="n">normalize_dimensions</span><span class="o">=</span><span class="s1">&#39;social&#39;</span>
+<span class="gp">... </span>    <span class="n">normalize_dimensions</span><span class="o">=</span><span class="s1">'social'</span>
 <span class="gp">... </span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">final</span><span class="o">.</span><span class="n">write_videofile</span><span class="p">(</span><span class="s1">&#39;output.mp4&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">final</span><span class="o">.</span><span class="n">write_videofile</span><span class="p">(</span><span class="s1">'output.mp4'</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">final</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 </pre></div>
 </div>
@@ -1021,15 +1028,15 @@ path, a directory (auto-named), or a callable sink. See mixing.egress.</p></li>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">crop_audio</span><span class="p">(</span><span class="s2">&quot;song.mp3&quot;</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">30</span><span class="p">)</span>  <span class="c1"># Crop 10s-30s</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">crop_audio</span><span class="p">(</span><span class="s2">&quot;song.mp3&quot;</span><span class="p">,</span> <span class="mi">44100</span><span class="p">,</span> <span class="mi">88200</span><span class="p">,</span> <span class="n">time_unit</span><span class="o">=</span><span class="s2">&quot;samples&quot;</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">crop_audio</span><span class="p">(</span><span class="s2">"song.mp3"</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">30</span><span class="p">)</span>  <span class="c1"># Crop 10s-30s</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">crop_audio</span><span class="p">(</span><span class="s2">"song.mp3"</span><span class="p">,</span> <span class="mi">44100</span><span class="p">,</span> <span class="mi">88200</span><span class="p">,</span> <span class="n">time_unit</span><span class="o">=</span><span class="s2">"samples"</span><span class="p">)</span>
 </pre></div>
 </div>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="mixing.crop_video">
-<span class="sig-prename descclassname"><span class="pre">mixing.</span></span><span class="sig-name descname"><span class="pre">crop_video</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">video_src</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_unit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'seconds'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'frames'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'milliseconds'</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'seconds'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">None</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">PathLike</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">save_kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Path</span></span></span><a class="reference internal" href="../_modules/mixing/video/video_ops.html#crop_video"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.crop_video" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">mixing.</span></span><span class="sig-name descname"><span class="pre">crop_video</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">video_src</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_unit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'seconds'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'frames'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'milliseconds'</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'seconds'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">crop_box</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">None</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">PathLike</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">save_kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Path</span></span></span><a class="reference internal" href="../_modules/mixing/video/video_ops.html#crop_video"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.crop_video" title="Link to this definition"></a></dt>
 <dd><p>Convenience function to crop and save a video segment or frame.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -1038,6 +1045,10 @@ path, a directory (auto-named), or a callable sink. See mixing.egress.</p></li>
 <li><p><strong>start</strong> – Start time/frame (None = beginning)</p></li>
 <li><p><strong>end</strong> – End time/frame (None = end of video)</p></li>
 <li><p><strong>time_unit</strong> – Unit for start/end values</p></li>
+<li><p><strong>crop_box</strong> – Optional spatial crop as <code class="docutils literal notranslate"><span class="pre">(x,</span> <span class="pre">y,</span> <span class="pre">w,</span> <span class="pre">h)</span></code> pixels from the
+top-left, applied in the same encode pass as the temporal slice
+(see <a class="reference internal" href="#mixing.Video.save" title="mixing.Video.save"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Video.save()</span></code></a>). Not supported for single-frame
+extraction (<code class="docutils literal notranslate"><span class="pre">start</span> <span class="pre">==</span> <span class="pre">end</span></code>).</p></li>
 <li><p><strong>output</strong> – Where to put the result — None (save beside the input), a file
 path, a directory (auto-named), or a callable sink. See mixing.egress.</p></li>
 <li><p><strong>**save_kwargs</strong> – Additional arguments for save operation</p></li>
@@ -1048,9 +1059,10 @@ path, a directory (auto-named), or a callable sink. See mixing.egress.</p></li>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">crop_video</span><span class="p">(</span><span class="s2">&quot;video.mp4&quot;</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">30</span><span class="p">)</span>  <span class="c1"># Crop 10s-30s</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">crop_video</span><span class="p">(</span><span class="s2">&quot;video.mp4&quot;</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">500</span><span class="p">,</span> <span class="n">time_unit</span><span class="o">=</span><span class="s2">&quot;frames&quot;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">crop_video</span><span class="p">(</span><span class="s2">&quot;video.mp4&quot;</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>  <span class="c1"># Single frame at 10s</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">crop_video</span><span class="p">(</span><span class="s2">"video.mp4"</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">30</span><span class="p">)</span>  <span class="c1"># Crop 10s-30s</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">crop_video</span><span class="p">(</span><span class="s2">"video.mp4"</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">500</span><span class="p">,</span> <span class="n">time_unit</span><span class="o">=</span><span class="s2">"frames"</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">crop_video</span><span class="p">(</span><span class="s2">"video.mp4"</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>  <span class="c1"># Single frame at 10s</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">crop_video</span><span class="p">(</span><span class="s2">"video.mp4"</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="n">crop_box</span><span class="o">=</span><span class="p">(</span><span class="mi">549</span><span class="p">,</span> <span class="mi">102</span><span class="p">,</span> <span class="mi">309</span><span class="p">,</span> <span class="mi">386</span><span class="p">))</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -1181,8 +1193,8 @@ path, a directory (auto-named), or a callable sink. See mixing.egress.</p></li>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">quiet_bed</span> <span class="o">=</span> <span class="n">duck_audio</span><span class="p">(</span><span class="s2">&quot;bed.wav&quot;</span><span class="p">,</span> <span class="s2">&quot;dialogue.wav&quot;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">duck_audio</span><span class="p">(</span><span class="s2">&quot;bed.wav&quot;</span><span class="p">,</span> <span class="s2">&quot;vo.wav&quot;</span><span class="p">,</span> <span class="n">duck_db</span><span class="o">=-</span><span class="mi">18</span><span class="p">)</span>  <span class="c1"># deeper duck</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">quiet_bed</span> <span class="o">=</span> <span class="n">duck_audio</span><span class="p">(</span><span class="s2">"bed.wav"</span><span class="p">,</span> <span class="s2">"dialogue.wav"</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">duck_audio</span><span class="p">(</span><span class="s2">"bed.wav"</span><span class="p">,</span> <span class="s2">"vo.wav"</span><span class="p">,</span> <span class="n">duck_db</span><span class="o">=-</span><span class="mi">18</span><span class="p">)</span>  <span class="c1"># deeper duck</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -1228,16 +1240,16 @@ if <code class="docutils literal notranslate"><span class="pre">audio</span></co
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">mixing.audio</span><span class="w"> </span><span class="kn">import</span> <span class="n">extract_segments</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># Auto-detect and save in one call</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">paths</span> <span class="o">=</span> <span class="n">extract_segments</span><span class="p">(</span>
-<span class="gp">... </span>    <span class="s2">&quot;concert.wav&quot;</span><span class="p">,</span> <span class="n">strategy</span><span class="o">=</span><span class="s2">&quot;self_similarity&quot;</span><span class="p">,</span>
-<span class="gp">... </span>    <span class="n">output</span><span class="o">=</span><span class="s2">&quot;songs/&quot;</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;mp3&quot;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="s2">"concert.wav"</span><span class="p">,</span> <span class="n">strategy</span><span class="o">=</span><span class="s2">"self_similarity"</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">output</span><span class="o">=</span><span class="s2">"songs/"</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s2">"mp3"</span><span class="p">,</span>
 <span class="gp">... </span>    <span class="n">kernel_seconds</span><span class="o">=</span><span class="mf">14.0</span><span class="p">,</span>
 <span class="gp">... </span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># Or pass timestamps you already have</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">paths</span> <span class="o">=</span> <span class="n">extract_segments</span><span class="p">(</span>
-<span class="gp">... </span>    <span class="s2">&quot;mix.mp3&quot;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="s2">"mix.mp3"</span><span class="p">,</span>
 <span class="gp">... </span>    <span class="n">segments</span><span class="o">=</span><span class="p">[(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">245</span><span class="p">),</span> <span class="p">(</span><span class="mi">247</span><span class="p">,</span> <span class="mi">445</span><span class="p">),</span> <span class="p">(</span><span class="mi">445</span><span class="p">,</span> <span class="mi">600</span><span class="p">)],</span>
-<span class="gp">... </span>    <span class="n">output</span><span class="o">=</span><span class="s2">&quot;tracks/&quot;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">output</span><span class="o">=</span><span class="s2">"tracks/"</span><span class="p">,</span>
 <span class="gp">... </span><span class="p">)</span>
 </pre></div>
 </div>
@@ -1262,8 +1274,8 @@ path, a directory (auto-named), or a callable sink. See mixing.egress.</p></li>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">fade_in</span><span class="p">(</span><span class="s2">&quot;song.mp3&quot;</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="s2">&quot;faded.mp3&quot;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">audio</span> <span class="o">=</span> <span class="n">fade_in</span><span class="p">(</span><span class="s2">&quot;song.mp3&quot;</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">)</span>  <span class="c1"># Returns Audio instance</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">fade_in</span><span class="p">(</span><span class="s2">"song.mp3"</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="s2">"faded.mp3"</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">audio</span> <span class="o">=</span> <span class="n">fade_in</span><span class="p">(</span><span class="s2">"song.mp3"</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">)</span>  <span class="c1"># Returns Audio instance</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -1287,8 +1299,8 @@ path, a directory (auto-named), or a callable sink. See mixing.egress.</p></li>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">fade_out</span><span class="p">(</span><span class="s2">&quot;song.mp3&quot;</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="s2">&quot;faded.mp3&quot;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">audio</span> <span class="o">=</span> <span class="n">fade_out</span><span class="p">(</span><span class="s2">&quot;song.mp3&quot;</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">)</span>  <span class="c1"># Returns Audio instance</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">fade_out</span><span class="p">(</span><span class="s2">"song.mp3"</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="s2">"faded.mp3"</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">audio</span> <span class="o">=</span> <span class="n">fade_out</span><span class="p">(</span><span class="s2">"song.mp3"</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">)</span>  <span class="c1"># Returns Audio instance</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -1330,8 +1342,8 @@ starts. Positive means query begins after the start of reference.</p>
 <p class="rubric">Examples</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">mixing.audio</span><span class="w"> </span><span class="kn">import</span> <span class="n">find_audio_offset</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># Find where a studio recording aligns with a camera recording</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">offset</span> <span class="o">=</span> <span class="n">find_audio_offset</span><span class="p">(</span><span class="s2">&quot;camera_audio.wav&quot;</span><span class="p">,</span> <span class="s2">&quot;studio.mp3&quot;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Studio recording starts at </span><span class="si">{</span><span class="n">offset</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">s in the camera audio&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">offset</span> <span class="o">=</span> <span class="n">find_audio_offset</span><span class="p">(</span><span class="s2">"camera_audio.wav"</span><span class="p">,</span> <span class="s2">"studio.mp3"</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Studio recording starts at </span><span class="si">{</span><span class="n">offset</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">s in the camera audio"</span><span class="p">)</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -1363,7 +1375,7 @@ than this gap (seconds).</p></li>
 </dl>
 <p class="rubric">Examples</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">mixing.audio</span><span class="w"> </span><span class="kn">import</span> <span class="n">find_segments</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">segs</span> <span class="o">=</span> <span class="n">find_segments</span><span class="p">(</span><span class="s2">&quot;mix.mp3&quot;</span><span class="p">,</span> <span class="n">strategy</span><span class="o">=</span><span class="s2">&quot;silence&quot;</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">segs</span> <span class="o">=</span> <span class="n">find_segments</span><span class="p">(</span><span class="s2">"mix.mp3"</span><span class="p">,</span> <span class="n">strategy</span><span class="o">=</span><span class="s2">"silence"</span><span class="p">,</span>
 <span class="gp">... </span>                      <span class="n">silence_thresh_db</span><span class="o">=-</span><span class="mi">45</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="p">[</span><span class="n">s</span><span class="o">.</span><span class="n">as_offset_duration</span><span class="p">()</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">segs</span><span class="p">]</span>
 <span class="go">[(0.0, 245.3), (247.1, 198.4), ...]</span>
@@ -1373,9 +1385,11 @@ than this gap (seconds).</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="mixing.get_video_dimensions">
-<span class="sig-prename descclassname"><span class="pre">mixing.</span></span><span class="sig-name descname"><span class="pre">get_video_dimensions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">video</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">VideoFileClip</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/mixing/video/video_util.html#get_video_dimensions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.get_video_dimensions" title="Link to this definition"></a></dt>
-<dd><p>Get the (width, height) dimensions of a video.</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">clip</span> <span class="o">=</span> <span class="n">VideoFileClip</span><span class="p">(</span><span class="s1">&#39;video.mp4&#39;</span><span class="p">)</span>
+<span class="sig-prename descclassname"><span class="pre">mixing.</span></span><span class="sig-name descname"><span class="pre">get_video_dimensions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">video</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/mixing/video/video_util.html#get_video_dimensions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.get_video_dimensions" title="Link to this definition"></a></dt>
+<dd><p>Get the (width, height) dimensions of a video — a moviepy clip, or a
+file path (probed via cv2, so no clip is opened).</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">width</span><span class="p">,</span> <span class="n">height</span> <span class="o">=</span> <span class="n">get_video_dimensions</span><span class="p">(</span><span class="s1">'video.mp4'</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">clip</span> <span class="o">=</span> <span class="n">VideoFileClip</span><span class="p">(</span><span class="s1">'video.mp4'</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">width</span><span class="p">,</span> <span class="n">height</span> <span class="o">=</span> <span class="n">get_video_dimensions</span><span class="p">(</span><span class="n">clip</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -1475,8 +1489,8 @@ path, a directory (auto-named), or a callable sink. See mixing.egress.</p></li>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">bed</span> <span class="o">=</span> <span class="n">loop_audio</span><span class="p">(</span><span class="s2">&quot;room_tone.wav&quot;</span><span class="p">,</span> <span class="mf">90.0</span><span class="p">)</span>  <span class="c1"># 90s bed</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">loop_audio</span><span class="p">(</span><span class="s2">&quot;waves.wav&quot;</span><span class="p">,</span> <span class="mf">240.0</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="s2">&quot;bed.wav&quot;</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">bed</span> <span class="o">=</span> <span class="n">loop_audio</span><span class="p">(</span><span class="s2">"room_tone.wav"</span><span class="p">,</span> <span class="mf">90.0</span><span class="p">)</span>  <span class="c1"># 90s bed</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">loop_audio</span><span class="p">(</span><span class="s2">"waves.wav"</span><span class="p">,</span> <span class="mf">240.0</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="s2">"bed.wav"</span><span class="p">)</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -1500,8 +1514,45 @@ path, a directory (auto-named), or a callable sink. See mixing.egress.</p></li>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">loop_video</span><span class="p">(</span><span class="s2">&quot;intro.mp4&quot;</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>  <span class="c1"># Repeat 3 times</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">loop_video</span><span class="p">(</span><span class="s2">&quot;short_clip.mp4&quot;</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="s2">&quot;extended.mp4&quot;</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">loop_video</span><span class="p">(</span><span class="s2">"intro.mp4"</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>  <span class="c1"># Repeat 3 times</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">loop_video</span><span class="p">(</span><span class="s2">"short_clip.mp4"</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="s2">"extended.mp4"</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mixing.make_gif">
+<span class="sig-prename descclassname"><span class="pre">mixing.</span></span><span class="sig-name descname"><span class="pre">make_gif</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">video_src</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">crop_box</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">12.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">width</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">460</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colors</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">160</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loop</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">None</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">PathLike</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Path</span></span></span><a class="reference internal" href="../_modules/mixing/video/gif.html#make_gif"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.make_gif" title="Link to this definition"></a></dt>
+<dd><p>Encode a (windowed, optionally cropped) video as a looping GIF.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>video_src</strong> – Path to source video.</p></li>
+<li><p><strong>start</strong> – Window start in seconds (None = beginning; negative = from
+the end, like <code class="docutils literal notranslate"><span class="pre">crop_video</span></code>).</p></li>
+<li><p><strong>end</strong> – Window end in seconds (None = end of video; negative = from
+the end).</p></li>
+<li><p><strong>crop_box</strong> – Optional spatial crop as <code class="docutils literal notranslate"><span class="pre">(x,</span> <span class="pre">y,</span> <span class="pre">w,</span> <span class="pre">h)</span></code> pixels from the
+top-left, validated against the source frame.</p></li>
+<li><p><strong>fps</strong> – GIF frame rate. A window shorter than one frame at this rate
+yields a single-frame (static) GIF.</p></li>
+<li><p><strong>width</strong> – Output width in pixels; height follows the (cropped) aspect.
+<code class="docutils literal notranslate"><span class="pre">None</span></code> keeps the source/crop size.</p></li>
+<li><p><strong>colors</strong> – Palette size (3-256 — palettegen’s transparent-slot
+reservation makes 3 the real ffmpeg minimum).</p></li>
+<li><p><strong>loop</strong> – GIF loop count written to the file — 0 means loop forever.</p></li>
+<li><p><strong>output</strong> – Where to put the result — None (save beside the input), a
+file path, a directory (auto-named), or a callable sink. See
+mixing.egress.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Path to the saved GIF.</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">make_gif</span><span class="p">(</span><span class="s2">"video.mp4"</span><span class="p">,</span> <span class="mf">95.8</span><span class="p">,</span> <span class="mf">110.6</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">make_gif</span><span class="p">(</span><span class="s2">"video.mp4"</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="n">crop_box</span><span class="o">=</span><span class="p">(</span><span class="mi">549</span><span class="p">,</span> <span class="mi">102</span><span class="p">,</span> <span class="mi">309</span><span class="p">,</span> <span class="mi">386</span><span class="p">))</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -1552,12 +1603,12 @@ path, a directory (auto-named), or a callable sink. See mixing.egress.</p></li>
 </dl>
 <p class="rubric">Examples</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Normalize audio in a video with varying narrator volume</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">normalize_audio</span><span class="p">(</span><span class="s2">&quot;lecture.mp4&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">normalize_audio</span><span class="p">(</span><span class="s2">"lecture.mp4"</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># Output: lecture_normalized.mp4</span>
 </pre></div>
 </div>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Specify custom output path</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">normalize_audio</span><span class="p">(</span><span class="s2">&quot;interview.mp4&quot;</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="s2">&quot;interview_fixed.mp4&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">normalize_audio</span><span class="p">(</span><span class="s2">"interview.mp4"</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="s2">"interview_fixed.mp4"</span><span class="p">)</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -1583,17 +1634,17 @@ or a VideoFileClip instance to use as reference</p></li>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Normalize all to first video&#39;s dimensions</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Normalize all to first video's dimensions</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">normalized</span> <span class="o">=</span> <span class="n">normalize_video_dimensions</span><span class="p">(</span><span class="n">clips</span><span class="p">)</span>
 </pre></div>
 </div>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Normalize all to specific dimensions with social media style</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">normalized</span> <span class="o">=</span> <span class="n">normalize_video_dimensions</span><span class="p">(</span>
-<span class="gp">... </span>    <span class="n">clips</span><span class="p">,</span> <span class="n">target_width</span><span class="o">=</span><span class="mi">1920</span><span class="p">,</span> <span class="n">target_height</span><span class="o">=</span><span class="mi">1080</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;social&#39;</span>
+<span class="gp">... </span>    <span class="n">clips</span><span class="p">,</span> <span class="n">target_width</span><span class="o">=</span><span class="mi">1920</span><span class="p">,</span> <span class="n">target_height</span><span class="o">=</span><span class="mi">1080</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">'social'</span>
 <span class="gp">... </span><span class="p">)</span>
 </pre></div>
 </div>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Normalize to second video&#39;s dimensions</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Normalize to second video's dimensions</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">normalized</span> <span class="o">=</span> <span class="n">normalize_video_dimensions</span><span class="p">(</span><span class="n">clips</span><span class="p">,</span> <span class="n">reference_video</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -1656,9 +1707,9 @@ video input, <code class="docutils literal notranslate"><span class="pre">Audio.
 </dd>
 </dl>
 <p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">overlay_ambient_bed</span><span class="p">(</span><span class="s2">&quot;cut.mp4&quot;</span><span class="p">,</span> <span class="s2">&quot;room_tone.wav&quot;</span><span class="p">,</span> <span class="n">mix_ratio</span><span class="o">=</span><span class="mf">0.2</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">overlay_ambient_bed</span><span class="p">(</span><span class="s2">"cut.mp4"</span><span class="p">,</span> <span class="s2">"room_tone.wav"</span><span class="p">,</span> <span class="n">mix_ratio</span><span class="o">=</span><span class="mf">0.2</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">overlay_ambient_bed</span><span class="p">(</span>  <span class="c1"># duck under the dialogue</span>
-<span class="gp">... </span>    <span class="s2">&quot;cut.mp4&quot;</span><span class="p">,</span> <span class="s2">&quot;rain.wav&quot;</span><span class="p">,</span> <span class="n">duck_under_dialogue</span><span class="o">=</span><span class="kc">True</span>
+<span class="gp">... </span>    <span class="s2">"cut.mp4"</span><span class="p">,</span> <span class="s2">"rain.wav"</span><span class="p">,</span> <span class="n">duck_under_dialogue</span><span class="o">=</span><span class="kc">True</span>
 <span class="gp">... </span><span class="p">)</span>
 </pre></div>
 </div>
@@ -1691,8 +1742,8 @@ path, a directory (auto-named), or a callable sink. See mixing.egress.</p></li>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">overlay_audio</span><span class="p">(</span><span class="s2">&quot;music.mp3&quot;</span><span class="p">,</span> <span class="s2">&quot;voice.mp3&quot;</span><span class="p">,</span> <span class="n">position</span><span class="o">=</span><span class="mf">5.0</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">overlay_audio</span><span class="p">(</span><span class="s2">&quot;bg.mp3&quot;</span><span class="p">,</span> <span class="s2">&quot;sfx.mp3&quot;</span><span class="p">,</span> <span class="n">mix_ratio</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span>  <span class="c1"># 30% overlay, 70% bg</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">overlay_audio</span><span class="p">(</span><span class="s2">"music.mp3"</span><span class="p">,</span> <span class="s2">"voice.mp3"</span><span class="p">,</span> <span class="n">position</span><span class="o">=</span><span class="mf">5.0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">overlay_audio</span><span class="p">(</span><span class="s2">"bg.mp3"</span><span class="p">,</span> <span class="s2">"sfx.mp3"</span><span class="p">,</span> <span class="n">mix_ratio</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span>  <span class="c1"># 30% overlay, 70% bg</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -1755,9 +1806,9 @@ path, a directory (auto-named), or a callable sink. See mixing.egress.</p></li>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">replace_audio</span><span class="p">(</span><span class="s2">&quot;video.mp4&quot;</span><span class="p">,</span> <span class="s2">&quot;music.mp3&quot;</span><span class="p">)</span>  <span class="c1"># Replace audio completely</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">replace_audio</span><span class="p">(</span><span class="s2">&quot;video.mp4&quot;</span><span class="p">,</span> <span class="s2">&quot;bgm.mp3&quot;</span><span class="p">,</span> <span class="n">mix_ratio</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>  <span class="c1"># Equal mix</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">replace_audio</span><span class="p">(</span><span class="s2">&quot;video.mp4&quot;</span><span class="p">,</span> <span class="s2">&quot;voice.mp3&quot;</span><span class="p">,</span> <span class="n">mix_ratio</span><span class="o">=</span><span class="mf">0.7</span><span class="p">)</span>  <span class="c1"># 70% new, 30% original</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">replace_audio</span><span class="p">(</span><span class="s2">"video.mp4"</span><span class="p">,</span> <span class="s2">"music.mp3"</span><span class="p">)</span>  <span class="c1"># Replace audio completely</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">replace_audio</span><span class="p">(</span><span class="s2">"video.mp4"</span><span class="p">,</span> <span class="s2">"bgm.mp3"</span><span class="p">,</span> <span class="n">mix_ratio</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>  <span class="c1"># Equal mix</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">replace_audio</span><span class="p">(</span><span class="s2">"video.mp4"</span><span class="p">,</span> <span class="s2">"voice.mp3"</span><span class="p">,</span> <span class="n">mix_ratio</span><span class="o">=</span><span class="mf">0.7</span><span class="p">)</span>  <span class="c1"># 70% new, 30% original</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -1786,19 +1837,19 @@ path, a directory (auto-named), or a callable sink. See mixing.egress.</p></li>
 </dl>
 <p class="rubric">Examples</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Stretch to exact dimensions (may distort)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">resized</span> <span class="o">=</span> <span class="n">resize_to_dimensions</span><span class="p">(</span><span class="n">clip</span><span class="p">,</span> <span class="mi">1920</span><span class="p">,</span> <span class="mi">1080</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;stretch&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">resized</span> <span class="o">=</span> <span class="n">resize_to_dimensions</span><span class="p">(</span><span class="n">clip</span><span class="p">,</span> <span class="mi">1920</span><span class="p">,</span> <span class="mi">1080</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">'stretch'</span><span class="p">)</span>
 </pre></div>
 </div>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Fit inside dimensions with black padding</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">resized</span> <span class="o">=</span> <span class="n">resize_to_dimensions</span><span class="p">(</span><span class="n">clip</span><span class="p">,</span> <span class="mi">1920</span><span class="p">,</span> <span class="mi">1080</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;fit&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">resized</span> <span class="o">=</span> <span class="n">resize_to_dimensions</span><span class="p">(</span><span class="n">clip</span><span class="p">,</span> <span class="mi">1920</span><span class="p">,</span> <span class="mi">1080</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">'fit'</span><span class="p">)</span>
 </pre></div>
 </div>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Fill dimensions (may crop edges)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">resized</span> <span class="o">=</span> <span class="n">resize_to_dimensions</span><span class="p">(</span><span class="n">clip</span><span class="p">,</span> <span class="mi">1920</span><span class="p">,</span> <span class="mi">1080</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;fill&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">resized</span> <span class="o">=</span> <span class="n">resize_to_dimensions</span><span class="p">(</span><span class="n">clip</span><span class="p">,</span> <span class="mi">1920</span><span class="p">,</span> <span class="mi">1080</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">'fill'</span><span class="p">)</span>
 </pre></div>
 </div>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Social media style with blurred background</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">resized</span> <span class="o">=</span> <span class="n">resize_to_dimensions</span><span class="p">(</span><span class="n">clip</span><span class="p">,</span> <span class="mi">1920</span><span class="p">,</span> <span class="mi">1080</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;social&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">resized</span> <span class="o">=</span> <span class="n">resize_to_dimensions</span><span class="p">(</span><span class="n">clip</span><span class="p">,</span> <span class="mi">1920</span><span class="p">,</span> <span class="mi">1080</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">'social'</span><span class="p">)</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -1824,7 +1875,7 @@ path, a directory (auto-named), or a callable sink. See mixing.egress.</p></li>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">save_audio_clip</span><span class="p">(</span><span class="s2">&quot;song.mp3&quot;</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">30</span><span class="p">)</span>  <span class="c1"># Save 10s-30s</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">save_audio_clip</span><span class="p">(</span><span class="s2">"song.mp3"</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">30</span><span class="p">)</span>  <span class="c1"># Save 10s-30s</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">save_audio_clip</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mi">15</span><span class="p">)</span>  <span class="c1"># From clipboard</span>
 </pre></div>
 </div>
@@ -1857,12 +1908,12 @@ as the image extension), and <code class="docutils literal notranslate"><span cl
 </dd>
 </dl>
 <p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">save_frame</span><span class="p">(</span><span class="s2">&quot;video.mp4&quot;</span><span class="p">)</span>  <span class="c1"># Saves frame 0</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">save_frame</span><span class="p">(</span><span class="s2">&quot;video.mp4&quot;</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>  <span class="c1"># Saves frame at 10s</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">save_frame</span><span class="p">(</span><span class="s2">&quot;video.mp4&quot;</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># Saves last frame (frame-based)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">save_frame</span><span class="p">(</span><span class="s2">&quot;video.mp4&quot;</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="n">time_unit</span><span class="o">=</span><span class="s2">&quot;frames&quot;</span><span class="p">)</span>  <span class="c1"># Frame 100</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">save_frame</span><span class="p">(</span><span class="s2">&quot;video.mp4&quot;</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="s2">&quot;.jpg&quot;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">save_frame</span><span class="p">(</span><span class="s2">&quot;video.mp4&quot;</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="s2">&quot;/TMP&quot;</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">save_frame</span><span class="p">(</span><span class="s2">"video.mp4"</span><span class="p">)</span>  <span class="c1"># Saves frame 0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">save_frame</span><span class="p">(</span><span class="s2">"video.mp4"</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>  <span class="c1"># Saves frame at 10s</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">save_frame</span><span class="p">(</span><span class="s2">"video.mp4"</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># Saves last frame (frame-based)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">save_frame</span><span class="p">(</span><span class="s2">"video.mp4"</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="n">time_unit</span><span class="o">=</span><span class="s2">"frames"</span><span class="p">)</span>  <span class="c1"># Frame 100</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">save_frame</span><span class="p">(</span><span class="s2">"video.mp4"</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="s2">".jpg"</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">save_frame</span><span class="p">(</span><span class="s2">"video.mp4"</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="s2">"/TMP"</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">save_frame</span><span class="p">(</span><span class="n">time_or_frame</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">copy_to_clipboard</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>  <span class="c1"># From clipboard</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">save_frame</span><span class="p">(</span><span class="n">time_or_frame</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">copy_to_clipboard</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>  <span class="c1"># Clipboard only</span>
 </pre></div>
@@ -1876,11 +1927,11 @@ as the image extension), and <code class="docutils literal notranslate"><span cl
 <p>Milliseconds are <em>rounded</em> (not truncated), with carry handled correctly,
 and negative inputs clamp to zero.</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">seconds_to_srt_time</span><span class="p">(</span><span class="mf">2592.187</span><span class="p">)</span>
-<span class="go">&#39;00:43:12,187&#39;</span>
+<span class="go">'00:43:12,187'</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">seconds_to_srt_time</span><span class="p">(</span><span class="mf">1.5</span><span class="p">)</span>
-<span class="go">&#39;00:00:01,500&#39;</span>
+<span class="go">'00:00:01,500'</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">seconds_to_srt_time</span><span class="p">(</span><span class="o">-</span><span class="mi">3</span><span class="p">)</span>
-<span class="go">&#39;00:00:00,000&#39;</span>
+<span class="go">'00:00:00,000'</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -1923,9 +1974,9 @@ response cache.</p></li>
 <dt class="sig sig-object py" id="mixing.srt_time_to_seconds">
 <span class="sig-prename descclassname"><span class="pre">mixing.</span></span><span class="sig-name descname"><span class="pre">srt_time_to_seconds</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">timestamp</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="../_modules/mixing/srt.html#srt_time_to_seconds"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.srt_time_to_seconds" title="Link to this definition"></a></dt>
 <dd><p>Parse an <code class="docutils literal notranslate"><span class="pre">HH:MM:SS,mmm</span></code> (or <code class="docutils literal notranslate"><span class="pre">.mmm</span></code>) SRT timestamp to seconds.</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">srt_time_to_seconds</span><span class="p">(</span><span class="s1">&#39;00:43:12,187&#39;</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">srt_time_to_seconds</span><span class="p">(</span><span class="s1">'00:43:12,187'</span><span class="p">)</span>
 <span class="go">2592.187</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">srt_time_to_seconds</span><span class="p">(</span><span class="s1">&#39;00:00:01.500&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">srt_time_to_seconds</span><span class="p">(</span><span class="s1">'00:00:01.500'</span><span class="p">)</span>
 <span class="go">1.5</span>
 </pre></div>
 </div>

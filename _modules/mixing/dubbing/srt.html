@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>mixing.dubbing.srt &mdash; mixing 0.0.37 documentation</title>
+  <title>mixing.dubbing.srt &mdash; mixing 0.0.38 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
@@ -14,7 +14,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=aa2ad26f"></script>
+      <script src="../../../_static/documentation_options.js?v=423071ad"></script>
       <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="../../../_static/toggleprompt.js?v=d7ede5d2"></script>
@@ -73,6 +73,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video.html">mixing.video</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/_helpers.html">mixing.video._helpers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/genai.html">mixing.video.genai</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/gif.html">mixing.video.gif</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/thumbnail.html">mixing.video.thumbnail</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/video_concat.html">mixing.video.video_concat</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/video_ops.html">mixing.video.video_ops</a></li>
@@ -105,7 +106,7 @@
            <div itemprop="articleBody">
              
   <h1>Source code for mixing.dubbing.srt</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;SRT translation for dubbing — built on the canonical :mod:`mixing.srt`.</span>
+<span></span><span class="sd">"""SRT translation for dubbing — built on the canonical :mod:`mixing.srt`.</span>
 
 <span class="sd">SRT parsing/serialization and the :class:`~mixing.srt.Cue` model live in</span>
 <span class="sd">:mod:`mixing.srt`; this module re-exports them and adds the dubbing-specific</span>
@@ -114,7 +115,7 @@
 <span class="sd">Translation is pluggable: pass any ``translate_fn`` that maps a list of strings</span>
 <span class="sd">to a list of the same length. The default uses an LLM via the ``aix`` package</span>
 <span class="sd">(provider-agnostic) when it is importable.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
@@ -125,17 +126,17 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">mixing.srt</span><span class="w"> </span><span class="kn">import</span> <span class="n">Cue</span><span class="p">,</span> <span class="n">dump_srt</span><span class="p">,</span> <span class="n">parse_srt</span><span class="p">,</span> <span class="n">srt_time_to_seconds</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="s2">&quot;Cue&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;parse_srt&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dump_srt&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;srt_time_to_seconds&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;TranslateFn&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;translate_srt&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;default_translate_fn&quot;</span><span class="p">,</span>
+    <span class="s2">"Cue"</span><span class="p">,</span>
+    <span class="s2">"parse_srt"</span><span class="p">,</span>
+    <span class="s2">"dump_srt"</span><span class="p">,</span>
+    <span class="s2">"srt_time_to_seconds"</span><span class="p">,</span>
+    <span class="s2">"TranslateFn"</span><span class="p">,</span>
+    <span class="s2">"translate_srt"</span><span class="p">,</span>
+    <span class="s2">"default_translate_fn"</span><span class="p">,</span>
 <span class="p">]</span>
 
 <span class="c1">#: A translator maps (texts, target_language, source_language) -&gt; texts.</span>
-<span class="n">TranslateFn</span> <span class="o">=</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="nb">str</span><span class="p">,</span> <span class="s2">&quot;str | None&quot;</span><span class="p">],</span> <span class="s2">&quot;list[str]&quot;</span><span class="p">]</span>
+<span class="n">TranslateFn</span> <span class="o">=</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="nb">str</span><span class="p">,</span> <span class="s2">"str | None"</span><span class="p">],</span> <span class="s2">"list[str]"</span><span class="p">]</span>
 
 
 <div class="viewcode-block" id="translate_srt">
@@ -147,11 +148,11 @@
     <span class="n">source_language</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">translate_fn</span><span class="p">:</span> <span class="n">TranslateFn</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Translate the cue text of an SRT to ``target_language``, keeping timings.</span>
+<span class="w">    </span><span class="sd">"""Translate the cue text of an SRT to ``target_language``, keeping timings.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        srt: SRT text or a list of :class:`~mixing.srt.Cue` objects.</span>
-<span class="sd">        target_language: Human-readable target language (e.g. ``&quot;French&quot;``).</span>
+<span class="sd">        target_language: Human-readable target language (e.g. ``"French"``).</span>
 <span class="sd">        source_language: Optional source language hint.</span>
 <span class="sd">        translate_fn: A callable ``(texts, target_language, source_language)</span>
 <span class="sd">            -&gt; list[str]`` returning one translation per input text, in order.</span>
@@ -163,15 +164,15 @@
 <span class="sd">    Raises:</span>
 <span class="sd">        ValueError: The translator returned a different number of segments than</span>
 <span class="sd">            it was given.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">cues</span> <span class="o">=</span> <span class="n">parse_srt</span><span class="p">(</span><span class="n">srt</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">srt</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="nb">list</span><span class="p">(</span><span class="n">srt</span><span class="p">)</span>
     <span class="n">translate_fn</span> <span class="o">=</span> <span class="n">translate_fn</span> <span class="ow">or</span> <span class="n">default_translate_fn</span>
     <span class="n">texts</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span><span class="o">.</span><span class="n">text</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">cues</span><span class="p">]</span>
     <span class="n">translated</span> <span class="o">=</span> <span class="n">translate_fn</span><span class="p">(</span><span class="n">texts</span><span class="p">,</span> <span class="n">target_language</span><span class="p">,</span> <span class="n">source_language</span><span class="p">)</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">translated</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">texts</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Translator returned </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">translated</span><span class="p">)</span><span class="si">}</span><span class="s2"> segments for </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">texts</span><span class="p">)</span><span class="si">}</span><span class="s2"> cues; &quot;</span>
-            <span class="s2">&quot;translate_fn must preserve segment count.&quot;</span>
+            <span class="sa">f</span><span class="s2">"Translator returned </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">translated</span><span class="p">)</span><span class="si">}</span><span class="s2"> segments for </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">texts</span><span class="p">)</span><span class="si">}</span><span class="s2"> cues; "</span>
+            <span class="s2">"translate_fn must preserve segment count."</span>
         <span class="p">)</span>
     <span class="n">out</span> <span class="o">=</span> <span class="p">[</span>
         <span class="n">Cue</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="n">c</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="n">c</span><span class="o">.</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="n">c</span><span class="o">.</span><span class="n">end</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="n">t</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
@@ -190,32 +191,32 @@
     <span class="o">*</span><span class="p">,</span>
     <span class="n">model</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;LLM-backed translator (segment-count preserving) using ``aix.chat``.</span>
+<span class="w">    </span><span class="sd">"""LLM-backed translator (segment-count preserving) using ``aix.chat``.</span>
 
 <span class="sd">    Translates all segments in a single call, returning a JSON array so the</span>
 <span class="sd">    one-to-one mapping with the input cues is preserved. Falls back to a clear</span>
 <span class="sd">    error if ``aix`` is not importable — pass your own ``translate_fn`` then.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">aix</span><span class="w"> </span><span class="kn">import</span> <span class="n">chat</span>  <span class="c1"># provider-agnostic LLM interface</span>
     <span class="k">except</span> <span class="ne">ImportError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>  <span class="c1"># pragma: no cover - depends on environment</span>
         <span class="k">raise</span> <span class="ne">ImportError</span><span class="p">(</span>
-            <span class="s2">&quot;default_translate_fn needs the &#39;aix&#39; package for LLM translation. &quot;</span>
-            <span class="s2">&quot;Install aix, or pass a custom translate_fn to translate_srt().&quot;</span>
+            <span class="s2">"default_translate_fn needs the 'aix' package for LLM translation. "</span>
+            <span class="s2">"Install aix, or pass a custom translate_fn to translate_srt()."</span>
         <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
 
 <span class="w">    </span><span class="kn">import</span> <span class="n">json</span> <span class="k">as</span> <span class="n">_json</span>
 
-    <span class="n">src</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot; from </span><span class="si">{</span><span class="n">source_language</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">if</span> <span class="n">source_language</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+    <span class="n">src</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">" from </span><span class="si">{</span><span class="n">source_language</span><span class="si">}</span><span class="s2">"</span> <span class="k">if</span> <span class="n">source_language</span> <span class="k">else</span> <span class="s2">""</span>
     <span class="n">numbered</span> <span class="o">=</span> <span class="n">_json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">texts</span><span class="p">),</span> <span class="n">ensure_ascii</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
     <span class="n">prompt</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="sa">f</span><span class="s2">&quot;You are a professional subtitle translator</span><span class="si">{</span><span class="n">src</span><span class="si">}</span><span class="s2"> into </span><span class="si">{</span><span class="n">target_language</span><span class="si">}</span><span class="s2">.</span><span class="se">\n</span><span class="s2">&quot;</span>
-        <span class="sa">f</span><span class="s2">&quot;Translate each string in the following JSON array into </span><span class="si">{</span><span class="n">target_language</span><span class="si">}</span><span class="s2">.</span><span class="se">\n</span><span class="s2">&quot;</span>
-        <span class="s2">&quot;Preserve meaning and tone (this is marketing copy — keep it natural and &quot;</span>
-        <span class="s2">&quot;persuasive, not literal). Keep proper nouns and brand names unchanged.</span><span class="se">\n</span><span class="s2">&quot;</span>
-        <span class="s2">&quot;Return ONLY a JSON array of the same length, one translated string per &quot;</span>
-        <span class="s2">&quot;input string, in the same order. No commentary, no code fences.</span><span class="se">\n\n</span><span class="s2">&quot;</span>
-        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">numbered</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="sa">f</span><span class="s2">"You are a professional subtitle translator</span><span class="si">{</span><span class="n">src</span><span class="si">}</span><span class="s2"> into </span><span class="si">{</span><span class="n">target_language</span><span class="si">}</span><span class="s2">.</span><span class="se">\n</span><span class="s2">"</span>
+        <span class="sa">f</span><span class="s2">"Translate each string in the following JSON array into </span><span class="si">{</span><span class="n">target_language</span><span class="si">}</span><span class="s2">.</span><span class="se">\n</span><span class="s2">"</span>
+        <span class="s2">"Preserve meaning and tone (this is marketing copy — keep it natural and "</span>
+        <span class="s2">"persuasive, not literal). Keep proper nouns and brand names unchanged.</span><span class="se">\n</span><span class="s2">"</span>
+        <span class="s2">"Return ONLY a JSON array of the same length, one translated string per "</span>
+        <span class="s2">"input string, in the same order. No commentary, no code fences.</span><span class="se">\n\n</span><span class="s2">"</span>
+        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">numbered</span><span class="si">}</span><span class="s2">"</span>
     <span class="p">)</span>
     <span class="n">raw</span> <span class="o">=</span> <span class="n">chat</span><span class="p">(</span><span class="n">prompt</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span> <span class="n">temperature</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">_parse_json_array</span><span class="p">(</span><span class="n">raw</span><span class="p">,</span> <span class="n">expected</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">texts</span><span class="p">))</span></div>
@@ -223,20 +224,20 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_parse_json_array</span><span class="p">(</span><span class="n">raw</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">expected</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Extract a JSON array of strings from a (possibly fenced) LLM response.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Extract a JSON array of strings from a (possibly fenced) LLM response."""</span>
     <span class="kn">import</span><span class="w"> </span><span class="nn">json</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">_json</span>
 
     <span class="n">text</span> <span class="o">=</span> <span class="n">raw</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
-    <span class="k">if</span> <span class="n">text</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;```&quot;</span><span class="p">):</span>
-        <span class="n">text</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^```[a-zA-Z]*\n?&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span>
-        <span class="n">text</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\n?```$&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">text</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;[&quot;</span><span class="p">):</span>
-        <span class="n">m</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\[.*\]&quot;</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">DOTALL</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">text</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"```"</span><span class="p">):</span>
+        <span class="n">text</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">"^```[a-zA-Z]*\n?"</span><span class="p">,</span> <span class="s2">""</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span>
+        <span class="n">text</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">"\n?```$"</span><span class="p">,</span> <span class="s2">""</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">text</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"["</span><span class="p">):</span>
+        <span class="n">m</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s2">"\[.*\]"</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">DOTALL</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">m</span><span class="p">:</span>
             <span class="n">text</span> <span class="o">=</span> <span class="n">m</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
     <span class="n">arr</span> <span class="o">=</span> <span class="n">_json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">arr</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Translator response was not a JSON array.&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"Translator response was not a JSON array."</span><span class="p">)</span>
     <span class="k">return</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">arr</span><span class="p">]</span>
 </pre></div>
 

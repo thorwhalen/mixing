@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>mixing.egress &mdash; mixing 0.0.37 documentation</title>
+  <title>mixing.egress &mdash; mixing 0.0.38 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
@@ -14,7 +14,7 @@
   
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../_static/documentation_options.js?v=aa2ad26f"></script>
+      <script src="../../_static/documentation_options.js?v=423071ad"></script>
       <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="../../_static/toggleprompt.js?v=d7ede5d2"></script>
@@ -73,6 +73,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../module_docs/mixing/video.html">mixing.video</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../module_docs/mixing/video/_helpers.html">mixing.video._helpers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../module_docs/mixing/video/genai.html">mixing.video.genai</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/mixing/video/gif.html">mixing.video.gif</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../module_docs/mixing/video/thumbnail.html">mixing.video.thumbnail</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../module_docs/mixing/video/video_concat.html">mixing.video.video_concat</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../module_docs/mixing/video/video_ops.html">mixing.video.video_ops</a></li>
@@ -105,10 +106,10 @@
            <div itemprop="articleBody">
              
   <h1>Source code for mixing.egress</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Canonical *egress*: route a produced result to its destination.</span>
+<span></span><span class="sd">"""Canonical *egress*: route a produced result to its destination.</span>
 
 <span class="sd">Across ``mixing``, every result-producing function takes a single ``output``</span>
-<span class="sd">parameter whose **role** is constant — &quot;what to do with the result&quot; — while its</span>
+<span class="sd">parameter whose **role** is constant — "what to do with the result" — while its</span>
 <span class="sd">**type** is open:</span>
 
 <span class="sd">====================  ===================================================</span>
@@ -132,7 +133,7 @@
 
 <span class="sd">Both accept the same ``output`` forms, so callers learn one mental model.</span>
 <span class="sd">``Output`` is the shared type alias.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
@@ -140,26 +141,26 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Union</span>
 
-<span class="n">PathLike</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="s2">&quot;os.PathLike[str]&quot;</span><span class="p">]</span>
+<span class="n">PathLike</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="s2">"os.PathLike[str]"</span><span class="p">]</span>
 
 <span class="c1">#: An egress target: nothing, a filesystem path/dir, or a result-consuming sink.</span>
 <span class="n">Output</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="n">PathLike</span><span class="p">,</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">Any</span><span class="p">],</span> <span class="n">Any</span><span class="p">]]</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="s2">&quot;Output&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;PathLike&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;is_path_output&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;is_sink&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;resolve_output_path&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;deliver&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;write_egress&quot;</span><span class="p">,</span>
+    <span class="s2">"Output"</span><span class="p">,</span>
+    <span class="s2">"PathLike"</span><span class="p">,</span>
+    <span class="s2">"is_path_output"</span><span class="p">,</span>
+    <span class="s2">"is_sink"</span><span class="p">,</span>
+    <span class="s2">"resolve_output_path"</span><span class="p">,</span>
+    <span class="s2">"deliver"</span><span class="p">,</span>
+    <span class="s2">"write_egress"</span><span class="p">,</span>
 <span class="p">]</span>
 
 
 <div class="viewcode-block" id="is_path_output">
 <a class="viewcode-back" href="../../module_docs/mixing/egress.html#mixing.egress.is_path_output">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">is_path_output</span><span class="p">(</span><span class="n">output</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;True if ``output`` denotes a filesystem path (``str`` / ``os.PathLike``).&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""True if ``output`` denotes a filesystem path (``str`` / ``os.PathLike``)."""</span>
     <span class="k">return</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">output</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">PathLike</span><span class="p">))</span></div>
 
 
@@ -167,28 +168,28 @@
 <div class="viewcode-block" id="is_sink">
 <a class="viewcode-back" href="../../module_docs/mixing/egress.html#mixing.egress.is_sink">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">is_sink</span><span class="p">(</span><span class="n">output</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;True if ``output`` is a result-consuming callable (not a path).&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""True if ``output`` is a result-consuming callable (not a path)."""</span>
     <span class="k">return</span> <span class="nb">callable</span><span class="p">(</span><span class="n">output</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">is_path_output</span><span class="p">(</span><span class="n">output</span><span class="p">)</span></div>
 
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_looks_like_dir</span><span class="p">(</span><span class="n">output</span><span class="p">:</span> <span class="n">PathLike</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Heuristic: an existing directory, or a path with a trailing separator.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Heuristic: an existing directory, or a path with a trailing separator."""</span>
     <span class="k">if</span> <span class="n">Path</span><span class="p">(</span><span class="n">output</span><span class="p">)</span><span class="o">.</span><span class="n">is_dir</span><span class="p">():</span>
         <span class="k">return</span> <span class="kc">True</span>
     <span class="n">raw</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">fspath</span><span class="p">(</span><span class="n">output</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">raw</span><span class="o">.</span><span class="n">endswith</span><span class="p">((</span><span class="s2">&quot;/&quot;</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">sep</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">raw</span><span class="o">.</span><span class="n">endswith</span><span class="p">((</span><span class="s2">"/"</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">sep</span><span class="p">))</span>
 
 
 <div class="viewcode-block" id="resolve_output_path">
 <a class="viewcode-back" href="../../module_docs/mixing/egress.html#mixing.egress.resolve_output_path">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">resolve_output_path</span><span class="p">(</span><span class="n">output</span><span class="p">:</span> <span class="n">PathLike</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">default_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Resolve a path/dir ``output`` to a concrete file ``Path`` (parents created).</span>
+<span class="w">    </span><span class="sd">"""Resolve a path/dir ``output`` to a concrete file ``Path`` (parents created).</span>
 
 <span class="sd">    A directory ``output`` (existing, or with a trailing separator) is joined</span>
 <span class="sd">    with ``default_name``. Only call this when ``output`` is a path — not</span>
 <span class="sd">    ``None`` and not a sink.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">output</span><span class="p">)</span><span class="o">.</span><span class="n">expanduser</span><span class="p">()</span>
     <span class="k">if</span> <span class="n">_looks_like_dir</span><span class="p">(</span><span class="n">output</span><span class="p">):</span>
         <span class="n">path</span> <span class="o">=</span> <span class="n">path</span> <span class="o">/</span> <span class="n">default_name</span>
@@ -206,7 +207,7 @@
     <span class="n">write</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Path</span><span class="p">],</span> <span class="n">Any</span><span class="p">],</span>
     <span class="n">default_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Object-first egress: route an in-memory ``result`` to ``output``.</span>
+<span class="w">    </span><span class="sd">"""Object-first egress: route an in-memory ``result`` to ``output``.</span>
 
 <span class="sd">    - ``None`` → return ``result`` unchanged (no I/O).</span>
 <span class="sd">    - sink callable → return ``output(result)``.</span>
@@ -217,7 +218,7 @@
 <span class="sd">        output: the egress target (see module docstring).</span>
 <span class="sd">        write: ``write(result, path)`` persists ``result`` to ``path``.</span>
 <span class="sd">        default_name: filename to use when ``output`` is a directory.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="n">output</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">result</span>
     <span class="k">if</span> <span class="n">is_sink</span><span class="p">(</span><span class="n">output</span><span class="p">):</span>
@@ -236,18 +237,18 @@
     <span class="n">default_path</span><span class="p">:</span> <span class="n">PathLike</span><span class="p">,</span>
     <span class="n">write</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">Path</span><span class="p">],</span> <span class="n">Any</span><span class="p">],</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;File-first egress: for operations whose primary effect is writing a file.</span>
+<span class="w">    </span><span class="sd">"""File-first egress: for operations whose primary effect is writing a file.</span>
 
 <span class="sd">    - ``None`` → write to ``default_path`` (e.g. beside the input) and return it.</span>
 <span class="sd">    - sink callable → write to ``default_path``, then return ``output(path)``.</span>
-<span class="sd">    - path/dir → write to that file (dir → ``default_path``&#39;s name inside it).</span>
+<span class="sd">    - path/dir → write to that file (dir → ``default_path``'s name inside it).</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        output: the egress target (see module docstring).</span>
 <span class="sd">        default_path: where to write when ``output`` is ``None`` / a sink, and</span>
 <span class="sd">            the source of the auto filename when ``output`` is a directory.</span>
 <span class="sd">        write: ``write(path)`` performs the actual encode to ``path``.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">default_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">default_path</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">is_sink</span><span class="p">(</span><span class="n">output</span><span class="p">)</span> <span class="ow">or</span> <span class="n">output</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">target</span> <span class="o">=</span> <span class="n">default_path</span>

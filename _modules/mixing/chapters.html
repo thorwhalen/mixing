@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>mixing.chapters &mdash; mixing 0.0.37 documentation</title>
+  <title>mixing.chapters &mdash; mixing 0.0.38 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
@@ -14,7 +14,7 @@
   
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../_static/documentation_options.js?v=aa2ad26f"></script>
+      <script src="../../_static/documentation_options.js?v=423071ad"></script>
       <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="../../_static/toggleprompt.js?v=d7ede5d2"></script>
@@ -73,6 +73,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../module_docs/mixing/video.html">mixing.video</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../module_docs/mixing/video/_helpers.html">mixing.video._helpers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../module_docs/mixing/video/genai.html">mixing.video.genai</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/mixing/video/gif.html">mixing.video.gif</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../module_docs/mixing/video/thumbnail.html">mixing.video.thumbnail</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../module_docs/mixing/video/video_concat.html">mixing.video.video_concat</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../module_docs/mixing/video/video_ops.html">mixing.video.video_ops</a></li>
@@ -105,7 +106,7 @@
            <div itemprop="articleBody">
              
   <h1>Source code for mixing.chapters</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Detect chapter markers from a transcript — platform-agnostic.</span>
+<span></span><span class="sd">"""Detect chapter markers from a transcript — platform-agnostic.</span>
 
 <span class="sd">A *chapter* is a ``(start_seconds, title)`` pair marking a topic shift. This</span>
 <span class="sd">module turns a transcript (ElevenLabs Scribe response/words, SRT text, or a</span>
@@ -118,7 +119,7 @@
 <span class="sd">first chapter at ``0:00``, a minimum spacing between chapters, and a minimum</span>
 <span class="sd">count below which chapters are not worth showing (an empty list is returned so</span>
 <span class="sd">callers can cleanly skip them — e.g. for a very short clip).</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
@@ -129,11 +130,11 @@
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">mixing.srt</span><span class="w"> </span><span class="kn">import</span> <span class="n">parse_srt</span> <span class="k">as</span> <span class="n">_parse_srt</span>
 
-<span class="c1">#: A segmenter maps (segments, target_count) -&gt; [{&quot;start&quot;: float, &quot;title&quot;: str}].</span>
-<span class="c1">#: ``segments`` is a list of ``{&quot;start&quot;, &quot;end&quot;, &quot;text&quot;}`` sentence-ish units.</span>
+<span class="c1">#: A segmenter maps (segments, target_count) -&gt; [{"start": float, "title": str}].</span>
+<span class="c1">#: ``segments`` is a list of ``{"start", "end", "text"}`` sentence-ish units.</span>
 <span class="n">SegmentFn</span> <span class="o">=</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">dict</span><span class="p">],</span> <span class="nb">int</span><span class="p">],</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]]</span>
 
-<span class="n">_SENTENCE_ENDINGS</span> <span class="o">=</span> <span class="s2">&quot;.?!&quot;</span>
+<span class="n">_SENTENCE_ENDINGS</span> <span class="o">=</span> <span class="s2">".?!"</span>
 
 <span class="c1">#: Heuristic spacing used to pick a default chapter count when ``target_count``</span>
 <span class="c1">#: is not given: roughly one chapter per this many seconds of media. ~90s (1.5</span>
@@ -150,7 +151,7 @@
 <a class="viewcode-back" href="../../module_docs/mixing/chapters.html#mixing.Chapter">[docs]</a>
 <span class="nd">@dataclass</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">Chapter</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;A chapter marker: a start time (seconds) and a short title.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""A chapter marker: a start time (seconds) and a short title."""</span>
 
     <span class="n">start</span><span class="p">:</span> <span class="nb">float</span>
     <span class="n">title</span><span class="p">:</span> <span class="nb">str</span></div>
@@ -170,13 +171,13 @@
     <span class="n">segment_fn</span><span class="p">:</span> <span class="n">SegmentFn</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">model</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Chapter</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Detect chapter markers from a ``transcript``.</span>
+<span class="w">    </span><span class="sd">"""Detect chapter markers from a ``transcript``.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        transcript: One of — a Scribe response ``dict`` (with ``&quot;words&quot;``), a</span>
+<span class="sd">        transcript: One of — a Scribe response ``dict`` (with ``"words"``), a</span>
 <span class="sd">            Scribe ``words`` list, SRT text, or a list of cue dicts/objects</span>
 <span class="sd">            exposing ``start``/``end``/``text``.</span>
-<span class="sd">        duration: Media duration in seconds. Inferred from the transcript&#39;s</span>
+<span class="sd">        duration: Media duration in seconds. Inferred from the transcript's</span>
 <span class="sd">            last timestamp when omitted; used to choose a sensible chapter</span>
 <span class="sd">            count and to bound the final marker.</span>
 <span class="sd">        min_chapters: Minimum chapters worth showing. If fewer survive the</span>
@@ -193,14 +194,14 @@
 
 <span class="sd">    Returns:</span>
 <span class="sd">        A list of :class:`Chapter`, first at ``0:00``, spaced by at least</span>
-<span class="sd">        ``min_spacing`` — or ``[]`` when the media can&#39;t support</span>
+<span class="sd">        ``min_spacing`` — or ``[]`` when the media can't support</span>
 <span class="sd">        ``min_chapters`` (e.g. it is too short).</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">segments</span> <span class="o">=</span> <span class="n">_segments_from_transcript</span><span class="p">(</span><span class="n">transcript</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">segments</span><span class="p">:</span>
         <span class="k">return</span> <span class="p">[]</span>
     <span class="k">if</span> <span class="n">duration</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">duration</span> <span class="o">=</span> <span class="n">segments</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="s2">&quot;end&quot;</span><span class="p">]</span>
+        <span class="n">duration</span> <span class="o">=</span> <span class="n">segments</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="s2">"end"</span><span class="p">]</span>
 
     <span class="c1"># Too short to host the minimum number of spaced chapters → no chapters.</span>
     <span class="k">if</span> <span class="n">duration</span> <span class="o">&lt;</span> <span class="n">min_chapters</span> <span class="o">*</span> <span class="n">min_spacing</span><span class="p">:</span>
@@ -216,9 +217,9 @@
     <span class="n">segment_fn</span> <span class="o">=</span> <span class="n">segment_fn</span> <span class="ow">or</span> <span class="n">default_segment_fn</span>
     <span class="n">raw</span> <span class="o">=</span> <span class="n">segment_fn</span><span class="p">(</span><span class="n">segments</span><span class="p">,</span> <span class="n">target_count</span><span class="p">)</span>
     <span class="n">chapters</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="n">Chapter</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">c</span><span class="p">[</span><span class="s2">&quot;start&quot;</span><span class="p">]),</span> <span class="n">title</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">c</span><span class="p">[</span><span class="s2">&quot;title&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+        <span class="n">Chapter</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">c</span><span class="p">[</span><span class="s2">"start"</span><span class="p">]),</span> <span class="n">title</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">c</span><span class="p">[</span><span class="s2">"title"</span><span class="p">])</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
         <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">raw</span>
-        <span class="k">if</span> <span class="n">c</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;title&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">c</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"title"</span><span class="p">)</span>
     <span class="p">]</span>
     <span class="k">return</span> <span class="n">_enforce_constraints</span><span class="p">(</span>
         <span class="n">chapters</span><span class="p">,</span>
@@ -232,10 +233,10 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_segments_from_transcript</span><span class="p">(</span><span class="n">transcript</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Normalize any supported transcript form to sentence-ish segments.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Normalize any supported transcript form to sentence-ish segments."""</span>
     <span class="c1"># Scribe response dict</span>
-    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">transcript</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">and</span> <span class="s2">&quot;words&quot;</span> <span class="ow">in</span> <span class="n">transcript</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">_sentences_from_words</span><span class="p">(</span><span class="n">transcript</span><span class="p">[</span><span class="s2">&quot;words&quot;</span><span class="p">])</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">transcript</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">and</span> <span class="s2">"words"</span> <span class="ow">in</span> <span class="n">transcript</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">_sentences_from_words</span><span class="p">(</span><span class="n">transcript</span><span class="p">[</span><span class="s2">"words"</span><span class="p">])</span>
     <span class="c1"># SRT text</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">transcript</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">_sentences_from_srt</span><span class="p">(</span><span class="n">transcript</span><span class="p">)</span>
@@ -244,14 +245,14 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="n">items</span><span class="p">:</span>
             <span class="k">return</span> <span class="p">[]</span>
         <span class="n">first</span> <span class="o">=</span> <span class="n">items</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="c1"># Scribe words list (dicts with a &quot;type&quot; or word-level start/end)</span>
+        <span class="c1"># Scribe words list (dicts with a "type" or word-level start/end)</span>
         <span class="k">if</span> <span class="p">(</span>
             <span class="nb">isinstance</span><span class="p">(</span><span class="n">first</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span>
-            <span class="ow">and</span> <span class="s2">&quot;text&quot;</span> <span class="ow">in</span> <span class="n">first</span>
-            <span class="ow">and</span> <span class="s2">&quot;start&quot;</span> <span class="ow">in</span> <span class="n">first</span>
+            <span class="ow">and</span> <span class="s2">"text"</span> <span class="ow">in</span> <span class="n">first</span>
+            <span class="ow">and</span> <span class="s2">"start"</span> <span class="ow">in</span> <span class="n">first</span>
             <span class="ow">and</span> <span class="p">(</span>
-                <span class="n">first</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;type&quot;</span><span class="p">)</span> <span class="ow">in</span> <span class="p">{</span><span class="s2">&quot;word&quot;</span><span class="p">,</span> <span class="s2">&quot;spacing&quot;</span><span class="p">,</span> <span class="s2">&quot;audio_event&quot;</span><span class="p">}</span>
-                <span class="ow">or</span> <span class="s2">&quot;end&quot;</span> <span class="ow">in</span> <span class="n">first</span>
+                <span class="n">first</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"type"</span><span class="p">)</span> <span class="ow">in</span> <span class="p">{</span><span class="s2">"word"</span><span class="p">,</span> <span class="s2">"spacing"</span><span class="p">,</span> <span class="s2">"audio_event"</span><span class="p">}</span>
+                <span class="ow">or</span> <span class="s2">"end"</span> <span class="ow">in</span> <span class="n">first</span>
             <span class="p">)</span>
             <span class="ow">and</span> <span class="n">_looks_like_words</span><span class="p">(</span><span class="n">items</span><span class="p">)</span>
         <span class="p">):</span>
@@ -259,67 +260,67 @@
         <span class="c1"># Cue-like (dict or object with start/end/text at sentence granularity)</span>
         <span class="n">out</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">it</span> <span class="ow">in</span> <span class="n">items</span><span class="p">:</span>
-            <span class="n">start</span> <span class="o">=</span> <span class="n">it</span><span class="p">[</span><span class="s2">&quot;start&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">it</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="k">else</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">it</span><span class="p">,</span> <span class="s2">&quot;start&quot;</span><span class="p">)</span>
+            <span class="n">start</span> <span class="o">=</span> <span class="n">it</span><span class="p">[</span><span class="s2">"start"</span><span class="p">]</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">it</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="k">else</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">it</span><span class="p">,</span> <span class="s2">"start"</span><span class="p">)</span>
             <span class="n">end</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="n">it</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;end&quot;</span><span class="p">,</span> <span class="n">start</span><span class="p">)</span>
+                <span class="n">it</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"end"</span><span class="p">,</span> <span class="n">start</span><span class="p">)</span>
                 <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">it</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span>
-                <span class="k">else</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">it</span><span class="p">,</span> <span class="s2">&quot;end&quot;</span><span class="p">,</span> <span class="n">start</span><span class="p">)</span>
+                <span class="k">else</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">it</span><span class="p">,</span> <span class="s2">"end"</span><span class="p">,</span> <span class="n">start</span><span class="p">)</span>
             <span class="p">)</span>
-            <span class="n">text</span> <span class="o">=</span> <span class="p">(</span><span class="n">it</span><span class="p">[</span><span class="s2">&quot;text&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">it</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="k">else</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">it</span><span class="p">,</span> <span class="s2">&quot;text&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+            <span class="n">text</span> <span class="o">=</span> <span class="p">(</span><span class="n">it</span><span class="p">[</span><span class="s2">"text"</span><span class="p">]</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">it</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="k">else</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">it</span><span class="p">,</span> <span class="s2">"text"</span><span class="p">))</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
             <span class="k">if</span> <span class="n">text</span><span class="p">:</span>
-                <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">&quot;start&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">start</span><span class="p">),</span> <span class="s2">&quot;end&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">end</span><span class="p">),</span> <span class="s2">&quot;text&quot;</span><span class="p">:</span> <span class="n">text</span><span class="p">})</span>
+                <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">"start"</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">start</span><span class="p">),</span> <span class="s2">"end"</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">end</span><span class="p">),</span> <span class="s2">"text"</span><span class="p">:</span> <span class="n">text</span><span class="p">})</span>
         <span class="k">return</span> <span class="n">out</span>
     <span class="k">return</span> <span class="p">[]</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_looks_like_words</span><span class="p">(</span><span class="n">items</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">dict</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Heuristic: many short single-token entries → a word list, not cues.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Heuristic: many short single-token entries → a word list, not cues."""</span>
     <span class="n">sample</span> <span class="o">=</span> <span class="p">[</span><span class="n">it</span> <span class="k">for</span> <span class="n">it</span> <span class="ow">in</span> <span class="n">items</span><span class="p">[:</span><span class="mi">20</span><span class="p">]</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">it</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)]</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">sample</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">False</span>
-    <span class="n">short</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="mi">1</span> <span class="k">for</span> <span class="n">it</span> <span class="ow">in</span> <span class="n">sample</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">it</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;text&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">split</span><span class="p">())</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">short</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="mi">1</span> <span class="k">for</span> <span class="n">it</span> <span class="ow">in</span> <span class="n">sample</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">it</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"text"</span><span class="p">,</span> <span class="s2">""</span><span class="p">))</span><span class="o">.</span><span class="n">split</span><span class="p">())</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">short</span> <span class="o">&gt;=</span> <span class="nb">len</span><span class="p">(</span><span class="n">sample</span><span class="p">)</span> <span class="o">*</span> <span class="mf">0.6</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_sentences_from_words</span><span class="p">(</span><span class="n">words</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">dict</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Group Scribe words into sentence segments by terminal punctuation.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Group Scribe words into sentence segments by terminal punctuation."""</span>
     <span class="n">out</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">cur</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">cur_start</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">cur_end</span> <span class="o">=</span> <span class="mf">0.0</span>
     <span class="k">for</span> <span class="n">w</span> <span class="ow">in</span> <span class="n">words</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">w</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;type&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;spacing&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">w</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"type"</span><span class="p">)</span> <span class="o">==</span> <span class="s2">"spacing"</span><span class="p">:</span>
             <span class="k">continue</span>
-        <span class="n">text</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">w</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;text&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">))</span>
+        <span class="n">text</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">w</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"text"</span><span class="p">,</span> <span class="s2">""</span><span class="p">))</span>
         <span class="k">if</span> <span class="n">cur_start</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">cur_start</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">w</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;start&quot;</span><span class="p">,</span> <span class="n">cur_end</span><span class="p">))</span>
-        <span class="n">cur_end</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">w</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;end&quot;</span><span class="p">,</span> <span class="n">cur_end</span><span class="p">))</span>
+            <span class="n">cur_start</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">w</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"start"</span><span class="p">,</span> <span class="n">cur_end</span><span class="p">))</span>
+        <span class="n">cur_end</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">w</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"end"</span><span class="p">,</span> <span class="n">cur_end</span><span class="p">))</span>
         <span class="n">cur</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">text</span><span class="o">.</span><span class="n">rstrip</span><span class="p">()</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="nb">tuple</span><span class="p">(</span><span class="n">_SENTENCE_ENDINGS</span><span class="p">)):</span>
             <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                <span class="p">{</span><span class="s2">&quot;start&quot;</span><span class="p">:</span> <span class="n">cur_start</span><span class="p">,</span> <span class="s2">&quot;end&quot;</span><span class="p">:</span> <span class="n">cur_end</span><span class="p">,</span> <span class="s2">&quot;text&quot;</span><span class="p">:</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">cur</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()}</span>
+                <span class="p">{</span><span class="s2">"start"</span><span class="p">:</span> <span class="n">cur_start</span><span class="p">,</span> <span class="s2">"end"</span><span class="p">:</span> <span class="n">cur_end</span><span class="p">,</span> <span class="s2">"text"</span><span class="p">:</span> <span class="s2">" "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">cur</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()}</span>
             <span class="p">)</span>
             <span class="n">cur</span><span class="p">,</span> <span class="n">cur_start</span> <span class="o">=</span> <span class="p">[],</span> <span class="kc">None</span>
     <span class="k">if</span> <span class="n">cur</span> <span class="ow">and</span> <span class="n">cur_start</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">&quot;start&quot;</span><span class="p">:</span> <span class="n">cur_start</span><span class="p">,</span> <span class="s2">&quot;end&quot;</span><span class="p">:</span> <span class="n">cur_end</span><span class="p">,</span> <span class="s2">&quot;text&quot;</span><span class="p">:</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">cur</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()})</span>
+        <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">"start"</span><span class="p">:</span> <span class="n">cur_start</span><span class="p">,</span> <span class="s2">"end"</span><span class="p">:</span> <span class="n">cur_end</span><span class="p">,</span> <span class="s2">"text"</span><span class="p">:</span> <span class="s2">" "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">cur</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()})</span>
     <span class="k">return</span> <span class="n">_tidy</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_sentences_from_srt</span><span class="p">(</span><span class="n">srt_text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Parse SRT into per-cue segments (cues already ~sentence granularity).</span>
+<span class="w">    </span><span class="sd">"""Parse SRT into per-cue segments (cues already ~sentence granularity).</span>
 
 <span class="sd">    Uses the canonical :func:`mixing.srt.parse_srt`; multi-line cue text is</span>
 <span class="sd">    flattened to a single line (chapters work at sentence granularity).</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">out</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="p">{</span><span class="s2">&quot;start&quot;</span><span class="p">:</span> <span class="n">c</span><span class="o">.</span><span class="n">start</span><span class="p">,</span> <span class="s2">&quot;end&quot;</span><span class="p">:</span> <span class="n">c</span><span class="o">.</span><span class="n">end</span><span class="p">,</span> <span class="s2">&quot;text&quot;</span><span class="p">:</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">split</span><span class="p">())}</span>
+        <span class="p">{</span><span class="s2">"start"</span><span class="p">:</span> <span class="n">c</span><span class="o">.</span><span class="n">start</span><span class="p">,</span> <span class="s2">"end"</span><span class="p">:</span> <span class="n">c</span><span class="o">.</span><span class="n">end</span><span class="p">,</span> <span class="s2">"text"</span><span class="p">:</span> <span class="s2">" "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">split</span><span class="p">())}</span>
         <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">_parse_srt</span><span class="p">(</span><span class="n">srt_text</span><span class="p">)</span>
     <span class="p">]</span>
     <span class="k">return</span> <span class="n">_tidy</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_tidy</span><span class="p">(</span><span class="n">segments</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
-    <span class="k">return</span> <span class="p">[</span><span class="n">s</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">segments</span> <span class="k">if</span> <span class="n">s</span><span class="p">[</span><span class="s2">&quot;text&quot;</span><span class="p">]]</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">s</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">segments</span> <span class="k">if</span> <span class="n">s</span><span class="p">[</span><span class="s2">"text"</span><span class="p">]]</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_enforce_constraints</span><span class="p">(</span>
@@ -331,10 +332,10 @@
     <span class="n">max_chapters</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="n">min_spacing</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Chapter</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Snap to segment boundaries, force 0:00 first, drop too-close markers.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Snap to segment boundaries, force 0:00 first, drop too-close markers."""</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">chapters</span><span class="p">:</span>
         <span class="k">return</span> <span class="p">[]</span>
-    <span class="n">boundaries</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span><span class="p">[</span><span class="s2">&quot;start&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">segments</span><span class="p">]</span>
+    <span class="n">boundaries</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span><span class="p">[</span><span class="s2">"start"</span><span class="p">]</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">segments</span><span class="p">]</span>
     <span class="n">chapters</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">chapters</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">c</span><span class="p">:</span> <span class="n">c</span><span class="o">.</span><span class="n">start</span><span class="p">)</span>
     <span class="c1"># Snap each start to the nearest real segment boundary.</span>
     <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">chapters</span><span class="p">:</span>
@@ -363,31 +364,31 @@
     <span class="o">*</span><span class="p">,</span>
     <span class="n">model</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;LLM-backed segmenter using ``aix.chat``.</span>
+<span class="w">    </span><span class="sd">"""LLM-backed segmenter using ``aix.chat``.</span>
 
 <span class="sd">    Presents the timestamped sentences and asks for ``target_count`` chapter</span>
-<span class="sd">    boundaries as a JSON array of ``{&quot;start&quot;, &quot;title&quot;}``. Pass your own</span>
+<span class="sd">    boundaries as a JSON array of ``{"start", "title"}``. Pass your own</span>
 <span class="sd">    ``segment_fn`` to :func:`detect_chapters` to avoid the ``aix`` dependency.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">aix</span><span class="w"> </span><span class="kn">import</span> <span class="n">chat</span>
     <span class="k">except</span> <span class="ne">ImportError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>  <span class="c1"># pragma: no cover - environment dependent</span>
         <span class="k">raise</span> <span class="ne">ImportError</span><span class="p">(</span>
-            <span class="s2">&quot;default_segment_fn needs the &#39;aix&#39; package. Install it, or pass a &quot;</span>
-            <span class="s2">&quot;custom segment_fn to detect_chapters().&quot;</span>
+            <span class="s2">"default_segment_fn needs the 'aix' package. Install it, or pass a "</span>
+            <span class="s2">"custom segment_fn to detect_chapters()."</span>
         <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
 
-    <span class="n">lines</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[</span><span class="si">{</span><span class="n">_fmt</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="s1">&#39;start&#39;</span><span class="p">])</span><span class="si">}</span><span class="s2">] </span><span class="si">{</span><span class="n">s</span><span class="p">[</span><span class="s1">&#39;text&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">segments</span><span class="p">)</span>
+    <span class="n">lines</span> <span class="o">=</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="sa">f</span><span class="s2">"[</span><span class="si">{</span><span class="n">_fmt</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="s1">'start'</span><span class="p">])</span><span class="si">}</span><span class="s2">] </span><span class="si">{</span><span class="n">s</span><span class="p">[</span><span class="s1">'text'</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">segments</span><span class="p">)</span>
     <span class="n">prompt</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="sa">f</span><span class="s2">&quot;You are segmenting a media transcript into about </span><span class="si">{</span><span class="n">target_count</span><span class="si">}</span><span class="s2"> chapters &quot;</span>
-        <span class="s2">&quot;for a chapter-aware player.</span><span class="se">\n</span><span class="s2">&quot;</span>
-        <span class="s2">&quot;Each line below is a sentence prefixed with its start time [M:SS].</span><span class="se">\n</span><span class="s2">&quot;</span>
-        <span class="s2">&quot;Choose chapter boundaries at real topic shifts (not every sentence). &quot;</span>
-        <span class="s2">&quot;Rules: the first chapter MUST start at 0:00; use a start time taken &quot;</span>
-        <span class="s2">&quot;verbatim from one of the lines; titles are 2-7 words, no leading numbers.</span><span class="se">\n</span><span class="s2">&quot;</span>
-        <span class="s1">&#39;Return ONLY a JSON array of {&quot;start&quot;: &lt;seconds:number&gt;, &quot;title&quot;: &lt;string&gt;} &#39;</span>
-        <span class="s2">&quot;objects, ordered by start. No code fences, no commentary.</span><span class="se">\n\n</span><span class="s2">&quot;</span>
-        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">lines</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="sa">f</span><span class="s2">"You are segmenting a media transcript into about </span><span class="si">{</span><span class="n">target_count</span><span class="si">}</span><span class="s2"> chapters "</span>
+        <span class="s2">"for a chapter-aware player.</span><span class="se">\n</span><span class="s2">"</span>
+        <span class="s2">"Each line below is a sentence prefixed with its start time [M:SS].</span><span class="se">\n</span><span class="s2">"</span>
+        <span class="s2">"Choose chapter boundaries at real topic shifts (not every sentence). "</span>
+        <span class="s2">"Rules: the first chapter MUST start at 0:00; use a start time taken "</span>
+        <span class="s2">"verbatim from one of the lines; titles are 2-7 words, no leading numbers.</span><span class="se">\n</span><span class="s2">"</span>
+        <span class="s1">'Return ONLY a JSON array of {"start": &lt;seconds:number&gt;, "title": &lt;string&gt;} '</span>
+        <span class="s2">"objects, ordered by start. No code fences, no commentary.</span><span class="se">\n\n</span><span class="s2">"</span>
+        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">lines</span><span class="si">}</span><span class="s2">"</span>
     <span class="p">)</span>
     <span class="n">raw</span> <span class="o">=</span> <span class="n">chat</span><span class="p">(</span><span class="n">prompt</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span> <span class="n">temperature</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">_parse_json_array</span><span class="p">(</span><span class="n">raw</span><span class="p">)</span></div>
@@ -397,25 +398,25 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">_fmt</span><span class="p">(</span><span class="n">t</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
     <span class="n">m</span><span class="p">,</span> <span class="n">s</span> <span class="o">=</span> <span class="nb">divmod</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">t</span><span class="p">)),</span> <span class="mi">60</span><span class="p">)</span>
     <span class="n">h</span><span class="p">,</span> <span class="n">m</span> <span class="o">=</span> <span class="nb">divmod</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="mi">60</span><span class="p">)</span>
-    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">h</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">m</span><span class="si">:</span><span class="s2">02d</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">s</span><span class="si">:</span><span class="s2">02d</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">if</span> <span class="n">h</span> <span class="k">else</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">m</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">s</span><span class="si">:</span><span class="s2">02d</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">h</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">m</span><span class="si">:</span><span class="s2">02d</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">s</span><span class="si">:</span><span class="s2">02d</span><span class="si">}</span><span class="s2">"</span> <span class="k">if</span> <span class="n">h</span> <span class="k">else</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">m</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">s</span><span class="si">:</span><span class="s2">02d</span><span class="si">}</span><span class="s2">"</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_parse_json_array</span><span class="p">(</span><span class="n">raw</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
     <span class="n">text</span> <span class="o">=</span> <span class="n">raw</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
-    <span class="k">if</span> <span class="n">text</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;```&quot;</span><span class="p">):</span>
-        <span class="n">text</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^```[a-zA-Z]*\n?&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span>
-        <span class="n">text</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\n?```$&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">text</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;[&quot;</span><span class="p">):</span>
-        <span class="n">m</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\[.*\]&quot;</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">DOTALL</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">text</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"```"</span><span class="p">):</span>
+        <span class="n">text</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">"^```[a-zA-Z]*\n?"</span><span class="p">,</span> <span class="s2">""</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span>
+        <span class="n">text</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">"\n?```$"</span><span class="p">,</span> <span class="s2">""</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">text</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"["</span><span class="p">):</span>
+        <span class="n">m</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s2">"\[.*\]"</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">DOTALL</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">m</span><span class="p">:</span>
             <span class="n">text</span> <span class="o">=</span> <span class="n">m</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
     <span class="n">arr</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">arr</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Segmenter response was not a JSON array.&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"Segmenter response was not a JSON array."</span><span class="p">)</span>
     <span class="k">return</span> <span class="p">[</span>
-        <span class="p">{</span><span class="s2">&quot;start&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="s2">&quot;start&quot;</span><span class="p">]),</span> <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="s2">&quot;title&quot;</span><span class="p">])}</span>
+        <span class="p">{</span><span class="s2">"start"</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="s2">"start"</span><span class="p">]),</span> <span class="s2">"title"</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="s2">"title"</span><span class="p">])}</span>
         <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">arr</span>
-        <span class="k">if</span> <span class="s2">&quot;start&quot;</span> <span class="ow">in</span> <span class="n">x</span> <span class="ow">and</span> <span class="s2">&quot;title&quot;</span> <span class="ow">in</span> <span class="n">x</span>
+        <span class="k">if</span> <span class="s2">"start"</span> <span class="ow">in</span> <span class="n">x</span> <span class="ow">and</span> <span class="s2">"title"</span> <span class="ow">in</span> <span class="n">x</span>
     <span class="p">]</span>
 </pre></div>
 

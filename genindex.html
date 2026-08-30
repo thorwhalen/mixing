@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Index &mdash; mixing 0.0.37 documentation</title>
+  <title>Index &mdash; mixing 0.0.38 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
@@ -14,7 +14,7 @@
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=aa2ad26f"></script>
+      <script src="_static/documentation_options.js?v=423071ad"></script>
       <script src="_static/doctools.js?v=fd6eb6e6"></script>
       <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="_static/toggleprompt.js?v=d7ede5d2"></script>
@@ -73,6 +73,7 @@
 <li class="toctree-l1"><a class="reference internal" href="module_docs/mixing/video.html">mixing.video</a></li>
 <li class="toctree-l1"><a class="reference internal" href="module_docs/mixing/video/_helpers.html">mixing.video._helpers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="module_docs/mixing/video/genai.html">mixing.video.genai</a></li>
+<li class="toctree-l1"><a class="reference internal" href="module_docs/mixing/video/gif.html">mixing.video.gif</a></li>
 <li class="toctree-l1"><a class="reference internal" href="module_docs/mixing/video/thumbnail.html">mixing.video.thumbnail</a></li>
 <li class="toctree-l1"><a class="reference internal" href="module_docs/mixing/video/video_concat.html">mixing.video.video_concat</a></li>
 <li class="toctree-l1"><a class="reference internal" href="module_docs/mixing/video/video_ops.html">mixing.video.video_ops</a></li>
@@ -401,6 +402,8 @@
         <li><a href="module_docs/mixing/chapters.html#mixing.chapters.detect_chapters">(in module mixing.chapters)</a>
 </li>
       </ul></li>
+      <li><a href="module_docs/mixing/video/gif.html#mixing.video.gif.DFLT_GIF_FPS">DFLT_GIF_FPS (in module mixing.video.gif)</a>
+</li>
       <li><a href="module_docs/mixing/dubbing/tts.html#mixing.dubbing.tts.DFLT_MODEL_ID">DFLT_MODEL_ID (in module mixing.dubbing.tts)</a>
 </li>
       <li><a href="module_docs/mixing/dubbing/tts.html#mixing.dubbing.tts.DFLT_OUTPUT_FORMAT">DFLT_OUTPUT_FORMAT (in module mixing.dubbing.tts)</a>
@@ -571,6 +574,8 @@
         <li><a href="module_docs/mixing/video/video_concat.html#mixing.video.video_concat.fade_through_black">(in module mixing.video.video_concat)</a>
 </li>
       </ul></li>
+      <li><a href="module_docs/mixing/util.html#mixing.util.ffmpeg_exe">ffmpeg_exe() (in module mixing.util)</a>
+</li>
       <li><a href="module_docs/mixing.html#mixing.FillerRemovalResult">FillerRemovalResult (class in mixing)</a>
 
       <ul>
@@ -587,14 +592,14 @@
         <li><a href="module_docs/mixing/audio/audio_ops.html#mixing.audio.audio_ops.find_audio_offset">(in module mixing.audio.audio_ops)</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="module_docs/mixing/audio.html#mixing.audio.find_audio_offset_detailed">find_audio_offset_detailed() (in module mixing.audio)</a>
 
       <ul>
         <li><a href="module_docs/mixing/audio/audio_ops.html#mixing.audio.audio_ops.find_audio_offset_detailed">(in module mixing.audio.audio_ops)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="module_docs/mixing/video/video_subtitles.html#mixing.video.video_subtitles.find_audio_start_offset">find_audio_start_offset() (in module mixing.video.video_subtitles)</a>
 </li>
       <li><a href="module_docs/mixing.html#mixing.find_segments">find_segments() (in module mixing)</a>
@@ -783,12 +788,20 @@
 <h2 id="M">M</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="module_docs/mixing.html#mixing.make_gif">make_gif() (in module mixing)</a>
+
+      <ul>
+        <li><a href="module_docs/mixing/video/gif.html#mixing.video.gif.make_gif">(in module mixing.video.gif)</a>
+</li>
+      </ul></li>
       <li><a href="module_docs/mixing.html#mixing.make_thumbnail">make_thumbnail() (in module mixing)</a>
 
       <ul>
         <li><a href="module_docs/mixing/video/thumbnail.html#mixing.video.thumbnail.make_thumbnail">(in module mixing.video.thumbnail)</a>
 </li>
       </ul></li>
+      <li><a href="module_docs/mixing/video/gif.html#mixing.video.gif.MIN_GIF_COLORS">MIN_GIF_COLORS (in module mixing.video.gif)</a>
+</li>
       <li>
     mixing
 
@@ -974,6 +987,13 @@
 </li>
       </ul></li>
       <li>
+    mixing.video.gif
+
+      <ul>
+        <li><a href="module_docs/mixing/video/gif.html#module-mixing.video.gif">module</a>
+</li>
+      </ul></li>
+      <li>
     mixing.video.thumbnail
 
       <ul>
@@ -1063,6 +1083,8 @@
         <li><a href="module_docs/mixing/video/_helpers.html#module-mixing.video._helpers">mixing.video._helpers</a>
 </li>
         <li><a href="module_docs/mixing/video/genai.html#module-mixing.video.genai">mixing.video.genai</a>
+</li>
+        <li><a href="module_docs/mixing/video/gif.html#module-mixing.video.gif">mixing.video.gif</a>
 </li>
         <li><a href="module_docs/mixing/video/thumbnail.html#module-mixing.video.thumbnail">mixing.video.thumbnail</a>
 </li>
@@ -1445,6 +1467,8 @@
         <li><a href="module_docs/mixing/video/video_ops.html#mixing.video.video_ops.Video.start_time">(mixing.video.video_ops.Video property)</a>
 </li>
       </ul></li>
+      <li><a href="module_docs/mixing/video/gif.html#mixing.video.gif.STDERR_TAIL_CHARS">STDERR_TAIL_CHARS (in module mixing.video.gif)</a>
+</li>
       <li><a href="module_docs/mixing/video/video_subtitles.html#mixing.video.video_subtitles.SubtitleStyle">SubtitleStyle (class in mixing.video.video_subtitles)</a>
 </li>
       <li><a href="module_docs/mixing/dubbing.html#mixing.dubbing.synthesize_to_file">synthesize_to_file() (in module mixing.dubbing)</a>

@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>mixing.dubbing.tts &mdash; mixing 0.0.37 documentation</title>
+  <title>mixing.dubbing.tts &mdash; mixing 0.0.38 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
@@ -14,7 +14,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=aa2ad26f"></script>
+      <script src="../../../_static/documentation_options.js?v=423071ad"></script>
       <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="../../../_static/toggleprompt.js?v=d7ede5d2"></script>
@@ -73,6 +73,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video.html">mixing.video</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/_helpers.html">mixing.video._helpers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/genai.html">mixing.video.genai</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/gif.html">mixing.video.gif</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/thumbnail.html">mixing.video.thumbnail</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/video_concat.html">mixing.video.video_concat</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/video_ops.html">mixing.video.video_ops</a></li>
@@ -105,13 +106,13 @@
            <div itemprop="articleBody">
              
   <h1>Source code for mixing.dubbing.tts</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;ElevenLabs text-to-speech (TTS) HTTP client.</span>
+<span></span><span class="sd">"""ElevenLabs text-to-speech (TTS) HTTP client.</span>
 
 <span class="sd">Stdlib-only — no ``requests`` or ``elevenlabs`` SDK dependency, mirroring</span>
 <span class="sd">:mod:`mixing.transcript.scribe`. Synthesizes speech from text and lists the</span>
 <span class="sd">voices available on the account.</span>
 
-<span class="sd">The default model is ``eleven_multilingual_v2`` — ElevenLabs&#39; high-quality,</span>
+<span class="sd">The default model is ``eleven_multilingual_v2`` — ElevenLabs' high-quality,</span>
 <span class="sd">multilingual model (handles English, French, and ~30 other languages with the</span>
 <span class="sd">same voice), which is the right default for dubbing into multiple languages.</span>
 
@@ -122,8 +123,8 @@
 <span class="sd">Quick start:</span>
 <span class="sd">    &gt;&gt;&gt; from mixing.dubbing import list_voices, synthesize_to_file  # doctest: +SKIP</span>
 <span class="sd">    &gt;&gt;&gt; voices = list_voices()  # doctest: +SKIP</span>
-<span class="sd">    &gt;&gt;&gt; synthesize_to_file(&quot;Hello world&quot;, voices[0][&quot;voice_id&quot;], &quot;hello.mp3&quot;)  # doctest: +SKIP</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    &gt;&gt;&gt; synthesize_to_file("Hello world", voices[0]["voice_id"], "hello.mp3")  # doctest: +SKIP</span>
+<span class="sd">"""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
@@ -137,25 +138,25 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">mixing._cache</span><span class="w"> </span><span class="kn">import</span> <span class="n">CacheArg</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mixing._elevenlabs</span><span class="w"> </span><span class="kn">import</span> <span class="n">resolve_api_key</span>
 
-<span class="n">ELEVENLABS_TTS_URL</span> <span class="o">=</span> <span class="s2">&quot;https://api.elevenlabs.io/v1/text-to-speech&quot;</span>
-<span class="n">ELEVENLABS_VOICES_URL</span> <span class="o">=</span> <span class="s2">&quot;https://api.elevenlabs.io/v1/voices&quot;</span>
-<span class="n">ELEVENLABS_SHARED_VOICES_URL</span> <span class="o">=</span> <span class="s2">&quot;https://api.elevenlabs.io/v1/shared-voices&quot;</span>
-<span class="n">ELEVENLABS_ADD_VOICE_URL</span> <span class="o">=</span> <span class="s2">&quot;https://api.elevenlabs.io/v1/voices/add&quot;</span>
-<span class="n">CACHE_ENV_KEY</span> <span class="o">=</span> <span class="s2">&quot;MIXING_TTS_CACHE_DIR&quot;</span>
+<span class="n">ELEVENLABS_TTS_URL</span> <span class="o">=</span> <span class="s2">"https://api.elevenlabs.io/v1/text-to-speech"</span>
+<span class="n">ELEVENLABS_VOICES_URL</span> <span class="o">=</span> <span class="s2">"https://api.elevenlabs.io/v1/voices"</span>
+<span class="n">ELEVENLABS_SHARED_VOICES_URL</span> <span class="o">=</span> <span class="s2">"https://api.elevenlabs.io/v1/shared-voices"</span>
+<span class="n">ELEVENLABS_ADD_VOICE_URL</span> <span class="o">=</span> <span class="s2">"https://api.elevenlabs.io/v1/voices/add"</span>
+<span class="n">CACHE_ENV_KEY</span> <span class="o">=</span> <span class="s2">"MIXING_TTS_CACHE_DIR"</span>
 
 <span class="c1">#: High-quality, multilingual default model (one voice speaks many languages).</span>
-<span class="n">DFLT_MODEL_ID</span> <span class="o">=</span> <span class="s2">&quot;eleven_multilingual_v2&quot;</span>
+<span class="n">DFLT_MODEL_ID</span> <span class="o">=</span> <span class="s2">"eleven_multilingual_v2"</span>
 <span class="c1">#: Highest standard MP3 quality that does not require a paid tier.</span>
-<span class="n">DFLT_OUTPUT_FORMAT</span> <span class="o">=</span> <span class="s2">&quot;mp3_44100_128&quot;</span>
+<span class="n">DFLT_OUTPUT_FORMAT</span> <span class="o">=</span> <span class="s2">"mp3_44100_128"</span>
 
 <span class="c1">#: Voice settings tuned for clear, consistent marketing/narration delivery.</span>
 <span class="c1">#: ``stability`` ~0.5 keeps the read steady (not over-expressive);</span>
 <span class="c1">#: ``similarity_boost`` ~0.8 keeps timbre faithful to the chosen voice.</span>
 <span class="n">DFLT_VOICE_SETTINGS</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;stability&quot;</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span>
-    <span class="s2">&quot;similarity_boost&quot;</span><span class="p">:</span> <span class="mf">0.8</span><span class="p">,</span>
-    <span class="s2">&quot;style&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
-    <span class="s2">&quot;use_speaker_boost&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="s2">"stability"</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span>
+    <span class="s2">"similarity_boost"</span><span class="p">:</span> <span class="mf">0.8</span><span class="p">,</span>
+    <span class="s2">"style"</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
+    <span class="s2">"use_speaker_boost"</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
 <span class="p">}</span>
 
 <span class="n">PathLike</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">]</span>
@@ -164,12 +165,12 @@
 <div class="viewcode-block" id="default_cache_dir">
 <a class="viewcode-back" href="../../../module_docs/mixing/dubbing/tts.html#mixing.default_cache_dir">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">default_cache_dir</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Default on-disk cache for synthesized audio.</span>
+<span class="w">    </span><span class="sd">"""Default on-disk cache for synthesized audio.</span>
 
 <span class="sd">    Honors ``$MIXING_TTS_CACHE_DIR``, then ``$XDG_CACHE_HOME``, then</span>
 <span class="sd">    ``~/.cache/``. Final segment is always ``mixing/tts``.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">_cache</span><span class="o">.</span><span class="n">default_cache_dir</span><span class="p">(</span><span class="s2">&quot;tts&quot;</span><span class="p">,</span> <span class="n">env_key</span><span class="o">=</span><span class="n">CACHE_ENV_KEY</span><span class="p">)</span></div>
+<span class="sd">    """</span>
+    <span class="k">return</span> <span class="n">_cache</span><span class="o">.</span><span class="n">default_cache_dir</span><span class="p">(</span><span class="s2">"tts"</span><span class="p">,</span> <span class="n">env_key</span><span class="o">=</span><span class="n">CACHE_ENV_KEY</span><span class="p">)</span></div>
 
 
 
@@ -189,7 +190,7 @@
     <span class="n">refresh</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">return_cache_status</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bytes</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">bytes</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Synthesize ``text`` to speech with ElevenLabs and return audio bytes.</span>
+<span class="w">    </span><span class="sd">"""Synthesize ``text`` to speech with ElevenLabs and return audio bytes.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        text: The text to speak.</span>
@@ -202,7 +203,7 @@
 <span class="sd">        voice_settings: Override the default voice settings (stability,</span>
 <span class="sd">            similarity_boost, style, use_speaker_boost). Merged over</span>
 <span class="sd">            :data:`DFLT_VOICE_SETTINGS`.</span>
-<span class="sd">        language_code: Optional ISO-639-1 hint (e.g. ``&quot;fr&quot;``). Only some</span>
+<span class="sd">        language_code: Optional ISO-639-1 hint (e.g. ``"fr"``). Only some</span>
 <span class="sd">            models honor it; ignored by others.</span>
 <span class="sd">        timeout: Total request timeout in seconds.</span>
 <span class="sd">        cache: ``True`` (default) → use :func:`default_cache_dir`. ``False``</span>
@@ -222,7 +223,7 @@
 <span class="sd">    Raises:</span>
 <span class="sd">        RuntimeError: No API key supplied and ``ELEVENLABS_API_KEY`` unset.</span>
 <span class="sd">        urllib.error.HTTPError: Request failed (4xx/5xx).</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">settings</span> <span class="o">=</span> <span class="p">{</span><span class="o">**</span><span class="n">DFLT_VOICE_SETTINGS</span><span class="p">,</span> <span class="o">**</span><span class="p">(</span><span class="n">voice_settings</span> <span class="ow">or</span> <span class="p">{})}</span>
 
     <span class="n">cache_dir</span> <span class="o">=</span> <span class="n">_cache</span><span class="o">.</span><span class="n">resolve_cache_dir</span><span class="p">(</span><span class="n">cache</span><span class="p">,</span> <span class="n">default_factory</span><span class="o">=</span><span class="n">default_cache_dir</span><span class="p">)</span>
@@ -235,39 +236,39 @@
             <span class="n">settings</span><span class="o">=</span><span class="n">settings</span><span class="p">,</span>
             <span class="n">language_code</span><span class="o">=</span><span class="n">language_code</span><span class="p">,</span>
         <span class="p">)</span>
-        <span class="n">cached</span> <span class="o">=</span> <span class="n">_cache</span><span class="o">.</span><span class="n">read_cache</span><span class="p">(</span><span class="n">cache_dir</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">suffix</span><span class="o">=</span><span class="s2">&quot;.audio&quot;</span><span class="p">)</span>
+        <span class="n">cached</span> <span class="o">=</span> <span class="n">_cache</span><span class="o">.</span><span class="n">read_cache</span><span class="p">(</span><span class="n">cache_dir</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">suffix</span><span class="o">=</span><span class="s2">".audio"</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">cached</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">refresh</span><span class="p">:</span>
             <span class="k">return</span> <span class="p">(</span><span class="n">cached</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span> <span class="k">if</span> <span class="n">return_cache_status</span> <span class="k">else</span> <span class="n">cached</span>
 
     <span class="n">api_key</span> <span class="o">=</span> <span class="n">resolve_api_key</span><span class="p">(</span><span class="n">api_key</span><span class="p">)</span>
 
     <span class="n">payload</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s2">&quot;text&quot;</span><span class="p">:</span> <span class="n">text</span><span class="p">,</span>
-        <span class="s2">&quot;model_id&quot;</span><span class="p">:</span> <span class="n">model_id</span><span class="p">,</span>
-        <span class="s2">&quot;voice_settings&quot;</span><span class="p">:</span> <span class="n">settings</span><span class="p">,</span>
+        <span class="s2">"text"</span><span class="p">:</span> <span class="n">text</span><span class="p">,</span>
+        <span class="s2">"model_id"</span><span class="p">:</span> <span class="n">model_id</span><span class="p">,</span>
+        <span class="s2">"voice_settings"</span><span class="p">:</span> <span class="n">settings</span><span class="p">,</span>
     <span class="p">}</span>
     <span class="k">if</span> <span class="n">language_code</span><span class="p">:</span>
-        <span class="n">payload</span><span class="p">[</span><span class="s2">&quot;language_code&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">language_code</span>
+        <span class="n">payload</span><span class="p">[</span><span class="s2">"language_code"</span><span class="p">]</span> <span class="o">=</span> <span class="n">language_code</span>
 
     <span class="n">url</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">ELEVENLABS_TTS_URL</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">urllib</span><span class="o">.</span><span class="n">parse</span><span class="o">.</span><span class="n">quote</span><span class="p">(</span><span class="n">voice_id</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
-        <span class="sa">f</span><span class="s2">&quot;?output_format=</span><span class="si">{</span><span class="n">urllib</span><span class="o">.</span><span class="n">parse</span><span class="o">.</span><span class="n">quote</span><span class="p">(</span><span class="n">output_format</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">ELEVENLABS_TTS_URL</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">urllib</span><span class="o">.</span><span class="n">parse</span><span class="o">.</span><span class="n">quote</span><span class="p">(</span><span class="n">voice_id</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span>
+        <span class="sa">f</span><span class="s2">"?output_format=</span><span class="si">{</span><span class="n">urllib</span><span class="o">.</span><span class="n">parse</span><span class="o">.</span><span class="n">quote</span><span class="p">(</span><span class="n">output_format</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span>
     <span class="p">)</span>
     <span class="n">req</span> <span class="o">=</span> <span class="n">urllib</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">Request</span><span class="p">(</span>
         <span class="n">url</span><span class="p">,</span>
         <span class="n">data</span><span class="o">=</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">payload</span><span class="p">)</span><span class="o">.</span><span class="n">encode</span><span class="p">(),</span>
-        <span class="n">method</span><span class="o">=</span><span class="s2">&quot;POST&quot;</span><span class="p">,</span>
+        <span class="n">method</span><span class="o">=</span><span class="s2">"POST"</span><span class="p">,</span>
         <span class="n">headers</span><span class="o">=</span><span class="p">{</span>
-            <span class="s2">&quot;xi-api-key&quot;</span><span class="p">:</span> <span class="n">api_key</span><span class="p">,</span>
-            <span class="s2">&quot;Content-Type&quot;</span><span class="p">:</span> <span class="s2">&quot;application/json&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;Accept&quot;</span><span class="p">:</span> <span class="s2">&quot;audio/mpeg&quot;</span><span class="p">,</span>
+            <span class="s2">"xi-api-key"</span><span class="p">:</span> <span class="n">api_key</span><span class="p">,</span>
+            <span class="s2">"Content-Type"</span><span class="p">:</span> <span class="s2">"application/json"</span><span class="p">,</span>
+            <span class="s2">"Accept"</span><span class="p">:</span> <span class="s2">"audio/mpeg"</span><span class="p">,</span>
         <span class="p">},</span>
     <span class="p">)</span>
     <span class="k">with</span> <span class="n">urllib</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">urlopen</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">)</span> <span class="k">as</span> <span class="n">resp</span><span class="p">:</span>
         <span class="n">audio</span> <span class="o">=</span> <span class="n">resp</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
 
     <span class="k">if</span> <span class="n">cache_dir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">_cache</span><span class="o">.</span><span class="n">write_cache</span><span class="p">(</span><span class="n">cache_dir</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">audio</span><span class="p">,</span> <span class="n">suffix</span><span class="o">=</span><span class="s2">&quot;.audio&quot;</span><span class="p">)</span>
+        <span class="n">_cache</span><span class="o">.</span><span class="n">write_cache</span><span class="p">(</span><span class="n">cache_dir</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">audio</span><span class="p">,</span> <span class="n">suffix</span><span class="o">=</span><span class="s2">".audio"</span><span class="p">)</span>
     <span class="k">return</span> <span class="p">(</span><span class="n">audio</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span> <span class="k">if</span> <span class="n">return_cache_status</span> <span class="k">else</span> <span class="n">audio</span></div>
 
 
@@ -280,14 +281,14 @@
     <span class="n">path</span><span class="p">:</span> <span class="n">PathLike</span><span class="p">,</span>
     <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Synthesize ``text`` and write the audio to ``path``.</span>
+<span class="w">    </span><span class="sd">"""Synthesize ``text`` and write the audio to ``path``.</span>
 
 <span class="sd">    Thin convenience wrapper over :func:`text_to_speech`. Extra keyword</span>
 <span class="sd">    arguments are forwarded unchanged.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        The path written.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">audio</span> <span class="o">=</span> <span class="n">text_to_speech</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">voice_id</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
     <span class="n">path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
     <span class="n">path</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -303,7 +304,7 @@
     <span class="n">api_key</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">timeout</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">60.0</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;List the voices available on the account.</span>
+<span class="w">    </span><span class="sd">"""List the voices available on the account.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        api_key: API key. Falls back to env var ``ELEVENLABS_API_KEY``.</span>
@@ -316,16 +317,16 @@
 
 <span class="sd">    Raises:</span>
 <span class="sd">        RuntimeError: No API key supplied and ``ELEVENLABS_API_KEY`` unset.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">api_key</span> <span class="o">=</span> <span class="n">resolve_api_key</span><span class="p">(</span><span class="n">api_key</span><span class="p">)</span>
     <span class="n">req</span> <span class="o">=</span> <span class="n">urllib</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">Request</span><span class="p">(</span>
         <span class="n">ELEVENLABS_VOICES_URL</span><span class="p">,</span>
-        <span class="n">method</span><span class="o">=</span><span class="s2">&quot;GET&quot;</span><span class="p">,</span>
-        <span class="n">headers</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;xi-api-key&quot;</span><span class="p">:</span> <span class="n">api_key</span><span class="p">,</span> <span class="s2">&quot;Accept&quot;</span><span class="p">:</span> <span class="s2">&quot;application/json&quot;</span><span class="p">},</span>
+        <span class="n">method</span><span class="o">=</span><span class="s2">"GET"</span><span class="p">,</span>
+        <span class="n">headers</span><span class="o">=</span><span class="p">{</span><span class="s2">"xi-api-key"</span><span class="p">:</span> <span class="n">api_key</span><span class="p">,</span> <span class="s2">"Accept"</span><span class="p">:</span> <span class="s2">"application/json"</span><span class="p">},</span>
     <span class="p">)</span>
     <span class="k">with</span> <span class="n">urllib</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">urlopen</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">)</span> <span class="k">as</span> <span class="n">resp</span><span class="p">:</span>
         <span class="n">data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">resp</span><span class="o">.</span><span class="n">read</span><span class="p">()</span><span class="o">.</span><span class="n">decode</span><span class="p">())</span>
-    <span class="k">return</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;voices&quot;</span><span class="p">,</span> <span class="p">[])</span></div>
+    <span class="k">return</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"voices"</span><span class="p">,</span> <span class="p">[])</span></div>
 
 
 
@@ -343,18 +344,18 @@
     <span class="n">timeout</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">60.0</span><span class="p">,</span>
     <span class="o">**</span><span class="n">extra_params</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Search ElevenLabs&#39; public *shared voice library* (not just the account).</span>
+<span class="w">    </span><span class="sd">"""Search ElevenLabs' public *shared voice library* (not just the account).</span>
 
 <span class="sd">    Useful for finding a native voice in a target language (e.g. a French</span>
 <span class="sd">    advertising voice) that is not yet on the account. Add the chosen voice</span>
 <span class="sd">    with :func:`add_shared_voice`, then synthesize with the returned id.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        language: ISO-639-1 language filter, e.g. ``&quot;fr&quot;``.</span>
-<span class="sd">        use_cases: e.g. ``&quot;advertisement&quot;``, ``&quot;narrative_story&quot;``.</span>
-<span class="sd">        gender: ``&quot;male&quot;`` / ``&quot;female&quot;`` / ``&quot;neutral&quot;``.</span>
-<span class="sd">        category: e.g. ``&quot;professional&quot;``, ``&quot;high_quality&quot;``.</span>
-<span class="sd">        sort: e.g. ``&quot;trending&quot;``.</span>
+<span class="sd">        language: ISO-639-1 language filter, e.g. ``"fr"``.</span>
+<span class="sd">        use_cases: e.g. ``"advertisement"``, ``"narrative_story"``.</span>
+<span class="sd">        gender: ``"male"`` / ``"female"`` / ``"neutral"``.</span>
+<span class="sd">        category: e.g. ``"professional"``, ``"high_quality"``.</span>
+<span class="sd">        sort: e.g. ``"trending"``.</span>
 <span class="sd">        page_size: Max results.</span>
 <span class="sd">        extra_params: Any other query params the endpoint accepts.</span>
 
@@ -363,26 +364,26 @@
 <span class="sd">        ``public_owner_id`` (both needed by :func:`add_shared_voice`), plus</span>
 <span class="sd">        ``name``, ``language``, ``accent``, ``gender``, ``use_case``,</span>
 <span class="sd">        ``description``.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">api_key</span> <span class="o">=</span> <span class="n">resolve_api_key</span><span class="p">(</span><span class="n">api_key</span><span class="p">)</span>
-    <span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;page_size&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">page_size</span><span class="p">)}</span>
+    <span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"page_size"</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">page_size</span><span class="p">)}</span>
     <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="p">(</span>
-        <span class="p">(</span><span class="s2">&quot;language&quot;</span><span class="p">,</span> <span class="n">language</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">&quot;use_cases&quot;</span><span class="p">,</span> <span class="n">use_cases</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">&quot;gender&quot;</span><span class="p">,</span> <span class="n">gender</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">&quot;category&quot;</span><span class="p">,</span> <span class="n">category</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">&quot;sort&quot;</span><span class="p">,</span> <span class="n">sort</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">"language"</span><span class="p">,</span> <span class="n">language</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">"use_cases"</span><span class="p">,</span> <span class="n">use_cases</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">"gender"</span><span class="p">,</span> <span class="n">gender</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">"category"</span><span class="p">,</span> <span class="n">category</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">"sort"</span><span class="p">,</span> <span class="n">sort</span><span class="p">),</span>
     <span class="p">):</span>
         <span class="k">if</span> <span class="n">v</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">params</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>
     <span class="n">params</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">k</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">extra_params</span><span class="o">.</span><span class="n">items</span><span class="p">()})</span>
-    <span class="n">url</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">ELEVENLABS_SHARED_VOICES_URL</span><span class="si">}</span><span class="s2">?</span><span class="si">{</span><span class="n">urllib</span><span class="o">.</span><span class="n">parse</span><span class="o">.</span><span class="n">urlencode</span><span class="p">(</span><span class="n">params</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="n">url</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">ELEVENLABS_SHARED_VOICES_URL</span><span class="si">}</span><span class="s2">?</span><span class="si">{</span><span class="n">urllib</span><span class="o">.</span><span class="n">parse</span><span class="o">.</span><span class="n">urlencode</span><span class="p">(</span><span class="n">params</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span>
     <span class="n">req</span> <span class="o">=</span> <span class="n">urllib</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">Request</span><span class="p">(</span>
-        <span class="n">url</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;GET&quot;</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;xi-api-key&quot;</span><span class="p">:</span> <span class="n">api_key</span><span class="p">,</span> <span class="s2">&quot;Accept&quot;</span><span class="p">:</span> <span class="s2">&quot;application/json&quot;</span><span class="p">}</span>
+        <span class="n">url</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">"GET"</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="p">{</span><span class="s2">"xi-api-key"</span><span class="p">:</span> <span class="n">api_key</span><span class="p">,</span> <span class="s2">"Accept"</span><span class="p">:</span> <span class="s2">"application/json"</span><span class="p">}</span>
     <span class="p">)</span>
     <span class="k">with</span> <span class="n">urllib</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">urlopen</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">)</span> <span class="k">as</span> <span class="n">resp</span><span class="p">:</span>
         <span class="n">data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">resp</span><span class="o">.</span><span class="n">read</span><span class="p">()</span><span class="o">.</span><span class="n">decode</span><span class="p">())</span>
-    <span class="k">return</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;voices&quot;</span><span class="p">,</span> <span class="p">[])</span></div>
+    <span class="k">return</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"voices"</span><span class="p">,</span> <span class="p">[])</span></div>
 
 
 
@@ -396,40 +397,40 @@
     <span class="n">api_key</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">timeout</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">60.0</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Add a shared-library voice to the account so it can be synthesized.</span>
+<span class="w">    </span><span class="sd">"""Add a shared-library voice to the account so it can be synthesized.</span>
 
 <span class="sd">    Idempotent-ish: if the voice (by name) is already on the account, returns</span>
 <span class="sd">    its existing id instead of erroring on a duplicate add.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        public_owner_id: ``public_owner_id`` from :func:`search_shared_voices`.</span>
-<span class="sd">        voice_id: The shared voice&#39;s ``voice_id``.</span>
+<span class="sd">        voice_id: The shared voice's ``voice_id``.</span>
 <span class="sd">        name: Name to give the added voice on the account.</span>
 <span class="sd">        api_key: API key. Falls back to env var ``ELEVENLABS_API_KEY``.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        The account-local ``voice_id`` to pass to :func:`text_to_speech`.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">api_key</span> <span class="o">=</span> <span class="n">resolve_api_key</span><span class="p">(</span><span class="n">api_key</span><span class="p">)</span>
 
     <span class="n">existing</span> <span class="o">=</span> <span class="n">find_voice</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">api_key</span><span class="o">=</span><span class="n">api_key</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">existing</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">existing</span><span class="p">[</span><span class="s2">&quot;voice_id&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">existing</span><span class="p">[</span><span class="s2">"voice_id"</span><span class="p">]</span>
 
-    <span class="n">url</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">ELEVENLABS_ADD_VOICE_URL</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">urllib</span><span class="o">.</span><span class="n">parse</span><span class="o">.</span><span class="n">quote</span><span class="p">(</span><span class="n">public_owner_id</span><span class="p">)</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">urllib</span><span class="o">.</span><span class="n">parse</span><span class="o">.</span><span class="n">quote</span><span class="p">(</span><span class="n">voice_id</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="n">url</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">ELEVENLABS_ADD_VOICE_URL</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">urllib</span><span class="o">.</span><span class="n">parse</span><span class="o">.</span><span class="n">quote</span><span class="p">(</span><span class="n">public_owner_id</span><span class="p">)</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">urllib</span><span class="o">.</span><span class="n">parse</span><span class="o">.</span><span class="n">quote</span><span class="p">(</span><span class="n">voice_id</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span>
     <span class="n">req</span> <span class="o">=</span> <span class="n">urllib</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">Request</span><span class="p">(</span>
         <span class="n">url</span><span class="p">,</span>
-        <span class="n">data</span><span class="o">=</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">({</span><span class="s2">&quot;new_name&quot;</span><span class="p">:</span> <span class="n">name</span><span class="p">})</span><span class="o">.</span><span class="n">encode</span><span class="p">(),</span>
-        <span class="n">method</span><span class="o">=</span><span class="s2">&quot;POST&quot;</span><span class="p">,</span>
+        <span class="n">data</span><span class="o">=</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">({</span><span class="s2">"new_name"</span><span class="p">:</span> <span class="n">name</span><span class="p">})</span><span class="o">.</span><span class="n">encode</span><span class="p">(),</span>
+        <span class="n">method</span><span class="o">=</span><span class="s2">"POST"</span><span class="p">,</span>
         <span class="n">headers</span><span class="o">=</span><span class="p">{</span>
-            <span class="s2">&quot;xi-api-key&quot;</span><span class="p">:</span> <span class="n">api_key</span><span class="p">,</span>
-            <span class="s2">&quot;Content-Type&quot;</span><span class="p">:</span> <span class="s2">&quot;application/json&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;Accept&quot;</span><span class="p">:</span> <span class="s2">&quot;application/json&quot;</span><span class="p">,</span>
+            <span class="s2">"xi-api-key"</span><span class="p">:</span> <span class="n">api_key</span><span class="p">,</span>
+            <span class="s2">"Content-Type"</span><span class="p">:</span> <span class="s2">"application/json"</span><span class="p">,</span>
+            <span class="s2">"Accept"</span><span class="p">:</span> <span class="s2">"application/json"</span><span class="p">,</span>
         <span class="p">},</span>
     <span class="p">)</span>
     <span class="k">with</span> <span class="n">urllib</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">urlopen</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">)</span> <span class="k">as</span> <span class="n">resp</span><span class="p">:</span>
         <span class="n">data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">resp</span><span class="o">.</span><span class="n">read</span><span class="p">()</span><span class="o">.</span><span class="n">decode</span><span class="p">())</span>
-    <span class="k">return</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;voice_id&quot;</span><span class="p">]</span></div>
+    <span class="k">return</span> <span class="n">data</span><span class="p">[</span><span class="s2">"voice_id"</span><span class="p">]</span></div>
 
 
 
@@ -441,16 +442,16 @@
     <span class="n">api_key</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">voices</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the first voice whose name or labels contain ``query`` (case-insensitive).</span>
+<span class="w">    </span><span class="sd">"""Return the first voice whose name or labels contain ``query`` (case-insensitive).</span>
 
-<span class="sd">    Convenience for picking a voice by a human name (e.g. ``&quot;Brian&quot;``) or a</span>
-<span class="sd">    label keyword (e.g. ``&quot;french&quot;``) without memorizing voice ids.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    Convenience for picking a voice by a human name (e.g. ``"Brian"``) or a</span>
+<span class="sd">    label keyword (e.g. ``"french"``) without memorizing voice ids.</span>
+<span class="sd">    """</span>
     <span class="n">q</span> <span class="o">=</span> <span class="n">query</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
     <span class="n">voices</span> <span class="o">=</span> <span class="n">voices</span> <span class="k">if</span> <span class="n">voices</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">list_voices</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="n">api_key</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">voices</span><span class="p">:</span>
-        <span class="n">hay</span> <span class="o">=</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-            <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)),</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;labels&quot;</span><span class="p">,</span> <span class="p">{}))]</span>
+        <span class="n">hay</span> <span class="o">=</span> <span class="s2">" "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"name"</span><span class="p">,</span> <span class="s2">""</span><span class="p">)),</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"labels"</span><span class="p">,</span> <span class="p">{}))]</span>
         <span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">q</span> <span class="ow">in</span> <span class="n">hay</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">v</span>
@@ -467,13 +468,13 @@
     <span class="n">settings</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span>
     <span class="n">language_code</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Cache key over the text and every parameter that affects the audio.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Cache key over the text and every parameter that affects the audio."""</span>
     <span class="k">return</span> <span class="n">_cache</span><span class="o">.</span><span class="n">sha256_key</span><span class="p">(</span>
         <span class="n">text</span><span class="p">,</span>
         <span class="n">voice_id</span><span class="p">,</span>
         <span class="n">model_id</span><span class="p">,</span>
         <span class="n">output_format</span><span class="p">,</span>
-        <span class="n">language_code</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="n">language_code</span> <span class="ow">or</span> <span class="s2">""</span><span class="p">,</span>
         <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">settings</span><span class="p">,</span> <span class="n">sort_keys</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
     <span class="p">)</span>
 </pre></div>

@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>mixing.video.video_util &mdash; mixing 0.0.37 documentation</title>
+  <title>mixing.video.video_util &mdash; mixing 0.0.38 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
@@ -14,7 +14,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=aa2ad26f"></script>
+      <script src="../../../_static/documentation_options.js?v=423071ad"></script>
       <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="../../../_static/toggleprompt.js?v=d7ede5d2"></script>
@@ -73,6 +73,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video.html">mixing.video</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/_helpers.html">mixing.video._helpers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/genai.html">mixing.video.genai</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/gif.html">mixing.video.gif</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/thumbnail.html">mixing.video.thumbnail</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/video_concat.html">mixing.video.video_concat</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/video_ops.html">mixing.video.video_ops</a></li>
@@ -105,10 +106,10 @@
            <div itemprop="articleBody">
              
   <h1>Source code for mixing.video.video_util</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Video utils.</span>
+<span></span><span class="sd">"""Video utils.</span>
 
 <span class="sd">Utils that will be useful in multiple modules of the video package.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Optional</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
@@ -120,23 +121,40 @@
 <span class="c1">#: (``shorts`` / ``story`` / ``tiktok``) and the 1:1 ``square`` cover the usual</span>
 <span class="c1">#: short-form formats.</span>
 <span class="n">SOCIAL_SIZES</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;youtube&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mi">1920</span><span class="p">,</span> <span class="mi">1080</span><span class="p">),</span>
-    <span class="s2">&quot;shorts&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mi">1080</span><span class="p">,</span> <span class="mi">1920</span><span class="p">),</span>
-    <span class="s2">&quot;square&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mi">1080</span><span class="p">,</span> <span class="mi">1080</span><span class="p">),</span>
-    <span class="s2">&quot;story&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mi">1080</span><span class="p">,</span> <span class="mi">1920</span><span class="p">),</span>
-    <span class="s2">&quot;tiktok&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mi">1080</span><span class="p">,</span> <span class="mi">1920</span><span class="p">),</span>
+    <span class="s2">"youtube"</span><span class="p">:</span> <span class="p">(</span><span class="mi">1920</span><span class="p">,</span> <span class="mi">1080</span><span class="p">),</span>
+    <span class="s2">"shorts"</span><span class="p">:</span> <span class="p">(</span><span class="mi">1080</span><span class="p">,</span> <span class="mi">1920</span><span class="p">),</span>
+    <span class="s2">"square"</span><span class="p">:</span> <span class="p">(</span><span class="mi">1080</span><span class="p">,</span> <span class="mi">1080</span><span class="p">),</span>
+    <span class="s2">"story"</span><span class="p">:</span> <span class="p">(</span><span class="mi">1080</span><span class="p">,</span> <span class="mi">1920</span><span class="p">),</span>
+    <span class="s2">"tiktok"</span><span class="p">:</span> <span class="p">(</span><span class="mi">1080</span><span class="p">,</span> <span class="mi">1920</span><span class="p">),</span>
 <span class="p">}</span>
 
 
 <div class="viewcode-block" id="get_video_dimensions">
 <a class="viewcode-back" href="../../../module_docs/mixing/video/video_util.html#mixing.get_video_dimensions">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">get_video_dimensions</span><span class="p">(</span><span class="n">video</span><span class="p">:</span> <span class="n">VideoFileClip</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Get the (width, height) dimensions of a video.</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_video_dimensions</span><span class="p">(</span><span class="n">video</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Get the (width, height) dimensions of a video — a moviepy clip, or a</span>
+<span class="sd">    file path (probed via cv2, so no clip is opened).</span>
 
-<span class="sd">    &gt;&gt;&gt; clip = VideoFileClip(&#39;video.mp4&#39;)  # doctest: +SKIP</span>
+<span class="sd">    &gt;&gt;&gt; width, height = get_video_dimensions('video.mp4')  # doctest: +SKIP</span>
+<span class="sd">    &gt;&gt;&gt; clip = VideoFileClip('video.mp4')  # doctest: +SKIP</span>
 <span class="sd">    &gt;&gt;&gt; width, height = get_video_dimensions(clip)  # doctest: +SKIP</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">video</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">PathLike</span><span class="p">)):</span>
+        <span class="kn">import</span><span class="w"> </span><span class="nn">cv2</span>
+
+        <span class="n">cap</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">VideoCapture</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">fspath</span><span class="p">(</span><span class="n">video</span><span class="p">))</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">cap</span><span class="o">.</span><span class="n">isOpened</span><span class="p">():</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Cannot open video file: </span><span class="si">{</span><span class="n">video</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+            <span class="k">return</span> <span class="p">(</span>
+                <span class="nb">int</span><span class="p">(</span><span class="n">cap</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">cv2</span><span class="o">.</span><span class="n">CAP_PROP_FRAME_WIDTH</span><span class="p">)),</span>
+                <span class="nb">int</span><span class="p">(</span><span class="n">cap</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">cv2</span><span class="o">.</span><span class="n">CAP_PROP_FRAME_HEIGHT</span><span class="p">)),</span>
+            <span class="p">)</span>
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="n">cap</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
     <span class="k">return</span> <span class="n">video</span><span class="o">.</span><span class="n">w</span><span class="p">,</span> <span class="n">video</span><span class="o">.</span><span class="n">h</span></div>
 
 
@@ -148,10 +166,10 @@
     <span class="n">target_width</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="n">target_height</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
-    <span class="n">method</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;stretch&quot;</span><span class="p">,</span> <span class="s2">&quot;fit&quot;</span><span class="p">,</span> <span class="s2">&quot;fill&quot;</span><span class="p">,</span> <span class="s2">&quot;social&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;fit&quot;</span><span class="p">,</span>
+    <span class="n">method</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"stretch"</span><span class="p">,</span> <span class="s2">"fit"</span><span class="p">,</span> <span class="s2">"fill"</span><span class="p">,</span> <span class="s2">"social"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"fit"</span><span class="p">,</span>
     <span class="n">bg_color</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">VideoFileClip</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Resize a video to target dimensions with different methods.</span>
 
 <span class="sd">    Args:</span>
@@ -159,10 +177,10 @@
 <span class="sd">        target_width: Target width in pixels</span>
 <span class="sd">        target_height: Target height in pixels</span>
 <span class="sd">        method: Resizing method:</span>
-<span class="sd">            - &#39;stretch&#39;: Stretch to fit (may distort aspect ratio)</span>
-<span class="sd">            - &#39;fit&#39;: Scale to fit inside target (maintains aspect ratio, adds padding)</span>
-<span class="sd">            - &#39;fill&#39;: Scale to fill target (maintains aspect ratio, may crop)</span>
-<span class="sd">            - &#39;social&#39;: Like &#39;fill&#39; but uses blurred/zoomed background (social media style)</span>
+<span class="sd">            - 'stretch': Stretch to fit (may distort aspect ratio)</span>
+<span class="sd">            - 'fit': Scale to fit inside target (maintains aspect ratio, adds padding)</span>
+<span class="sd">            - 'fill': Scale to fill target (maintains aspect ratio, may crop)</span>
+<span class="sd">            - 'social': Like 'fill' but uses blurred/zoomed background (social media style)</span>
 <span class="sd">        bg_color: Background color for padding (RGB tuple, 0-255)</span>
 
 <span class="sd">    Returns:</span>
@@ -170,26 +188,26 @@
 
 <span class="sd">    Examples:</span>
 <span class="sd">        &gt;&gt;&gt; # Stretch to exact dimensions (may distort)</span>
-<span class="sd">        &gt;&gt;&gt; resized = resize_to_dimensions(clip, 1920, 1080, method=&#39;stretch&#39;)  # doctest: +SKIP</span>
+<span class="sd">        &gt;&gt;&gt; resized = resize_to_dimensions(clip, 1920, 1080, method='stretch')  # doctest: +SKIP</span>
 
 <span class="sd">        &gt;&gt;&gt; # Fit inside dimensions with black padding</span>
-<span class="sd">        &gt;&gt;&gt; resized = resize_to_dimensions(clip, 1920, 1080, method=&#39;fit&#39;)  # doctest: +SKIP</span>
+<span class="sd">        &gt;&gt;&gt; resized = resize_to_dimensions(clip, 1920, 1080, method='fit')  # doctest: +SKIP</span>
 
 <span class="sd">        &gt;&gt;&gt; # Fill dimensions (may crop edges)</span>
-<span class="sd">        &gt;&gt;&gt; resized = resize_to_dimensions(clip, 1920, 1080, method=&#39;fill&#39;)  # doctest: +SKIP</span>
+<span class="sd">        &gt;&gt;&gt; resized = resize_to_dimensions(clip, 1920, 1080, method='fill')  # doctest: +SKIP</span>
 
 <span class="sd">        &gt;&gt;&gt; # Social media style with blurred background</span>
-<span class="sd">        &gt;&gt;&gt; resized = resize_to_dimensions(clip, 1920, 1080, method=&#39;social&#39;)  # doctest: +SKIP</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">        &gt;&gt;&gt; resized = resize_to_dimensions(clip, 1920, 1080, method='social')  # doctest: +SKIP</span>
+<span class="sd">    """</span>
     <span class="n">current_width</span><span class="p">,</span> <span class="n">current_height</span> <span class="o">=</span> <span class="n">get_video_dimensions</span><span class="p">(</span><span class="n">video</span><span class="p">)</span>
     <span class="n">target_aspect</span> <span class="o">=</span> <span class="n">target_width</span> <span class="o">/</span> <span class="n">target_height</span>
     <span class="n">current_aspect</span> <span class="o">=</span> <span class="n">current_width</span> <span class="o">/</span> <span class="n">current_height</span>
 
-    <span class="k">if</span> <span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;stretch&quot;</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">method</span> <span class="o">==</span> <span class="s2">"stretch"</span><span class="p">:</span>
         <span class="c1"># Simple stretch - may distort aspect ratio</span>
         <span class="k">return</span> <span class="n">video</span><span class="o">.</span><span class="n">resized</span><span class="p">(</span><span class="n">new_size</span><span class="o">=</span><span class="p">(</span><span class="n">target_width</span><span class="p">,</span> <span class="n">target_height</span><span class="p">))</span>
 
-    <span class="k">elif</span> <span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;fit&quot;</span><span class="p">:</span>
+    <span class="k">elif</span> <span class="n">method</span> <span class="o">==</span> <span class="s2">"fit"</span><span class="p">:</span>
         <span class="c1"># Scale to fit inside target dimensions, add padding if needed</span>
         <span class="k">if</span> <span class="n">current_aspect</span> <span class="o">&gt;</span> <span class="n">target_aspect</span><span class="p">:</span>
             <span class="c1"># Video is wider - scale by width</span>
@@ -226,7 +244,7 @@
 
         <span class="k">return</span> <span class="n">resized</span>
 
-    <span class="k">elif</span> <span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;fill&quot;</span><span class="p">:</span>
+    <span class="k">elif</span> <span class="n">method</span> <span class="o">==</span> <span class="s2">"fill"</span><span class="p">:</span>
         <span class="c1"># Scale to fill target dimensions, may crop edges</span>
         <span class="k">if</span> <span class="n">current_aspect</span> <span class="o">&gt;</span> <span class="n">target_aspect</span><span class="p">:</span>
             <span class="c1"># Video is wider - scale by height (will crop sides)</span>
@@ -251,7 +269,7 @@
             <span class="n">y2</span><span class="o">=</span><span class="n">y_offset</span> <span class="o">+</span> <span class="n">target_height</span><span class="p">,</span>
         <span class="p">)</span>
 
-    <span class="k">elif</span> <span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;social&quot;</span><span class="p">:</span>
+    <span class="k">elif</span> <span class="n">method</span> <span class="o">==</span> <span class="s2">"social"</span><span class="p">:</span>
         <span class="c1"># Social media style: blurred/zoomed background with video on top</span>
         <span class="c1"># Scale video to fit inside target</span>
         <span class="k">if</span> <span class="n">current_aspect</span> <span class="o">&gt;</span> <span class="n">target_aspect</span><span class="p">:</span>
@@ -286,12 +304,12 @@
 
         <span class="c1"># Apply blur to background using PIL</span>
         <span class="k">def</span><span class="w"> </span><span class="nf">blur_frame</span><span class="p">(</span><span class="n">frame</span><span class="p">):</span>
-<span class="w">            </span><span class="sd">&quot;&quot;&quot;Apply Gaussian blur to a frame using PIL.&quot;&quot;&quot;</span>
+<span class="w">            </span><span class="sd">"""Apply Gaussian blur to a frame using PIL."""</span>
             <span class="kn">from</span><span class="w"> </span><span class="nn">PIL</span><span class="w"> </span><span class="kn">import</span> <span class="n">Image</span><span class="p">,</span> <span class="n">ImageFilter</span>
             <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 
             <span class="c1"># Convert numpy array to PIL Image</span>
-            <span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">fromarray</span><span class="p">(</span><span class="n">frame</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;uint8&quot;</span><span class="p">))</span>
+            <span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">fromarray</span><span class="p">(</span><span class="n">frame</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">"uint8"</span><span class="p">))</span>
             <span class="c1"># Apply Gaussian blur</span>
             <span class="n">blurred</span> <span class="o">=</span> <span class="n">img</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">ImageFilter</span><span class="o">.</span><span class="n">GaussianBlur</span><span class="p">(</span><span class="n">radius</span><span class="o">=</span><span class="mi">15</span><span class="p">))</span>
             <span class="c1"># Convert back to numpy array</span>
@@ -319,7 +337,7 @@
 
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Unknown method: </span><span class="si">{</span><span class="n">method</span><span class="si">}</span><span class="s2">. Must be one of: &#39;stretch&#39;, &#39;fit&#39;, &#39;fill&#39;, &#39;social&#39;&quot;</span>
+            <span class="sa">f</span><span class="s2">"Unknown method: </span><span class="si">{</span><span class="n">method</span><span class="si">}</span><span class="s2">. Must be one of: 'stretch', 'fit', 'fill', 'social'"</span>
         <span class="p">)</span></div>
 
 
@@ -332,10 +350,10 @@
     <span class="n">reference_video</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span> <span class="o">|</span> <span class="n">VideoFileClip</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
     <span class="n">target_width</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">target_height</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">method</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;stretch&quot;</span><span class="p">,</span> <span class="s2">&quot;fit&quot;</span><span class="p">,</span> <span class="s2">&quot;fill&quot;</span><span class="p">,</span> <span class="s2">&quot;social&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;social&quot;</span><span class="p">,</span>
+    <span class="n">method</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"stretch"</span><span class="p">,</span> <span class="s2">"fit"</span><span class="p">,</span> <span class="s2">"fill"</span><span class="p">,</span> <span class="s2">"social"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"social"</span><span class="p">,</span>
     <span class="n">bg_color</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">VideoFileClip</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Normalize all videos to the same dimensions.</span>
 
 <span class="sd">    Args:</span>
@@ -344,24 +362,24 @@
 <span class="sd">                        or a VideoFileClip instance to use as reference</span>
 <span class="sd">        target_width: Explicit target width (overrides reference_video)</span>
 <span class="sd">        target_height: Explicit target height (overrides reference_video)</span>
-<span class="sd">        method: Resizing method (&#39;stretch&#39;, &#39;fit&#39;, &#39;fill&#39;, &#39;social&#39;)</span>
+<span class="sd">        method: Resizing method ('stretch', 'fit', 'fill', 'social')</span>
 <span class="sd">        bg_color: Background color for padding</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        List of normalized VideoFileClip instances</span>
 
 <span class="sd">    Examples:</span>
-<span class="sd">        &gt;&gt;&gt; # Normalize all to first video&#39;s dimensions</span>
+<span class="sd">        &gt;&gt;&gt; # Normalize all to first video's dimensions</span>
 <span class="sd">        &gt;&gt;&gt; normalized = normalize_video_dimensions(clips)  # doctest: +SKIP</span>
 
 <span class="sd">        &gt;&gt;&gt; # Normalize all to specific dimensions with social media style</span>
 <span class="sd">        &gt;&gt;&gt; normalized = normalize_video_dimensions(</span>
-<span class="sd">        ...     clips, target_width=1920, target_height=1080, method=&#39;social&#39;</span>
+<span class="sd">        ...     clips, target_width=1920, target_height=1080, method='social'</span>
 <span class="sd">        ... )  # doctest: +SKIP</span>
 
-<span class="sd">        &gt;&gt;&gt; # Normalize to second video&#39;s dimensions</span>
+<span class="sd">        &gt;&gt;&gt; # Normalize to second video's dimensions</span>
 <span class="sd">        &gt;&gt;&gt; normalized = normalize_video_dimensions(clips, reference_video=1)  # doctest: +SKIP</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">videos</span><span class="p">:</span>
         <span class="k">return</span> <span class="p">[]</span>
 
@@ -377,7 +395,7 @@
         <span class="n">target_width</span><span class="p">,</span> <span class="n">target_height</span> <span class="o">=</span> <span class="n">get_video_dimensions</span><span class="p">(</span><span class="n">videos</span><span class="p">[</span><span class="n">reference_video</span><span class="p">])</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="s2">&quot;Must provide either target_width/target_height or reference_video&quot;</span>
+            <span class="s2">"Must provide either target_width/target_height or reference_video"</span>
         <span class="p">)</span>
 
     <span class="c1"># Resize all videos to target dimensions</span>

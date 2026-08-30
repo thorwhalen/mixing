@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>mixing.video.thumbnail &mdash; mixing 0.0.37 documentation</title>
+  <title>mixing.video.thumbnail &mdash; mixing 0.0.38 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
@@ -14,7 +14,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=aa2ad26f"></script>
+      <script src="../../../_static/documentation_options.js?v=423071ad"></script>
       <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="../../../_static/toggleprompt.js?v=d7ede5d2"></script>
@@ -73,6 +73,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video.html">mixing.video</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/_helpers.html">mixing.video._helpers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/genai.html">mixing.video.genai</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/gif.html">mixing.video.gif</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/thumbnail.html">mixing.video.thumbnail</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/video_concat.html">mixing.video.video_concat</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/video_ops.html">mixing.video.video_ops</a></li>
@@ -105,14 +106,14 @@
            <div itemprop="articleBody">
              
   <h1>Source code for mixing.video.thumbnail</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Thumbnail / cover-image generation from a video frame.</span>
+<span></span><span class="sd">"""Thumbnail / cover-image generation from a video frame.</span>
 
 <span class="sd">Extracts a representative frame and renders it to a 16:9 1280x720 image</span>
 <span class="sd">(a good default for video thumbnails and podcast-cover-over-video alike),</span>
 <span class="sd">optionally overlaying a short title with a legible gradient band. Uses ffmpeg</span>
 <span class="sd">for frame extraction and Pillow for compositing. Platform-neutral — the size</span>
 <span class="sd">is a sensible default, not a YouTube-specific coupling.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
@@ -123,7 +124,7 @@
 
 <span class="n">PathLike</span> <span class="o">=</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span>
 
-<span class="c1">#: Default 16:9 thumbnail/cover resolution (also YouTube&#39;s recommended size).</span>
+<span class="c1">#: Default 16:9 thumbnail/cover resolution (also YouTube's recommended size).</span>
 <span class="n">THUMBNAIL_SIZE</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1280</span><span class="p">,</span> <span class="mi">720</span><span class="p">)</span>
 <span class="c1">#: Backwards-compatible alias.</span>
 <span class="n">YOUTUBE_THUMB_SIZE</span> <span class="o">=</span> <span class="n">THUMBNAIL_SIZE</span>
@@ -144,7 +145,7 @@
     <span class="n">output</span><span class="p">:</span> <span class="n">Output</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">size</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="n">THUMBNAIL_SIZE</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a thumbnail image from a frame of ``video``.</span>
+<span class="w">    </span><span class="sd">"""Create a thumbnail image from a frame of ``video``.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        video: Source video path.</span>
@@ -159,20 +160,20 @@
 
 <span class="sd">    Returns:</span>
 <span class="sd">        Path to the written JPEG.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">PIL</span><span class="w"> </span><span class="kn">import</span> <span class="n">Image</span>
 
     <span class="n">video</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">video</span><span class="p">)</span>
-    <span class="n">default_path</span> <span class="o">=</span> <span class="n">video</span><span class="o">.</span><span class="n">with_suffix</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">with_name</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">video</span><span class="o">.</span><span class="n">stem</span><span class="si">}</span><span class="s2">.thumb.jpg&quot;</span><span class="p">)</span>
+    <span class="n">default_path</span> <span class="o">=</span> <span class="n">video</span><span class="o">.</span><span class="n">with_suffix</span><span class="p">(</span><span class="s2">""</span><span class="p">)</span><span class="o">.</span><span class="n">with_name</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">video</span><span class="o">.</span><span class="n">stem</span><span class="si">}</span><span class="s2">.thumb.jpg"</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">at_time</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">at_time</span> <span class="o">=</span> <span class="n">DEFAULT_FRAME_TIME_FRACTION</span> <span class="o">*</span> <span class="n">_media_duration</span><span class="p">(</span><span class="n">video</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_write</span><span class="p">(</span><span class="n">out</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">raw_frame</span> <span class="o">=</span> <span class="n">out</span><span class="o">.</span><span class="n">with_suffix</span><span class="p">(</span><span class="s2">&quot;.rawframe.png&quot;</span><span class="p">)</span>
+        <span class="n">raw_frame</span> <span class="o">=</span> <span class="n">out</span><span class="o">.</span><span class="n">with_suffix</span><span class="p">(</span><span class="s2">".rawframe.png"</span><span class="p">)</span>
         <span class="n">_extract_frame</span><span class="p">(</span><span class="n">video</span><span class="p">,</span> <span class="n">at_time</span><span class="p">,</span> <span class="n">raw_frame</span><span class="p">)</span>
 
-        <span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">raw_frame</span><span class="p">)</span><span class="o">.</span><span class="n">convert</span><span class="p">(</span><span class="s2">&quot;RGB&quot;</span><span class="p">)</span>
+        <span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">raw_frame</span><span class="p">)</span><span class="o">.</span><span class="n">convert</span><span class="p">(</span><span class="s2">"RGB"</span><span class="p">)</span>
         <span class="n">img</span> <span class="o">=</span> <span class="n">_cover_resize</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">size</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">text</span><span class="p">:</span>
             <span class="n">_overlay_text</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span>
@@ -186,16 +187,16 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">_extract_frame</span><span class="p">(</span><span class="n">video</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">at_time</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">dest</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
     <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
         <span class="p">[</span>
-            <span class="s2">&quot;ffmpeg&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;-y&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;-loglevel&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;error&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;-ss&quot;</span><span class="p">,</span>
-            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">at_time</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;-i&quot;</span><span class="p">,</span>
+            <span class="s2">"ffmpeg"</span><span class="p">,</span>
+            <span class="s2">"-y"</span><span class="p">,</span>
+            <span class="s2">"-loglevel"</span><span class="p">,</span>
+            <span class="s2">"error"</span><span class="p">,</span>
+            <span class="s2">"-ss"</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">at_time</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
+            <span class="s2">"-i"</span><span class="p">,</span>
             <span class="nb">str</span><span class="p">(</span><span class="n">video</span><span class="p">),</span>
-            <span class="s2">&quot;-frames:v&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;1&quot;</span><span class="p">,</span>
+            <span class="s2">"-frames:v"</span><span class="p">,</span>
+            <span class="s2">"1"</span><span class="p">,</span>
             <span class="nb">str</span><span class="p">(</span><span class="n">dest</span><span class="p">),</span>
         <span class="p">],</span>
         <span class="n">check</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
@@ -207,13 +208,13 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">_media_duration</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="n">PathLike</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
     <span class="n">out</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
         <span class="p">[</span>
-            <span class="s2">&quot;ffprobe&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;-v&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;error&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;-show_entries&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;format=duration&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;-of&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;default=noprint_wrappers=1:nokey=1&quot;</span><span class="p">,</span>
+            <span class="s2">"ffprobe"</span><span class="p">,</span>
+            <span class="s2">"-v"</span><span class="p">,</span>
+            <span class="s2">"error"</span><span class="p">,</span>
+            <span class="s2">"-show_entries"</span><span class="p">,</span>
+            <span class="s2">"format=duration"</span><span class="p">,</span>
+            <span class="s2">"-of"</span><span class="p">,</span>
+            <span class="s2">"default=noprint_wrappers=1:nokey=1"</span><span class="p">,</span>
             <span class="nb">str</span><span class="p">(</span><span class="n">path</span><span class="p">),</span>
         <span class="p">],</span>
         <span class="n">capture_output</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
@@ -223,7 +224,7 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_cover_resize</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">size</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Resize+center-crop ``img`` to exactly ``size`` (object-fit: cover).&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Resize+center-crop ``img`` to exactly ``size`` (object-fit: cover)."""</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">PIL</span><span class="w"> </span><span class="kn">import</span> <span class="n">Image</span>
 
     <span class="n">tw</span><span class="p">,</span> <span class="n">th</span> <span class="o">=</span> <span class="n">size</span>
@@ -236,17 +237,17 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_overlay_text</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Draw ``text`` bottom-left over a dark gradient band, in place.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Draw ``text`` bottom-left over a dark gradient band, in place."""</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">PIL</span><span class="w"> </span><span class="kn">import</span> <span class="n">Image</span><span class="p">,</span> <span class="n">ImageDraw</span><span class="p">,</span> <span class="n">ImageFont</span>
 
     <span class="n">w</span><span class="p">,</span> <span class="n">h</span> <span class="o">=</span> <span class="n">img</span><span class="o">.</span><span class="n">size</span>
     <span class="n">band_h</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">h</span> <span class="o">*</span> <span class="mf">0.32</span><span class="p">)</span>
-    <span class="n">band</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="s2">&quot;RGBA&quot;</span><span class="p">,</span> <span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="n">band_h</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+    <span class="n">band</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="s2">"RGBA"</span><span class="p">,</span> <span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="n">band_h</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
     <span class="n">bd</span> <span class="o">=</span> <span class="n">ImageDraw</span><span class="o">.</span><span class="n">Draw</span><span class="p">(</span><span class="n">band</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">band_h</span><span class="p">):</span>
         <span class="n">alpha</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="mi">200</span> <span class="o">*</span> <span class="p">(</span><span class="n">y</span> <span class="o">/</span> <span class="n">band_h</span><span class="p">))</span>  <span class="c1"># transparent at top -&gt; dark at bottom</span>
         <span class="n">bd</span><span class="o">.</span><span class="n">line</span><span class="p">([(</span><span class="mi">0</span><span class="p">,</span> <span class="n">y</span><span class="p">),</span> <span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="n">y</span><span class="p">)],</span> <span class="n">fill</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">alpha</span><span class="p">))</span>
-    <span class="n">img</span><span class="o">.</span><span class="n">paste</span><span class="p">(</span><span class="n">Image</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="s2">&quot;RGB&quot;</span><span class="p">,</span> <span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="n">band_h</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">h</span> <span class="o">-</span> <span class="n">band_h</span><span class="p">),</span> <span class="n">band</span><span class="p">)</span>
+    <span class="n">img</span><span class="o">.</span><span class="n">paste</span><span class="p">(</span><span class="n">Image</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="s2">"RGB"</span><span class="p">,</span> <span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="n">band_h</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">h</span> <span class="o">-</span> <span class="n">band_h</span><span class="p">),</span> <span class="n">band</span><span class="p">)</span>
 
     <span class="n">draw</span> <span class="o">=</span> <span class="n">ImageDraw</span><span class="o">.</span><span class="n">Draw</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>
     <span class="n">font</span> <span class="o">=</span> <span class="n">_load_font</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">h</span> <span class="o">*</span> <span class="mf">0.085</span><span class="p">))</span>
@@ -268,10 +269,10 @@
     <span class="kn">from</span><span class="w"> </span><span class="nn">PIL</span><span class="w"> </span><span class="kn">import</span> <span class="n">ImageFont</span>
 
     <span class="k">for</span> <span class="n">candidate</span> <span class="ow">in</span> <span class="p">(</span>
-        <span class="s2">&quot;/System/Library/Fonts/Supplemental/Arial Bold.ttf&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;/System/Library/Fonts/Helvetica.ttc&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;/Library/Fonts/Arial.ttf&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;DejaVuSans-Bold.ttf&quot;</span><span class="p">,</span>
+        <span class="s2">"/System/Library/Fonts/Supplemental/Arial Bold.ttf"</span><span class="p">,</span>
+        <span class="s2">"/System/Library/Fonts/Helvetica.ttc"</span><span class="p">,</span>
+        <span class="s2">"/Library/Fonts/Arial.ttf"</span><span class="p">,</span>
+        <span class="s2">"DejaVuSans-Bold.ttf"</span><span class="p">,</span>
     <span class="p">):</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">ImageFont</span><span class="o">.</span><span class="n">truetype</span><span class="p">(</span><span class="n">candidate</span><span class="p">,</span> <span class="n">size</span><span class="p">)</span>
@@ -282,9 +283,9 @@
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_wrap</span><span class="p">(</span><span class="n">draw</span><span class="p">,</span> <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">font</span><span class="p">,</span> <span class="n">max_width</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
     <span class="n">words</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
-    <span class="n">lines</span><span class="p">,</span> <span class="n">cur</span> <span class="o">=</span> <span class="p">[],</span> <span class="s2">&quot;&quot;</span>
+    <span class="n">lines</span><span class="p">,</span> <span class="n">cur</span> <span class="o">=</span> <span class="p">[],</span> <span class="s2">""</span>
     <span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">words</span><span class="p">:</span>
-        <span class="n">trial</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">cur</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">word</span><span class="si">}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="n">trial</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">cur</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">word</span><span class="si">}</span><span class="s2">"</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">draw</span><span class="o">.</span><span class="n">textlength</span><span class="p">(</span><span class="n">trial</span><span class="p">,</span> <span class="n">font</span><span class="o">=</span><span class="n">font</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">max_width</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">cur</span><span class="p">:</span>
             <span class="n">cur</span> <span class="o">=</span> <span class="n">trial</span>
         <span class="k">else</span><span class="p">:</span>
@@ -292,7 +293,7 @@
             <span class="n">cur</span> <span class="o">=</span> <span class="n">word</span>
     <span class="k">if</span> <span class="n">cur</span><span class="p">:</span>
         <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cur</span><span class="p">)</span>
-    <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span>
+    <span class="k">return</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span>
 </pre></div>
 
            </div>

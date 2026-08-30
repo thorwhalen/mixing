@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>mixing._cache &mdash; mixing 0.0.37 documentation</title>
+  <title>mixing._cache &mdash; mixing 0.0.38 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
@@ -14,7 +14,7 @@
   
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../_static/documentation_options.js?v=aa2ad26f"></script>
+      <script src="../../_static/documentation_options.js?v=423071ad"></script>
       <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="../../_static/toggleprompt.js?v=d7ede5d2"></script>
@@ -73,6 +73,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../module_docs/mixing/video.html">mixing.video</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../module_docs/mixing/video/_helpers.html">mixing.video._helpers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../module_docs/mixing/video/genai.html">mixing.video.genai</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/mixing/video/gif.html">mixing.video.gif</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../module_docs/mixing/video/thumbnail.html">mixing.video.thumbnail</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../module_docs/mixing/video/video_concat.html">mixing.video.video_concat</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../module_docs/mixing/video/video_ops.html">mixing.video.video_ops</a></li>
@@ -105,7 +106,7 @@
            <div itemprop="articleBody">
              
   <h1>Source code for mixing._cache</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Generic on-disk content cache (internal).</span>
+<span></span><span class="sd">"""Generic on-disk content cache (internal).</span>
 
 <span class="sd">A tiny sharded key→bytes store used by the ElevenLabs clients</span>
 <span class="sd">(:mod:`mixing.transcript.scribe`, :mod:`mixing.dubbing.tts`) to avoid paying</span>
@@ -115,7 +116,7 @@
 
 <span class="sd">Not part of the public API — import the per-client ``default_cache_dir`` /</span>
 <span class="sd">``transcribe(cache=...)`` / ``text_to_speech(cache=...)`` surfaces instead.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
@@ -130,19 +131,19 @@
 <div class="viewcode-block" id="default_cache_dir">
 <a class="viewcode-back" href="../../module_docs/mixing/_cache.html#mixing._cache.default_cache_dir">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">default_cache_dir</span><span class="p">(</span><span class="n">subdir</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">env_key</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Default cache directory for ``mixing/&lt;subdir&gt;``.</span>
+<span class="w">    </span><span class="sd">"""Default cache directory for ``mixing/&lt;subdir&gt;``.</span>
 
 <span class="sd">    Honors ``$&lt;env_key&gt;``, then ``$XDG_CACHE_HOME``, then ``~/.cache/``; the</span>
 <span class="sd">    final path segments are always ``mixing/&lt;subdir&gt;`` (except when overridden</span>
 <span class="sd">    by ``$&lt;env_key&gt;``, which is used verbatim).</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">override</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">env_key</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">override</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="n">override</span><span class="p">)</span><span class="o">.</span><span class="n">expanduser</span><span class="p">()</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span>
-    <span class="n">base</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;XDG_CACHE_HOME&quot;</span><span class="p">)</span>
+    <span class="n">base</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"XDG_CACHE_HOME"</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">base</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="n">base</span><span class="p">)</span><span class="o">.</span><span class="n">expanduser</span><span class="p">()</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span> <span class="o">/</span> <span class="s2">&quot;mixing&quot;</span> <span class="o">/</span> <span class="n">subdir</span>
-    <span class="k">return</span> <span class="n">Path</span><span class="o">.</span><span class="n">home</span><span class="p">()</span> <span class="o">/</span> <span class="s2">&quot;.cache&quot;</span> <span class="o">/</span> <span class="s2">&quot;mixing&quot;</span> <span class="o">/</span> <span class="n">subdir</span></div>
+        <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="n">base</span><span class="p">)</span><span class="o">.</span><span class="n">expanduser</span><span class="p">()</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span> <span class="o">/</span> <span class="s2">"mixing"</span> <span class="o">/</span> <span class="n">subdir</span>
+    <span class="k">return</span> <span class="n">Path</span><span class="o">.</span><span class="n">home</span><span class="p">()</span> <span class="o">/</span> <span class="s2">".cache"</span> <span class="o">/</span> <span class="s2">"mixing"</span> <span class="o">/</span> <span class="n">subdir</span></div>
 
 
 
@@ -151,11 +152,11 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">resolve_cache_dir</span><span class="p">(</span>
     <span class="n">cache</span><span class="p">:</span> <span class="n">CacheArg</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">default_factory</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="n">Path</span><span class="p">]</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Turn a ``cache`` argument into a directory (created) or ``None``.</span>
+<span class="w">    </span><span class="sd">"""Turn a ``cache`` argument into a directory (created) or ``None``.</span>
 
 <span class="sd">    ``False`` → ``None`` (disabled); ``True`` → ``default_factory()``; a path →</span>
 <span class="sd">    that directory. The chosen directory is created if missing.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="n">cache</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">None</span>
     <span class="n">directory</span> <span class="o">=</span> <span class="p">(</span>
@@ -169,22 +170,22 @@
 <div class="viewcode-block" id="sha256_key">
 <a class="viewcode-back" href="../../module_docs/mixing/_cache.html#mixing._cache.sha256_key">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">sha256_key</span><span class="p">(</span><span class="o">*</span><span class="n">parts</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">bytes</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="kc">None</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;SHA-256 hex digest over ``parts`` (``None`` → empty, str → utf-8), \\0-delimited.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""SHA-256 hex digest over ``parts`` (``None`` → empty, str → utf-8), \\0-delimited."""</span>
     <span class="n">h</span> <span class="o">=</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">sha256</span><span class="p">()</span>
     <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="n">parts</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">part</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">part</span> <span class="o">=</span> <span class="sa">b</span><span class="s2">&quot;&quot;</span>
+            <span class="n">part</span> <span class="o">=</span> <span class="sa">b</span><span class="s2">""</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">part</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="n">part</span> <span class="o">=</span> <span class="n">part</span><span class="o">.</span><span class="n">encode</span><span class="p">()</span>
         <span class="n">h</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">part</span><span class="p">)</span>
-        <span class="n">h</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="sa">b</span><span class="s2">&quot;</span><span class="se">\0</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">h</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="sa">b</span><span class="s2">"</span><span class="se">\0</span><span class="s2">"</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">h</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span></div>
 
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_entry_path</span><span class="p">(</span><span class="n">cache_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">suffix</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
     <span class="c1"># 2-char shard avoids one giant directory.</span>
-    <span class="k">return</span> <span class="n">cache_dir</span> <span class="o">/</span> <span class="n">key</span><span class="p">[:</span><span class="mi">2</span><span class="p">]</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">key</span><span class="si">}{</span><span class="n">suffix</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="k">return</span> <span class="n">cache_dir</span> <span class="o">/</span> <span class="n">key</span><span class="p">[:</span><span class="mi">2</span><span class="p">]</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">key</span><span class="si">}{</span><span class="n">suffix</span><span class="si">}</span><span class="s2">"</span>
 
 
 <div class="viewcode-block" id="read_cache">
@@ -196,7 +197,7 @@
     <span class="n">suffix</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">loads</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="nb">bytes</span><span class="p">],</span> <span class="nb">object</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the cached value for ``key`` (decoded via ``loads``), or ``None``.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Return the cached value for ``key`` (decoded via ``loads``), or ``None``."""</span>
     <span class="n">path</span> <span class="o">=</span> <span class="n">_entry_path</span><span class="p">(</span><span class="n">cache_dir</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">suffix</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
         <span class="k">return</span> <span class="kc">None</span>
@@ -223,11 +224,11 @@
     <span class="n">suffix</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">dumps</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="nb">object</span><span class="p">],</span> <span class="nb">bytes</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Atomically write ``value`` (encoded via ``dumps``) under ``key``.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Atomically write ``value`` (encoded via ``dumps``) under ``key``."""</span>
     <span class="n">path</span> <span class="o">=</span> <span class="n">_entry_path</span><span class="p">(</span><span class="n">cache_dir</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">suffix</span><span class="p">)</span>
     <span class="n">path</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="n">data</span> <span class="o">=</span> <span class="n">value</span> <span class="k">if</span> <span class="n">dumps</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">dumps</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
-    <span class="n">tmp</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s2">&quot;.tmp&quot;</span><span class="p">)</span>
+    <span class="n">tmp</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s2">".tmp"</span><span class="p">)</span>
     <span class="n">tmp</span><span class="o">.</span><span class="n">write_bytes</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
     <span class="n">tmp</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">path</span><span class="p">)</span></div>
 

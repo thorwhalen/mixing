@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>mixing.video.video_subtitles &mdash; mixing 0.0.37 documentation</title>
+  <title>mixing.video.video_subtitles &mdash; mixing 0.0.38 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
@@ -15,7 +15,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=aa2ad26f"></script>
+      <script src="../../../_static/documentation_options.js?v=423071ad"></script>
       <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="../../../_static/toggleprompt.js?v=d7ede5d2"></script>
@@ -76,6 +76,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../video.html">mixing.video</a></li>
 <li class="toctree-l1"><a class="reference internal" href="_helpers.html">mixing.video._helpers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="genai.html">mixing.video.genai</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gif.html">mixing.video.gif</a></li>
 <li class="toctree-l1"><a class="reference internal" href="thumbnail.html">mixing.video.thumbnail</a></li>
 <li class="toctree-l1"><a class="reference internal" href="video_concat.html">mixing.video.video_concat</a></li>
 <li class="toctree-l1"><a class="reference internal" href="video_ops.html">mixing.video.video_ops</a></li>
@@ -167,19 +168,19 @@ to a specific start time, or auto-detect when audio actually begins.</p>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">srt</span> <span class="o">=</span> <span class="s1">&#39;&#39;&#39;1</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">srt</span> <span class="o">=</span> <span class="s1">'''1</span>
 <span class="gp">... </span><span class="s1">00:43:12,187 --&gt; 00:43:13,817</span>
 <span class="gp">... </span><span class="s1">First subtitle</span>
 <span class="gp">...</span>
 <span class="gp">... </span><span class="s1">2</span>
 <span class="gp">... </span><span class="s1">00:43:20,557 --&gt; 00:43:22,087</span>
-<span class="gp">... </span><span class="s1">Second subtitle&#39;&#39;&#39;</span>
+<span class="gp">... </span><span class="s1">Second subtitle'''</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">shifted</span> <span class="o">=</span> <span class="n">auto_shift_srt_to_start</span><span class="p">(</span><span class="n">srt</span><span class="p">,</span> <span class="n">start_time</span><span class="o">=</span><span class="mf">0.0</span><span class="p">)</span>
 <span class="go">📝 Subtitles currently start at: ...s</span>
 <span class="go">⏱️  Shifting by: ...s (first subtitle → 0.00s)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="s1">&#39;00:00:00,000 --&gt; 00:00:01,630&#39;</span> <span class="ow">in</span> <span class="n">shifted</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="s1">'00:00:00,000 --&gt; 00:00:01,630'</span> <span class="ow">in</span> <span class="n">shifted</span>
 <span class="go">True</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="s1">&#39;00:00:08,370 --&gt; 00:00:09,900&#39;</span> <span class="ow">in</span> <span class="n">shifted</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="s1">'00:00:08,370 --&gt; 00:00:09,900'</span> <span class="ow">in</span> <span class="n">shifted</span>
 <span class="go">True</span>
 </pre></div>
 </div>

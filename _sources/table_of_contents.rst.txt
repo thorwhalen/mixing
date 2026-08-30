@@ -29,6 +29,7 @@
    module_docs/mixing/video
    module_docs/mixing/video/_helpers
    module_docs/mixing/video/genai
+   module_docs/mixing/video/gif
    module_docs/mixing/video/thumbnail
    module_docs/mixing/video/video_concat
    module_docs/mixing/video/video_ops

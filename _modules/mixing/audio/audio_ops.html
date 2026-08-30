@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>mixing.audio.audio_ops &mdash; mixing 0.0.37 documentation</title>
+  <title>mixing.audio.audio_ops &mdash; mixing 0.0.38 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
@@ -14,7 +14,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=aa2ad26f"></script>
+      <script src="../../../_static/documentation_options.js?v=423071ad"></script>
       <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="../../../_static/toggleprompt.js?v=d7ede5d2"></script>
@@ -73,6 +73,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video.html">mixing.video</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/_helpers.html">mixing.video._helpers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/genai.html">mixing.video.genai</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/gif.html">mixing.video.gif</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/thumbnail.html">mixing.video.thumbnail</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/video_concat.html">mixing.video.video_concat</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/video/video_ops.html">mixing.video.video_ops</a></li>
@@ -105,7 +106,7 @@
            <div itemprop="articleBody">
              
   <h1>Source code for mixing.audio.audio_ops</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""</span>
 <span class="sd">Audio editing via slicing interface.</span>
 
 <span class="sd">Provides lazy views into audio segments and comprehensive audio editing operations.</span>
@@ -121,28 +122,28 @@
 <span class="sd">- Clipboard support for audio file paths</span>
 
 <span class="sd">Examples:</span>
-<span class="sd">    &gt;&gt;&gt; audio = Audio(&quot;my_audio.mp3&quot;)  # doctest: +SKIP</span>
+<span class="sd">    &gt;&gt;&gt; audio = Audio("my_audio.mp3")  # doctest: +SKIP</span>
 <span class="sd">    &gt;&gt;&gt; segment = audio[10:20]  # Lazy view, no copying  # doctest: +SKIP</span>
-<span class="sd">    &gt;&gt;&gt; segment.save(&quot;clip.mp3&quot;)  # Only then does it process  # doctest: +SKIP</span>
+<span class="sd">    &gt;&gt;&gt; segment.save("clip.mp3")  # Only then does it process  # doctest: +SKIP</span>
 
 <span class="sd">    &gt;&gt;&gt; # Apply fade effects</span>
 <span class="sd">    &gt;&gt;&gt; faded = fade_in(audio, duration=2.0)  # 2 second fade in  # doctest: +SKIP</span>
-<span class="sd">    &gt;&gt;&gt; faded.save(&quot;faded.mp3&quot;)  # doctest: +SKIP</span>
+<span class="sd">    &gt;&gt;&gt; faded.save("faded.mp3")  # doctest: +SKIP</span>
 
 <span class="sd">    &gt;&gt;&gt; # Concatenate audio files</span>
-<span class="sd">    &gt;&gt;&gt; combined = concatenate_audio([&quot;intro.mp3&quot;, &quot;main.mp3&quot;, &quot;outro.mp3&quot;])  # doctest: +SKIP</span>
-<span class="sd">    &gt;&gt;&gt; combined.save(&quot;full.mp3&quot;)  # doctest: +SKIP</span>
+<span class="sd">    &gt;&gt;&gt; combined = concatenate_audio(["intro.mp3", "main.mp3", "outro.mp3"])  # doctest: +SKIP</span>
+<span class="sd">    &gt;&gt;&gt; combined.save("full.mp3")  # doctest: +SKIP</span>
 
 <span class="sd">    &gt;&gt;&gt; # Overlay/mix audio</span>
-<span class="sd">    &gt;&gt;&gt; mixed = overlay_audio(&quot;background.mp3&quot;, &quot;voice.mp3&quot;, position=5.0)  # doctest: +SKIP</span>
+<span class="sd">    &gt;&gt;&gt; mixed = overlay_audio("background.mp3", "voice.mp3", position=5.0)  # doctest: +SKIP</span>
 
 <span class="sd">Design principles:</span>
 <span class="sd">- Lazy evaluation: Operations create views, not copies</span>
 <span class="sd">- Facade pattern: Clean interface over pydub complexity</span>
-<span class="sd">- Standard library interfaces: Uses Python&#39;s slice notation</span>
+<span class="sd">- Standard library interfaces: Uses Python's slice notation</span>
 <span class="sd">- Dependency injection: Configurable time units and formats</span>
 <span class="sd">- Open-closed: Extensible via keyword arguments</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Union</span><span class="p">,</span> <span class="n">TYPE_CHECKING</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
@@ -164,7 +165,7 @@
 <div class="viewcode-block" id="AudioSamples">
 <a class="viewcode-back" href="../../../module_docs/mixing/audio/audio_ops.html#mixing.AudioSamples">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">AudioSamples</span><span class="p">(</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Mapping interface to access audio samples by index.</span>
 
 <span class="sd">    Provides dictionary-like access to audio samples with support for negative</span>
@@ -176,19 +177,19 @@
 <span class="sd">        end_sample: Ending sample index (for segments)</span>
 
 <span class="sd">    Examples:</span>
-<span class="sd">        &gt;&gt;&gt; audio_samples = AudioSamples(&quot;test_audio.mp3&quot;)  # doctest: +SKIP</span>
+<span class="sd">        &gt;&gt;&gt; audio_samples = AudioSamples("test_audio.mp3")  # doctest: +SKIP</span>
 <span class="sd">        &gt;&gt;&gt; sample = audio_samples[0]  # Get first sample  # doctest: +SKIP</span>
 <span class="sd">        &gt;&gt;&gt; last_sample = audio_samples[-1]  # Get last sample  # doctest: +SKIP</span>
 <span class="sd">        &gt;&gt;&gt; samples = list(audio_samples[1000:2000])  # Get samples 1000-1999  # doctest: +SKIP</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">audio_src</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="s2">&quot;os.PathLike[str]&quot;</span><span class="p">,</span> <span class="s2">&quot;AudioSegment&quot;</span><span class="p">],</span>
+        <span class="n">audio_src</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="s2">"os.PathLike[str]"</span><span class="p">,</span> <span class="s2">"AudioSegment"</span><span class="p">],</span>
         <span class="n">start_sample</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
         <span class="n">end_sample</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
-        <span class="n">AudioSegment</span> <span class="o">=</span> <span class="n">require_package</span><span class="p">(</span><span class="s2">&quot;pydub&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">AudioSegment</span>
+        <span class="n">AudioSegment</span> <span class="o">=</span> <span class="n">require_package</span><span class="p">(</span><span class="s2">"pydub"</span><span class="p">)</span><span class="o">.</span><span class="n">AudioSegment</span>
 
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">audio_src</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">PathLike</span><span class="p">)):</span>
             <span class="c1"># Accept both ``str`` and ``pathlib.Path`` / any os.PathLike</span>
@@ -213,15 +214,15 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_sample_count</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">end_sample</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_sample</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return number of samples in this view.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return number of samples in this view."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sample_count</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Iterate over sample indices in this view.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Iterate over sample indices in this view."""</span>
         <span class="k">return</span> <span class="nb">iter</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">start_sample</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">end_sample</span><span class="p">))</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">slice</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Get sample(s) by index or slice.</span>
 
 <span class="sd">        Args:</span>
@@ -229,7 +230,7 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            Single sample value or array of samples</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="nb">slice</span><span class="p">):</span>
             <span class="n">start</span><span class="p">,</span> <span class="n">stop</span><span class="p">,</span> <span class="n">step</span> <span class="o">=</span> <span class="n">key</span><span class="o">.</span><span class="n">indices</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_sample_count</span><span class="p">)</span>
             <span class="n">abs_start</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_sample</span> <span class="o">+</span> <span class="n">start</span>
@@ -240,13 +241,13 @@
                 <span class="n">key</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sample_count</span> <span class="o">+</span> <span class="n">key</span>
             <span class="k">if</span> <span class="n">key</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">key</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sample_count</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">IndexError</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;Sample index </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2"> out of range [0, </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_sample_count</span><span class="si">}</span><span class="s2">)&quot;</span>
+                    <span class="sa">f</span><span class="s2">"Sample index </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2"> out of range [0, </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_sample_count</span><span class="si">}</span><span class="s2">)"</span>
                 <span class="p">)</span>
             <span class="n">abs_idx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_sample</span> <span class="o">+</span> <span class="n">key</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_samples</span><span class="p">[</span><span class="n">abs_idx</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Indices must be integers or slices, not </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">key</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="sa">f</span><span class="s2">"Indices must be integers or slices, not </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">key</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">"</span>
             <span class="p">)</span></div>
 
 
@@ -254,7 +255,7 @@
 <div class="viewcode-block" id="Audio">
 <a class="viewcode-back" href="../../../module_docs/mixing/audio/audio_ops.html#mixing.Audio">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">Audio</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Sliceable interface for audio supporting time-based operations.</span>
 
 <span class="sd">    Provides lazy views into audio segments using slice notation. Slicing returns</span>
@@ -262,19 +263,19 @@
 
 <span class="sd">    Args:</span>
 <span class="sd">        src_path: Path to source audio file or AudioSegment</span>
-<span class="sd">        time_unit: Unit for slice indices (&#39;seconds&#39;, &#39;samples&#39;, &#39;milliseconds&#39;)</span>
+<span class="sd">        time_unit: Unit for slice indices ('seconds', 'samples', 'milliseconds')</span>
 <span class="sd">        start_time: Start time in seconds (for creating sub-views)</span>
 <span class="sd">        end_time: End time in seconds (for creating sub-views)</span>
 
 <span class="sd">    Examples:</span>
-<span class="sd">        &gt;&gt;&gt; audio = Audio(&quot;song.mp3&quot;)  # doctest: +SKIP</span>
+<span class="sd">        &gt;&gt;&gt; audio = Audio("song.mp3")  # doctest: +SKIP</span>
 <span class="sd">        &gt;&gt;&gt;</span>
 <span class="sd">        &gt;&gt;&gt; # Get segment from 10s to 20s (returns Audio)</span>
 <span class="sd">        &gt;&gt;&gt; segment = audio[10:20]  # doctest: +SKIP</span>
-<span class="sd">        &gt;&gt;&gt; segment.save(&quot;clip.mp3&quot;)  # doctest: +SKIP</span>
+<span class="sd">        &gt;&gt;&gt; segment.save("clip.mp3")  # doctest: +SKIP</span>
 <span class="sd">        &gt;&gt;&gt;</span>
 <span class="sd">        &gt;&gt;&gt; # Use sample numbers as unit</span>
-<span class="sd">        &gt;&gt;&gt; audio_samples = Audio(&quot;song.mp3&quot;, time_unit=&quot;samples&quot;)  # doctest: +SKIP</span>
+<span class="sd">        &gt;&gt;&gt; audio_samples = Audio("song.mp3", time_unit="samples")  # doctest: +SKIP</span>
 <span class="sd">        &gt;&gt;&gt; segment = audio_samples[44100:88200]  # 1 second at 44.1kHz  # doctest: +SKIP</span>
 <span class="sd">        &gt;&gt;&gt;</span>
 <span class="sd">        &gt;&gt;&gt; # Get last 30 seconds</span>
@@ -283,18 +284,18 @@
 <span class="sd">        &gt;&gt;&gt; # Chain operations</span>
 <span class="sd">        &gt;&gt;&gt; trimmed = audio[5:120]  # Trim to 5s-120s  # doctest: +SKIP</span>
 <span class="sd">        &gt;&gt;&gt; faded = trimmed.fade_in(2).fade_out(3)  # Apply fades  # doctest: +SKIP</span>
-<span class="sd">        &gt;&gt;&gt; faded.save(&quot;final.mp3&quot;)  # doctest: +SKIP</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">        &gt;&gt;&gt; faded.save("final.mp3")  # doctest: +SKIP</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">src_path</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="s2">&quot;os.PathLike[str]&quot;</span><span class="p">,</span> <span class="s2">&quot;AudioSegment&quot;</span><span class="p">],</span>
+        <span class="n">src_path</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="s2">"os.PathLike[str]"</span><span class="p">,</span> <span class="s2">"AudioSegment"</span><span class="p">],</span>
         <span class="o">*</span><span class="p">,</span>
-        <span class="n">time_unit</span><span class="p">:</span> <span class="n">AudioTimeUnit</span> <span class="o">=</span> <span class="s2">&quot;seconds&quot;</span><span class="p">,</span>
+        <span class="n">time_unit</span><span class="p">:</span> <span class="n">AudioTimeUnit</span> <span class="o">=</span> <span class="s2">"seconds"</span><span class="p">,</span>
         <span class="n">start_time</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">end_time</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
-        <span class="n">AudioSegment</span> <span class="o">=</span> <span class="n">require_package</span><span class="p">(</span><span class="s2">&quot;pydub&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">AudioSegment</span>
+        <span class="n">AudioSegment</span> <span class="o">=</span> <span class="n">require_package</span><span class="p">(</span><span class="s2">"pydub"</span><span class="p">)</span><span class="o">.</span><span class="n">AudioSegment</span>
 
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">src_path</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">PathLike</span><span class="p">)):</span>
             <span class="c1"># Accept both ``str`` and ``pathlib.Path`` / any os.PathLike</span>
@@ -311,41 +312,41 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">start_time</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Start time in seconds (0.0 if not set).&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Start time in seconds (0.0 if not set)."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_start_time</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_start_time</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="mf">0.0</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">end_time</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;End time in seconds (audio duration if not set).&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""End time in seconds (audio duration if not set)."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_end_time</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_end_time</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">full_duration</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">full_duration</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Duration of the source audio in seconds.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Duration of the source audio in seconds."""</span>
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_audio</span><span class="p">)</span> <span class="o">/</span> <span class="mf">1000.0</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">duration</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Duration of this audio/segment in seconds.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Duration of this audio/segment in seconds."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">end_time</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_time</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">sample_rate</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Sample rate in Hz.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Sample rate in Hz."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_audio</span><span class="o">.</span><span class="n">frame_rate</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">channels</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Number of audio channels.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Number of audio channels."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_audio</span><span class="o">.</span><span class="n">channels</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">sample_count</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Total number of samples in this segment.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Total number of samples in this segment."""</span>
         <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">duration</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">sample_rate</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_normalize_index</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">idx</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">is_start</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Convert slice index to seconds, handling None and negative indices.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Convert slice index to seconds, handling None and negative indices."""</span>
         <span class="k">if</span> <span class="n">idx</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_time</span> <span class="k">if</span> <span class="n">is_start</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">end_time</span>
 
@@ -359,11 +360,11 @@
             <span class="c1"># Positive indices are relative to segment start</span>
             <span class="n">idx_seconds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_time</span> <span class="o">+</span> <span class="n">idx_seconds</span>
 
-        <span class="c1"># Clamp to segment&#39;s valid range</span>
+        <span class="c1"># Clamp to segment's valid range</span>
         <span class="k">return</span> <span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">start_time</span><span class="p">,</span> <span class="nb">min</span><span class="p">(</span><span class="n">idx_seconds</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">end_time</span><span class="p">))</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">slice</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Audio&quot;</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">slice</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Audio"</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Get an audio segment using slice notation.</span>
 
 <span class="sd">        Args:</span>
@@ -373,20 +374,20 @@
 <span class="sd">            New Audio instance representing the segment</span>
 
 <span class="sd">        Examples:</span>
-<span class="sd">            &gt;&gt;&gt; audio = Audio(&quot;test.mp3&quot;)  # doctest: +SKIP</span>
+<span class="sd">            &gt;&gt;&gt; audio = Audio("test.mp3")  # doctest: +SKIP</span>
 <span class="sd">            &gt;&gt;&gt; segment = audio[10:20]  # 10s to 20s  # doctest: +SKIP</span>
 <span class="sd">            &gt;&gt;&gt; ending = audio[-30:]  # Last 30 seconds  # doctest: +SKIP</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="nb">slice</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">key</span><span class="o">.</span><span class="n">step</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Step is not supported for audio slicing&quot;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"Step is not supported for audio slicing"</span><span class="p">)</span>
 
             <span class="n">start</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_normalize_index</span><span class="p">(</span><span class="n">key</span><span class="o">.</span><span class="n">start</span><span class="p">,</span> <span class="n">is_start</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
             <span class="n">end</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_normalize_index</span><span class="p">(</span><span class="n">key</span><span class="o">.</span><span class="n">stop</span><span class="p">,</span> <span class="n">is_start</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
             <span class="k">if</span> <span class="n">start</span> <span class="o">&gt;=</span> <span class="n">end</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;Invalid time range: start (</span><span class="si">{</span><span class="n">start</span><span class="si">}</span><span class="s2">s) must be before end (</span><span class="si">{</span><span class="n">end</span><span class="si">}</span><span class="s2">s)&quot;</span>
+                    <span class="sa">f</span><span class="s2">"Invalid time range: start (</span><span class="si">{</span><span class="n">start</span><span class="si">}</span><span class="s2">s) must be before end (</span><span class="si">{</span><span class="n">end</span><span class="si">}</span><span class="s2">s)"</span>
                 <span class="p">)</span>
 
             <span class="c1"># Return new Audio instance</span>
@@ -415,11 +416,11 @@
             <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Audio indexing requires int/float or slice, got </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">key</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="sa">f</span><span class="s2">"Audio indexing requires int/float or slice, got </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">key</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">"</span>
             <span class="p">)</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">_get_segment</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;AudioSegment&quot;</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the AudioSegment for this time range.&quot;&quot;&quot;</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_segment</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"AudioSegment"</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Get the AudioSegment for this time range."""</span>
         <span class="n">start_ms</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">start_time</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">)</span>
         <span class="n">end_ms</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">end_time</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_audio</span><span class="p">[</span><span class="n">start_ms</span><span class="p">:</span><span class="n">end_ms</span><span class="p">]</span>
@@ -431,10 +432,10 @@
         <span class="n">output</span><span class="p">:</span> <span class="n">Output</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="nb">format</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">bitrate</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;192k&quot;</span><span class="p">,</span>
+        <span class="n">bitrate</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"192k"</span><span class="p">,</span>
         <span class="o">**</span><span class="n">export_kwargs</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Save this audio/segment to a new audio file.</span>
 
 <span class="sd">        Args:</span>
@@ -449,18 +450,18 @@
 <span class="sd">            Path to saved file</span>
 
 <span class="sd">        Examples:</span>
-<span class="sd">            &gt;&gt;&gt; audio = Audio(&quot;song.mp3&quot;)  # doctest: +SKIP</span>
-<span class="sd">            &gt;&gt;&gt; audio[10:30].save(&quot;clip.mp3&quot;)  # doctest: +SKIP</span>
-<span class="sd">            &gt;&gt;&gt; audio[10:30].save(&quot;clip.wav&quot;, format=&quot;wav&quot;)  # doctest: +SKIP</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">            &gt;&gt;&gt; audio = Audio("song.mp3")  # doctest: +SKIP</span>
+<span class="sd">            &gt;&gt;&gt; audio[10:30].save("clip.mp3")  # doctest: +SKIP</span>
+<span class="sd">            &gt;&gt;&gt; audio[10:30].save("clip.wav", format="wav")  # doctest: +SKIP</span>
+<span class="sd">        """</span>
         <span class="c1"># Auto-name (beside the source) when no explicit destination is given.</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">src_path</span><span class="p">:</span>
             <span class="n">src</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">src_path</span><span class="p">)</span>
             <span class="n">default_name</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">src</span><span class="o">.</span><span class="n">stem</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">start_time</span><span class="p">)</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">end_time</span><span class="p">)</span><span class="si">}{</span><span class="n">src</span><span class="o">.</span><span class="n">suffix</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">src</span><span class="o">.</span><span class="n">stem</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">start_time</span><span class="p">)</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">end_time</span><span class="p">)</span><span class="si">}{</span><span class="n">src</span><span class="o">.</span><span class="n">suffix</span><span class="si">}</span><span class="s2">"</span>
             <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">default_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;audio_</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">start_time</span><span class="p">)</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">end_time</span><span class="p">)</span><span class="si">}</span><span class="s2">.mp3&quot;</span>
+            <span class="n">default_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"audio_</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">start_time</span><span class="p">)</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">end_time</span><span class="p">)</span><span class="si">}</span><span class="s2">.mp3"</span>
 
         <span class="n">sink</span> <span class="o">=</span> <span class="n">output</span> <span class="k">if</span> <span class="n">is_sink</span><span class="p">(</span><span class="n">output</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="n">output</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">sink</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -476,7 +477,7 @@
 
         <span class="c1"># Auto-detect format from extension</span>
         <span class="k">if</span> <span class="nb">format</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="nb">format</span> <span class="o">=</span> <span class="n">output_path</span><span class="o">.</span><span class="n">suffix</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="k">if</span> <span class="n">output_path</span><span class="o">.</span><span class="n">suffix</span> <span class="k">else</span> <span class="s2">&quot;mp3&quot;</span>
+            <span class="nb">format</span> <span class="o">=</span> <span class="n">output_path</span><span class="o">.</span><span class="n">suffix</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="k">if</span> <span class="n">output_path</span><span class="o">.</span><span class="n">suffix</span> <span class="k">else</span> <span class="s2">"mp3"</span>
 
         <span class="c1"># Export segment</span>
         <span class="n">segment</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_segment</span><span class="p">()</span>
@@ -484,14 +485,14 @@
             <span class="nb">str</span><span class="p">(</span><span class="n">output_path</span><span class="p">),</span> <span class="nb">format</span><span class="o">=</span><span class="nb">format</span><span class="p">,</span> <span class="n">bitrate</span><span class="o">=</span><span class="n">bitrate</span><span class="p">,</span> <span class="o">**</span><span class="n">export_kwargs</span>
         <span class="p">)</span>
 
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Saved audio to: </span><span class="si">{</span><span class="n">output_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Saved audio to: </span><span class="si">{</span><span class="n">output_path</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">sink</span><span class="p">(</span><span class="n">output_path</span><span class="p">)</span> <span class="k">if</span> <span class="n">sink</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">output_path</span></div>
 
 
 <div class="viewcode-block" id="Audio.fade_in">
 <a class="viewcode-back" href="../../../module_docs/mixing/audio/audio_ops.html#mixing.Audio.fade_in">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">fade_in</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">duration</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Audio&quot;</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">fade_in</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">duration</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Audio"</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Apply fade-in effect.</span>
 
 <span class="sd">        Args:</span>
@@ -501,9 +502,9 @@
 <span class="sd">            New Audio with fade applied</span>
 
 <span class="sd">        Examples:</span>
-<span class="sd">            &gt;&gt;&gt; audio = Audio(&quot;song.mp3&quot;)  # doctest: +SKIP</span>
+<span class="sd">            &gt;&gt;&gt; audio = Audio("song.mp3")  # doctest: +SKIP</span>
 <span class="sd">            &gt;&gt;&gt; faded = audio.fade_in(2.0)  # 2 second fade in  # doctest: +SKIP</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">segment</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_segment</span><span class="p">()</span>
         <span class="n">duration_ms</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">duration</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">)</span>
         <span class="n">faded</span> <span class="o">=</span> <span class="n">segment</span><span class="o">.</span><span class="n">fade_in</span><span class="p">(</span><span class="n">duration_ms</span><span class="p">)</span>
@@ -512,8 +513,8 @@
 
 <div class="viewcode-block" id="Audio.fade_out">
 <a class="viewcode-back" href="../../../module_docs/mixing/audio/audio_ops.html#mixing.Audio.fade_out">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">fade_out</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">duration</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Audio&quot;</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">fade_out</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">duration</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Audio"</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Apply fade-out effect.</span>
 
 <span class="sd">        Args:</span>
@@ -523,24 +524,24 @@
 <span class="sd">            New Audio with fade applied</span>
 
 <span class="sd">        Examples:</span>
-<span class="sd">            &gt;&gt;&gt; audio = Audio(&quot;song.mp3&quot;)  # doctest: +SKIP</span>
+<span class="sd">            &gt;&gt;&gt; audio = Audio("song.mp3")  # doctest: +SKIP</span>
 <span class="sd">            &gt;&gt;&gt; faded = audio.fade_out(3.0)  # 3 second fade out  # doctest: +SKIP</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">segment</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_segment</span><span class="p">()</span>
         <span class="n">duration_ms</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">duration</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">)</span>
         <span class="n">faded</span> <span class="o">=</span> <span class="n">segment</span><span class="o">.</span><span class="n">fade_out</span><span class="p">(</span><span class="n">duration_ms</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">Audio</span><span class="p">(</span><span class="n">faded</span><span class="p">,</span> <span class="n">time_unit</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">time_unit</span><span class="p">)</span></div>
 
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__add__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="s2">&quot;Audio&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Audio&quot;</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__add__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="s2">"Audio"</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Audio"</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Concatenate two audio segments.</span>
 
 <span class="sd">        Examples:</span>
-<span class="sd">            &gt;&gt;&gt; audio1 = Audio(&quot;part1.mp3&quot;)  # doctest: +SKIP</span>
-<span class="sd">            &gt;&gt;&gt; audio2 = Audio(&quot;part2.mp3&quot;)  # doctest: +SKIP</span>
+<span class="sd">            &gt;&gt;&gt; audio1 = Audio("part1.mp3")  # doctest: +SKIP</span>
+<span class="sd">            &gt;&gt;&gt; audio2 = Audio("part2.mp3")  # doctest: +SKIP</span>
 <span class="sd">            &gt;&gt;&gt; combined = audio1 + audio2  # doctest: +SKIP</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">seg1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_segment</span><span class="p">()</span>
         <span class="n">seg2</span> <span class="o">=</span> <span class="n">other</span><span class="o">.</span><span class="n">_get_segment</span><span class="p">()</span>
         <span class="n">combined</span> <span class="o">=</span> <span class="n">seg1</span> <span class="o">+</span> <span class="n">seg2</span>
@@ -550,12 +551,12 @@
 <a class="viewcode-back" href="../../../module_docs/mixing/audio/audio_ops.html#mixing.Audio.overlay">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">overlay</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">other</span><span class="p">:</span> <span class="s2">&quot;Audio&quot;</span><span class="p">,</span>
+        <span class="n">other</span><span class="p">:</span> <span class="s2">"Audio"</span><span class="p">,</span>
         <span class="n">position</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">gain_during_overlay</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Audio&quot;</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Audio"</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Overlay another audio on top of this one.</span>
 
 <span class="sd">        Args:</span>
@@ -567,10 +568,10 @@
 <span class="sd">            New Audio with overlay applied</span>
 
 <span class="sd">        Examples:</span>
-<span class="sd">            &gt;&gt;&gt; bg = Audio(&quot;background.mp3&quot;)  # doctest: +SKIP</span>
-<span class="sd">            &gt;&gt;&gt; voice = Audio(&quot;voice.mp3&quot;)  # doctest: +SKIP</span>
+<span class="sd">            &gt;&gt;&gt; bg = Audio("background.mp3")  # doctest: +SKIP</span>
+<span class="sd">            &gt;&gt;&gt; voice = Audio("voice.mp3")  # doctest: +SKIP</span>
 <span class="sd">            &gt;&gt;&gt; mixed = bg.overlay(voice, position=5.0, gain_during_overlay=-6)  # doctest: +SKIP</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">seg1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_segment</span><span class="p">()</span>
         <span class="n">seg2</span> <span class="o">=</span> <span class="n">other</span><span class="o">.</span><span class="n">_get_segment</span><span class="p">()</span>
         <span class="n">position_ms</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">position</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">)</span>
@@ -582,8 +583,8 @@
 
 <div class="viewcode-block" id="Audio.normalize">
 <a class="viewcode-back" href="../../../module_docs/mixing/audio/audio_ops.html#mixing.Audio.normalize">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">normalize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">headroom</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.1</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Audio&quot;</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Peak-normalize the audio (via ``pydub.effects.normalize``).</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">normalize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">headroom</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.1</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Audio"</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Peak-normalize the audio (via ``pydub.effects.normalize``).</span>
 
 <span class="sd">        Boosts (or attenuates) the segment so its loudest peak sits ``headroom``</span>
 <span class="sd">        dB below 0 dBFS. Pure pydub — adds no new dependency.</span>
@@ -595,9 +596,9 @@
 <span class="sd">            New Audio with normalization applied.</span>
 
 <span class="sd">        Examples:</span>
-<span class="sd">            &gt;&gt;&gt; audio = Audio(&quot;song.mp3&quot;)  # doctest: +SKIP</span>
+<span class="sd">            &gt;&gt;&gt; audio = Audio("song.mp3")  # doctest: +SKIP</span>
 <span class="sd">            &gt;&gt;&gt; louder = audio.normalize()  # doctest: +SKIP</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">pydub</span><span class="w"> </span><span class="kn">import</span> <span class="n">effects</span>
 
         <span class="n">segment</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_segment</span><span class="p">()</span>
@@ -607,16 +608,16 @@
 
 <div class="viewcode-block" id="Audio.to_mono">
 <a class="viewcode-back" href="../../../module_docs/mixing/audio/audio_ops.html#mixing.Audio.to_mono">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">to_mono</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Audio&quot;</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Downmix to a single channel (via pydub ``set_channels(1)``).</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_mono</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Audio"</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Downmix to a single channel (via pydub ``set_channels(1)``).</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            New mono Audio. Pure pydub — adds no new dependency.</span>
 
 <span class="sd">        Examples:</span>
-<span class="sd">            &gt;&gt;&gt; audio = Audio(&quot;stereo.mp3&quot;)  # doctest: +SKIP</span>
+<span class="sd">            &gt;&gt;&gt; audio = Audio("stereo.mp3")  # doctest: +SKIP</span>
 <span class="sd">            &gt;&gt;&gt; mono = audio.to_mono()  # doctest: +SKIP</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">segment</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_segment</span><span class="p">()</span>
         <span class="n">mono</span> <span class="o">=</span> <span class="n">segment</span><span class="o">.</span><span class="n">set_channels</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">Audio</span><span class="p">(</span><span class="n">mono</span><span class="p">,</span> <span class="n">time_unit</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">time_unit</span><span class="p">)</span></div>
@@ -624,8 +625,8 @@
 
 <div class="viewcode-block" id="Audio.resample">
 <a class="viewcode-back" href="../../../module_docs/mixing/audio/audio_ops.html#mixing.Audio.resample">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">resample</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sample_rate</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Audio&quot;</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Change the sample rate (via pydub ``set_frame_rate``).</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">resample</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sample_rate</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Audio"</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Change the sample rate (via pydub ``set_frame_rate``).</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            sample_rate: Target sample rate in Hz (e.g. ``16000``, ``44100``).</span>
@@ -635,9 +636,9 @@
 <span class="sd">            dependency.</span>
 
 <span class="sd">        Examples:</span>
-<span class="sd">            &gt;&gt;&gt; audio = Audio(&quot;song.mp3&quot;)  # doctest: +SKIP</span>
+<span class="sd">            &gt;&gt;&gt; audio = Audio("song.mp3")  # doctest: +SKIP</span>
 <span class="sd">            &gt;&gt;&gt; downsampled = audio.resample(16000)  # doctest: +SKIP</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">segment</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_segment</span><span class="p">()</span>
         <span class="n">resampled</span> <span class="o">=</span> <span class="n">segment</span><span class="o">.</span><span class="n">set_frame_rate</span><span class="p">(</span><span class="n">sample_rate</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">Audio</span><span class="p">(</span><span class="n">resampled</span><span class="p">,</span> <span class="n">time_unit</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">time_unit</span><span class="p">)</span></div>
@@ -646,45 +647,45 @@
 <div class="viewcode-block" id="Audio.close">
 <a class="viewcode-back" href="../../../module_docs/mixing/audio/audio_ops.html#mixing.Audio.close">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Release the reference to the in-memory audio (no OS handles to free).</span>
+<span class="w">        </span><span class="sd">"""Release the reference to the in-memory audio (no OS handles to free).</span>
 
 <span class="sd">        ``Audio`` is fully in-memory (a decoded ``AudioSegment``), so there is</span>
 <span class="sd">        nothing OS-level to close. ``close`` simply drops the reference so the</span>
 <span class="sd">        data can be garbage-collected promptly; the object should not be used</span>
 <span class="sd">        afterwards.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_audio</span> <span class="o">=</span> <span class="kc">None</span></div>
 
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__enter__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Audio&quot;</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Support ``with Audio(path) as a: ...`` — returns ``self``.&quot;&quot;&quot;</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__enter__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Audio"</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Support ``with Audio(path) as a: ...`` — returns ``self``."""</span>
         <span class="k">return</span> <span class="bp">self</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__exit__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exc_type</span><span class="p">,</span> <span class="n">exc_value</span><span class="p">,</span> <span class="n">traceback</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Release in-memory data on context exit (see :meth:`close`).&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Release in-memory data on context exit (see :meth:`close`)."""</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_start_time</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_end_time</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">src_info</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">src_path</span><span class="si">}</span><span class="s2">&#39;&quot;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">src_path</span> <span class="k">else</span> <span class="s2">&quot;AudioSegment&quot;</span>
+            <span class="n">src_info</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"'</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">src_path</span><span class="si">}</span><span class="s2">'"</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">src_path</span> <span class="k">else</span> <span class="s2">"AudioSegment"</span>
             <span class="k">return</span> <span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Audio(</span><span class="si">{</span><span class="n">src_info</span><span class="si">}</span><span class="s2">, &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;time_unit=&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">time_unit</span><span class="si">}</span><span class="s2">&#39;, &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;start=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">start_time</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">s, &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;end=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">end_time</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">s, &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;duration=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">duration</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">s)&quot;</span>
+                <span class="sa">f</span><span class="s2">"Audio(</span><span class="si">{</span><span class="n">src_info</span><span class="si">}</span><span class="s2">, "</span>
+                <span class="sa">f</span><span class="s2">"time_unit='</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">time_unit</span><span class="si">}</span><span class="s2">', "</span>
+                <span class="sa">f</span><span class="s2">"start=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">start_time</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">s, "</span>
+                <span class="sa">f</span><span class="s2">"end=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">end_time</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">s, "</span>
+                <span class="sa">f</span><span class="s2">"duration=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">duration</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">s)"</span>
             <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">src_info</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">src_path</span><span class="si">}</span><span class="s2">&#39;&quot;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">src_path</span> <span class="k">else</span> <span class="s2">&quot;AudioSegment&quot;</span>
+            <span class="n">src_info</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"'</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">src_path</span><span class="si">}</span><span class="s2">'"</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">src_path</span> <span class="k">else</span> <span class="s2">"AudioSegment"</span>
             <span class="k">return</span> <span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Audio(</span><span class="si">{</span><span class="n">src_info</span><span class="si">}</span><span class="s2">, &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;time_unit=&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">time_unit</span><span class="si">}</span><span class="s2">&#39;, &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;duration=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">full_duration</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">s)&quot;</span>
+                <span class="sa">f</span><span class="s2">"Audio(</span><span class="si">{</span><span class="n">src_info</span><span class="si">}</span><span class="s2">, "</span>
+                <span class="sa">f</span><span class="s2">"time_unit='</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">time_unit</span><span class="si">}</span><span class="s2">', "</span>
+                <span class="sa">f</span><span class="s2">"duration=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">full_duration</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">s)"</span>
             <span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">samples</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AudioSamples</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get sample-by-sample Mapping interface for this audio.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Get sample-by-sample Mapping interface for this audio."""</span>
         <span class="n">start_sample</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">start_time</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">sample_rate</span><span class="p">)</span>
         <span class="n">end_sample</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">end_time</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">sample_rate</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">AudioSamples</span><span class="p">(</span>
@@ -703,11 +704,11 @@
     <span class="n">start</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">end</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
-    <span class="n">time_unit</span><span class="p">:</span> <span class="n">AudioTimeUnit</span> <span class="o">=</span> <span class="s2">&quot;seconds&quot;</span><span class="p">,</span>
+    <span class="n">time_unit</span><span class="p">:</span> <span class="n">AudioTimeUnit</span> <span class="o">=</span> <span class="s2">"seconds"</span><span class="p">,</span>
     <span class="n">output</span><span class="p">:</span> <span class="n">Output</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="o">**</span><span class="n">save_kwargs</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Convenience function to crop and save an audio segment.</span>
 
 <span class="sd">    Args:</span>
@@ -723,9 +724,9 @@
 <span class="sd">        Path to saved cropped audio</span>
 
 <span class="sd">    Examples:</span>
-<span class="sd">        &gt;&gt;&gt; crop_audio(&quot;song.mp3&quot;, 10, 30)  # Crop 10s-30s  # doctest: +SKIP</span>
-<span class="sd">        &gt;&gt;&gt; crop_audio(&quot;song.mp3&quot;, 44100, 88200, time_unit=&quot;samples&quot;)  # doctest: +SKIP</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">        &gt;&gt;&gt; crop_audio("song.mp3", 10, 30)  # Crop 10s-30s  # doctest: +SKIP</span>
+<span class="sd">        &gt;&gt;&gt; crop_audio("song.mp3", 44100, 88200, time_unit="samples")  # doctest: +SKIP</span>
+<span class="sd">    """</span>
     <span class="n">audio</span> <span class="o">=</span> <span class="n">Audio</span><span class="p">(</span><span class="n">src_path</span><span class="p">,</span> <span class="n">time_unit</span><span class="o">=</span><span class="n">time_unit</span><span class="p">)</span>
     <span class="n">segment</span> <span class="o">=</span> <span class="n">audio</span><span class="p">[</span><span class="n">start</span><span class="p">:</span><span class="n">end</span><span class="p">]</span>
     <span class="k">return</span> <span class="n">segment</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">output</span><span class="p">,</span> <span class="o">**</span><span class="n">save_kwargs</span><span class="p">)</span></div>
@@ -741,7 +742,7 @@
     <span class="n">output</span><span class="p">:</span> <span class="n">Output</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="o">**</span><span class="n">save_kwargs</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">Audio</span><span class="p">,</span> <span class="n">Path</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Apply fade-in effect to audio.</span>
 
 <span class="sd">    Args:</span>
@@ -755,16 +756,16 @@
 <span class="sd">        Audio instance or Path to saved file</span>
 
 <span class="sd">    Examples:</span>
-<span class="sd">        &gt;&gt;&gt; fade_in(&quot;song.mp3&quot;, 2.0, output=&quot;faded.mp3&quot;)  # doctest: +SKIP</span>
-<span class="sd">        &gt;&gt;&gt; audio = fade_in(&quot;song.mp3&quot;, 2.0)  # Returns Audio instance  # doctest: +SKIP</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">        &gt;&gt;&gt; fade_in("song.mp3", 2.0, output="faded.mp3")  # doctest: +SKIP</span>
+<span class="sd">        &gt;&gt;&gt; audio = fade_in("song.mp3", 2.0)  # Returns Audio instance  # doctest: +SKIP</span>
+<span class="sd">    """</span>
     <span class="n">audio</span> <span class="o">=</span> <span class="n">Audio</span><span class="p">(</span><span class="n">src</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="n">src</span>
     <span class="n">faded</span> <span class="o">=</span> <span class="n">audio</span><span class="o">.</span><span class="n">fade_in</span><span class="p">(</span><span class="n">duration</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">deliver</span><span class="p">(</span>
         <span class="n">faded</span><span class="p">,</span>
         <span class="n">output</span><span class="p">,</span>
         <span class="n">write</span><span class="o">=</span><span class="k">lambda</span> <span class="n">a</span><span class="p">,</span> <span class="n">p</span><span class="p">:</span> <span class="n">a</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="o">**</span><span class="n">save_kwargs</span><span class="p">),</span>
-        <span class="n">default_name</span><span class="o">=</span><span class="s2">&quot;audio_fade_in.mp3&quot;</span><span class="p">,</span>
+        <span class="n">default_name</span><span class="o">=</span><span class="s2">"audio_fade_in.mp3"</span><span class="p">,</span>
     <span class="p">)</span></div>
 
 
@@ -778,7 +779,7 @@
     <span class="n">output</span><span class="p">:</span> <span class="n">Output</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="o">**</span><span class="n">save_kwargs</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">Audio</span><span class="p">,</span> <span class="n">Path</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Apply fade-out effect to audio.</span>
 
 <span class="sd">    Args:</span>
@@ -792,16 +793,16 @@
 <span class="sd">        Audio instance or Path to saved file</span>
 
 <span class="sd">    Examples:</span>
-<span class="sd">        &gt;&gt;&gt; fade_out(&quot;song.mp3&quot;, 3.0, output=&quot;faded.mp3&quot;)  # doctest: +SKIP</span>
-<span class="sd">        &gt;&gt;&gt; audio = fade_out(&quot;song.mp3&quot;, 3.0)  # Returns Audio instance  # doctest: +SKIP</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">        &gt;&gt;&gt; fade_out("song.mp3", 3.0, output="faded.mp3")  # doctest: +SKIP</span>
+<span class="sd">        &gt;&gt;&gt; audio = fade_out("song.mp3", 3.0)  # Returns Audio instance  # doctest: +SKIP</span>
+<span class="sd">    """</span>
     <span class="n">audio</span> <span class="o">=</span> <span class="n">Audio</span><span class="p">(</span><span class="n">src</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="n">src</span>
     <span class="n">faded</span> <span class="o">=</span> <span class="n">audio</span><span class="o">.</span><span class="n">fade_out</span><span class="p">(</span><span class="n">duration</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">deliver</span><span class="p">(</span>
         <span class="n">faded</span><span class="p">,</span>
         <span class="n">output</span><span class="p">,</span>
         <span class="n">write</span><span class="o">=</span><span class="k">lambda</span> <span class="n">a</span><span class="p">,</span> <span class="n">p</span><span class="p">:</span> <span class="n">a</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="o">**</span><span class="n">save_kwargs</span><span class="p">),</span>
-        <span class="n">default_name</span><span class="o">=</span><span class="s2">&quot;audio_fade_out.mp3&quot;</span><span class="p">,</span>
+        <span class="n">default_name</span><span class="o">=</span><span class="s2">"audio_fade_out.mp3"</span><span class="p">,</span>
     <span class="p">)</span></div>
 
 
@@ -814,7 +815,7 @@
     <span class="n">crossfade</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
     <span class="o">**</span><span class="n">save_kwargs</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">Audio</span><span class="p">,</span> <span class="n">Path</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Concatenate multiple audio files/segments.</span>
 
 <span class="sd">    Args:</span>
@@ -828,12 +829,12 @@
 <span class="sd">        Audio instance or Path to saved file</span>
 
 <span class="sd">    Examples:</span>
-<span class="sd">        &gt;&gt;&gt; concatenate_audio(&quot;intro.mp3&quot;, &quot;main.mp3&quot;, &quot;outro.mp3&quot;)  # doctest: +SKIP</span>
-<span class="sd">        &gt;&gt;&gt; concatenate_audio(&quot;a.mp3&quot;, &quot;b.mp3&quot;, output=&quot;combined.mp3&quot;)  # doctest: +SKIP</span>
-<span class="sd">        &gt;&gt;&gt; concatenate_audio(&quot;a.mp3&quot;, &quot;b.mp3&quot;, crossfade=0.5)  # 500ms crossfade  # doctest: +SKIP</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">        &gt;&gt;&gt; concatenate_audio("intro.mp3", "main.mp3", "outro.mp3")  # doctest: +SKIP</span>
+<span class="sd">        &gt;&gt;&gt; concatenate_audio("a.mp3", "b.mp3", output="combined.mp3")  # doctest: +SKIP</span>
+<span class="sd">        &gt;&gt;&gt; concatenate_audio("a.mp3", "b.mp3", crossfade=0.5)  # 500ms crossfade  # doctest: +SKIP</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">sources</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;At least one audio source is required&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"At least one audio source is required"</span><span class="p">)</span>
 
     <span class="c1"># Convert all to Audio instances</span>
     <span class="n">audios</span> <span class="o">=</span> <span class="p">[</span><span class="n">Audio</span><span class="p">(</span><span class="n">src</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="n">src</span> <span class="k">for</span> <span class="n">src</span> <span class="ow">in</span> <span class="n">sources</span><span class="p">]</span>
@@ -858,7 +859,7 @@
         <span class="n">result</span><span class="p">,</span>
         <span class="n">output</span><span class="p">,</span>
         <span class="n">write</span><span class="o">=</span><span class="k">lambda</span> <span class="n">a</span><span class="p">,</span> <span class="n">p</span><span class="p">:</span> <span class="n">a</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="o">**</span><span class="n">save_kwargs</span><span class="p">),</span>
-        <span class="n">default_name</span><span class="o">=</span><span class="s2">&quot;audio_concat.mp3&quot;</span><span class="p">,</span>
+        <span class="n">default_name</span><span class="o">=</span><span class="s2">"audio_concat.mp3"</span><span class="p">,</span>
     <span class="p">)</span></div>
 
 
@@ -869,7 +870,7 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_mix_amplitude_to_db</span><span class="p">(</span><span class="n">amplitude</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Linear amplitude ratio in ``[0, 1]`` → dB gain, floored at silence.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Linear amplitude ratio in ``[0, 1]`` → dB gain, floored at silence."""</span>
     <span class="k">if</span> <span class="n">amplitude</span> <span class="o">&lt;=</span> <span class="mf">0.0</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">_MIX_SILENCE_FLOOR_DB</span>
     <span class="k">return</span> <span class="nb">max</span><span class="p">(</span><span class="n">_MIX_SILENCE_FLOOR_DB</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="mf">20.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">amplitude</span><span class="p">)))</span>
@@ -886,13 +887,13 @@
     <span class="n">output</span><span class="p">:</span> <span class="n">Output</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="o">**</span><span class="n">save_kwargs</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">Audio</span><span class="p">,</span> <span class="n">Path</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Overlay/mix two audio sources.</span>
 
 <span class="sd">    ``mix_ratio`` is the prominence of the *overlay*, modeled as a</span>
 <span class="sd">    linear-amplitude crossfade between background-only and overlay-only: the</span>
 <span class="sd">    overlay plays at gain ``20·log10(mix_ratio)`` and the background is ducked</span>
-<span class="sd">    by ``20·log10(1 - mix_ratio)`` for the overlap&#39;s duration. So ``0.0`` =</span>
+<span class="sd">    by ``20·log10(1 - mix_ratio)`` for the overlap's duration. So ``0.0`` =</span>
 <span class="sd">    only the background, ``1.0`` = only the overlay (during the overlap),</span>
 <span class="sd">    ``0.5`` = an equal blend (both ~-6 dB).</span>
 
@@ -909,11 +910,11 @@
 <span class="sd">        Audio instance or Path to saved file</span>
 
 <span class="sd">    Examples:</span>
-<span class="sd">        &gt;&gt;&gt; overlay_audio(&quot;music.mp3&quot;, &quot;voice.mp3&quot;, position=5.0)  # doctest: +SKIP</span>
-<span class="sd">        &gt;&gt;&gt; overlay_audio(&quot;bg.mp3&quot;, &quot;sfx.mp3&quot;, mix_ratio=0.3)  # 30% overlay, 70% bg  # doctest: +SKIP</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">        &gt;&gt;&gt; overlay_audio("music.mp3", "voice.mp3", position=5.0)  # doctest: +SKIP</span>
+<span class="sd">        &gt;&gt;&gt; overlay_audio("bg.mp3", "sfx.mp3", mix_ratio=0.3)  # 30% overlay, 70% bg  # doctest: +SKIP</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="mf">0.0</span> <span class="o">&lt;=</span> <span class="n">mix_ratio</span> <span class="o">&lt;=</span> <span class="mf">1.0</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;mix_ratio must be between 0.0 and 1.0, got </span><span class="si">{</span><span class="n">mix_ratio</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"mix_ratio must be between 0.0 and 1.0, got </span><span class="si">{</span><span class="n">mix_ratio</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
     <span class="n">bg_audio</span> <span class="o">=</span> <span class="p">(</span>
         <span class="n">Audio</span><span class="p">(</span><span class="n">background</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">background</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">PathLike</span><span class="p">))</span> <span class="k">else</span> <span class="n">background</span>
@@ -939,17 +940,17 @@
         <span class="n">mixed</span><span class="p">,</span>
         <span class="n">output</span><span class="p">,</span>
         <span class="n">write</span><span class="o">=</span><span class="k">lambda</span> <span class="n">a</span><span class="p">,</span> <span class="n">p</span><span class="p">:</span> <span class="n">a</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="o">**</span><span class="n">save_kwargs</span><span class="p">),</span>
-        <span class="n">default_name</span><span class="o">=</span><span class="s2">&quot;audio_overlay.mp3&quot;</span><span class="p">,</span>
+        <span class="n">default_name</span><span class="o">=</span><span class="s2">"audio_overlay.mp3"</span><span class="p">,</span>
     <span class="p">)</span></div>
 
 
 
 <span class="c1">#: Default crossfade (seconds) applied at every loop join in :func:`loop_audio`.</span>
 <span class="c1">#: Long enough to hide the waveform discontinuity where the tail meets the head,</span>
-<span class="c1">#: short enough not to smear the bed&#39;s content.</span>
+<span class="c1">#: short enough not to smear the bed's content.</span>
 <span class="n">DEFAULT_LOOP_CROSSFADE_S</span> <span class="o">=</span> <span class="mf">0.5</span>
 
-<span class="c1">#: A loop crossfade may consume at most this fraction of the source&#39;s duration.</span>
+<span class="c1">#: A loop crossfade may consume at most this fraction of the source's duration.</span>
 <span class="c1">#: Each join must still advance the timeline, so this can never reach ``1.0``.</span>
 <span class="n">_MAX_LOOP_CROSSFADE_FRACTION</span> <span class="o">=</span> <span class="mf">0.5</span>
 
@@ -964,11 +965,11 @@
     <span class="n">output</span><span class="p">:</span> <span class="n">Output</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="o">**</span><span class="n">save_kwargs</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">Audio</span><span class="p">,</span> <span class="n">Path</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Tile an audio source until it fills ``target_duration_s``, seamlessly.</span>
+<span class="w">    </span><span class="sd">"""Tile an audio source until it fills ``target_duration_s``, seamlessly.</span>
 
 <span class="sd">    The source is appended to itself with a ``crossfade_s`` crossfade at every</span>
-<span class="sd">    join (pydub&#39;s equal-gain fade-out/fade-in), then trimmed to *exactly*</span>
-<span class="sd">    ``target_duration_s``. This is the &quot;make a 20 s ambient bed last 4 minutes&quot;</span>
+<span class="sd">    join (pydub's equal-gain fade-out/fade-in), then trimmed to *exactly*</span>
+<span class="sd">    ``target_duration_s``. This is the "make a 20 s ambient bed last 4 minutes"</span>
 <span class="sd">    primitive: without the crossfade, every loop point is a hard splice and a</span>
 <span class="sd">    waveform discontinuity you can hear as a click.</span>
 
@@ -976,7 +977,7 @@
 <span class="sd">    ever additive, never a no-op guard the caller has to write.</span>
 
 <span class="sd">    Because each join consumes ``crossfade_s`` of timeline, the crossfade is</span>
-<span class="sd">    clamped to half the source&#39;s duration; otherwise a long crossfade over a</span>
+<span class="sd">    clamped to half the source's duration; otherwise a long crossfade over a</span>
 <span class="sd">    short source would never advance.</span>
 
 <span class="sd">    Note the tail is cut wherever ``target_duration_s`` lands (mid-loop is</span>
@@ -996,19 +997,19 @@
 <span class="sd">        Audio instance or Path to saved file.</span>
 
 <span class="sd">    Examples:</span>
-<span class="sd">        &gt;&gt;&gt; bed = loop_audio(&quot;room_tone.wav&quot;, 90.0)  # 90s bed  # doctest: +SKIP</span>
-<span class="sd">        &gt;&gt;&gt; loop_audio(&quot;waves.wav&quot;, 240.0, output=&quot;bed.wav&quot;)  # doctest: +SKIP</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">        &gt;&gt;&gt; bed = loop_audio("room_tone.wav", 90.0)  # 90s bed  # doctest: +SKIP</span>
+<span class="sd">        &gt;&gt;&gt; loop_audio("waves.wav", 240.0, output="bed.wav")  # doctest: +SKIP</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="n">target_duration_s</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;target_duration_s must be &gt; 0, got </span><span class="si">{</span><span class="n">target_duration_s</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"target_duration_s must be &gt; 0, got </span><span class="si">{</span><span class="n">target_duration_s</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">crossfade_s</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;crossfade_s must be &gt;= 0, got </span><span class="si">{</span><span class="n">crossfade_s</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"crossfade_s must be &gt;= 0, got </span><span class="si">{</span><span class="n">crossfade_s</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
     <span class="n">audio</span> <span class="o">=</span> <span class="n">source</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">Audio</span><span class="p">)</span> <span class="k">else</span> <span class="n">Audio</span><span class="p">(</span><span class="n">source</span><span class="p">)</span>
     <span class="n">segment</span> <span class="o">=</span> <span class="n">audio</span><span class="o">.</span><span class="n">_get_segment</span><span class="p">()</span>
     <span class="n">source_ms</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">segment</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">source_ms</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Cannot loop an empty audio source&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"Cannot loop an empty audio source"</span><span class="p">)</span>
 
     <span class="n">target_ms</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">target_duration_s</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">))</span>
     <span class="n">crossfade_ms</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span>
@@ -1025,14 +1026,14 @@
         <span class="n">Audio</span><span class="p">(</span><span class="n">looped</span><span class="p">,</span> <span class="n">time_unit</span><span class="o">=</span><span class="n">audio</span><span class="o">.</span><span class="n">time_unit</span><span class="p">),</span>
         <span class="n">output</span><span class="p">,</span>
         <span class="n">write</span><span class="o">=</span><span class="k">lambda</span> <span class="n">a</span><span class="p">,</span> <span class="n">p</span><span class="p">:</span> <span class="n">a</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="o">**</span><span class="n">save_kwargs</span><span class="p">),</span>
-        <span class="n">default_name</span><span class="o">=</span><span class="s2">&quot;audio_loop.mp3&quot;</span><span class="p">,</span>
+        <span class="n">default_name</span><span class="o">=</span><span class="s2">"audio_loop.mp3"</span><span class="p">,</span>
     <span class="p">)</span></div>
 
 
 
 <span class="c1">#: Gain (dB) applied to the bed while the sidechain is active.</span>
 <span class="n">DEFAULT_DUCK_DB</span> <span class="o">=</span> <span class="o">-</span><span class="mf">12.0</span>
-<span class="c1">#: Sidechain frames louder than this (dBFS RMS) count as &quot;active&quot;.</span>
+<span class="c1">#: Sidechain frames louder than this (dBFS RMS) count as "active".</span>
 <span class="n">DEFAULT_DUCK_THRESHOLD_DB</span> <span class="o">=</span> <span class="o">-</span><span class="mf">40.0</span>
 <span class="c1">#: Time constant for moving *down* to the ducked level (sidechain goes active).</span>
 <span class="n">DEFAULT_DUCK_ATTACK_S</span> <span class="o">=</span> <span class="mf">0.05</span>
@@ -1045,13 +1046,13 @@
 <span class="n">DEFAULT_DUCK_FRAME_S</span> <span class="o">=</span> <span class="mf">0.02</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_frame_rms_db</span><span class="p">(</span><span class="n">segment</span><span class="p">:</span> <span class="s2">&quot;AudioSegment&quot;</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">frame_n</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Per-frame RMS level (dBFS) of ``segment``, downmixed to mono.</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_frame_rms_db</span><span class="p">(</span><span class="n">segment</span><span class="p">:</span> <span class="s2">"AudioSegment"</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">frame_n</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Per-frame RMS level (dBFS) of ``segment``, downmixed to mono.</span>
 
 <span class="sd">    ``frame_n`` is the frame length in samples-per-channel. The final partial</span>
 <span class="sd">    frame is zero-padded, which only ever *lowers* its level — a partial frame</span>
-<span class="sd">    can&#39;t fake activity.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    can't fake activity.</span>
+<span class="sd">    """</span>
     <span class="n">samples</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">segment</span><span class="o">.</span><span class="n">get_array_of_samples</span><span class="p">(),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">segment</span><span class="o">.</span><span class="n">channels</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
         <span class="n">samples</span> <span class="o">=</span> <span class="n">samples</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">segment</span><span class="o">.</span><span class="n">channels</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
@@ -1067,7 +1068,7 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_hold_active</span><span class="p">(</span><span class="n">active</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">hold_frames</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Extend each active run forward by ``hold_frames`` frames.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Extend each active run forward by ``hold_frames`` frames."""</span>
     <span class="k">if</span> <span class="n">hold_frames</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">active</span>
     <span class="n">indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">active</span><span class="p">))</span>
@@ -1083,12 +1084,12 @@
     <span class="n">attack_s</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
     <span class="n">release_s</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Per-frame gain (dB) that falls to ``duck_db`` while ``active``, else 0.</span>
+<span class="w">    </span><span class="sd">"""Per-frame gain (dB) that falls to ``duck_db`` while ``active``, else 0.</span>
 
 <span class="sd">    A one-pole smoother in the dB domain with separate attack (going down) and</span>
 <span class="sd">    release (coming back up) time constants — the standard gain-smoothing shape</span>
 <span class="sd">    of a broadcast ducker.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_coeff</span><span class="p">(</span><span class="n">time_constant_s</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">time_constant_s</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
@@ -1109,19 +1110,19 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_apply_gain_envelope</span><span class="p">(</span>
-    <span class="n">segment</span><span class="p">:</span> <span class="s2">&quot;AudioSegment&quot;</span><span class="p">,</span> <span class="n">gain_db</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">frame_s</span><span class="p">:</span> <span class="nb">float</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;AudioSegment&quot;</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Apply a per-frame dB gain envelope to ``segment``, sample-interpolated.</span>
+    <span class="n">segment</span><span class="p">:</span> <span class="s2">"AudioSegment"</span><span class="p">,</span> <span class="n">gain_db</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">frame_s</span><span class="p">:</span> <span class="nb">float</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"AudioSegment"</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Apply a per-frame dB gain envelope to ``segment``, sample-interpolated.</span>
 
 <span class="sd">    Gains are linearly interpolated between frame centers so the envelope is</span>
 <span class="sd">    continuous — a per-frame staircase would add its own zipper noise.</span>
 
-<span class="sd">    Samples round-trip through numpy at the segment&#39;s own width; pydub only</span>
+<span class="sd">    Samples round-trip through numpy at the segment's own width; pydub only</span>
 <span class="sd">    ever holds 1-, 2- or 4-byte samples (its ``AudioSegment`` widens 24-bit to</span>
 <span class="sd">    32-bit on construction), so the `array` typecode always matches the frame</span>
 <span class="sd">    width and no width conversion is needed here.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">AudioSegment</span> <span class="o">=</span> <span class="n">require_package</span><span class="p">(</span><span class="s2">&quot;pydub&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">AudioSegment</span>
+<span class="sd">    """</span>
+    <span class="n">AudioSegment</span> <span class="o">=</span> <span class="n">require_package</span><span class="p">(</span><span class="s2">"pydub"</span><span class="p">)</span><span class="o">.</span><span class="n">AudioSegment</span>
 
     <span class="n">samples</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">segment</span><span class="o">.</span><span class="n">get_array_of_samples</span><span class="p">())</span>
     <span class="n">channels</span> <span class="o">=</span> <span class="n">segment</span><span class="o">.</span><span class="n">channels</span>
@@ -1160,16 +1161,16 @@
     <span class="n">output</span><span class="p">:</span> <span class="n">Output</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="o">**</span><span class="n">save_kwargs</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">Audio</span><span class="p">,</span> <span class="n">Path</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Duck ``bed`` wherever ``sidechain`` is loud (sidechain ducking).</span>
+<span class="w">    </span><span class="sd">"""Duck ``bed`` wherever ``sidechain`` is loud (sidechain ducking).</span>
 
 <span class="sd">    **What it does.** A level-detector sidechain ducker: the ``sidechain``</span>
-<span class="sd">    (typically the dialogue track) is framed at ``frame_s``, each frame&#39;s RMS</span>
+<span class="sd">    (typically the dialogue track) is framed at ``frame_s``, each frame's RMS</span>
 <span class="sd">    is compared to ``threshold_db``, active frames are extended by ``hold_s``,</span>
 <span class="sd">    and the resulting on/off signal drives a gain envelope on ``bed`` that</span>
 <span class="sd">    falls to ``duck_db`` with time constant ``attack_s`` and returns to unity</span>
 <span class="sd">    with ``release_s``. The envelope is interpolated to sample resolution</span>
 <span class="sd">    before it is applied, so there is no zipper noise. The result always has</span>
-<span class="sd">    the **bed&#39;s** duration; a shorter sidechain simply leaves the tail</span>
+<span class="sd">    the **bed's** duration; a shorter sidechain simply leaves the tail</span>
 <span class="sd">    un-ducked.</span>
 
 <span class="sd">    **What it does not do.** It is not a full compressor: there is no ratio,</span>
@@ -1179,7 +1180,7 @@
 <span class="sd">    through at full bed level. Detection is **energy-based, not speech-aware**:</span>
 <span class="sd">    any loud sidechain content (music, a door slam, hiss above</span>
 <span class="sd">    ``threshold_db``) ducks the bed just as dialogue would. And the bed is</span>
-<span class="sd">    attenuated, never EQ&#39;d — it does not carve a vocal-band notch.</span>
+<span class="sd">    attenuated, never EQ'd — it does not carve a vocal-band notch.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        bed: The audio to be ducked (filepath or :class:`Audio`).</span>
@@ -1198,20 +1199,20 @@
 <span class="sd">        Audio instance or Path to saved file.</span>
 
 <span class="sd">    Examples:</span>
-<span class="sd">        &gt;&gt;&gt; quiet_bed = duck_audio(&quot;bed.wav&quot;, &quot;dialogue.wav&quot;)  # doctest: +SKIP</span>
-<span class="sd">        &gt;&gt;&gt; duck_audio(&quot;bed.wav&quot;, &quot;vo.wav&quot;, duck_db=-18)  # deeper duck  # doctest: +SKIP</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">        &gt;&gt;&gt; quiet_bed = duck_audio("bed.wav", "dialogue.wav")  # doctest: +SKIP</span>
+<span class="sd">        &gt;&gt;&gt; duck_audio("bed.wav", "vo.wav", duck_db=-18)  # deeper duck  # doctest: +SKIP</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="n">duck_db</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;duck_db must be &lt;= 0 dB (a duck attenuates), got </span><span class="si">{</span><span class="n">duck_db</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"duck_db must be &lt;= 0 dB (a duck attenuates), got </span><span class="si">{</span><span class="n">duck_db</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">frame_s</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;frame_s must be &gt; 0, got </span><span class="si">{</span><span class="n">frame_s</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"frame_s must be &gt; 0, got </span><span class="si">{</span><span class="n">frame_s</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="p">(</span>
-        <span class="p">(</span><span class="s2">&quot;attack_s&quot;</span><span class="p">,</span> <span class="n">attack_s</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">&quot;release_s&quot;</span><span class="p">,</span> <span class="n">release_s</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">&quot;hold_s&quot;</span><span class="p">,</span> <span class="n">hold_s</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">"attack_s"</span><span class="p">,</span> <span class="n">attack_s</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">"release_s"</span><span class="p">,</span> <span class="n">release_s</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">"hold_s"</span><span class="p">,</span> <span class="n">hold_s</span><span class="p">),</span>
     <span class="p">):</span>
         <span class="k">if</span> <span class="n">value</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> must be &gt;= 0, got </span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> must be &gt;= 0, got </span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
     <span class="n">bed_audio</span> <span class="o">=</span> <span class="n">bed</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">bed</span><span class="p">,</span> <span class="n">Audio</span><span class="p">)</span> <span class="k">else</span> <span class="n">Audio</span><span class="p">(</span><span class="n">bed</span><span class="p">)</span>
     <span class="n">side_audio</span> <span class="o">=</span> <span class="n">sidechain</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">sidechain</span><span class="p">,</span> <span class="n">Audio</span><span class="p">)</span> <span class="k">else</span> <span class="n">Audio</span><span class="p">(</span><span class="n">sidechain</span><span class="p">)</span>
@@ -1219,7 +1220,7 @@
     <span class="n">bed_segment</span> <span class="o">=</span> <span class="n">bed_audio</span><span class="o">.</span><span class="n">_get_segment</span><span class="p">()</span>
     <span class="n">side_segment</span> <span class="o">=</span> <span class="n">side_audio</span><span class="o">.</span><span class="n">_get_segment</span><span class="p">()</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">bed_segment</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Cannot duck an empty bed&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"Cannot duck an empty bed"</span><span class="p">)</span>
 
     <span class="n">n_frames</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">bed_segment</span><span class="p">)</span> <span class="o">/</span> <span class="mf">1000.0</span><span class="p">)</span> <span class="o">/</span> <span class="n">frame_s</span><span class="p">)))</span>
     <span class="n">side_frame_n</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">frame_s</span> <span class="o">*</span> <span class="n">side_segment</span><span class="o">.</span><span class="n">frame_rate</span><span class="p">)))</span>
@@ -1243,7 +1244,7 @@
         <span class="n">Audio</span><span class="p">(</span><span class="n">ducked</span><span class="p">,</span> <span class="n">time_unit</span><span class="o">=</span><span class="n">bed_audio</span><span class="o">.</span><span class="n">time_unit</span><span class="p">),</span>
         <span class="n">output</span><span class="p">,</span>
         <span class="n">write</span><span class="o">=</span><span class="k">lambda</span> <span class="n">a</span><span class="p">,</span> <span class="n">p</span><span class="p">:</span> <span class="n">a</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="o">**</span><span class="n">save_kwargs</span><span class="p">),</span>
-        <span class="n">default_name</span><span class="o">=</span><span class="s2">&quot;audio_ducked.mp3&quot;</span><span class="p">,</span>
+        <span class="n">default_name</span><span class="o">=</span><span class="s2">"audio_ducked.mp3"</span><span class="p">,</span>
     <span class="p">)</span></div>
 
 
@@ -1257,16 +1258,16 @@
     <span class="o">*</span><span class="p">,</span>
     <span class="n">time_unit</span><span class="p">:</span> <span class="n">AudioTimeUnit</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">output</span><span class="p">:</span> <span class="n">Output</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="nb">format</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;mp3&quot;</span><span class="p">,</span>
+    <span class="nb">format</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"mp3"</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Extract and save an audio clip.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        audio_src: Path to audio file. If None, gets from clipboard.</span>
 <span class="sd">        start: Start time/sample (default: 0)</span>
 <span class="sd">        end: End time/sample (None = end of audio)</span>
-<span class="sd">        time_unit: Unit for start/end (&#39;seconds&#39;, &#39;samples&#39;, &#39;milliseconds&#39;)</span>
+<span class="sd">        time_unit: Unit for start/end ('seconds', 'samples', 'milliseconds')</span>
 <span class="sd">        output: Where to put the result — None (save beside the input), a file</span>
 <span class="sd">            path, a directory (auto-named), or a callable sink. See mixing.egress.</span>
 <span class="sd">        format: Output format</span>
@@ -1275,14 +1276,14 @@
 <span class="sd">        Path to saved audio file</span>
 
 <span class="sd">    Examples:</span>
-<span class="sd">        &gt;&gt;&gt; save_audio_clip(&quot;song.mp3&quot;, 10, 30)  # Save 10s-30s  # doctest: +SKIP</span>
+<span class="sd">        &gt;&gt;&gt; save_audio_clip("song.mp3", 10, 30)  # Save 10s-30s  # doctest: +SKIP</span>
 <span class="sd">        &gt;&gt;&gt; save_audio_clip(start=5, end=15)  # From clipboard  # doctest: +SKIP</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="n">audio_src</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">audio_src</span> <span class="o">=</span> <span class="n">get_path_from_clipboard</span><span class="p">()</span>
 
     <span class="k">if</span> <span class="n">time_unit</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">time_unit</span> <span class="o">=</span> <span class="s2">&quot;seconds&quot;</span>
+        <span class="n">time_unit</span> <span class="o">=</span> <span class="s2">"seconds"</span>
 
     <span class="n">audio</span> <span class="o">=</span> <span class="n">Audio</span><span class="p">(</span><span class="n">audio_src</span><span class="p">,</span> <span class="n">time_unit</span><span class="o">=</span><span class="n">time_unit</span><span class="p">)</span>
     <span class="n">segment</span> <span class="o">=</span> <span class="n">audio</span><span class="p">[</span><span class="n">start</span><span class="p">:</span><span class="n">end</span><span class="p">]</span> <span class="k">if</span> <span class="n">end</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">audio</span><span class="p">[</span><span class="n">start</span><span class="p">:]</span>
@@ -1299,14 +1300,14 @@
     <span class="o">*</span><span class="p">,</span>
     <span class="n">sample_rate</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">16000</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Find the time offset where query_audio best aligns within reference_audio.</span>
+<span class="w">    </span><span class="sd">"""Find the time offset where query_audio best aligns within reference_audio.</span>
 
 <span class="sd">    Uses FFT-based cross-correlation to find the position in reference_audio</span>
 <span class="sd">    where query_audio starts. This is useful for aligning different recordings</span>
 <span class="sd">    of the same performance — for example, aligning a studio recording (voice</span>
 <span class="sd">    + instruments) with a camera recording (voice only).</span>
 
-<span class="sd">    The two audio signals don&#39;t need to be identical; they just need to share</span>
+<span class="sd">    The two audio signals don't need to be identical; they just need to share</span>
 <span class="sd">    a correlated component (e.g., the same voice in both).</span>
 
 <span class="sd">    Args:</span>
@@ -1325,9 +1326,9 @@
 <span class="sd">    Examples:</span>
 <span class="sd">        &gt;&gt;&gt; from mixing.audio import find_audio_offset  # doctest: +SKIP</span>
 <span class="sd">        &gt;&gt;&gt; # Find where a studio recording aligns with a camera recording</span>
-<span class="sd">        &gt;&gt;&gt; offset = find_audio_offset(&quot;camera_audio.wav&quot;, &quot;studio.mp3&quot;)  # doctest: +SKIP</span>
-<span class="sd">        &gt;&gt;&gt; print(f&quot;Studio recording starts at {offset:.2f}s in the camera audio&quot;)  # doctest: +SKIP</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">        &gt;&gt;&gt; offset = find_audio_offset("camera_audio.wav", "studio.mp3")  # doctest: +SKIP</span>
+<span class="sd">        &gt;&gt;&gt; print(f"Studio recording starts at {offset:.2f}s in the camera audio")  # doctest: +SKIP</span>
+<span class="sd">    """</span>
     <span class="k">return</span> <span class="n">find_audio_offset_detailed</span><span class="p">(</span>
         <span class="n">reference_audio</span><span class="p">,</span> <span class="n">query_audio</span><span class="p">,</span> <span class="n">sample_rate</span><span class="o">=</span><span class="n">sample_rate</span>
     <span class="p">)</span><span class="o">.</span><span class="n">offset_s</span></div>
@@ -1338,17 +1339,17 @@
 <a class="viewcode-back" href="../../../module_docs/mixing/audio/audio_ops.html#mixing.AudioOffset">[docs]</a>
 <span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">AudioOffset</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;The result of aligning one recording within another.</span>
+<span class="w">    </span><span class="sd">"""The result of aligning one recording within another.</span>
 
 <span class="sd">    Attributes:</span>
 <span class="sd">        offset_s: Time in ``reference`` where ``query`` begins (seconds). Positive</span>
-<span class="sd">            means query starts after the reference&#39;s t=0; **negative** means query</span>
+<span class="sd">            means query starts after the reference's t=0; **negative** means query</span>
 <span class="sd">            began before it (e.g. a phone that started filming before the song).</span>
 <span class="sd">        confidence: A scale-invariant normalized cross-correlation coefficient in</span>
 <span class="sd">            ``[0, 1]`` at the best lag — comparable ACROSS clips of different loudness</span>
 <span class="sd">            and length. ~0.5+ is a strong match; near 0 means no shared component.</span>
 <span class="sd">        sample_rate: The analysis sample rate the offset was computed at.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="n">offset_s</span><span class="p">:</span> <span class="nb">float</span>
     <span class="n">confidence</span><span class="p">:</span> <span class="nb">float</span>
@@ -1359,36 +1360,36 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">_resample_samples</span><span class="p">(</span>
     <span class="n">samples</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">native_rate</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">target_rate</span><span class="p">:</span> <span class="nb">int</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Anti-aliased polyphase resample of mono ``samples`` (native → target rate).</span>
+<span class="w">    </span><span class="sd">"""Anti-aliased polyphase resample of mono ``samples`` (native → target rate).</span>
 
 <span class="sd">    Uses :func:`scipy.signal.resample_poly`, which low-pass filters before</span>
 <span class="sd">    decimating, so downsampling does not fold energy above the target Nyquist</span>
 <span class="sd">    back into the band. Rational rate ratios (e.g. 44100 → 16000 = 160/441)</span>
 <span class="sd">    are reduced exactly via :class:`fractions.Fraction`.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="n">native_rate</span> <span class="o">==</span> <span class="n">target_rate</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">samples</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">fractions</span><span class="w"> </span><span class="kn">import</span> <span class="n">Fraction</span>
 
     <span class="n">ratio</span> <span class="o">=</span> <span class="n">Fraction</span><span class="p">(</span><span class="n">target_rate</span><span class="p">,</span> <span class="n">native_rate</span><span class="p">)</span>
-    <span class="n">resample_poly</span> <span class="o">=</span> <span class="n">require_package</span><span class="p">(</span><span class="s2">&quot;scipy.signal&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">resample_poly</span>
+    <span class="n">resample_poly</span> <span class="o">=</span> <span class="n">require_package</span><span class="p">(</span><span class="s2">"scipy.signal"</span><span class="p">)</span><span class="o">.</span><span class="n">resample_poly</span>
     <span class="k">return</span> <span class="n">resample_poly</span><span class="p">(</span><span class="n">samples</span><span class="p">,</span> <span class="n">ratio</span><span class="o">.</span><span class="n">numerator</span><span class="p">,</span> <span class="n">ratio</span><span class="o">.</span><span class="n">denominator</span><span class="p">)</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_load_mono_samples</span><span class="p">(</span><span class="n">source</span><span class="p">:</span> <span class="n">AudioSource</span><span class="p">,</span> <span class="n">sample_rate</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Load any :data:`AudioSource` as a mono float64 array at ``sample_rate``.</span>
+<span class="w">    </span><span class="sd">"""Load any :data:`AudioSource` as a mono float64 array at ``sample_rate``.</span>
 
-<span class="sd">    Decodes at the source&#39;s NATIVE rate (pydub → ffmpeg), downmixes to mono,</span>
+<span class="sd">    Decodes at the source's NATIVE rate (pydub → ffmpeg), downmixes to mono,</span>
 <span class="sd">    then resamples with an anti-aliased polyphase filter</span>
-<span class="sd">    (:func:`_resample_samples`). pydub&#39;s ``set_frame_rate`` is deliberately NOT</span>
+<span class="sd">    (:func:`_resample_samples`). pydub's ``set_frame_rate`` is deliberately NOT</span>
 <span class="sd">    used for the rate change: it delegates to ``audioop.ratecv`` — linear</span>
 <span class="sd">    interpolation with no anti-alias filter — so downsampling a 48 kHz camera</span>
 <span class="sd">    track to the 16 kHz analysis rate folds everything above 8 kHz back over</span>
 <span class="sd">    the band. Measured on real multicam footage that aliasing roughly HALVED</span>
 <span class="sd">    the alignment confidence for identical (correct) offsets, making the score</span>
 <span class="sd">    depend on the decode path rather than the signal (issue #25).</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">seg</span> <span class="o">=</span> <span class="n">_normalize_audio_source</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">target_type</span><span class="o">=</span><span class="s2">&quot;AudioSegment&quot;</span><span class="p">)</span>
+<span class="sd">    """</span>
+    <span class="n">seg</span> <span class="o">=</span> <span class="n">_normalize_audio_source</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">target_type</span><span class="o">=</span><span class="s2">"AudioSegment"</span><span class="p">)</span>
     <span class="n">seg</span> <span class="o">=</span> <span class="n">seg</span><span class="o">.</span><span class="n">set_channels</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
     <span class="n">samples</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">seg</span><span class="o">.</span><span class="n">get_array_of_samples</span><span class="p">(),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">_resample_samples</span><span class="p">(</span><span class="n">samples</span><span class="p">,</span> <span class="n">seg</span><span class="o">.</span><span class="n">frame_rate</span><span class="p">,</span> <span class="n">sample_rate</span><span class="p">)</span>
@@ -1397,7 +1398,7 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">_normalized_xcorr</span><span class="p">(</span>
     <span class="n">ref</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">query</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">min_overlap_ratio</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.5</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Overlap-normalized cross-correlation of two mono signals.</span>
+<span class="w">    </span><span class="sd">"""Overlap-normalized cross-correlation of two mono signals.</span>
 
 <span class="sd">    Returns ``(lag_samples, coefficient)`` where ``lag_samples`` is where ``query``</span>
 <span class="sd">    begins within ``ref`` (may be negative) and ``coefficient`` is the normalized</span>
@@ -1406,13 +1407,13 @@
 <span class="sd">    removes the triangular-overlap argmax bias for clips that extend before/after the</span>
 <span class="sd">    reference — the common multi-device case. Lags overlapping less than</span>
 <span class="sd">    ``min_overlap_ratio`` of the shorter signal are excluded so a tiny sliver of overlap</span>
-<span class="sd">    can&#39;t win.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">correlate</span> <span class="o">=</span> <span class="n">require_package</span><span class="p">(</span><span class="s2">&quot;scipy.signal&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">correlate</span>
+<span class="sd">    can't win.</span>
+<span class="sd">    """</span>
+    <span class="n">correlate</span> <span class="o">=</span> <span class="n">require_package</span><span class="p">(</span><span class="s2">"scipy.signal"</span><span class="p">)</span><span class="o">.</span><span class="n">correlate</span>
     <span class="n">ref</span> <span class="o">=</span> <span class="n">ref</span> <span class="o">-</span> <span class="n">ref</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
     <span class="n">query</span> <span class="o">=</span> <span class="n">query</span> <span class="o">-</span> <span class="n">query</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
     <span class="n">n_r</span><span class="p">,</span> <span class="n">n_q</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">ref</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
-    <span class="n">num</span> <span class="o">=</span> <span class="n">correlate</span><span class="p">(</span><span class="n">ref</span><span class="p">,</span> <span class="n">query</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;full&quot;</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;fft&quot;</span><span class="p">)</span>
+    <span class="n">num</span> <span class="o">=</span> <span class="n">correlate</span><span class="p">(</span><span class="n">ref</span><span class="p">,</span> <span class="n">query</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">"full"</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">"fft"</span><span class="p">)</span>
     <span class="c1"># lag L for full-output index k is L = k - (n_q - 1)</span>
     <span class="n">lags</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n_r</span> <span class="o">+</span> <span class="n">n_q</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">-</span> <span class="p">(</span><span class="n">n_q</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
     <span class="n">overlap</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">minimum</span><span class="p">(</span><span class="n">n_r</span><span class="p">,</span> <span class="n">lags</span> <span class="o">+</span> <span class="n">n_q</span><span class="p">)</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">lags</span><span class="p">)</span>
@@ -1452,8 +1453,8 @@
     <span class="o">*</span><span class="p">,</span>
     <span class="n">hop</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">ENVELOPE_HOP</span><span class="p">,</span>
     <span class="n">nfft</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">ENVELOPE_NFFT</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;tuple[np.ndarray, float]&quot;</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;A channel-robust onset/energy envelope: ``(envelope, envelope_rate_hz)``.</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"tuple[np.ndarray, float]"</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""A channel-robust onset/energy envelope: ``(envelope, envelope_rate_hz)``.</span>
 
 <span class="sd">    Log-compressed STFT magnitude, positive first difference, summed over frequency, then</span>
 <span class="sd">    standardized. This is *spectral flux* — it tracks WHEN energy arrives, not the waveform</span>
@@ -1470,14 +1471,14 @@
 <span class="sd">    Args:</span>
 <span class="sd">        samples: Mono samples.</span>
 <span class="sd">        sample_rate: Their rate.</span>
-<span class="sd">        hop: Frames advance by this many samples (sets the envelope&#39;s time resolution).</span>
+<span class="sd">        hop: Frames advance by this many samples (sets the envelope's time resolution).</span>
 <span class="sd">        nfft: STFT window length.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        ``(envelope, envelope_rate_hz)``. The envelope is zero-mean, unit-variance, so</span>
 <span class="sd">        correlations of two envelopes are directly comparable.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">stft</span> <span class="o">=</span> <span class="n">require_package</span><span class="p">(</span><span class="s2">&quot;scipy.signal&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">stft</span>
+<span class="sd">    """</span>
+    <span class="n">stft</span> <span class="o">=</span> <span class="n">require_package</span><span class="p">(</span><span class="s2">"scipy.signal"</span><span class="p">)</span><span class="o">.</span><span class="n">stft</span>
     <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">spec</span> <span class="o">=</span> <span class="n">stft</span><span class="p">(</span>
         <span class="n">samples</span><span class="p">,</span>
         <span class="n">fs</span><span class="o">=</span><span class="n">sample_rate</span><span class="p">,</span>
@@ -1500,8 +1501,8 @@
     <span class="n">sample_rate</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
     <span class="n">min_overlap_ratio</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;tuple[int, float]&quot;</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Waveform picks the lag; the confidence is the better of two views of that lag.</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"tuple[int, float]"</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Waveform picks the lag; the confidence is the better of two views of that lag.</span>
 
 <span class="sd">    Returns ``(lag_samples, confidence)``.</span>
 
@@ -1513,7 +1514,7 @@
 <span class="sd">    letting it pick moved a known -2.0 s offset to -2.5 s.</span>
 
 <span class="sd">    **The confidence is the larger of two correlations evaluated AT that lag** — the</span>
-<span class="sd">    waveform&#39;s and the onset envelope&#39;s. Not a trick to inflate the score: each feature is</span>
+<span class="sd">    waveform's and the onset envelope's. Not a trick to inflate the score: each feature is</span>
 <span class="sd">    *blind* in a regime the other sees clearly, and which regime you are in is not knowable</span>
 <span class="sd">    in advance.</span>
 
@@ -1528,11 +1529,11 @@
 <span class="sd">    - *Unrelated audio*: both are low, so the maximum is low and the pair is still rejected —</span>
 <span class="sd">      measured at max(0.010, 0.021) on a genuine non-match.</span>
 
-<span class="sd">    Taking the maximum means the score answers &quot;how similar are these at the offset we are</span>
-<span class="sd">    reporting, by the most favourable of two complementary measures&quot;. Taking either alone</span>
+<span class="sd">    Taking the maximum means the score answers "how similar are these at the offset we are</span>
+<span class="sd">    reporting, by the most favourable of two complementary measures". Taking either alone</span>
 <span class="sd">    means silently returning a near-zero score for a perfectly good alignment in the other</span>
-<span class="sd">    feature&#39;s blind spot — which, at a downstream threshold, deletes the user&#39;s footage.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    feature's blind spot — which, at a downstream threshold, deletes the user's footage.</span>
+<span class="sd">    """</span>
     <span class="n">env_ref</span><span class="p">,</span> <span class="n">env_rate</span> <span class="o">=</span> <span class="n">onset_envelope</span><span class="p">(</span><span class="n">ref</span><span class="p">,</span> <span class="n">sample_rate</span><span class="p">)</span>
     <span class="n">env_query</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">onset_envelope</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">sample_rate</span><span class="p">)</span>
     <span class="n">wav_lag</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">_normalized_xcorr</span><span class="p">(</span><span class="n">ref</span><span class="p">,</span> <span class="n">query</span><span class="p">,</span> <span class="n">min_overlap_ratio</span><span class="o">=</span><span class="n">min_overlap_ratio</span><span class="p">)</span>
@@ -1545,11 +1546,11 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_correlation_at_lag</span><span class="p">(</span><span class="n">ref</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">query</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">lag</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Normalized correlation of ``query`` against ``ref`` at exactly ``lag``, in ``[0, 1]``.</span>
+<span class="w">    </span><span class="sd">"""Normalized correlation of ``query`` against ``ref`` at exactly ``lag``, in ``[0, 1]``.</span>
 
 <span class="sd">    The single-lag counterpart of :func:`_normalized_xcorr`, which searches for the best</span>
 <span class="sd">    lag. Used to score a lag that some other feature chose.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">n_r</span><span class="p">,</span> <span class="n">n_q</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">ref</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
     <span class="n">r_lo</span><span class="p">,</span> <span class="n">q_lo</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">lag</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="n">lag</span><span class="p">)</span>
     <span class="n">overlap</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">n_r</span><span class="p">,</span> <span class="n">lag</span> <span class="o">+</span> <span class="n">n_q</span><span class="p">)</span> <span class="o">-</span> <span class="n">r_lo</span>
@@ -1565,11 +1566,11 @@
     <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">))</span> <span class="o">/</span> <span class="n">denom</span><span class="p">)</span>
 
 
-<span class="c1">#: Alignment features. ``&#39;envelope&#39;`` is coarse-to-fine (see</span>
-<span class="c1">#: :func:`_envelope_then_waveform`); ``&#39;waveform&#39;`` is raw normalized cross-correlation,</span>
+<span class="c1">#: Alignment features. ``'envelope'`` is coarse-to-fine (see</span>
+<span class="c1">#: :func:`_envelope_then_waveform`); ``'waveform'`` is raw normalized cross-correlation,</span>
 <span class="c1">#: correct when both signals come from the SAME source (re-aligning an export against its</span>
 <span class="c1">#: master) and misleading across devices.</span>
-<span class="n">ALIGNMENT_FEATURES</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;envelope&quot;</span><span class="p">,</span> <span class="s2">&quot;waveform&quot;</span><span class="p">)</span>
+<span class="n">ALIGNMENT_FEATURES</span> <span class="o">=</span> <span class="p">(</span><span class="s2">"envelope"</span><span class="p">,</span> <span class="s2">"waveform"</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="find_audio_offset_detailed">
@@ -1580,15 +1581,15 @@
     <span class="o">*</span><span class="p">,</span>
     <span class="n">sample_rate</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">16000</span><span class="p">,</span>
     <span class="n">min_overlap_ratio</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span>
-    <span class="n">feature</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;waveform&quot;</span><span class="p">,</span>
+    <span class="n">feature</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"waveform"</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AudioOffset</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Align ``query_audio`` within ``reference_audio`` — offset **and** confidence.</span>
+<span class="w">    </span><span class="sd">"""Align ``query_audio`` within ``reference_audio`` — offset **and** confidence.</span>
 
 <span class="sd">    The detailed twin of :func:`find_audio_offset` (which returns just ``offset_s``).</span>
 <span class="sd">    Uses an overlap-normalized cross-correlation so the confidence is a scale-invariant</span>
 <span class="sd">    coefficient in ``[0, 1]`` — usable both as a per-clip trust gate and to compare</span>
 <span class="sd">    alignments across clips (which the multi-device / multicam case needs). Unlike the</span>
-<span class="sd">    scalar helper&#39;s assumption that ``reference`` is the longer signal, this handles a</span>
+<span class="sd">    scalar helper's assumption that ``reference`` is the longer signal, this handles a</span>
 <span class="sd">    ``query`` that is longer than, or starts before, the reference (negative offset).</span>
 
 <span class="sd">    Args:</span>
@@ -1598,23 +1599,23 @@
 <span class="sd">        min_overlap_ratio: Reject lags overlapping less than this fraction of the</span>
 <span class="sd">            shorter signal (guards against a tiny-overlap spurious peak).</span>
 <span class="sd">        feature: Which similarity feature the confidence is measured on — see</span>
-<span class="sd">            :data:`ALIGNMENT_FEATURES`. Defaults to ``&#39;waveform&#39;`` here because this is the</span>
-<span class="sd">            low-level primitive and the caller knows their own signals; use ``&#39;envelope&#39;``</span>
+<span class="sd">            :data:`ALIGNMENT_FEATURES`. Defaults to ``'waveform'`` here because this is the</span>
+<span class="sd">            low-level primitive and the caller knows their own signals; use ``'envelope'``</span>
 <span class="sd">            whenever the two recordings came from **different devices**, where a waveform</span>
 <span class="sd">            coefficient understates a correct alignment several-fold.</span>
 <span class="sd">            :func:`align_clips_to_reference` — the multi-device primitive — defaults to</span>
-<span class="sd">            ``&#39;envelope&#39;`` for that reason.</span>
+<span class="sd">            ``'envelope'`` for that reason.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        An :class:`AudioOffset` (``offset_s``, ``confidence``, ``sample_rate``).</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="n">feature</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ALIGNMENT_FEATURES</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;unknown feature </span><span class="si">{</span><span class="n">feature</span><span class="si">!r}</span><span class="s2">; expected one of </span><span class="si">{</span><span class="n">ALIGNMENT_FEATURES</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="sa">f</span><span class="s2">"unknown feature </span><span class="si">{</span><span class="n">feature</span><span class="si">!r}</span><span class="s2">; expected one of </span><span class="si">{</span><span class="n">ALIGNMENT_FEATURES</span><span class="si">}</span><span class="s2">"</span>
         <span class="p">)</span>
     <span class="n">ref</span> <span class="o">=</span> <span class="n">_load_mono_samples</span><span class="p">(</span><span class="n">reference_audio</span><span class="p">,</span> <span class="n">sample_rate</span><span class="p">)</span>
     <span class="n">query</span> <span class="o">=</span> <span class="n">_load_mono_samples</span><span class="p">(</span><span class="n">query_audio</span><span class="p">,</span> <span class="n">sample_rate</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">feature</span> <span class="o">==</span> <span class="s2">&quot;envelope&quot;</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">feature</span> <span class="o">==</span> <span class="s2">"envelope"</span><span class="p">:</span>
         <span class="n">lag</span><span class="p">,</span> <span class="n">coeff</span> <span class="o">=</span> <span class="n">_envelope_then_waveform</span><span class="p">(</span>
             <span class="n">ref</span><span class="p">,</span> <span class="n">query</span><span class="p">,</span> <span class="n">sample_rate</span><span class="p">,</span> <span class="n">min_overlap_ratio</span><span class="o">=</span><span class="n">min_overlap_ratio</span>
         <span class="p">)</span>
@@ -1630,21 +1631,21 @@
 <a class="viewcode-back" href="../../../module_docs/mixing/audio/audio_ops.html#mixing.ClipAlignment">[docs]</a>
 <span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">ClipAlignment</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Where one clip sits on a reference (song) timeline.</span>
+<span class="w">    </span><span class="sd">"""Where one clip sits on a reference (song) timeline.</span>
 
 <span class="sd">    Attributes:</span>
-<span class="sd">        index: The clip&#39;s position in the input sequence.</span>
-<span class="sd">        offset_s: Reference-time where the clip&#39;s audio begins (may be negative).</span>
+<span class="sd">        index: The clip's position in the input sequence.</span>
+<span class="sd">        offset_s: Reference-time where the clip's audio begins (may be negative).</span>
 <span class="sd">        confidence: Normalized cross-correlation coefficient in ``[0, 1]``.</span>
-<span class="sd">        duration_s: The clip&#39;s own duration (seconds).</span>
-<span class="sd">        coverage: ``(start_s, end_s)`` — the clip&#39;s span **intersected with the</span>
+<span class="sd">        duration_s: The clip's own duration (seconds).</span>
+<span class="sd">        coverage: ``(start_s, end_s)`` — the clip's span **intersected with the</span>
 <span class="sd">            reference timeline** ``[0, reference_duration]``. When the clip does not</span>
 <span class="sd">            overlap the reference at all this is a degenerate ``(t, t)`` and</span>
 <span class="sd">            :attr:`overlaps` is False; callers building an edit must skip those.</span>
 <span class="sd">        overlaps: Whether the clip intersects the reference timeline at all. A clip that</span>
 <span class="sd">            does not is still RETURNED, with its measured offset and confidence — see</span>
 <span class="sd">            :func:`align_clips_to_reference` for why it is not dropped.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="n">index</span><span class="p">:</span> <span class="nb">int</span>
     <span class="n">offset_s</span><span class="p">:</span> <span class="nb">float</span>
@@ -1659,14 +1660,14 @@
 <a class="viewcode-back" href="../../../module_docs/mixing/audio/audio_ops.html#mixing.align_clips_to_reference">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">align_clips_to_reference</span><span class="p">(</span>
     <span class="n">reference_audio</span><span class="p">:</span> <span class="n">AudioSource</span><span class="p">,</span>
-    <span class="n">clips</span><span class="p">:</span> <span class="s2">&quot;Sequence[AudioSource]&quot;</span><span class="p">,</span>
+    <span class="n">clips</span><span class="p">:</span> <span class="s2">"Sequence[AudioSource]"</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
     <span class="n">reference_duration</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">sample_rate</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">16000</span><span class="p">,</span>
     <span class="n">min_overlap_ratio</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span>
-    <span class="n">feature</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;envelope&quot;</span><span class="p">,</span>
+    <span class="n">feature</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"envelope"</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">ClipAlignment</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Align a SET of clips to one reference — the multi-device / multicam primitive.</span>
+<span class="w">    </span><span class="sd">"""Align a SET of clips to one reference — the multi-device / multicam primitive.</span>
 
 <span class="sd">    Aligns each clip against ``reference_audio`` (e.g. the clean song) and returns its</span>
 <span class="sd">    offset, a scale-invariant confidence, and its **coverage clamped to the reference</span>
@@ -1692,22 +1693,22 @@
 <span class="sd">        min_overlap_ratio: Passed through to the alignment (see</span>
 <span class="sd">            :func:`find_audio_offset_detailed`).</span>
 <span class="sd">        feature: Similarity feature for the confidence — see :data:`ALIGNMENT_FEATURES`.</span>
-<span class="sd">            Defaults to ``&#39;envelope&#39;`` **because this function&#39;s whole purpose is the</span>
+<span class="sd">            Defaults to ``'envelope'`` **because this function's whole purpose is the</span>
 <span class="sd">            cross-device case**, and a raw-waveform coefficient is not a usable trust gate</span>
 <span class="sd">            there: two microphones in a room are not sample-correlated even when the</span>
 <span class="sd">            alignment is exact. Measured on a real 6-device shoot, the waveform coefficient</span>
 <span class="sd">            scored provably-correct alignments at 0.064-0.148 — below any threshold a</span>
 <span class="sd">            caller would sensibly set — while the envelope scored them 0.441-0.634 and a</span>
-<span class="sd">            genuine non-match at 0.102. Pass ``&#39;waveform&#39;`` when the clips come from the</span>
+<span class="sd">            genuine non-match at 0.102. Pass ``'waveform'`` when the clips come from the</span>
 <span class="sd">            SAME source as the reference (e.g. verifying an export against its master),</span>
 <span class="sd">            where sample correlation is meaningful and gives finer confidence resolution.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        A list of :class:`ClipAlignment`, in input order (minus dropped clips).</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="n">feature</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ALIGNMENT_FEATURES</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;unknown feature </span><span class="si">{</span><span class="n">feature</span><span class="si">!r}</span><span class="s2">; expected one of </span><span class="si">{</span><span class="n">ALIGNMENT_FEATURES</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="sa">f</span><span class="s2">"unknown feature </span><span class="si">{</span><span class="n">feature</span><span class="si">!r}</span><span class="s2">; expected one of </span><span class="si">{</span><span class="n">ALIGNMENT_FEATURES</span><span class="si">}</span><span class="s2">"</span>
         <span class="p">)</span>
     <span class="n">ref</span> <span class="o">=</span> <span class="n">_load_mono_samples</span><span class="p">(</span><span class="n">reference_audio</span><span class="p">,</span> <span class="n">sample_rate</span><span class="p">)</span>
     <span class="n">ref_dur</span> <span class="o">=</span> <span class="p">(</span>
@@ -1716,7 +1717,7 @@
     <span class="n">out</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">ClipAlignment</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">clip</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">clips</span><span class="p">):</span>
         <span class="n">query</span> <span class="o">=</span> <span class="n">_load_mono_samples</span><span class="p">(</span><span class="n">clip</span><span class="p">,</span> <span class="n">sample_rate</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">feature</span> <span class="o">==</span> <span class="s2">&quot;envelope&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">feature</span> <span class="o">==</span> <span class="s2">"envelope"</span><span class="p">:</span>
             <span class="n">lag</span><span class="p">,</span> <span class="n">coeff</span> <span class="o">=</span> <span class="n">_envelope_then_waveform</span><span class="p">(</span>
                 <span class="n">ref</span><span class="p">,</span> <span class="n">query</span><span class="p">,</span> <span class="n">sample_rate</span><span class="p">,</span> <span class="n">min_overlap_ratio</span><span class="o">=</span><span class="n">min_overlap_ratio</span>
             <span class="p">)</span>

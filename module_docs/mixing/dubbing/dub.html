@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>mixing.dubbing.dub &mdash; mixing 0.0.37 documentation</title>
+  <title>mixing.dubbing.dub &mdash; mixing 0.0.38 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
@@ -15,7 +15,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=aa2ad26f"></script>
+      <script src="../../../_static/documentation_options.js?v=423071ad"></script>
       <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="../../../_static/toggleprompt.js?v=d7ede5d2"></script>
@@ -80,6 +80,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../video.html">mixing.video</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../video/_helpers.html">mixing.video._helpers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../video/genai.html">mixing.video.genai</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../video/gif.html">mixing.video.gif</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../video/thumbnail.html">mixing.video.thumbnail</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../video/video_concat.html">mixing.video.video_concat</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../video/video_ops.html">mixing.video.video_ops</a></li>
@@ -126,9 +127,9 @@ with silence. This keeps lip/scene sync without clipping speech. Use
 <dl>
 <dt>Quick start:</dt><dd><div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">mixing.dubbing</span><span class="w"> </span><span class="kn">import</span> <span class="n">dub_video_from_srt</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">dub_video_from_srt</span><span class="p">(</span>
-<span class="gp">... </span>    <span class="s2">&quot;promo.mp4&quot;</span><span class="p">,</span> <span class="s2">&quot;promo.srt&quot;</span><span class="p">,</span>
-<span class="gp">... </span>    <span class="n">voice_id</span><span class="o">=</span><span class="s2">&quot;&lt;elevenlabs-voice-id&gt;&quot;</span><span class="p">,</span>
-<span class="gp">... </span>    <span class="n">output</span><span class="o">=</span><span class="s2">&quot;promo.en.mp4&quot;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="s2">"promo.mp4"</span><span class="p">,</span> <span class="s2">"promo.srt"</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">voice_id</span><span class="o">=</span><span class="s2">"&lt;elevenlabs-voice-id&gt;"</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">output</span><span class="o">=</span><span class="s2">"promo.en.mp4"</span><span class="p">,</span>
 <span class="gp">... </span><span class="p">)</span>
 </pre></div>
 </div>
