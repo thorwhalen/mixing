@@ -126,10 +126,11 @@ offset = find_audio_offset("camera_audio.wav", "studio.mp3")  # float, sample_ra
 
 # ...and when the clip is NOT one continuous take, ask which PARTS align:
 from mixing.audio import aligned_spans
+
 for sp in aligned_spans("song.mp3", "phone_recording.mp4"):
-    sp.clip_start_s, sp.clip_end_s   # in the CLIP's timeline
-    sp.offset_s, sp.confidence       # reference_time = clip_time + offset_s
-    sp.reference_span                # the same extent on the SONG timeline
+    sp.clip_start_s, sp.clip_end_s  # in the CLIP's timeline
+    sp.offset_s, sp.confidence  # reference_time = clip_time + offset_s
+    sp.reference_span  # the same extent on the SONG timeline
 ```
 
 ### One offset, or several?

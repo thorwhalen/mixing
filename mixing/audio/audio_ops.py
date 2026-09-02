@@ -1762,7 +1762,9 @@ def aligned_spans(
         offset_tolerance_s=offset_tolerance_s,
         merge_gap_s=window_s if merge_gap_s is None else merge_gap_s,
     )
-    ref_dur = len(ref) / sample_rate if reference_duration is None else reference_duration
+    ref_dur = (
+        len(ref) / sample_rate if reference_duration is None else reference_duration
+    )
     return _clamp_to_reference(spans, ref_dur)
 
 
