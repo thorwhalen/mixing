@@ -34,7 +34,7 @@ Focused subpackages, each with a clear dependency footprint:
 | Module | Purpose | Heavy deps |
 |---|---|---|
 | `mixing.audio` | `Audio`/`AudioSamples`, fades, crop, concat, overlay, `loop_audio`, `duck_audio`, `find_audio_offset`, segmentation | `pydub`, `numpy`, `scipy` |
-| `mixing.video` | `Video`/`VideoFrames`, crop/loop/speed, `replace_audio`, `normalize_audio`, `overlay_ambient_bed`, `ken_burns_*`, `concatenate_videos`, thumbnails, subtitles | `moviepy`, `opencv`, `pillow` |
+| `mixing.video` | `Video`/`VideoFrames`, crop/loop/speed, `replace_audio`, `normalize_audio`, `overlay_ambient_bed`, `ken_burns_*`, `concatenate_videos`, thumbnails, subtitles | `moviepy`, `opencv`, `pillow`, `looks` (vocabulary only — stdlib) |
 | `mixing.video.genai` | Google Vertex AI **Veo** generation | `google-genai` (extra `gen`) |
 | `mixing.transcript` | ElevenLabs **Scribe** STT (stdlib HTTP, cached), filler removal, SRT/prose | stdlib only |
 | `mixing.dubbing` | ElevenLabs **TTS** re-voice / translate (stdlib HTTP, cached) | stdlib (`dub_video_from_srt` needs `moviepy`) |
@@ -43,6 +43,29 @@ Focused subpackages, each with a clear dependency footprint:
 | `mixing.egress` | the `output` protocol (see below) | pure |
 | `mixing.util` | `has_ffmpeg`, `to_seconds`, `require_package`, clipboard | pure |
 | `mixing._cache`, `mixing._elevenlabs` | internal: shared disk cache + ElevenLabs auth | pure |
+
+### `looks` owns the geometry vocabulary; `mixing` owns the implementations
+
+`mixing.video.video_util` **imports** `SOCIAL_SIZES`, the
+`stretch`/`fit`/`fill` mode names (`looks.geometry.FitMode`) and the `social`
+backdrop's `DFLT_BACKDROP_BLUR_SIGMA` / `DFLT_BACKDROP_DIM` from
+`looks.geometry` rather than declaring them. That is the whole of the edge — a
+**vocabulary port, not a code move**:
+
+- The arithmetic stays here. `video_util` imports moviepy at module scope, and
+  the `social` branch is not arithmetic at all: it composites a scaled,
+  centre-cropped, Gaussian-blurred, dimmed copy of the input behind the fitted
+  foreground. `looks.geometry` is pure, total, media-library-free arithmetic.
+- **`get_video_dimensions` does not move.** It is a *probe* (it opens a file, or
+  reads a live clip), not geometry, and `paces` calls it at five sites through
+  the top-level facade behind an explicit `mixing` floor.
+- `looks` declares **no dependencies**, so the edge is free. Don't let it grow
+  into a runtime dependency on `looks`' ffmpeg/compile layers without saying so.
+
+`mixing/tests/test_guard_video_util.py` pins this: identity with `looks`' dict
+(equality would let two copies drift), and — because the imported constants
+*equal* the literals they replaced — two render-level tests that monkeypatch the
+constants and assert the pixels move.
 
 ### Lazy facade — keep light imports light
 

@@ -33,6 +33,14 @@ dependencies = [
     # (documented as a mixing.audio dep in .claude/CLAUDE.md).
     "scipy",
     "burns",
+    # The geometry VOCABULARY (SOCIAL_SIZES, the fit/fill/stretch mode names,
+    # the social backdrop's blur sigma and dim factor) is owned by `looks` and
+    # imported by mixing.video.video_util — one place says what a "shorts" is.
+    # The implementations stay here: video_util resizes with moviepy, and the
+    # `social` branch is a composite, not a formula. `looks` declares no
+    # dependencies of its own, so this edge costs nothing. The floor is the
+    # first release carrying SOCIAL_SIZES / FitMode / DFLT_BACKDROP_*.
+    "looks>=0.0.11",
 ]
 
 [project.license]

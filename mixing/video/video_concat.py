@@ -30,6 +30,8 @@ from typing import Optional, Union, Literal
 from collections.abc import Iterable, Callable
 from pathlib import Path
 from io import BytesIO
+import functools
+import inspect
 import os
 import numpy as np
 from moviepy import VideoFileClip, concatenate_videoclips, vfx
@@ -37,6 +39,110 @@ from moviepy import VideoFileClip, concatenate_videoclips, vfx
 from ._helpers import _is_video_file
 
 VideoSource = Union[str, Path, VideoFileClip, bytes, BytesIO]
+
+#: Attribute a ``transform_clips`` callable carries to declare that its output
+#: only means anything when the clips are **composited with an overlap**. Its
+#: value is the *name of the parameter* that carries that overlap in seconds,
+#: not the number — so a caller who changes the duration changes the join too.
+#: Set it with :func:`needs_crossfade_overlap`; read it with
+#: :func:`crossfade_overlap`.
+_OVERLAP_PARAM_ATTR = "crossfade_overlap_param"
+
+
+def needs_crossfade_overlap(param: str) -> Callable:
+    """Declare that a ``transform_clips`` callable needs overlapped compositing.
+
+    A crossfade is a property of the **join**, not of either clip: moviepy's
+    ``CrossFadeIn``/``CrossFadeOut`` only set a mask, and a mask does nothing
+    unless the clips are composited *and* overlap in time. A transform that
+    relies on that has to say so, or :func:`concatenate_videos` cannot know —
+    and moviepy 2.x's defaults (``method="chain"``, ``padding=0``) satisfy
+    neither condition, so the transition silently renders a hard cut.
+
+    Declaring the *parameter name* rather than a number is what keeps the two
+    in step: a caller who asks for a longer fade gets a longer overlap, with no
+    second place to remember.
+
+    Args:
+        param: the name of the decorated function's parameter holding the
+            required overlap, in seconds.
+
+    Examples:
+        >>> @needs_crossfade_overlap('duration')
+        ... def my_transition(clips, *, duration=0.5):
+        ...     "Yields clips that must overlap by ``duration`` seconds."
+        ...     return clips
+        >>> crossfade_overlap(my_transition)
+        0.5
+    """
+
+    def declare(func):
+        setattr(func, _OVERLAP_PARAM_ATTR, param)
+        return func
+
+    return declare
+
+
+def crossfade_overlap(transform: Optional[Callable]) -> Optional[float]:
+    """The overlap in seconds a ``transform_clips`` callable needs, or ``None``.
+
+    ``None`` means "join these clips back to back" — either the transform did
+    not declare an overlap, or it declared one that resolved to a non-positive
+    number. Anything a caller wrapped in :func:`functools.partial` is seen
+    through, so the overlap tracks the duration the caller actually chose.
+
+    Examples:
+        >>> crossfade_overlap(crossfade_transition)
+        0.5
+        >>> crossfade_overlap(trim_and_crossfade)
+        0.4
+        >>> crossfade_overlap(overlap_blend)
+        0.5
+        >>> import functools
+        >>> crossfade_overlap(functools.partial(crossfade_transition, duration=0.8))
+        0.8
+
+        Transforms that bake their effect into their own frames need no
+        overlap, and neither does an undecorated callable:
+
+        >>> crossfade_overlap(fade_through_black) is None
+        True
+        >>> crossfade_overlap(lambda clips: clips) is None
+        True
+        >>> crossfade_overlap(None) is None
+        True
+    """
+    if transform is None:
+        return None
+
+    # See through partial() wrappers, remembering what they bound. The
+    # outermost partial wins, which is what calling one actually does.
+    bound: dict = {}
+    func = transform
+    while isinstance(func, functools.partial):
+        for key, value in func.keywords.items():
+            bound.setdefault(key, value)
+        func = func.func
+
+    param = getattr(func, _OVERLAP_PARAM_ATTR, None)
+    if param is None:
+        return None
+
+    if param in bound:
+        value = bound[param]
+    else:
+        try:
+            value = inspect.signature(func).parameters[param].default
+        except (TypeError, ValueError, KeyError):
+            return None
+        if value is inspect.Parameter.empty:
+            return None
+
+    try:
+        seconds = float(value)
+    except (TypeError, ValueError):
+        return None
+    return seconds if seconds > 0 else None
 
 
 def _ensure_video_clip(video_src: VideoSource) -> VideoFileClip:
@@ -267,7 +373,24 @@ def concatenate_videos(
                     If True and videos is not a folder, raises ValueError.
         codec: Video codec to use when writing file (default: 'libx264')
         audio_codec: Audio codec to use when writing file (default: 'aac')
-        **concat_kwargs: Additional arguments passed to moviepy's concatenate_videoclips
+        **concat_kwargs: Additional arguments passed to moviepy's
+            concatenate_videoclips. Anything given here wins over the join this
+            function would otherwise pick (see below).
+
+    How the clips are joined:
+        A crossfade lives in the **join**, not in either clip, so the join is
+        chosen from what ``transform_clips`` declares it needs (via
+        :func:`needs_crossfade_overlap`) rather than defaulted for everything:
+
+        - A transform declaring an overlap of *d* seconds
+          (``crossfade_transition``, ``trim_and_crossfade``, ``overlap_blend``)
+          is joined with ``method='compose', padding=-d``, so the clips overlap
+          and their crossfade masks are actually composited. The result is
+          therefore *shorter* than the sum of its clips by *d* per join, and
+          overlapping audio is mixed rather than butted.
+        - Everything else (no transform, or one that bakes its effect into its
+          own frames, like ``fade_through_black`` / ``slow_motion_blend``) keeps
+          moviepy's back-to-back default.
 
     Returns:
         Concatenated VideoFileClip with audio. Caller is responsible for closing this clip.
@@ -354,7 +477,17 @@ def concatenate_videos(
         else:
             clips_to_concat = clips
 
-        # Concatenate and optionally write
+        # Concatenate and optionally write.
+        # A crossfade needs BOTH conditions and moviepy 2.x defaults to neither:
+        # under method="chain" the clips' CrossFade masks are never composited,
+        # and padding=0 leaves no overlapping region for them to act in. Setting
+        # only one of the two still renders a hard cut. An explicit caller
+        # kwarg wins (setdefault).
+        overlap = crossfade_overlap(transform_clips)
+        if overlap is not None:
+            concat_kwargs.setdefault("method", "compose")
+            concat_kwargs.setdefault("padding", -overlap)
+
         final_clip = concatenate_videoclips(clips_to_concat, **concat_kwargs)
         if output is not None:
             # Explicitly include audio with proper codecs
@@ -386,6 +519,7 @@ def trim_first_frame_from_subsequent_clips(
         yield clip.subclipped(1 / clip.fps)
 
 
+@needs_crossfade_overlap("duration")
 def crossfade_transition(
     clips: list[VideoFileClip], *, duration: float = 0.5
 ) -> Iterable[VideoFileClip]:
@@ -395,7 +529,11 @@ def crossfade_transition(
     Best for hiding both pixel differences and motion changes.
     Recommended: duration=0.3 to 0.8 seconds.
 
-    Uses CrossFadeOut on end of clips and CrossFadeIn on start of clips.
+    Uses CrossFadeOut on end of clips and CrossFadeIn on start of clips. Those
+    are masks, so they only render as a blend when the clips are composited
+    with a ``duration``-second overlap — which is what the
+    :func:`needs_crossfade_overlap` declaration tells :func:`concatenate_videos`
+    to do. Each join therefore shortens the result by ``duration``.
     """
     for i, clip in enumerate(clips):
         if i == 0:
@@ -411,13 +549,16 @@ def crossfade_transition(
             )
 
 
+@needs_crossfade_overlap("duration")
 def trim_and_crossfade(
     clips: list[VideoFileClip], *, duration: float = 0.4
 ) -> Iterable[VideoFileClip]:
     """
     Trim first frame from subsequent clips, then crossfade.
 
-    Combines frame removal with smooth blending.
+    Combines frame removal with smooth blending. Like
+    :func:`crossfade_transition`, the blend only happens because the declared
+    ``duration`` overlap reaches the join.
     """
     for i, clip in enumerate(clips):
         if i == 0:
@@ -443,6 +584,11 @@ def fade_through_black(
     Fade out to black, then fade in from black between clips.
 
     More dramatic transition - clearly separates scenes.
+
+    Deliberately **not** declared with :func:`needs_crossfade_overlap`:
+    ``FadeIn`` / ``FadeOut`` bake the effect into each clip's own frames, so a
+    back-to-back join renders it correctly and an overlapped one would eat
+    footage for nothing.
     """
     for i, clip in enumerate(clips):
         effects = []
@@ -497,13 +643,19 @@ def slow_motion_blend(
                 yield main_part
 
 
+@needs_crossfade_overlap("overlap")
 def overlap_blend(
     clips: list[VideoFileClip], *, overlap: float = 0.5
 ) -> Iterable[VideoFileClip]:
     """
     Overlap clips and crossfade the overlapping region.
 
-    More aggressive blending - uses more footage from both clips.
+    More aggressive blending - uses more footage from both clips: ``overlap``
+    seconds are trimmed off the head of every clip after the first, *and* the
+    join overlaps by ``overlap`` seconds, so the blend is fed by the tail of one
+    clip against the second ``overlap`` seconds of the next. Without the
+    overlapped join this is a lossy hard cut — the head frames are dropped and
+    nothing blends.
     """
     for i, clip in enumerate(clips):
         if i == 0:
