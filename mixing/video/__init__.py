@@ -13,6 +13,7 @@ from mixing.video.video_concat import (
     crossfade_overlap,
     crossfade_transition,
     fade_through_black,
+    max_overlap_for_clips,
     needs_crossfade_overlap,
     overlap_blend,
     slow_motion_blend,

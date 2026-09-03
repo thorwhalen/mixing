@@ -58,6 +58,8 @@ _LAZY: dict[str, str] = {
     # …and how a transition declares the overlapped join it needs
     "needs_crossfade_overlap": "mixing.video",
     "crossfade_overlap": "mixing.video",
+    # …and what the clips can actually carry (past it, clips get dropped)
+    "max_overlap_for_clips": "mixing.video",
     "fade_through_black": "mixing.video",
     "slow_motion_blend": "mixing.video",
     "trim_and_crossfade": "mixing.video",
@@ -140,6 +142,7 @@ if TYPE_CHECKING:  # help static analyzers see the lazy names
         crossfade_overlap,
         crossfade_transition,
         fade_through_black,
+        max_overlap_for_clips,
         needs_crossfade_overlap,
         overlap_blend,
         slow_motion_blend,

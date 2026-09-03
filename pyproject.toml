@@ -125,9 +125,14 @@ minversion = "6.0"
 testpaths = [
     "mixing",
 ]
+# EXACTLY what wads' run-tests action passes with `-o`, so a bare `pytest`
+# runs what CI runs. NORMALIZE_WHITESPACE was here and is NOT there, so a
+# doctest whose expected output was wrapped across lines passed locally and
+# failed in CI — verified on this branch before the flags were aligned. No
+# doctest in the package relies on it (checked: the suite is green either way).
 doctest_optionflags = [
-    "NORMALIZE_WHITESPACE",
     "ELLIPSIS",
+    "IGNORE_EXCEPTION_DETAIL",
 ]
 
 [tool.wads.ops.ffmpeg]
