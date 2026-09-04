@@ -287,9 +287,10 @@ for. Writing your own transition:
 ```python
 from mixing import needs_crossfade_overlap, crossfade_overlap
 
-@needs_crossfade_overlap("fade_seconds")   # names the PARAMETER, not a number
-def my_transition(clips, *, fade_seconds=0.25):
-    ...
+
+@needs_crossfade_overlap("fade_seconds")  # names the PARAMETER, not a number
+def my_transition(clips, *, fade_seconds=0.25): ...
+
 
 crossfade_overlap(my_transition)  # -> 0.25
 ```
