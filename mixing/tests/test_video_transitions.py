@@ -793,3 +793,61 @@ def test_a_clamped_overlap_reaches_the_transform_not_only_the_join(
         f"the join"
     )
     assert np.abs(samples).max() < 0.985, "samples are clipped"
+
+
+class TestTheClampVerifiesItConverged:
+    """The ceiling is derived from the FIRST transform call's output and applied
+    to a SECOND call. That is only sound if the transform's clip durations do
+    not depend on the overlap it is given — true of every shipped transform,
+    and false in general.
+
+    "No current caller breaks it" is a fact about today's callers, not about
+    the code, so the clamp checks rather than assumes. Without the check the
+    failure is the silent one the ceiling exists to prevent: clips laid on top
+    of one another and footage simply absent from a successful render.
+    """
+
+    @staticmethod
+    def _proportional(clips, *, overlap=0.5):
+        """Output length PROPORTIONAL to the overlap — the shape the clamp
+        cannot converge against.
+
+        Subtracting the overlap is not enough and is worth saying: a smaller
+        overlap then yields LONGER clips, so the clamp converges on the first
+        try. It is proportionality that defeats it — halve the overlap and the
+        ceiling halves with it, forever.
+        """
+        return [c.subclipped(0, min(c.duration, max(0.05, overlap))) for c in clips]
+
+    def test_a_transform_whose_length_follows_its_overlap_is_refused(self, tmp_path):
+        from functools import partial
+
+        import mixing
+        from mixing import needs_crossfade_overlap
+
+        declared = needs_crossfade_overlap("overlap")(self._proportional)
+        clips = _tiny_clips(tmp_path)
+        with pytest.raises(ValueError, match="cannot converge"):
+            mixing.concatenate_videos(
+                clips,
+                output=str(tmp_path / "out.mp4"),
+                transform_clips=partial(declared, overlap=0.5),
+            )
+
+    def test_a_well_behaved_transform_still_clamps_and_renders(self, tmp_path):
+        """The other half — the check must not refuse the case it exists to
+        allow. A transform that keeps its durations clamps quietly and renders."""
+        from functools import partial
+
+        import mixing
+        from mixing import crossfade_transition
+
+        clips = _tiny_clips(tmp_path)
+        out = str(tmp_path / "ok.mp4")
+        with pytest.warns(UserWarning, match="can carry at most"):
+            mixing.concatenate_videos(
+                clips,
+                output=out,
+                transform_clips=partial(crossfade_transition, duration=0.5),
+            )
+        assert Path(out).exists()
