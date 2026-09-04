@@ -278,6 +278,12 @@ def crossfade_overlap(transform: Optional[Callable]) -> Optional[float]:
 def max_overlap_for_clips(clips) -> Optional[float]:
     """The largest overlap ``clips`` can be joined with, or ``None`` if unknowable.
 
+    Note for anyone writing a ``transform_clips``: when the declared overlap
+    exceeds this ceiling it is clamped, and the transform is invoked a **second**
+    time with the clamped value. It must therefore be pure — a transform that
+    accumulates state, or that may only run once, will be applied twice on that
+    path.
+
     A crossfade eats ``overlap`` seconds off *each end it touches*: the first
     and last clip are touched once, every clip between them twice. So each clip
     affords ``duration / (number of joins it takes part in)`` and the join can
@@ -728,9 +734,30 @@ def concatenate_videos(
                 # `overlap is not None` already means a transform declared it.
                 overlap = ceiling if ceiling > 0 else None
                 if overlap is not None:
+                    # SECOND invocation of the caller's transform. The ceiling
+                    # above was derived from the FIRST call's output, so it is
+                    # only valid for this one if the transform's clip durations
+                    # do not depend on the overlap it was given. No shipped
+                    # transform's do — this same change removed the one that
+                    # did — but "no current caller breaks it" is a fact about
+                    # today's callers, so it is CHECKED rather than assumed.
                     clips_to_concat = _transform(
                         _with_crossfade_overlap(transform_clips, overlap)
                     )
+                    settled = max_overlap_for_clips(clips_to_concat)
+                    if settled is not None and overlap > settled * (
+                        1 + _OVERLAP_TOLERANCE
+                    ):
+                        raise ValueError(
+                            f"{getattr(transform_clips, '__name__', transform_clips)!r} "
+                            f"returns clips whose durations depend on the overlap "
+                            f"it is given: clamping to {overlap:g}s produced clips "
+                            f"that afford only {settled:g}s. The clamp cannot "
+                            "converge, and proceeding would drop footage silently "
+                            "— the failure this ceiling exists to prevent. Pass "
+                            "`padding=` yourself to own the join, or make the "
+                            "transform's output length independent of its overlap."
+                        )
         if overlap is not None:
             concat_kwargs.setdefault("method", "compose")
             concat_kwargs.setdefault("padding", -overlap)
