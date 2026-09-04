@@ -194,9 +194,16 @@ seconds, or `True` to auto-detect audio onset) shifts the first cue.
 ## Dimensions & social presets
 
 `SOCIAL_SIZES` maps names → `(w, h)`: `youtube` (1920x1080), `shorts`/`story`/
-`tiktok` (1080x1920), `square` (1080x1080). These resize helpers operate on
-**moviepy clips** and **return clips** (not the `output` protocol) — get a clip
-with `Video.to_clip()`, resize, then `write_videofile`.
+`tiktok` (1080x1920), `square` (1080x1080). It is **`looks`' dict, imported** —
+`mixing.video.SOCIAL_SIZES is looks.geometry.SOCIAL_SIZES` — along with the
+`stretch`/`fit`/`fill` mode names and the two constants that parameterise the
+`social` backdrop. One place says what a "shorts" is; the resizing itself stays
+here in moviepy. `get_video_dimensions` deliberately did **not** move: it is a
+probe (it opens a file), not geometry.
+
+These resize helpers operate on **moviepy clips** and **return clips** (not the
+`output` protocol) — get a clip with `Video.to_clip()`, resize, then
+`write_videofile`.
 
 ```python
 from mixing.video import Video, SOCIAL_SIZES, resize_to_dimensions
@@ -227,6 +234,76 @@ final.close()
 Different sizes are reconciled via `normalize_dimensions` (`"social"` default;
 also `"fit"`/`"fill"`/`"stretch"`/`False`). `transform_clips=` lets you inject
 transitions (e.g. `crossfade_transition`, `fade_through_black` from the module).
+
+### The join is chosen from the transition, not defaulted
+
+A crossfade lives in the **join**, not in either clip: `CrossFadeIn`/`CrossFadeOut`
+only set a mask, and a mask does nothing unless the clips are composited *and*
+overlap. moviepy 2.x defaults to neither (`method="chain"`, `padding=0`), which
+is why these used to render a silent hard cut (issue #33). `concatenate_videos`
+now reads what the transform declares:
+
+| transition | declares | join |
+|---|---|---|
+| `crossfade_transition` (`duration=0.5`) | 0.5 s overlap | `method="compose", padding=-0.5` |
+| `trim_and_crossfade` (`duration=0.4`) | 0.4 s overlap | `method="compose", padding=-0.4` |
+| `overlap_blend` (`overlap=0.5`) | 0.5 s overlap | `method="compose", padding=-0.5` |
+| `fade_through_black`, `slow_motion_blend` | nothing | back-to-back (they bake the effect into their own frames) |
+
+Consequences worth knowing: an overlapped join makes the output **shorter** than
+the sum of its clips by the overlap per join, and **crossfades** the overlapping
+audio (the video-mask effects touch no sound, so each of the three transitions
+also applies `afx.AudioFadeIn`/`AudioFadeOut` — without them moviepy's
+`CompositeAudioClip` would simply *sum* the two tracks at full level, measured
++3.0 dB and clipping on ordinary material). Passing `method=`/`padding=`
+yourself always wins, and takes the ceiling below with it.
+
+#### The overlap has a ceiling, and going past it used to delete clips
+
+A crossfade eats the overlap off **each end it touches**, so the first and last
+clip pay once and every clip between them pays twice: the ceiling is
+`min(duration / joins_it_takes_part_in)`, which is
+`mixing.max_overlap_for_clips(clips)`. Past it two things happen at once and
+both are silent — a middle clip's fade-in and fade-out masks multiply, so it never
+reaches full opacity, and moviepy's `cumsum(durations) + padding * arange`
+layout puts clip *i* and clip *i+2* on the same instant (or in the wrong order),
+so the later one paints over the middle one. Measured before the fix: three
+1 s clips through `overlap_blend` gave a **1 s** video with the middle clip
+nowhere in it, and three 0.6 s clips gave 0.5 s from 1.8 s of source.
+
+`concatenate_videos` now **clamps to the ceiling and warns**, rather than
+refusing: the clamped value is the largest overlap at which every clip still
+reaches full strength, and refusing would make the documented one-liner raise
+for any set of sub-second panels — whereupon the caller drops the transition and
+goes back to hard cuts. The clamp goes back **through the transform** as well as
+into the padding (`@needs_crossfade_overlap` names a *parameter*, which is what
+makes that possible), so the ramps and the join stay one number; clamping only
+the padding leaves the middle clip peaking at 0.43x its own level.
+
+`functools.partial(crossfade_transition, duration=0.8)` is seen through —
+keyword *and* positional binds — so the overlap tracks the duration you asked
+for. Writing your own transition:
+
+```python
+from mixing import needs_crossfade_overlap, crossfade_overlap
+
+@needs_crossfade_overlap("fade_seconds")   # names the PARAMETER, not a number
+def my_transition(clips, *, fade_seconds=0.25):
+    ...
+
+crossfade_overlap(my_transition)  # -> 0.25
+```
+
+The name is checked **at decoration time**: a typo or a `**kwargs` signature
+raises `TypeError` at import, because there would be nothing to read and the
+join would silently go back to back — restoring the exact hard cut issue #33 was
+filed for. A declaration that resolves to no value at *render* time (no default,
+nothing bound, or a non-number) warns for the same reason. The one case that
+stays invisible is a wrapper built without `functools.wraps`, which copies
+neither `__dict__` nor the declaration — so wrap transitions with it.
+
+`concatenate_videos` never learns a transition by name, so a new one is a
+decoration, not an edit somewhere else.
 
 ## AI video generation (Veo) — optional
 

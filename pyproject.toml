@@ -33,6 +33,14 @@ dependencies = [
     # (documented as a mixing.audio dep in .claude/CLAUDE.md).
     "scipy",
     "burns",
+    # The geometry VOCABULARY (SOCIAL_SIZES, the fit/fill/stretch mode names,
+    # the social backdrop's blur sigma and dim factor) is owned by `looks` and
+    # imported by mixing.video.video_util — one place says what a "shorts" is.
+    # The implementations stay here: video_util resizes with moviepy, and the
+    # `social` branch is a composite, not a formula. `looks` declares no
+    # dependencies of its own, so this edge costs nothing. The floor is the
+    # first release carrying SOCIAL_SIZES / FitMode / DFLT_BACKDROP_*.
+    "looks>=0.0.11",
 ]
 
 [project.license]
@@ -117,9 +125,14 @@ minversion = "6.0"
 testpaths = [
     "mixing",
 ]
+# EXACTLY what wads' run-tests action passes with `-o`, so a bare `pytest`
+# runs what CI runs. NORMALIZE_WHITESPACE was here and is NOT there, so a
+# doctest whose expected output was wrapped across lines passed locally and
+# failed in CI — verified on this branch before the flags were aligned. No
+# doctest in the package relies on it (checked: the suite is green either way).
 doctest_optionflags = [
-    "NORMALIZE_WHITESPACE",
     "ELLIPSIS",
+    "IGNORE_EXCEPTION_DETAIL",
 ]
 
 [tool.wads.ops.ffmpeg]

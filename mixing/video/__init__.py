@@ -10,8 +10,11 @@ from mixing.video.video_subtitles import (
 )
 from mixing.video.video_concat import (
     concatenate_videos,
+    crossfade_overlap,
     crossfade_transition,
     fade_through_black,
+    max_overlap_for_clips,
+    needs_crossfade_overlap,
     overlap_blend,
     slow_motion_blend,
     trim_and_crossfade,

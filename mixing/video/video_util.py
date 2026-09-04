@@ -1,24 +1,50 @@
 """Video utils.
 
 Utils that will be useful in multiple modules of the video package.
+
+**The geometry vocabulary comes from** :mod:`looks.geometry` **; the
+implementations stay here.** ``SOCIAL_SIZES``, the ``stretch``/``fit``/``fill``
+mode names and the two constants that parameterise the ``social`` backdrop are
+*imported*, not re-declared, so there is exactly one place that says what a
+"shorts" is or how blurred a social backdrop gets. What is deliberately **not**
+imported is the arithmetic: this module resizes with moviepy, and the ``social``
+branch is a composite (a scaled, centre-cropped, Gaussian-blurred, dimmed copy
+of the input behind the fitted foreground), not a formula. `looks` is
+stdlib-only, so importing the vocabulary costs nothing at import time.
+
+:func:`get_video_dimensions` stays here on purpose — it is a *probe* (it opens
+a file, or reads a live clip), not geometry, so it has no home in a pure-
+arithmetic module.
 """
 
-from typing import Literal, Tuple, Optional
+from typing import Literal, Tuple, Optional, Union
 import numpy as np
 from moviepy import VideoFileClip, VideoClip, ImageClip, CompositeVideoClip
 
-#: Common social-media target sizes as ``(width, height)`` pixel presets, handy
-#: as the ``target_width``/``target_height`` for :func:`resize_to_dimensions`
-#: and friends. Landscape ``youtube`` is 16:9; the vertical 9:16 presets
-#: (``shorts`` / ``story`` / ``tiktok``) and the 1:1 ``square`` cover the usual
-#: short-form formats.
-SOCIAL_SIZES: dict[str, Tuple[int, int]] = {
-    "youtube": (1920, 1080),
-    "shorts": (1080, 1920),
-    "square": (1080, 1080),
-    "story": (1080, 1920),
-    "tiktok": (1080, 1920),
-}
+# The geometry vocabulary, imported rather than re-declared:
+#
+# - ``SOCIAL_SIZES`` maps a preset name to a ``(width, height)`` pixel pair,
+#   handy as the ``target_width``/``target_height`` for
+#   :func:`resize_to_dimensions` and friends. Landscape ``youtube`` is 16:9;
+#   the vertical 9:16 presets (``shorts`` / ``story`` / ``tiktok``) and the 1:1
+#   ``square`` cover the usual short-form formats.
+# - ``FitMode`` is the ``stretch``/``fit``/``fill`` name set.
+# - ``DFLT_BACKDROP_BLUR_SIGMA`` / ``DFLT_BACKDROP_DIM`` parameterise the
+#   ``social`` backdrop below. They were transcribed *from* this module into
+#   `looks`; importing them back is what stops the two copies drifting.
+from looks.geometry import (
+    DFLT_BACKDROP_BLUR_SIGMA,
+    DFLT_BACKDROP_DIM,
+    FitMode,
+    SOCIAL_SIZES,  # noqa: F401  — deliberate re-export; a --fix would break the port
+)
+
+#: How :func:`resize_to_dimensions` places a source frame in a target frame.
+#: The first three names are `looks`' :data:`~looks.geometry.FitMode`; ``social``
+#: is **not** a fourth mode but ``fit`` over a blurred, dimmed copy of the source
+#: instead of a solid colour — which is why it lives here (it is a composite)
+#: while the other three are arithmetic.
+ResizeMethod = Union[FitMode, Literal["social"]]
 
 
 def get_video_dimensions(video) -> Tuple[int, int]:
@@ -53,7 +79,7 @@ def resize_to_dimensions(
     target_width: int,
     target_height: int,
     *,
-    method: Literal["stretch", "fit", "fill", "social"] = "fit",
+    method: ResizeMethod = "fit",
     bg_color: Tuple[int, int, int] = (0, 0, 0),
 ) -> VideoFileClip:
     """
@@ -191,14 +217,20 @@ def resize_to_dimensions(
 
         # Apply blur to background using PIL
         def blur_frame(frame):
-            """Apply Gaussian blur to a frame using PIL."""
+            """Apply Gaussian blur to a frame using PIL.
+
+            PIL's ``GaussianBlur(radius=...)`` takes the standard deviation of
+            the kernel, which is what ``DFLT_BACKDROP_BLUR_SIGMA`` names.
+            """
             from PIL import Image, ImageFilter
             import numpy as np
 
             # Convert numpy array to PIL Image
             img = Image.fromarray(frame.astype("uint8"))
             # Apply Gaussian blur
-            blurred = img.filter(ImageFilter.GaussianBlur(radius=15))
+            blurred = img.filter(
+                ImageFilter.GaussianBlur(radius=DFLT_BACKDROP_BLUR_SIGMA)
+            )
             # Convert back to numpy array
             return np.array(blurred)
 
@@ -207,7 +239,9 @@ def resize_to_dimensions(
         # Optionally darken the background slightly for better contrast
         from moviepy import vfx
 
-        background = background.with_effects([vfx.MultiplyColor([0.7, 0.7, 0.7])])
+        background = background.with_effects(
+            [vfx.MultiplyColor([DFLT_BACKDROP_DIM] * 3)]
+        )
 
         # Center the foreground on the background
         x_pos = (target_width - new_width) // 2
@@ -234,7 +268,7 @@ def normalize_video_dimensions(
     reference_video: Optional[int | VideoFileClip] = 0,
     target_width: Optional[int] = None,
     target_height: Optional[int] = None,
-    method: Literal["stretch", "fit", "fill", "social"] = "social",
+    method: ResizeMethod = "social",
     bg_color: Tuple[int, int, int] = (0, 0, 0),
 ) -> list[VideoFileClip]:
     """
