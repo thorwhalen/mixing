@@ -794,9 +794,3 @@ def generate_video(
             raise
     else:
         return operation
-
-
-# if __name__ == "__main__":
-#     import argh
-#
-#     argh.dispatch_commands([generate_video, save_generated_videos])
