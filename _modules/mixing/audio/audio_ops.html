@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>mixing.audio.audio_ops &mdash; mixing 0.0.38 documentation</title>
+  <title>mixing.audio.audio_ops &mdash; mixing 0.0.40 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
@@ -14,7 +14,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=423071ad"></script>
+      <script src="../../../_static/documentation_options.js?v=84bd753f"></script>
       <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="../../../_static/toggleprompt.js?v=d7ede5d2"></script>
@@ -148,7 +148,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Union</span><span class="p">,</span> <span class="n">TYPE_CHECKING</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Iterator</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">Sequence</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">replace</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">io</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
@@ -1501,6 +1501,7 @@
     <span class="n">sample_rate</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
     <span class="n">min_overlap_ratio</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">ref_envelope</span><span class="p">:</span> <span class="s2">"tuple[np.ndarray, float] | None"</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"tuple[int, float]"</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Waveform picks the lag; the confidence is the better of two views of that lag.</span>
 
@@ -1534,7 +1535,13 @@
 <span class="sd">    means silently returning a near-zero score for a perfectly good alignment in the other</span>
 <span class="sd">    feature's blind spot — which, at a downstream threshold, deletes the user's footage.</span>
 <span class="sd">    """</span>
-    <span class="n">env_ref</span><span class="p">,</span> <span class="n">env_rate</span> <span class="o">=</span> <span class="n">onset_envelope</span><span class="p">(</span><span class="n">ref</span><span class="p">,</span> <span class="n">sample_rate</span><span class="p">)</span>
+    <span class="c1"># `ref_envelope` lets a caller that aligns MANY queries against ONE reference</span>
+    <span class="c1"># compute the reference's envelope once. Omitting it reproduces the previous</span>
+    <span class="c1"># behaviour exactly, so `find_audio_offset_detailed` is unchanged; supplying it</span>
+    <span class="c1"># measured 2.11x on `aligned_spans`, which was recomputing it per window.</span>
+    <span class="n">env_ref</span><span class="p">,</span> <span class="n">env_rate</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">onset_envelope</span><span class="p">(</span><span class="n">ref</span><span class="p">,</span> <span class="n">sample_rate</span><span class="p">)</span> <span class="k">if</span> <span class="n">ref_envelope</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">ref_envelope</span>
+    <span class="p">)</span>
     <span class="n">env_query</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">onset_envelope</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">sample_rate</span><span class="p">)</span>
     <span class="n">wav_lag</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">_normalized_xcorr</span><span class="p">(</span><span class="n">ref</span><span class="p">,</span> <span class="n">query</span><span class="p">,</span> <span class="n">min_overlap_ratio</span><span class="o">=</span><span class="n">min_overlap_ratio</span><span class="p">)</span>
     <span class="n">wav_at_lag</span> <span class="o">=</span> <span class="n">_correlation_at_lag</span><span class="p">(</span><span class="n">ref</span><span class="p">,</span> <span class="n">query</span><span class="p">,</span> <span class="n">wav_lag</span><span class="p">)</span>
@@ -1742,6 +1749,441 @@
         <span class="p">)</span>
     <span class="k">return</span> <span class="n">out</span></div>
 
+
+
+<span class="c1">#: Default analysis window for :func:`aligned_spans`, in seconds. Long enough that a</span>
+<span class="c1">#: window of a real recording carries enough structure to correlate, short enough that a</span>
+<span class="c1">#: span boundary is locatable. This is the knob that trades boundary resolution against</span>
+<span class="c1">#: cost: halving it doubles the number of correlations.</span>
+<span class="n">SPAN_WINDOW_S</span> <span class="o">=</span> <span class="mf">20.0</span>
+
+<span class="c1">#: Default hop between windows. Half the window, so every instant of the clip is covered</span>
+<span class="c1">#: by two windows and a boundary can never fall in the blind spot between them.</span>
+<span class="n">SPAN_HOP_S</span> <span class="o">=</span> <span class="mf">10.0</span>
+
+<span class="c1">#: A window must reach this for its span to exist at all.</span>
+<span class="n">SPAN_MIN_CONFIDENCE</span> <span class="o">=</span> <span class="mf">0.15</span>
+
+<span class="c1">#: How far two windows' implied offsets may disagree and still be called the same span.</span>
+<span class="c1">#: Wider than a frame at any sane rate (a span is not a cut point) but far tighter than</span>
+<span class="c1">#: the drift a genuine stop/restart introduces.</span>
+<span class="n">SPAN_OFFSET_TOLERANCE_S</span> <span class="o">=</span> <span class="mf">0.25</span>
+
+<span class="c1">#: How long an UNVERIFIED gap between two same-offset spans may be and still be treated</span>
+<span class="c1">#: as one take. Defaults to one window.</span>
+<span class="c1">#:</span>
+<span class="c1">#: A dozen seconds of silence mid-take collapses the windows inside it to a confidence of</span>
+<span class="c1">#: zero, so one continuous recording comes back as two spans carrying the SAME offset —</span>
+<span class="c1">#: measured, and downstream that reads as a stop/restart that never happened. Two spans</span>
+<span class="c1">#: agreeing on the offset across a short gap are one take with an unusable patch: the</span>
+<span class="c1">#: camera kept rolling in sync, only the audio stopped saying so.</span>
+<span class="c1">#:</span>
+<span class="c1">#: The bound is what stops that from becoming a lie. A clip that records the song, then</span>
+<span class="c1">#: five minutes of something else, then the song again at the same offset would otherwise</span>
+<span class="c1">#: be merged into one span claiming those five minutes align. Past this gap the two are</span>
+<span class="c1">#: reported separately, because correlation cannot tell "quiet" from "different material"</span>
+<span class="c1">#: and inventing an answer is worse than reporting both.</span>
+<span class="n">SPAN_MERGE_GAP_S</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+
+
+<div class="viewcode-block" id="AlignedSpan">
+<a class="viewcode-back" href="../../../module_docs/mixing/audio/audio_ops.html#mixing.AlignedSpan">[docs]</a>
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">AlignedSpan</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""A maximal run of CLIP time that tracks the reference at one stable offset.</span>
+
+<span class="sd">    ``align_clips_to_reference`` answers "where does this clip sit?" with a single</span>
+<span class="sd">    number, which is the right answer only when the clip is one continuous take of the</span>
+<span class="sd">    reference. A clip that was stopped and restarted, or that contains a chunk of</span>
+<span class="sd">    something else, has no such number — and the single-offset model does not say so, it</span>
+<span class="sd">    just returns the offset of whichever part correlated best and describes the rest of</span>
+<span class="sd">    the clip wrongly.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        clip_start_s: Where this span begins in the CLIP's own timeline.</span>
+<span class="sd">        clip_end_s: Where it ends, in the clip's timeline.</span>
+<span class="sd">        offset_s: Reference-time where this span's clip-time zero would fall — the same</span>
+<span class="sd">            convention as :attr:`ClipAlignment.offset_s`, so</span>
+<span class="sd">            ``reference_time = clip_time + offset_s`` holds inside the span.</span>
+<span class="sd">        confidence: Representative confidence for the span (the median over its windows,</span>
+<span class="sd">            not the max — a span is only as trustworthy as its typical window).</span>
+<span class="sd">    """</span>
+
+    <span class="n">clip_start_s</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">clip_end_s</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">offset_s</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">confidence</span><span class="p">:</span> <span class="nb">float</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">duration_s</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">clip_end_s</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">clip_start_s</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">reference_span</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"tuple[float, float]"</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""This span's extent on the REFERENCE timeline."""</span>
+        <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">clip_start_s</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">offset_s</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">clip_end_s</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">offset_s</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="aligned_spans">
+<a class="viewcode-back" href="../../../module_docs/mixing/audio/audio_ops.html#mixing.aligned_spans">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">aligned_spans</span><span class="p">(</span>
+    <span class="n">reference_audio</span><span class="p">:</span> <span class="n">AudioSource</span><span class="p">,</span>
+    <span class="n">clip_audio</span><span class="p">:</span> <span class="n">AudioSource</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">reference_duration</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">sample_rate</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">16000</span><span class="p">,</span>
+    <span class="n">window_s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">SPAN_WINDOW_S</span><span class="p">,</span>
+    <span class="n">hop_s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">SPAN_HOP_S</span><span class="p">,</span>
+    <span class="n">min_confidence</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">SPAN_MIN_CONFIDENCE</span><span class="p">,</span>
+    <span class="n">offset_tolerance_s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">SPAN_OFFSET_TOLERANCE_S</span><span class="p">,</span>
+    <span class="n">merge_gap_s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">SPAN_MERGE_GAP_S</span><span class="p">,</span>
+    <span class="n">feature</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"envelope"</span><span class="p">,</span>
+    <span class="n">min_overlap_ratio</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"list[AlignedSpan]"</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""The MAXIMAL spans of ``clip_audio`` that align to ``reference_audio``.</span>
+
+<span class="sd">    The windowed counterpart of :func:`find_audio_offset_detailed`. Where that answers</span>
+<span class="sd">    "where does this clip sit on the reference?" with one number, this answers "which</span>
+<span class="sd">    PARTS of it sit there, and at what offset each?" — which is the only answerable</span>
+<span class="sd">    question for a clip that was stopped and restarted, or that holds material the</span>
+<span class="sd">    reference does not contain.</span>
+
+<span class="sd">    A clip that is one continuous take **and that the correlation can verify</span>
+<span class="sd">    throughout** returns exactly one span — the compatibility property a caller</span>
+<span class="sd">    migrating from the single-offset model depends on. The qualification is load-bearing</span>
+<span class="sd">    in two ways, both measured:</span>
+
+<span class="sd">    - A stretch longer than ``merge_gap_s`` that nothing can verify (hard silence, a hand</span>
+<span class="sd">      over the mic) splits the take into two spans reporting the SAME offset. Two</span>
+<span class="sd">      same-offset neighbours are the *signal* that this happened, not a stop/restart.</span>
+<span class="sd">    - **A reference that repeats itself verbatim fragments a take**, because each window</span>
+<span class="sd">      picks its lag by an independent argmax and a repeated chorus makes two peaks</span>
+<span class="sd">      near-tied. Measured: a verse/chorus reference split one continuous take into 3</span>
+<span class="sd">      spans, and one of them reported a WRONG offset at 0.985 confidence. Music is the</span>
+<span class="sd">      material this is for, so treat a short span whose offset disagrees with its</span>
+<span class="sd">      neighbours as suspect. Giving the window chooser a continuity prior is the fix and</span>
+<span class="sd">      is not done here.</span>
+
+<span class="sd">    **Boundary resolution is ``window_s``, and no better.** A window is evidence that its</span>
+<span class="sd">    whole extent aligns; a boundary falling inside a window degrades that window rather</span>
+<span class="sd">    than locating itself within it. So a returned edge is accurate to roughly ±</span>
+<span class="sd">    ``window_s``, which is ample for telling two takes apart and NOT enough to cut on.</span>
+<span class="sd">    A caller who needs a tighter edge pays for it by shrinking ``window_s`` — the cost is</span>
+<span class="sd">    linear in the number of windows. Stated here because a span that looks like a precise</span>
+<span class="sd">    interval and is not is exactly the kind of number that gets used as one.</span>
+
+<span class="sd">    **Decoded once.** Both signals are loaded through :func:`_load_mono_samples` a single</span>
+<span class="sd">    time and the windows are slices of the resulting array. Re-decoding per window would</span>
+<span class="sd">    be N times the cost *and* would reintroduce issue #25: pydub's rate conversion has no</span>
+<span class="sd">    anti-alias filter, so a per-window decode path is a per-window chance to halve the</span>
+<span class="sd">    confidence.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        reference_audio: The signal to align within (e.g. the clean song).</span>
+<span class="sd">        clip_audio: The recording to dissect.</span>
+<span class="sd">        sample_rate: Analysis sample rate (mono).</span>
+<span class="sd">        window_s: Analysis window — see the resolution note above.</span>
+<span class="sd">        hop_s: Step between windows. Defaults to half a window, so every instant is</span>
+<span class="sd">            covered twice and a boundary cannot hide between windows.</span>
+<span class="sd">        min_confidence: A window must reach this for its span to exist at all.</span>
+<span class="sd">        offset_tolerance_s: How far a window's implied offset may drift from its span's</span>
+<span class="sd">            before it is treated as a different take.</span>
+<span class="sd">        merge_gap_s: How long an unverified gap between two spans that AGREE on the</span>
+<span class="sd">            offset may be and still be called one take. ``None`` (the default) uses one</span>
+<span class="sd">            window. See :data:`SPAN_MERGE_GAP_S`.</span>
+<span class="sd">        reference_duration: The reference timeline's length (seconds); computed from the</span>
+<span class="sd">            decoded reference when omitted. Spans are trimmed to it, so a returned</span>
+<span class="sd">            extent is always one the reference can honour. Same keyword, and the same</span>
+<span class="sd">            purpose, as :func:`align_clips_to_reference`.</span>
+<span class="sd">        feature: As :func:`find_audio_offset_detailed`. Defaults to ``'envelope'`` for</span>
+<span class="sd">            the same reason :func:`align_clips_to_reference` does — the cross-device case</span>
+<span class="sd">            is what this is for.</span>
+<span class="sd">        min_overlap_ratio: Passed through to the correlation.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Spans in clip order, non-overlapping, and each lying entirely within</span>
+<span class="sd">        ``[0, reference_duration]`` on the reference timeline. Empty when nothing in the</span>
+<span class="sd">        clip aligns — which is a real answer, not a failure.</span>
+
+<span class="sd">    &gt;&gt;&gt; import numpy as np                                  # doctest: +SKIP</span>
+<span class="sd">    &gt;&gt;&gt; spans = aligned_spans(song, phone_recording)        # doctest: +SKIP</span>
+<span class="sd">    &gt;&gt;&gt; [(round(s.clip_start_s), round(s.offset_s)) for s in spans]   # doctest: +SKIP</span>
+<span class="sd">    [(0, 12), (95, 240)]</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">feature</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ALIGNMENT_FEATURES</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"unknown feature </span><span class="si">{</span><span class="n">feature</span><span class="si">!r}</span><span class="s2">; expected one of </span><span class="si">{</span><span class="n">ALIGNMENT_FEATURES</span><span class="si">}</span><span class="s2">"</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="n">hop_s</span> <span class="o">&lt;=</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">window_s</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"window_s and hop_s must be positive, got </span><span class="si">{</span><span class="n">window_s</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">hop_s</span><span class="si">}</span><span class="s2">"</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="n">hop_s</span> <span class="o">&gt;</span> <span class="n">window_s</span><span class="p">:</span>
+        <span class="c1"># Not a style rule: with a hop wider than the window, the clip time BETWEEN</span>
+        <span class="c1"># consecutive windows is never looked at, yet a run spanning them reports one</span>
+        <span class="c1"># span across the whole range — asserting alignment over instants no</span>
+        <span class="c1"># correlation ever examined. `merge_gap_s` cannot bound it either, because the</span>
+        <span class="c1"># gap is inside a run rather than between two spans.</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"hop_s (</span><span class="si">{</span><span class="n">hop_s</span><span class="si">}</span><span class="s2">) must not exceed window_s (</span><span class="si">{</span><span class="n">window_s</span><span class="si">}</span><span class="s2">): a larger hop "</span>
+            <span class="s2">"leaves clip time unmeasured, and a span would then assert alignment over "</span>
+            <span class="s2">"instants no window ever looked at."</span>
+        <span class="p">)</span>
+    <span class="n">ref</span> <span class="o">=</span> <span class="n">_load_mono_samples</span><span class="p">(</span><span class="n">reference_audio</span><span class="p">,</span> <span class="n">sample_rate</span><span class="p">)</span>
+    <span class="n">clip</span> <span class="o">=</span> <span class="n">_load_mono_samples</span><span class="p">(</span><span class="n">clip_audio</span><span class="p">,</span> <span class="n">sample_rate</span><span class="p">)</span>
+    <span class="n">measured</span> <span class="o">=</span> <span class="n">_window_offsets</span><span class="p">(</span>
+        <span class="n">ref</span><span class="p">,</span>
+        <span class="n">clip</span><span class="p">,</span>
+        <span class="n">sample_rate</span><span class="p">,</span>
+        <span class="n">window_s</span><span class="o">=</span><span class="n">window_s</span><span class="p">,</span>
+        <span class="n">hop_s</span><span class="o">=</span><span class="n">hop_s</span><span class="p">,</span>
+        <span class="n">feature</span><span class="o">=</span><span class="n">feature</span><span class="p">,</span>
+        <span class="n">min_overlap_ratio</span><span class="o">=</span><span class="n">min_overlap_ratio</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">spans</span> <span class="o">=</span> <span class="n">_spans_from_windows</span><span class="p">(</span>
+        <span class="n">measured</span><span class="p">,</span>
+        <span class="n">min_confidence</span><span class="o">=</span><span class="n">min_confidence</span><span class="p">,</span>
+        <span class="n">offset_tolerance_s</span><span class="o">=</span><span class="n">offset_tolerance_s</span><span class="p">,</span>
+        <span class="n">merge_gap_s</span><span class="o">=</span><span class="n">window_s</span> <span class="k">if</span> <span class="n">merge_gap_s</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">merge_gap_s</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">ref_dur</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="nb">len</span><span class="p">(</span><span class="n">ref</span><span class="p">)</span> <span class="o">/</span> <span class="n">sample_rate</span> <span class="k">if</span> <span class="n">reference_duration</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">reference_duration</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">_clamp_to_reference</span><span class="p">(</span><span class="n">spans</span><span class="p">,</span> <span class="n">ref_dur</span><span class="p">)</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_window_offsets</span><span class="p">(</span>
+    <span class="n">ref</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">clip</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">sample_rate</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">window_s</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">hop_s</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">feature</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">min_overlap_ratio</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"list[tuple[float, float, float, float]]"</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""One ``(clip_start_s, clip_end_s, offset_s, confidence)`` per analysis window.</span>
+
+<span class="sd">    The offset conversion is the load-bearing line. The correlation reports where the</span>
+<span class="sd">    WINDOW begins on the reference; the window itself begins ``start_s`` into the clip;</span>
+<span class="sd">    so the offset the window implies for the clip as a whole is ``lag - start_s``.</span>
+<span class="sd">    Skipping that subtraction would make every window of a correctly-aligned clip report</span>
+<span class="sd">    a different offset, and no two of them would ever be grouped.</span>
+<span class="sd">    """</span>
+    <span class="n">n_win</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">window_s</span> <span class="o">*</span> <span class="n">sample_rate</span><span class="p">)))</span>
+    <span class="n">n_hop</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">hop_s</span> <span class="o">*</span> <span class="n">sample_rate</span><span class="p">)))</span>
+    <span class="n">starts</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">clip</span><span class="p">)</span> <span class="o">-</span> <span class="n">n_win</span> <span class="o">+</span> <span class="mi">1</span><span class="p">),</span> <span class="n">n_hop</span><span class="p">))</span>
+    <span class="c1"># Cover the tail: without this, up to `window_s` of a clip whose length is not a</span>
+    <span class="c1"># whole number of hops is never looked at, and a span ending there is truncated.</span>
+    <span class="k">if</span> <span class="n">starts</span> <span class="ow">and</span> <span class="n">starts</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">n_win</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">clip</span><span class="p">):</span>
+        <span class="n">starts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">clip</span><span class="p">)</span> <span class="o">-</span> <span class="n">n_win</span><span class="p">))</span>
+
+    <span class="c1"># Computed once for the whole call rather than per window — 2.11x measured, and</span>
+    <span class="c1"># the reference does not change between windows.</span>
+    <span class="n">ref_env</span> <span class="o">=</span> <span class="n">onset_envelope</span><span class="p">(</span><span class="n">ref</span><span class="p">,</span> <span class="n">sample_rate</span><span class="p">)</span> <span class="k">if</span> <span class="n">feature</span> <span class="o">==</span> <span class="s2">"envelope"</span> <span class="k">else</span> <span class="kc">None</span>
+
+    <span class="n">out</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">s0</span> <span class="ow">in</span> <span class="n">starts</span><span class="p">:</span>
+        <span class="n">win</span> <span class="o">=</span> <span class="n">clip</span><span class="p">[</span><span class="n">s0</span> <span class="p">:</span> <span class="n">s0</span> <span class="o">+</span> <span class="n">n_win</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">win</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="k">if</span> <span class="n">feature</span> <span class="o">==</span> <span class="s2">"envelope"</span><span class="p">:</span>
+            <span class="n">lag</span><span class="p">,</span> <span class="n">coeff</span> <span class="o">=</span> <span class="n">_envelope_then_waveform</span><span class="p">(</span>
+                <span class="n">ref</span><span class="p">,</span>
+                <span class="n">win</span><span class="p">,</span>
+                <span class="n">sample_rate</span><span class="p">,</span>
+                <span class="n">min_overlap_ratio</span><span class="o">=</span><span class="n">min_overlap_ratio</span><span class="p">,</span>
+                <span class="n">ref_envelope</span><span class="o">=</span><span class="n">ref_env</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">lag</span><span class="p">,</span> <span class="n">coeff</span> <span class="o">=</span> <span class="n">_normalized_xcorr</span><span class="p">(</span>
+                <span class="n">ref</span><span class="p">,</span> <span class="n">win</span><span class="p">,</span> <span class="n">min_overlap_ratio</span><span class="o">=</span><span class="n">min_overlap_ratio</span>
+            <span class="p">)</span>
+        <span class="n">start_s</span> <span class="o">=</span> <span class="n">s0</span> <span class="o">/</span> <span class="n">sample_rate</span>
+        <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="p">(</span>
+                <span class="n">start_s</span><span class="p">,</span>
+                <span class="p">(</span><span class="n">s0</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">win</span><span class="p">))</span> <span class="o">/</span> <span class="n">sample_rate</span><span class="p">,</span>
+                <span class="n">lag</span> <span class="o">/</span> <span class="n">sample_rate</span> <span class="o">-</span> <span class="n">start_s</span><span class="p">,</span>
+                <span class="n">coeff</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">out</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_spans_from_windows</span><span class="p">(</span>
+    <span class="n">measured</span><span class="p">:</span> <span class="s2">"list[tuple[float, float, float, float]]"</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">min_confidence</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">offset_tolerance_s</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">merge_gap_s</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"list[AlignedSpan]"</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Group per-window measurements into maximal runs of one stable offset.</span>
+
+<span class="sd">    A run continues while a window is confident enough AND agrees with the run's offset</span>
+<span class="sd">    so far, taken as the median of its members — the representative value, and the same</span>
+<span class="sd">    statistic the span reports.</span>
+
+<span class="sd">    An earlier draft also carried a *hysteresis* threshold, on the theory that a window</span>
+<span class="sd">    dipping just below the opening bar would split a good span. Mutation testing showed</span>
+<span class="sd">    that guard could not fail, and measuring why is what produced the merge pass below:</span>
+<span class="sd">    a window degraded by silence does not dip, it collapses to zero — far under any keep</span>
+<span class="sd">    threshold — so hysteresis was never what decided. Merging same-offset neighbours is.</span>
+<span class="sd">    """</span>
+    <span class="n">runs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">current</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">w</span> <span class="ow">in</span> <span class="n">measured</span><span class="p">:</span>
+        <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">offset</span><span class="p">,</span> <span class="n">coeff</span> <span class="o">=</span> <span class="n">w</span>
+        <span class="k">if</span> <span class="n">current</span><span class="p">:</span>
+            <span class="n">ref_offset</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">([</span><span class="n">m</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">current</span><span class="p">]))</span>
+            <span class="k">if</span> <span class="p">(</span>
+                <span class="n">coeff</span> <span class="o">&gt;=</span> <span class="n">min_confidence</span>
+                <span class="ow">and</span> <span class="nb">abs</span><span class="p">(</span><span class="n">offset</span> <span class="o">-</span> <span class="n">ref_offset</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">offset_tolerance_s</span>
+            <span class="p">):</span>
+                <span class="n">current</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">w</span><span class="p">)</span>
+                <span class="k">continue</span>
+            <span class="n">runs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">current</span><span class="p">)</span>
+            <span class="n">current</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="n">coeff</span> <span class="o">&gt;=</span> <span class="n">min_confidence</span><span class="p">:</span>
+            <span class="n">current</span> <span class="o">=</span> <span class="p">[</span><span class="n">w</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">current</span><span class="p">:</span>
+        <span class="n">runs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">current</span><span class="p">)</span>
+
+    <span class="n">spans</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">AlignedSpan</span><span class="p">(</span>
+            <span class="n">clip_start_s</span><span class="o">=</span><span class="n">run</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span>
+            <span class="n">clip_end_s</span><span class="o">=</span><span class="n">run</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span>
+            <span class="n">offset_s</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">([</span><span class="n">m</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">run</span><span class="p">])),</span>
+            <span class="n">confidence</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">([</span><span class="n">m</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">run</span><span class="p">])),</span>
+        <span class="p">)</span>
+        <span class="k">for</span> <span class="n">run</span> <span class="ow">in</span> <span class="n">runs</span>
+    <span class="p">]</span>
+    <span class="k">return</span> <span class="n">_merge_same_offset</span><span class="p">(</span>
+        <span class="n">_disjoin</span><span class="p">(</span><span class="n">spans</span><span class="p">),</span> <span class="n">offset_tolerance_s</span><span class="o">=</span><span class="n">offset_tolerance_s</span><span class="p">,</span> <span class="n">merge_gap_s</span><span class="o">=</span><span class="n">merge_gap_s</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_clamp_to_reference</span><span class="p">(</span>
+    <span class="n">spans</span><span class="p">:</span> <span class="s2">"list[AlignedSpan]"</span><span class="p">,</span> <span class="n">reference_duration</span><span class="p">:</span> <span class="nb">float</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"list[AlignedSpan]"</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Trim every span to the clip time that actually lands ON the reference.</span>
+
+<span class="sd">    A window is admitted while it overlaps the reference by ``min_overlap_ratio`` of</span>
+<span class="sd">    itself, so a span can run past a reference edge by up to</span>
+<span class="sd">    ``(1 - min_overlap_ratio) * window_s`` — and the reported extent then describes</span>
+<span class="sd">    reference time that does not exist. Measured on a 30 s reference:</span>
+<span class="sd">    ``reference_span == (-10.0, 40.0)``, a 50 s span of a 30 s reference. That is not</span>
+<span class="sd">    imprecise, it is impossible, and no ``window_s`` tolerance makes it fit.</span>
+
+<span class="sd">    The failure it produces downstream is silent and points the wrong way. A caller</span>
+<span class="sd">    slicing ``ref[int(-10.0 * sr):int(40.0 * sr)]`` gets numpy's negative-index</span>
+<span class="sd">    resolution: the start wraps to reference time 20 s and the end clamps to 30 s, so</span>
+<span class="sd">    the caller receives the reference's **tail** for a span whose true content is the</span>
+<span class="sd">    reference's **entire** length. At the head edge the same slice returns zero samples.</span>
+<span class="sd">    Neither raises.</span>
+
+<span class="sd">    **Both timelines are trimmed, not just the projection.** ``AlignedSpan`` documents</span>
+<span class="sd">    ``reference_time = clip_time + offset_s`` as holding inside the span; clamping</span>
+<span class="sd">    ``reference_span`` alone would leave the clip edges wide and make the two views</span>
+<span class="sd">    disagree. Because the offset is constant within a span the edges move together, so</span>
+<span class="sd">    trimming is exact — it recovers ground truth on both axes.</span>
+
+<span class="sd">    A span left with nothing is dropped: it aligned to no part of the reference, so it</span>
+<span class="sd">    is not an aligned span. (Unlike ``ClipAlignment``, where a non-overlapping CLIP is</span>
+<span class="sd">    kept with ``overlaps=False`` because a *source* must never leave the addressable set</span>
+<span class="sd">    as a side effect of being measured — a span is a measurement, not a source.)</span>
+
+<span class="sd">    **Why the clamp alone, and not also a per-window coverage penalty.** The tempting</span>
+<span class="sd">    root-cause fix is to scale each window's confidence by the fraction of it that lies</span>
+<span class="sd">    over the reference — because the correlation normalizes by the energy of its</span>
+<span class="sd">    OVERLAP, so a half-hanging window scores like a whole match (measured: 0.9846</span>
+<span class="sd">    against 0.9845 for the clean interior windows, i.e. marginally HIGHER). That</span>
+<span class="sd">    reasoning is sound at the window level and it was implemented; it was then removed,</span>
+<span class="sd">    because it changed no observable outcome. A span's confidence is the MEDIAN over its</span>
+<span class="sd">    windows, which absorbs the single edge window — measured, an edge-overrun span</span>
+<span class="sd">    reported 0.9847 against an interior span's 0.9845 with the penalty applied. The</span>
+<span class="sd">    extent is fixed here, exactly; a contaminated window is kept out of a run by the</span>
+<span class="sd">    offset-agreement rule; and a penalty that cannot change an output is decoration.</span>
+<span class="sd">    """</span>
+    <span class="n">out</span><span class="p">:</span> <span class="s2">"list[AlignedSpan]"</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">span</span> <span class="ow">in</span> <span class="n">spans</span><span class="p">:</span>
+        <span class="n">lo</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">span</span><span class="o">.</span><span class="n">clip_start_s</span><span class="p">,</span> <span class="o">-</span><span class="n">span</span><span class="o">.</span><span class="n">offset_s</span><span class="p">)</span>
+        <span class="n">hi</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">span</span><span class="o">.</span><span class="n">clip_end_s</span><span class="p">,</span> <span class="n">reference_duration</span> <span class="o">-</span> <span class="n">span</span><span class="o">.</span><span class="n">offset_s</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">hi</span> <span class="o">-</span> <span class="n">lo</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">replace</span><span class="p">(</span><span class="n">span</span><span class="p">,</span> <span class="n">clip_start_s</span><span class="o">=</span><span class="n">lo</span><span class="p">,</span> <span class="n">clip_end_s</span><span class="o">=</span><span class="n">hi</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">out</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_merge_same_offset</span><span class="p">(</span>
+    <span class="n">spans</span><span class="p">:</span> <span class="s2">"list[AlignedSpan]"</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">offset_tolerance_s</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">merge_gap_s</span><span class="p">:</span> <span class="nb">float</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"list[AlignedSpan]"</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Rejoin neighbours that agree on the offset across a short unverified gap.</span>
+
+<span class="sd">    Two spans carrying the same offset are one take with an unusable patch, not two</span>
+<span class="sd">    takes: a stop and a restart cannot resume in sync, because whatever the reference</span>
+<span class="sd">    kept doing while the camera was stopped changes the offset. So a same-offset pair is</span>
+<span class="sd">    positive evidence of continuity, and reporting it as two spans invents a discontinuity.</span>
+
+<span class="sd">    Measured on a continuous 50 s take with 12 s of hard silence at its middle: the</span>
+<span class="sd">    windows inside the silence score exactly 0.0, the run breaks, and the result is two</span>
+<span class="sd">    spans BOTH reporting offset 10.00 — a stop/restart that never happened.</span>
+
+<span class="sd">    ``merge_gap_s`` is what keeps this honest. The gap is clip time nothing verified, and</span>
+<span class="sd">    correlation cannot tell "quiet" from "different material"; past one window the two</span>
+<span class="sd">    spans stay separate rather than the merge claiming a range it never measured.</span>
+<span class="sd">    """</span>
+    <span class="n">out</span><span class="p">:</span> <span class="s2">"list[AlignedSpan]"</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">span</span> <span class="ow">in</span> <span class="n">spans</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">out</span><span class="p">:</span>
+            <span class="n">prev</span> <span class="o">=</span> <span class="n">out</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">gap</span> <span class="o">=</span> <span class="n">span</span><span class="o">.</span><span class="n">clip_start_s</span> <span class="o">-</span> <span class="n">prev</span><span class="o">.</span><span class="n">clip_end_s</span>
+            <span class="k">if</span> <span class="p">(</span>
+                <span class="nb">abs</span><span class="p">(</span><span class="n">span</span><span class="o">.</span><span class="n">offset_s</span> <span class="o">-</span> <span class="n">prev</span><span class="o">.</span><span class="n">offset_s</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">offset_tolerance_s</span>
+                <span class="ow">and</span> <span class="n">gap</span> <span class="o">&lt;=</span> <span class="n">merge_gap_s</span>
+            <span class="p">):</span>
+                <span class="n">out</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">AlignedSpan</span><span class="p">(</span>
+                    <span class="n">clip_start_s</span><span class="o">=</span><span class="n">prev</span><span class="o">.</span><span class="n">clip_start_s</span><span class="p">,</span>
+                    <span class="n">clip_end_s</span><span class="o">=</span><span class="n">span</span><span class="o">.</span><span class="n">clip_end_s</span><span class="p">,</span>
+                    <span class="c1"># Duration-weighted, so a long span is not dragged by a short one.</span>
+                    <span class="n">offset_s</span><span class="o">=</span><span class="p">(</span>
+                        <span class="n">prev</span><span class="o">.</span><span class="n">offset_s</span> <span class="o">*</span> <span class="n">prev</span><span class="o">.</span><span class="n">duration_s</span>
+                        <span class="o">+</span> <span class="n">span</span><span class="o">.</span><span class="n">offset_s</span> <span class="o">*</span> <span class="n">span</span><span class="o">.</span><span class="n">duration_s</span>
+                    <span class="p">)</span>
+                    <span class="o">/</span> <span class="nb">max</span><span class="p">(</span><span class="n">prev</span><span class="o">.</span><span class="n">duration_s</span> <span class="o">+</span> <span class="n">span</span><span class="o">.</span><span class="n">duration_s</span><span class="p">,</span> <span class="mf">1e-9</span><span class="p">),</span>
+                    <span class="n">confidence</span><span class="o">=</span><span class="nb">min</span><span class="p">(</span><span class="n">prev</span><span class="o">.</span><span class="n">confidence</span><span class="p">,</span> <span class="n">span</span><span class="o">.</span><span class="n">confidence</span><span class="p">),</span>
+                <span class="p">)</span>
+                <span class="k">continue</span>
+        <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">span</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">out</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_disjoin</span><span class="p">(</span><span class="n">spans</span><span class="p">:</span> <span class="s2">"list[AlignedSpan]"</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"list[AlignedSpan]"</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Trim overlaps so the result partitions the aligned clip time.</span>
+
+<span class="sd">    Windows overlap by ``window_s - hop_s``, so the window straddling a boundary belongs</span>
+<span class="sd">    to both takes and gets assigned to whichever it correlated better with. Left alone</span>
+<span class="sd">    that makes consecutive spans overlap — measured at 10 s on a 20 s/10 s grid — and a</span>
+<span class="sd">    clip instant claimed by two different offsets is not a fact about anything.</span>
+
+<span class="sd">    **The earlier span's END wins**, rather than splitting the difference. Its last</span>
+<span class="sd">    window is a positive measurement: it correlated at that offset over its whole extent</span>
+<span class="sd">    without straddling. The later span's first window is the contaminated one — it can</span>
+<span class="sd">    score well while containing seconds of the previous take, because half a matching</span>
+<span class="sd">    window is enough. Measured on a clip with a true boundary at 50 s: first-wins</span>
+<span class="sd">    reproduces it exactly, while a midpoint split puts both edges 5 s out.</span>
+<span class="sd">    """</span>
+    <span class="n">out</span><span class="p">:</span> <span class="s2">"list[AlignedSpan]"</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">span</span> <span class="ow">in</span> <span class="n">spans</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">out</span> <span class="ow">and</span> <span class="n">span</span><span class="o">.</span><span class="n">clip_start_s</span> <span class="o">&lt;</span> <span class="n">out</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">clip_end_s</span><span class="p">:</span>
+            <span class="n">start</span> <span class="o">=</span> <span class="n">out</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">clip_end_s</span>
+            <span class="k">if</span> <span class="n">span</span><span class="o">.</span><span class="n">clip_end_s</span> <span class="o">-</span> <span class="n">start</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">continue</span>  <span class="c1"># wholly swallowed by its predecessor</span>
+            <span class="n">span</span> <span class="o">=</span> <span class="n">replace</span><span class="p">(</span><span class="n">span</span><span class="p">,</span> <span class="n">clip_start_s</span><span class="o">=</span><span class="n">start</span><span class="p">)</span>
+        <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">span</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">out</span>
 </pre></div>
 
            </div>

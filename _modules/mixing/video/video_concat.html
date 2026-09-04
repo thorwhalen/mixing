@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>mixing.video.video_concat &mdash; mixing 0.0.38 documentation</title>
+  <title>mixing.video.video_concat &mdash; mixing 0.0.40 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
@@ -14,7 +14,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=423071ad"></script>
+      <script src="../../../_static/documentation_options.js?v=84bd753f"></script>
       <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="../../../_static/toggleprompt.js?v=d7ede5d2"></script>
@@ -127,7 +127,14 @@
 <span class="sd">    - crossfade_transition: Simple blend between clips</span>
 <span class="sd">    - trim_and_crossfade: Remove duplicate frames then blend</span>
 <span class="sd">    - fade_through_black: Fade out/in through black</span>
-<span class="sd">    - overlap_blend: Overlap and blend clips aggressively</span>
+<span class="sd">    - overlap_blend: Dissolve the incoming clip in over a still-opaque outgoing one</span>
+
+<span class="sd">The first three of those live in the **join**, not in either clip: they declare</span>
+<span class="sd">the overlap they need with :func:`needs_crossfade_overlap`, which is what tells</span>
+<span class="sd">:func:`concatenate_videos` to composite rather than butt, and they fade picture</span>
+<span class="sd">*and* sound (an overlapped join sums the overlapping audio otherwise). The</span>
+<span class="sd">overlap is bounded by what the clips can carry — :func:`max_overlap_for_clips` —</span>
+<span class="sd">because past that ceiling clips paint over one another and some never appear.</span>
 
 <span class="sd">Frame Verification:</span>
 <span class="sd">    &gt;&gt;&gt; match, diff = verify_frame_continuity('v1.mp4', 'v2.mp4',</span>
@@ -138,13 +145,318 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Callable</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">io</span><span class="w"> </span><span class="kn">import</span> <span class="n">BytesIO</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">functools</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">inspect</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">moviepy</span><span class="w"> </span><span class="kn">import</span> <span class="n">VideoFileClip</span><span class="p">,</span> <span class="n">concatenate_videoclips</span><span class="p">,</span> <span class="n">vfx</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">moviepy</span><span class="w"> </span><span class="kn">import</span> <span class="n">VideoFileClip</span><span class="p">,</span> <span class="n">concatenate_videoclips</span><span class="p">,</span> <span class="n">afx</span><span class="p">,</span> <span class="n">vfx</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">._helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">_is_video_file</span>
 
 <span class="n">VideoSource</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">,</span> <span class="n">VideoFileClip</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">,</span> <span class="n">BytesIO</span><span class="p">]</span>
+
+<span class="c1">#: Attribute a ``transform_clips`` callable carries to declare that its output</span>
+<span class="c1">#: only means anything when the clips are **composited with an overlap**. Its</span>
+<span class="c1">#: value is the *name of the parameter* that carries that overlap in seconds,</span>
+<span class="c1">#: not the number — so a caller who changes the duration changes the join too.</span>
+<span class="c1">#: Set it with :func:`needs_crossfade_overlap`; read it with</span>
+<span class="c1">#: :func:`crossfade_overlap`.</span>
+<span class="n">_OVERLAP_PARAM_ATTR</span> <span class="o">=</span> <span class="s2">"crossfade_overlap_param"</span>
+
+<span class="c1">#: Relative slack on the :func:`max_overlap_for_clips` ceiling, so a clip whose</span>
+<span class="c1">#: decoded duration reads 0.99999 s instead of 1 s is not clamped (and warned</span>
+<span class="c1">#: about) for a shortfall no viewer can see.</span>
+<span class="n">_OVERLAP_TOLERANCE</span> <span class="o">=</span> <span class="mf">1e-3</span>
+
+
+<div class="viewcode-block" id="needs_crossfade_overlap">
+<a class="viewcode-back" href="../../../module_docs/mixing/video/video_concat.html#mixing.needs_crossfade_overlap">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">needs_crossfade_overlap</span><span class="p">(</span><span class="n">param</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Declare that a ``transform_clips`` callable needs overlapped compositing.</span>
+
+<span class="sd">    A crossfade is a property of the **join**, not of either clip: moviepy's</span>
+<span class="sd">    ``CrossFadeIn``/``CrossFadeOut`` only set a mask, and a mask does nothing</span>
+<span class="sd">    unless the clips are composited *and* overlap in time. A transform that</span>
+<span class="sd">    relies on that has to say so, or :func:`concatenate_videos` cannot know —</span>
+<span class="sd">    and moviepy 2.x's defaults (``method="chain"``, ``padding=0``) satisfy</span>
+<span class="sd">    neither condition, so the transition silently renders a hard cut.</span>
+
+<span class="sd">    Declaring the *parameter name* rather than a number is what keeps the two</span>
+<span class="sd">    in step: a caller who asks for a longer fade gets a longer overlap, with no</span>
+<span class="sd">    second place to remember.</span>
+
+<span class="sd">    The declaration is checked **here**, at decoration time, so a typo or a</span>
+<span class="sd">    ``**kwargs`` signature fails at import instead of silently restoring the</span>
+<span class="sd">    hard cut at render time (there is nothing to read, so</span>
+<span class="sd">    :func:`crossfade_overlap` would return ``None`` and the join would go back</span>
+<span class="sd">    to back with nothing said).</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        param: the name of the decorated function's parameter holding the</span>
+<span class="sd">            required overlap, in seconds.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        TypeError: if the decorated callable has no such parameter, or names</span>
+<span class="sd">            its ``*args`` / ``**kwargs`` catch-all.</span>
+
+<span class="sd">    Examples:</span>
+<span class="sd">        &gt;&gt;&gt; @needs_crossfade_overlap('duration')</span>
+<span class="sd">        ... def my_transition(clips, *, duration=0.5):</span>
+<span class="sd">        ...     "Yields clips that must overlap by ``duration`` seconds."</span>
+<span class="sd">        ...     return clips</span>
+<span class="sd">        &gt;&gt;&gt; crossfade_overlap(my_transition)</span>
+<span class="sd">        0.5</span>
+
+<span class="sd">        A declaration that cannot be read is refused where it is written:</span>
+
+<span class="sd">        &gt;&gt;&gt; @needs_crossfade_overlap('dur')          # the parameter is 'duration'</span>
+<span class="sd">        ... def typo(clips, *, duration=0.5):</span>
+<span class="sd">        ...     return clips</span>
+<span class="sd">        Traceback (most recent call last):</span>
+<span class="sd">          ...</span>
+<span class="sd">        TypeError: @needs_crossfade_overlap('dur') on 'typo': no such parameter...</span>
+<span class="sd">        &gt;&gt;&gt; @needs_crossfade_overlap('duration')     # nothing to read it from</span>
+<span class="sd">        ... def catch_all(clips, **kwargs):</span>
+<span class="sd">        ...     return clips</span>
+<span class="sd">        Traceback (most recent call last):</span>
+<span class="sd">          ...</span>
+<span class="sd">        TypeError: ...on 'catch_all': no such parameter. ...choices: ['clips'].</span>
+<span class="sd">    """</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">declare</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
+        <span class="n">_check_overlap_declaration</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">param</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">_OVERLAP_PARAM_ATTR</span><span class="p">,</span> <span class="n">param</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">func</span>
+
+    <span class="k">return</span> <span class="n">declare</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_check_overlap_declaration</span><span class="p">(</span><span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">param</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Raise if ``func`` has no readable parameter called ``param``."""</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">signature</span><span class="p">(</span><span class="n">func</span><span class="p">)</span><span class="o">.</span><span class="n">parameters</span>
+    <span class="k">except</span> <span class="p">(</span><span class="ne">TypeError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">):</span>  <span class="c1"># pragma: no cover - un-introspectable callable</span>
+        <span class="k">return</span>  <span class="c1"># nothing to check against; the read side warns if it can't resolve</span>
+
+    <span class="n">spec</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">param</span><span class="p">)</span>
+    <span class="n">catch_alls</span> <span class="o">=</span> <span class="p">(</span><span class="n">inspect</span><span class="o">.</span><span class="n">Parameter</span><span class="o">.</span><span class="n">VAR_KEYWORD</span><span class="p">,</span> <span class="n">inspect</span><span class="o">.</span><span class="n">Parameter</span><span class="o">.</span><span class="n">VAR_POSITIONAL</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">spec</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">spec</span><span class="o">.</span><span class="n">kind</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">catch_alls</span><span class="p">:</span>
+        <span class="k">return</span>
+
+    <span class="n">nameable</span> <span class="o">=</span> <span class="p">[</span><span class="n">n</span> <span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">params</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">kind</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">catch_alls</span><span class="p">]</span>
+    <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">"@needs_crossfade_overlap(</span><span class="si">{</span><span class="n">param</span><span class="si">!r}</span><span class="s2">) on "</span>
+        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="nb">getattr</span><span class="p">(</span><span class="n">func</span><span class="p">,</span><span class="w"> </span><span class="s1">'__name__'</span><span class="p">,</span><span class="w"> </span><span class="n">func</span><span class="p">)</span><span class="si">!r}</span><span class="s2">: no such parameter. Name the "</span>
+        <span class="sa">f</span><span class="s2">"parameter holding the overlap in seconds; choices: </span><span class="si">{</span><span class="n">nameable</span><span class="si">}</span><span class="s2">."</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_partial_bindings</span><span class="p">(</span><span class="n">transform</span><span class="p">:</span> <span class="n">Callable</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">dict</span><span class="p">,</span> <span class="n">Callable</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""``({parameter name: bound value}, innermost func)`` for a partial chain.</span>
+
+<span class="sd">    Both halves of a ``partial`` are read. Keywords are collected outermost</span>
+<span class="sd">    first, because the outermost bind is what calling the chain applies.</span>
+<span class="sd">    Positional arguments accumulate innermost first — ``partial(partial(f, a),</span>
+<span class="sd">    b)`` calls ``f(a, b)`` — and are then resolved to parameter *names* against</span>
+<span class="sd">    the innermost signature, so a positionally bound overlap is seen too.</span>
+<span class="sd">    """</span>
+    <span class="n">layers</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">func</span> <span class="o">=</span> <span class="n">transform</span>
+    <span class="k">while</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">functools</span><span class="o">.</span><span class="n">partial</span><span class="p">):</span>
+        <span class="n">layers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
+        <span class="n">func</span> <span class="o">=</span> <span class="n">func</span><span class="o">.</span><span class="n">func</span>
+
+    <span class="n">bound</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">layer</span> <span class="ow">in</span> <span class="n">layers</span><span class="p">:</span>  <span class="c1"># outermost first: the outermost bind wins</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">layer</span><span class="o">.</span><span class="n">keywords</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">bound</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+
+    <span class="n">positional</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">layer</span> <span class="ow">in</span> <span class="nb">reversed</span><span class="p">(</span><span class="n">layers</span><span class="p">):</span>  <span class="c1"># innermost first: that is the call order</span>
+        <span class="n">positional</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">layer</span><span class="o">.</span><span class="n">args</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">positional</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">partial_bind</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">signature</span><span class="p">(</span><span class="n">func</span><span class="p">)</span><span class="o">.</span><span class="n">bind_partial</span><span class="p">(</span><span class="o">*</span><span class="n">positional</span><span class="p">)</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">TypeError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">):</span>
+            <span class="k">pass</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">partial_bind</span><span class="o">.</span><span class="n">arguments</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">bound</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>  <span class="c1"># an explicit keyword still wins</span>
+
+    <span class="k">return</span> <span class="n">bound</span><span class="p">,</span> <span class="n">func</span>
+
+
+<div class="viewcode-block" id="crossfade_overlap">
+<a class="viewcode-back" href="../../../module_docs/mixing/video/video_concat.html#mixing.crossfade_overlap">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">crossfade_overlap</span><span class="p">(</span><span class="n">transform</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""The overlap in seconds a ``transform_clips`` callable needs, or ``None``.</span>
+
+<span class="sd">    ``None`` means "join these clips back to back" — either the transform did</span>
+<span class="sd">    not declare an overlap, or it declared one that resolved to a non-positive</span>
+<span class="sd">    number. Anything a caller wrapped in :func:`functools.partial` is seen</span>
+<span class="sd">    through — keyword **and** positional binds — so the overlap tracks the</span>
+<span class="sd">    duration the caller actually chose.</span>
+
+<span class="sd">    A declaration that *is* present but cannot be resolved to a number</span>
+<span class="sd">    **warns**, because the alternative is the silent hard cut this whole</span>
+<span class="sd">    mechanism exists to prevent. One case stays structurally invisible: a</span>
+<span class="sd">    wrapper built without :func:`functools.wraps` copies neither ``__dict__``</span>
+<span class="sd">    nor the declaration, so nothing is left here to warn about — wrap a</span>
+<span class="sd">    transition with ``functools.wraps``.</span>
+
+<span class="sd">    Examples:</span>
+<span class="sd">        &gt;&gt;&gt; crossfade_overlap(crossfade_transition)</span>
+<span class="sd">        0.5</span>
+<span class="sd">        &gt;&gt;&gt; crossfade_overlap(trim_and_crossfade)</span>
+<span class="sd">        0.4</span>
+<span class="sd">        &gt;&gt;&gt; crossfade_overlap(overlap_blend)</span>
+<span class="sd">        0.5</span>
+<span class="sd">        &gt;&gt;&gt; import functools</span>
+<span class="sd">        &gt;&gt;&gt; crossfade_overlap(functools.partial(crossfade_transition, duration=0.8))</span>
+<span class="sd">        0.8</span>
+
+<span class="sd">        A positional bind counts as much as a keyword one:</span>
+
+<span class="sd">        &gt;&gt;&gt; @needs_crossfade_overlap('fade')</span>
+<span class="sd">        ... def positional_fade(clips=None, fade=0.5):</span>
+<span class="sd">        ...     return clips</span>
+<span class="sd">        &gt;&gt;&gt; crossfade_overlap(functools.partial(positional_fade, None, 0.9))</span>
+<span class="sd">        0.9</span>
+
+<span class="sd">        Transforms that bake their effect into their own frames need no</span>
+<span class="sd">        overlap, and neither does an undecorated callable:</span>
+
+<span class="sd">        &gt;&gt;&gt; crossfade_overlap(fade_through_black) is None</span>
+<span class="sd">        True</span>
+<span class="sd">        &gt;&gt;&gt; crossfade_overlap(lambda clips: clips) is None</span>
+<span class="sd">        True</span>
+<span class="sd">        &gt;&gt;&gt; crossfade_overlap(None) is None</span>
+<span class="sd">        True</span>
+
+<span class="sd">        A declaration nothing can supply a value for says so out loud:</span>
+
+<span class="sd">        &gt;&gt;&gt; @needs_crossfade_overlap('fade')</span>
+<span class="sd">        ... def no_default(clips, *, fade):</span>
+<span class="sd">        ...     return clips</span>
+<span class="sd">        &gt;&gt;&gt; import warnings</span>
+<span class="sd">        &gt;&gt;&gt; with warnings.catch_warnings(record=True) as caught:</span>
+<span class="sd">        ...     warnings.simplefilter('always')</span>
+<span class="sd">        ...     print(crossfade_overlap(no_default))</span>
+<span class="sd">        ...     print(caught[0].message)</span>
+<span class="sd">        None</span>
+<span class="sd">        'no_default' declares 'fade' as its crossfade overlap but no value...</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">transform</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="n">bound</span><span class="p">,</span> <span class="n">func</span> <span class="o">=</span> <span class="n">_partial_bindings</span><span class="p">(</span><span class="n">transform</span><span class="p">)</span>
+
+    <span class="n">param</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">_OVERLAP_PARAM_ATTR</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">param</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="n">name</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="s2">"__name__"</span><span class="p">,</span> <span class="n">func</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">bound</span><span class="p">:</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="n">bound</span><span class="p">[</span><span class="n">param</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">signature</span><span class="p">(</span><span class="n">func</span><span class="p">)</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="n">param</span><span class="p">]</span><span class="o">.</span><span class="n">default</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">TypeError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">,</span> <span class="ne">KeyError</span><span class="p">):</span>  <span class="c1"># pragma: no cover - defensive</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">Parameter</span><span class="o">.</span><span class="n">empty</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="n">inspect</span><span class="o">.</span><span class="n">Parameter</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">name</span><span class="si">!r}</span><span class="s2"> declares </span><span class="si">{</span><span class="n">param</span><span class="si">!r}</span><span class="s2"> as its crossfade overlap but no "</span>
+                <span class="sa">f</span><span class="s2">"value reached it and the parameter has no default; joining the "</span>
+                <span class="sa">f</span><span class="s2">"clips back to back, which renders a hard cut. Bind it, e.g. "</span>
+                <span class="sa">f</span><span class="s2">"functools.partial(</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">param</span><span class="si">}</span><span class="s2">=0.5)."</span><span class="p">,</span>
+                <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">seconds</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+    <span class="k">except</span> <span class="p">(</span><span class="ne">TypeError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">):</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">name</span><span class="si">!r}</span><span class="s2"> declares </span><span class="si">{</span><span class="n">param</span><span class="si">!r}</span><span class="s2"> as its crossfade overlap but its value "</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">value</span><span class="si">!r}</span><span class="s2"> is not a number of seconds; joining the clips back to "</span>
+            <span class="sa">f</span><span class="s2">"back, which renders a hard cut."</span><span class="p">,</span>
+            <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="k">return</span> <span class="n">seconds</span> <span class="k">if</span> <span class="n">seconds</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="kc">None</span></div>
+
+
+
+<div class="viewcode-block" id="max_overlap_for_clips">
+<a class="viewcode-back" href="../../../module_docs/mixing/video/video_concat.html#mixing.max_overlap_for_clips">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">max_overlap_for_clips</span><span class="p">(</span><span class="n">clips</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""The largest overlap ``clips`` can be joined with, or ``None`` if unknowable.</span>
+
+<span class="sd">    A crossfade eats ``overlap`` seconds off *each end it touches*: the first</span>
+<span class="sd">    and last clip are touched once, every clip between them twice. So each clip</span>
+<span class="sd">    affords ``duration / (number of joins it takes part in)`` and the join can</span>
+<span class="sd">    only be as long as the tightest of those budgets. Past it two things go</span>
+<span class="sd">    wrong at once, both of them silent:</span>
+
+<span class="sd">    - a middle clip carries both a ``CrossFadeIn`` and a ``CrossFadeOut``</span>
+<span class="sd">      (audio ramps too) whose ramps *multiply*, so its peak opacity falls to</span>
+<span class="sd">      ``(duration / (2 * overlap)) ** 2`` and it never reaches full strength;</span>
+<span class="sd">    - moviepy lays the clips out at ``cumsum(durations) + padding * arange``,</span>
+<span class="sd">      so clip *i* and clip *i+2* start at the same instant — or in the wrong</span>
+<span class="sd">      order, once the ``maximum(0, …)`` clamp bites — and the later one paints</span>
+<span class="sd">      over the middle one. The render succeeds; the footage is simply gone.</span>
+
+<span class="sd">    ``None`` when there is no join to bound (fewer than two clips) or when any</span>
+<span class="sd">    clip's duration is unknown — a ceiling derived from a partial view would be</span>
+<span class="sd">    wrong in the dangerous direction.</span>
+
+<span class="sd">    Examples:</span>
+<span class="sd">        &gt;&gt;&gt; class _Clip:</span>
+<span class="sd">        ...     def __init__(self, duration):</span>
+<span class="sd">        ...         self.duration = duration</span>
+
+<span class="sd">        Two clips are both end clips, so each affords its whole duration:</span>
+
+<span class="sd">        &gt;&gt;&gt; max_overlap_for_clips([_Clip(1.0), _Clip(1.0)])</span>
+<span class="sd">        1.0</span>
+
+<span class="sd">        Add a third and the middle one pays twice:</span>
+
+<span class="sd">        &gt;&gt;&gt; max_overlap_for_clips([_Clip(1.0), _Clip(1.0), _Clip(1.0)])</span>
+<span class="sd">        0.5</span>
+<span class="sd">        &gt;&gt;&gt; max_overlap_for_clips([_Clip(3.0), _Clip(1.0), _Clip(3.0)])</span>
+<span class="sd">        0.5</span>
+<span class="sd">        &gt;&gt;&gt; max_overlap_for_clips([_Clip(1.0), _Clip(3.0), _Clip(3.0)])</span>
+<span class="sd">        1.0</span>
+
+<span class="sd">        &gt;&gt;&gt; max_overlap_for_clips([_Clip(2.0), _Clip(None)]) is None</span>
+<span class="sd">        True</span>
+<span class="sd">        &gt;&gt;&gt; max_overlap_for_clips([_Clip(2.0)]) is None</span>
+<span class="sd">        True</span>
+<span class="sd">    """</span>
+    <span class="n">durations</span> <span class="o">=</span> <span class="p">[</span><span class="nb">getattr</span><span class="p">(</span><span class="n">clip</span><span class="p">,</span> <span class="s2">"duration"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="k">for</span> <span class="n">clip</span> <span class="ow">in</span> <span class="n">clips</span><span class="p">]</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">durations</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span> <span class="ow">or</span> <span class="nb">any</span><span class="p">(</span><span class="n">d</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">durations</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="n">joins</span> <span class="o">=</span> <span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">durations</span><span class="p">)</span>
+    <span class="n">joins</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">joins</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>  <span class="c1"># the ends are touched by one join each</span>
+    <span class="k">return</span> <span class="nb">min</span><span class="p">(</span><span class="n">d</span> <span class="o">/</span> <span class="n">j</span> <span class="k">for</span> <span class="n">d</span><span class="p">,</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">durations</span><span class="p">,</span> <span class="n">joins</span><span class="p">))</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_with_crossfade_overlap</span><span class="p">(</span><span class="n">transform</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">overlap</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""``transform`` with its declared overlap parameter bound to ``overlap``.</span>
+
+<span class="sd">    The declaration names a *parameter*, which is exactly what makes this</span>
+<span class="sd">    possible: a clamped overlap can be handed back to the transform, so the</span>
+<span class="sd">    ramps it builds and the padding the join uses stay the same number.</span>
+<span class="sd">    """</span>
+    <span class="n">_bound</span><span class="p">,</span> <span class="n">func</span> <span class="o">=</span> <span class="n">_partial_bindings</span><span class="p">(</span><span class="n">transform</span><span class="p">)</span>
+    <span class="n">param</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">_OVERLAP_PARAM_ATTR</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">param</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># pragma: no cover - callers check first</span>
+        <span class="k">return</span> <span class="n">transform</span>
+    <span class="k">return</span> <span class="n">functools</span><span class="o">.</span><span class="n">partial</span><span class="p">(</span><span class="n">transform</span><span class="p">,</span> <span class="o">**</span><span class="p">{</span><span class="n">param</span><span class="p">:</span> <span class="n">overlap</span><span class="p">})</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_ensure_video_clip</span><span class="p">(</span><span class="n">video_src</span><span class="p">:</span> <span class="n">VideoSource</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">VideoFileClip</span><span class="p">:</span>
@@ -383,7 +695,35 @@
 <span class="sd">                    If True and videos is not a folder, raises ValueError.</span>
 <span class="sd">        codec: Video codec to use when writing file (default: 'libx264')</span>
 <span class="sd">        audio_codec: Audio codec to use when writing file (default: 'aac')</span>
-<span class="sd">        **concat_kwargs: Additional arguments passed to moviepy's concatenate_videoclips</span>
+<span class="sd">        **concat_kwargs: Additional arguments passed to moviepy's</span>
+<span class="sd">            concatenate_videoclips. Anything given here wins over the join this</span>
+<span class="sd">            function would otherwise pick (see below).</span>
+
+<span class="sd">    How the clips are joined:</span>
+<span class="sd">        A crossfade lives in the **join**, not in either clip, so the join is</span>
+<span class="sd">        chosen from what ``transform_clips`` declares it needs (via</span>
+<span class="sd">        :func:`needs_crossfade_overlap`) rather than defaulted for everything:</span>
+
+<span class="sd">        - A transform declaring an overlap of *d* seconds</span>
+<span class="sd">          (``crossfade_transition``, ``trim_and_crossfade``, ``overlap_blend``)</span>
+<span class="sd">          is joined with ``method='compose', padding=-d``, so the clips overlap</span>
+<span class="sd">          and their crossfade masks are actually composited. The result is</span>
+<span class="sd">          therefore *shorter* than the sum of its clips by *d* per join, and the</span>
+<span class="sd">          overlapping audio is crossfaded (the transforms pair every video mask</span>
+<span class="sd">          with an ``afx`` gain ramp; without them the composited audio is</span>
+<span class="sd">          *summed* at full level).</span>
+<span class="sd">        - Everything else (no transform, or one that bakes its effect into its</span>
+<span class="sd">          own frames, like ``fade_through_black`` / ``slow_motion_blend``) keeps</span>
+<span class="sd">          moviepy's back-to-back default.</span>
+
+<span class="sd">        An overlap larger than the clips can carry</span>
+<span class="sd">        (:func:`max_overlap_for_clips`) does not render a longer crossfade — it</span>
+<span class="sd">        **deletes clips**, because they land on top of one another. It is</span>
+<span class="sd">        therefore clamped to the ceiling, with a ``UserWarning`` naming what was</span>
+<span class="sd">        asked for and what was used, and the clamped value is fed back through</span>
+<span class="sd">        the transform as well as into the padding so the ramps and the join stay</span>
+<span class="sd">        one number. Passing ``padding=`` yourself takes the join over entirely:</span>
+<span class="sd">        no ceiling, no clamp, no warning.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        Concatenated VideoFileClip with audio. Caller is responsible for closing this clip.</span>
@@ -458,19 +798,68 @@
 
             <span class="n">clips</span> <span class="o">=</span> <span class="n">normalized_clips</span>
 
-        <span class="c1"># Apply transformation if provided</span>
-        <span class="k">if</span> <span class="n">transform_clips</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">transformed</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">transform_clips</span><span class="p">(</span><span class="n">clips</span><span class="p">))</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">_transform</span><span class="p">(</span><span class="n">fn</span><span class="p">):</span>
+<span class="w">            </span><span class="sd">"""Run a ``transform_clips`` callable, registering what it created."""</span>
+            <span class="n">transformed</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">fn</span><span class="p">(</span><span class="n">clips</span><span class="p">))</span>
             <span class="c1"># Track new clips created by transformation (e.g., trimmed clips)</span>
             <span class="n">original_ids</span> <span class="o">=</span> <span class="p">{</span><span class="nb">id</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">clips</span><span class="p">}</span>
             <span class="k">for</span> <span class="n">clip</span> <span class="ow">in</span> <span class="n">transformed</span><span class="p">:</span>
                 <span class="k">if</span> <span class="nb">id</span><span class="p">(</span><span class="n">clip</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">original_ids</span><span class="p">:</span>
                     <span class="n">clips_to_close</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">clip</span><span class="p">)</span>
-            <span class="n">clips_to_concat</span> <span class="o">=</span> <span class="n">transformed</span>
+            <span class="k">return</span> <span class="n">transformed</span>
+
+        <span class="c1"># Apply transformation if provided</span>
+        <span class="k">if</span> <span class="n">transform_clips</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">clips_to_concat</span> <span class="o">=</span> <span class="n">_transform</span><span class="p">(</span><span class="n">transform_clips</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">clips_to_concat</span> <span class="o">=</span> <span class="n">clips</span>
 
-        <span class="c1"># Concatenate and optionally write</span>
+        <span class="c1"># Concatenate and optionally write.</span>
+        <span class="c1"># A crossfade needs BOTH conditions and moviepy 2.x defaults to neither:</span>
+        <span class="c1"># under method="chain" the clips' CrossFade masks are never composited,</span>
+        <span class="c1"># and padding=0 leaves no overlapping region for them to act in. Setting</span>
+        <span class="c1"># only one of the two still renders a hard cut. An explicit caller</span>
+        <span class="c1"># kwarg wins (setdefault), and a caller who set `padding` themselves</span>
+        <span class="c1"># owns the join outright — no ceiling, no clamp, no warning.</span>
+        <span class="c1">#</span>
+        <span class="c1"># An overlap larger than the clips can carry does not render a longer</span>
+        <span class="c1"># crossfade — it DELETES clips (see `max_overlap_for_clips`), and</span>
+        <span class="c1"># silently, because the render succeeds. Clamp to what the clips can</span>
+        <span class="c1"># carry and say so; the clamped value goes back through the transform</span>
+        <span class="c1"># as well as into the padding, so the ramps and the join stay one</span>
+        <span class="c1"># number (a padding-only clamp leaves the middle clip at 0.43x level).</span>
+        <span class="n">overlap</span> <span class="o">=</span> <span class="n">crossfade_overlap</span><span class="p">(</span><span class="n">transform_clips</span><span class="p">)</span>
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="n">overlap</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="ow">and</span> <span class="s2">"padding"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">concat_kwargs</span>
+            <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">clips_to_concat</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span>  <span class="c1"># one clip has no join to overlap</span>
+        <span class="p">):</span>
+            <span class="n">ceiling</span> <span class="o">=</span> <span class="n">max_overlap_for_clips</span><span class="p">(</span><span class="n">clips_to_concat</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">ceiling</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">overlap</span> <span class="o">&gt;</span> <span class="n">ceiling</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">_OVERLAP_TOLERANCE</span><span class="p">):</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="nb">getattr</span><span class="p">(</span><span class="n">transform_clips</span><span class="p">,</span><span class="w"> </span><span class="s1">'__name__'</span><span class="p">,</span><span class="w"> </span><span class="n">transform_clips</span><span class="p">)</span><span class="si">!r}</span><span class="s2"> "</span>
+                    <span class="sa">f</span><span class="s2">"asked to overlap the join by </span><span class="si">{</span><span class="n">overlap</span><span class="si">:</span><span class="s2">g</span><span class="si">}</span><span class="s2">s, but these "</span>
+                    <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">clips_to_concat</span><span class="p">)</span><span class="si">}</span><span class="s2"> clips can carry at most "</span>
+                    <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">ceiling</span><span class="si">:</span><span class="s2">g</span><span class="si">}</span><span class="s2">s: a crossfade eats the overlap off each end it "</span>
+                    <span class="sa">f</span><span class="s2">"touches, and every clip but the first and last is touched "</span>
+                    <span class="sa">f</span><span class="s2">"twice (shortest clip "</span>
+                    <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="nb">min</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">duration</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">c</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">clips_to_concat</span><span class="p">)</span><span class="si">:</span><span class="s2">g</span><span class="si">}</span><span class="s2">s). Past that "</span>
+                    <span class="sa">f</span><span class="s2">"ceiling clips land on top of one another and some never "</span>
+                    <span class="sa">f</span><span class="s2">"appear in the output at all. Overlapping by </span><span class="si">{</span><span class="n">ceiling</span><span class="si">:</span><span class="s2">g</span><span class="si">}</span><span class="s2">s "</span>
+                    <span class="sa">f</span><span class="s2">"instead — use longer clips, ask for a shorter fade, or "</span>
+                    <span class="sa">f</span><span class="s2">"pass `padding=` yourself to own the join."</span><span class="p">,</span>
+                    <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="c1"># `overlap is not None` already means a transform declared it.</span>
+                <span class="n">overlap</span> <span class="o">=</span> <span class="n">ceiling</span> <span class="k">if</span> <span class="n">ceiling</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="kc">None</span>
+                <span class="k">if</span> <span class="n">overlap</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">clips_to_concat</span> <span class="o">=</span> <span class="n">_transform</span><span class="p">(</span>
+                        <span class="n">_with_crossfade_overlap</span><span class="p">(</span><span class="n">transform_clips</span><span class="p">,</span> <span class="n">overlap</span><span class="p">)</span>
+                    <span class="p">)</span>
+        <span class="k">if</span> <span class="n">overlap</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">concat_kwargs</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">"method"</span><span class="p">,</span> <span class="s2">"compose"</span><span class="p">)</span>
+            <span class="n">concat_kwargs</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">"padding"</span><span class="p">,</span> <span class="o">-</span><span class="n">overlap</span><span class="p">)</span>
+
         <span class="n">final_clip</span> <span class="o">=</span> <span class="n">concatenate_videoclips</span><span class="p">(</span><span class="n">clips_to_concat</span><span class="p">,</span> <span class="o">**</span><span class="n">concat_kwargs</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">output</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="c1"># Explicitly include audio with proper codecs</span>
@@ -506,8 +895,39 @@
 
 
 
+<span class="k">def</span><span class="w"> </span><span class="nf">_crossfade_effects</span><span class="p">(</span>
+    <span class="n">duration</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">fade_in</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">fade_out</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">video_out</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""The mask *and* gain ramps one clip needs at an overlapped join.</span>
+
+<span class="sd">    ``fade_in``/``fade_out`` say whether this clip has a neighbour on that side.</span>
+
+<span class="sd">    The audio ramps are not decoration. An overlapped join composites the</span>
+<span class="sd">    overlapping audio with moviepy's ``CompositeAudioClip``, which **sums** it;</span>
+<span class="sd">    a clip that fades its picture but not its sound therefore plays both tracks</span>
+<span class="sd">    at full level through every join — measured at +3.0 dB and, on ordinary</span>
+<span class="sd">    material, hard against the rail. ``vfx.CrossFadeIn``/``CrossFadeOut`` are</span>
+<span class="sd">    video-mask effects and do nothing to audio.</span>
+
+<span class="sd">    ``video_out=False`` is :func:`overlap_blend`'s character — the outgoing</span>
+<span class="sd">    picture stays opaque while the incoming one dissolves over it. It changes</span>
+<span class="sd">    nothing about the audio, which overlaps either way.</span>
+<span class="sd">    """</span>
+    <span class="n">effects</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">if</span> <span class="n">fade_in</span><span class="p">:</span>
+        <span class="n">effects</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">vfx</span><span class="o">.</span><span class="n">CrossFadeIn</span><span class="p">(</span><span class="n">duration</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">fade_out</span> <span class="ow">and</span> <span class="n">video_out</span><span class="p">:</span>
+        <span class="n">effects</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">vfx</span><span class="o">.</span><span class="n">CrossFadeOut</span><span class="p">(</span><span class="n">duration</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">fade_in</span><span class="p">:</span>
+        <span class="n">effects</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">afx</span><span class="o">.</span><span class="n">AudioFadeIn</span><span class="p">(</span><span class="n">duration</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">fade_out</span><span class="p">:</span>
+        <span class="n">effects</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">afx</span><span class="o">.</span><span class="n">AudioFadeOut</span><span class="p">(</span><span class="n">duration</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">effects</span>
+
+
 <div class="viewcode-block" id="crossfade_transition">
 <a class="viewcode-back" href="../../../module_docs/mixing/video/video_concat.html#mixing.crossfade_transition">[docs]</a>
+<span class="nd">@needs_crossfade_overlap</span><span class="p">(</span><span class="s2">"duration"</span><span class="p">)</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">crossfade_transition</span><span class="p">(</span>
     <span class="n">clips</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">VideoFileClip</span><span class="p">],</span> <span class="o">*</span><span class="p">,</span> <span class="n">duration</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.5</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">VideoFileClip</span><span class="p">]:</span>
@@ -517,48 +937,42 @@
 <span class="sd">    Best for hiding both pixel differences and motion changes.</span>
 <span class="sd">    Recommended: duration=0.3 to 0.8 seconds.</span>
 
-<span class="sd">    Uses CrossFadeOut on end of clips and CrossFadeIn on start of clips.</span>
+<span class="sd">    Uses CrossFadeOut on end of clips and CrossFadeIn on start of clips. Those</span>
+<span class="sd">    are masks, so they only render as a blend when the clips are composited</span>
+<span class="sd">    with a ``duration``-second overlap — which is what the</span>
+<span class="sd">    :func:`needs_crossfade_overlap` declaration tells :func:`concatenate_videos`</span>
+<span class="sd">    to do. Each join therefore shortens the result by ``duration``.</span>
+
+<span class="sd">    The audio is crossfaded too (:func:`_crossfade_effects`) — an overlapped</span>
+<span class="sd">    join *sums* the overlapping audio, so without the matching fades both</span>
+<span class="sd">    tracks play at full level through every join and the sum clips.</span>
 <span class="sd">    """</span>
     <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">clip</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">clips</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="c1"># First clip: just fade out at the end</span>
-            <span class="k">yield</span> <span class="n">clip</span><span class="o">.</span><span class="n">with_effects</span><span class="p">([</span><span class="n">vfx</span><span class="o">.</span><span class="n">CrossFadeOut</span><span class="p">(</span><span class="n">duration</span><span class="p">)])</span>
-        <span class="k">elif</span> <span class="n">i</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">clips</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="c1"># Last clip: just fade in at the start</span>
-            <span class="k">yield</span> <span class="n">clip</span><span class="o">.</span><span class="n">with_effects</span><span class="p">([</span><span class="n">vfx</span><span class="o">.</span><span class="n">CrossFadeIn</span><span class="p">(</span><span class="n">duration</span><span class="p">)])</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="c1"># Middle clips: fade in at start, fade out at end</span>
-            <span class="k">yield</span> <span class="n">clip</span><span class="o">.</span><span class="n">with_effects</span><span class="p">(</span>
-                <span class="p">[</span><span class="n">vfx</span><span class="o">.</span><span class="n">CrossFadeIn</span><span class="p">(</span><span class="n">duration</span><span class="p">),</span> <span class="n">vfx</span><span class="o">.</span><span class="n">CrossFadeOut</span><span class="p">(</span><span class="n">duration</span><span class="p">)]</span>
-            <span class="p">)</span></div>
+        <span class="k">yield</span> <span class="n">clip</span><span class="o">.</span><span class="n">with_effects</span><span class="p">(</span>
+            <span class="n">_crossfade_effects</span><span class="p">(</span><span class="n">duration</span><span class="p">,</span> <span class="n">fade_in</span><span class="o">=</span><span class="n">i</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="n">fade_out</span><span class="o">=</span><span class="n">i</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">clips</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="p">)</span></div>
 
 
 
 <div class="viewcode-block" id="trim_and_crossfade">
 <a class="viewcode-back" href="../../../module_docs/mixing/video/video_concat.html#mixing.trim_and_crossfade">[docs]</a>
+<span class="nd">@needs_crossfade_overlap</span><span class="p">(</span><span class="s2">"duration"</span><span class="p">)</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">trim_and_crossfade</span><span class="p">(</span>
     <span class="n">clips</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">VideoFileClip</span><span class="p">],</span> <span class="o">*</span><span class="p">,</span> <span class="n">duration</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.4</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">VideoFileClip</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Trim first frame from subsequent clips, then crossfade.</span>
 
-<span class="sd">    Combines frame removal with smooth blending.</span>
+<span class="sd">    Combines frame removal with smooth blending. Like</span>
+<span class="sd">    :func:`crossfade_transition`, the blend only happens because the declared</span>
+<span class="sd">    ``duration`` overlap reaches the join, and the audio is crossfaded to match.</span>
 <span class="sd">    """</span>
     <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">clip</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">clips</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="c1"># First clip: just fade out at the end</span>
-            <span class="k">yield</span> <span class="n">clip</span><span class="o">.</span><span class="n">with_effects</span><span class="p">([</span><span class="n">vfx</span><span class="o">.</span><span class="n">CrossFadeOut</span><span class="p">(</span><span class="n">duration</span><span class="p">)])</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="c1"># Subsequent clips: trim first frame, then fade in/out</span>
-            <span class="n">trimmed</span> <span class="o">=</span> <span class="n">clip</span><span class="o">.</span><span class="n">subclipped</span><span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="n">clip</span><span class="o">.</span><span class="n">fps</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">clips</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
-                <span class="c1"># Last clip: just fade in</span>
-                <span class="k">yield</span> <span class="n">trimmed</span><span class="o">.</span><span class="n">with_effects</span><span class="p">([</span><span class="n">vfx</span><span class="o">.</span><span class="n">CrossFadeIn</span><span class="p">(</span><span class="n">duration</span><span class="p">)])</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="c1"># Middle clips: fade in and out</span>
-                <span class="k">yield</span> <span class="n">trimmed</span><span class="o">.</span><span class="n">with_effects</span><span class="p">(</span>
-                    <span class="p">[</span><span class="n">vfx</span><span class="o">.</span><span class="n">CrossFadeIn</span><span class="p">(</span><span class="n">duration</span><span class="p">),</span> <span class="n">vfx</span><span class="o">.</span><span class="n">CrossFadeOut</span><span class="p">(</span><span class="n">duration</span><span class="p">)]</span>
-                <span class="p">)</span></div>
+        <span class="c1"># Subsequent clips: trim the duplicated first frame before blending</span>
+        <span class="n">clip</span> <span class="o">=</span> <span class="n">clip</span> <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="n">clip</span><span class="o">.</span><span class="n">subclipped</span><span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="n">clip</span><span class="o">.</span><span class="n">fps</span><span class="p">)</span>
+        <span class="k">yield</span> <span class="n">clip</span><span class="o">.</span><span class="n">with_effects</span><span class="p">(</span>
+            <span class="n">_crossfade_effects</span><span class="p">(</span><span class="n">duration</span><span class="p">,</span> <span class="n">fade_in</span><span class="o">=</span><span class="n">i</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="n">fade_out</span><span class="o">=</span><span class="n">i</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">clips</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="p">)</span></div>
 
 
 
@@ -571,6 +985,11 @@
 <span class="sd">    Fade out to black, then fade in from black between clips.</span>
 
 <span class="sd">    More dramatic transition - clearly separates scenes.</span>
+
+<span class="sd">    Deliberately **not** declared with :func:`needs_crossfade_overlap`:</span>
+<span class="sd">    ``FadeIn`` / ``FadeOut`` bake the effect into each clip's own frames, so a</span>
+<span class="sd">    back-to-back join renders it correctly and an overlapped one would eat</span>
+<span class="sd">    footage for nothing.</span>
 <span class="sd">    """</span>
     <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">clip</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">clips</span><span class="p">):</span>
         <span class="n">effects</span> <span class="o">=</span> <span class="p">[]</span>
@@ -631,21 +1050,37 @@
 
 <div class="viewcode-block" id="overlap_blend">
 <a class="viewcode-back" href="../../../module_docs/mixing/video/video_concat.html#mixing.overlap_blend">[docs]</a>
+<span class="nd">@needs_crossfade_overlap</span><span class="p">(</span><span class="s2">"overlap"</span><span class="p">)</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">overlap_blend</span><span class="p">(</span>
     <span class="n">clips</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">VideoFileClip</span><span class="p">],</span> <span class="o">*</span><span class="p">,</span> <span class="n">overlap</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.5</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">VideoFileClip</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Overlap clips and crossfade the overlapping region.</span>
 
-<span class="sd">    More aggressive blending - uses more footage from both clips.</span>
+<span class="sd">    The gentler sibling of :func:`crossfade_transition`: the incoming clip</span>
+<span class="sd">    dissolves in over an outgoing clip that stays fully opaque (no</span>
+<span class="sd">    ``CrossFadeOut``), so the cut reads as a wipe-through rather than a dip.</span>
+<span class="sd">    Every frame of every clip is used — the ``overlap`` is consumed by the join</span>
+<span class="sd">    itself, exactly once.</span>
+
+<span class="sd">    .. note::</span>
+<span class="sd">       This used to *also* trim ``overlap`` seconds off the head of every clip</span>
+<span class="sd">       after the first. That trim was a stand-in for an overlap back when the</span>
+<span class="sd">       join was back-to-back; once the join genuinely overlaps, keeping it</span>
+<span class="sd">       charged ``2 x overlap`` per clip and **deleted whole clips** — three</span>
+<span class="sd">       1 s clips at the default came out as a 1 s video with the middle clip</span>
+<span class="sd">       nowhere in it. The audio fades are here for the same reason the video</span>
+<span class="sd">       ones are: an overlapped join sums the overlapping audio.</span>
 <span class="sd">    """</span>
     <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">clip</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">clips</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="k">yield</span> <span class="n">clip</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="c1"># Trim overlap amount from start, then crossfade</span>
-            <span class="n">trimmed</span> <span class="o">=</span> <span class="n">clip</span><span class="o">.</span><span class="n">subclipped</span><span class="p">(</span><span class="n">overlap</span><span class="p">)</span>
-            <span class="k">yield</span> <span class="n">trimmed</span><span class="o">.</span><span class="n">with_effects</span><span class="p">([</span><span class="n">vfx</span><span class="o">.</span><span class="n">CrossFadeIn</span><span class="p">(</span><span class="n">overlap</span><span class="p">)])</span></div>
+        <span class="k">yield</span> <span class="n">clip</span><span class="o">.</span><span class="n">with_effects</span><span class="p">(</span>
+            <span class="n">_crossfade_effects</span><span class="p">(</span>
+                <span class="n">overlap</span><span class="p">,</span>
+                <span class="n">fade_in</span><span class="o">=</span><span class="n">i</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span>
+                <span class="n">fade_out</span><span class="o">=</span><span class="n">i</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">clips</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span>
+                <span class="n">video_out</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="p">)</span></div>
 
 </pre></div>
 

@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>mixing.video.video_util &mdash; mixing 0.0.38 documentation</title>
+  <title>mixing.video.video_util &mdash; mixing 0.0.40 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
@@ -15,7 +15,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=423071ad"></script>
+      <script src="../../../_static/documentation_options.js?v=84bd753f"></script>
       <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="../../../_static/toggleprompt.js?v=d7ede5d2"></script>
@@ -81,7 +81,7 @@
 <li class="toctree-l1"><a class="reference internal" href="video_ops.html">mixing.video.video_ops</a></li>
 <li class="toctree-l1"><a class="reference internal" href="video_subtitles.html">mixing.video.video_subtitles</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">mixing.video.video_util</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#mixing.video.video_util.SOCIAL_SIZES"><code class="docutils literal notranslate"><span class="pre">SOCIAL_SIZES</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mixing.video.video_util.ResizeMethod"><code class="docutils literal notranslate"><span class="pre">ResizeMethod</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#mixing.video.video_util.get_video_dimensions"><code class="docutils literal notranslate"><span class="pre">get_video_dimensions()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#mixing.video.video_util.normalize_video_dimensions"><code class="docutils literal notranslate"><span class="pre">normalize_video_dimensions()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#mixing.video.video_util.resize_to_dimensions"><code class="docutils literal notranslate"><span class="pre">resize_to_dimensions()</span></code></a></li>
@@ -117,14 +117,27 @@
 <span id="mixing-video-video-util"></span><h1>mixing.video.video_util<a class="headerlink" href="#module-mixing.video.video_util" title="Link to this heading"></a></h1>
 <p>Video utils.</p>
 <p>Utils that will be useful in multiple modules of the video package.</p>
+<p><strong>The geometry vocabulary comes from</strong> <code class="xref py py-mod docutils literal notranslate"><span class="pre">looks.geometry</span></code> <strong>; the
+implementations stay here.</strong> <code class="docutils literal notranslate"><span class="pre">SOCIAL_SIZES</span></code>, the <code class="docutils literal notranslate"><span class="pre">stretch</span></code>/<code class="docutils literal notranslate"><span class="pre">fit</span></code>/<code class="docutils literal notranslate"><span class="pre">fill</span></code>
+mode names and the two constants that parameterise the <code class="docutils literal notranslate"><span class="pre">social</span></code> backdrop are
+<em>imported</em>, not re-declared, so there is exactly one place that says what a
+“shorts” is or how blurred a social backdrop gets. What is deliberately <strong>not</strong>
+imported is the arithmetic: this module resizes with moviepy, and the <code class="docutils literal notranslate"><span class="pre">social</span></code>
+branch is a composite (a scaled, centre-cropped, Gaussian-blurred, dimmed copy
+of the input behind the fitted foreground), not a formula. <cite>looks</cite> is
+stdlib-only, so importing the vocabulary costs nothing at import time.</p>
+<p><a class="reference internal" href="#mixing.video.video_util.get_video_dimensions" title="mixing.video.video_util.get_video_dimensions"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_video_dimensions()</span></code></a> stays here on purpose — it is a <em>probe</em> (it opens
+a file, or reads a live clip), not geometry, so it has no home in a pure-
+arithmetic module.</p>
 <dl class="py data">
-<dt class="sig sig-object py" id="mixing.video.video_util.SOCIAL_SIZES">
-<span class="sig-prename descclassname"><span class="pre">mixing.video.video_util.</span></span><span class="sig-name descname"><span class="pre">SOCIAL_SIZES</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'shorts':</span> <span class="pre">(1080,</span> <span class="pre">1920),</span> <span class="pre">'square':</span> <span class="pre">(1080,</span> <span class="pre">1080),</span> <span class="pre">'story':</span> <span class="pre">(1080,</span> <span class="pre">1920),</span> <span class="pre">'tiktok':</span> <span class="pre">(1080,</span> <span class="pre">1920),</span> <span class="pre">'youtube':</span> <span class="pre">(1920,</span> <span class="pre">1080)}</span></span><a class="headerlink" href="#mixing.video.video_util.SOCIAL_SIZES" title="Link to this definition"></a></dt>
-<dd><p>Common social-media target sizes as <code class="docutils literal notranslate"><span class="pre">(width,</span> <span class="pre">height)</span></code> pixel presets, handy
-as the <code class="docutils literal notranslate"><span class="pre">target_width</span></code>/<code class="docutils literal notranslate"><span class="pre">target_height</span></code> for <a class="reference internal" href="#mixing.video.video_util.resize_to_dimensions" title="mixing.video.video_util.resize_to_dimensions"><code class="xref py py-func docutils literal notranslate"><span class="pre">resize_to_dimensions()</span></code></a>
-and friends. Landscape <code class="docutils literal notranslate"><span class="pre">youtube</span></code> is 16:9; the vertical 9:16 presets
-(<code class="docutils literal notranslate"><span class="pre">shorts</span></code> / <code class="docutils literal notranslate"><span class="pre">story</span></code> / <code class="docutils literal notranslate"><span class="pre">tiktok</span></code>) and the 1:1 <code class="docutils literal notranslate"><span class="pre">square</span></code> cover the usual
-short-form formats.</p>
+<dt class="sig sig-object py" id="mixing.video.video_util.ResizeMethod">
+<span class="sig-prename descclassname"><span class="pre">mixing.video.video_util.</span></span><span class="sig-name descname"><span class="pre">ResizeMethod</span></span><a class="headerlink" href="#mixing.video.video_util.ResizeMethod" title="Link to this definition"></a></dt>
+<dd><p>How <a class="reference internal" href="#mixing.video.video_util.resize_to_dimensions" title="mixing.video.video_util.resize_to_dimensions"><code class="xref py py-func docutils literal notranslate"><span class="pre">resize_to_dimensions()</span></code></a> places a source frame in a target frame.
+The first three names are <cite>looks</cite>’ <code class="xref py py-data docutils literal notranslate"><span class="pre">FitMode</span></code>; <code class="docutils literal notranslate"><span class="pre">social</span></code>
+is <strong>not</strong> a fourth mode but <code class="docutils literal notranslate"><span class="pre">fit</span></code> over a blurred, dimmed copy of the source
+instead of a solid colour — which is why it lives here (it is a composite)
+while the other three are arithmetic.</p>
+<p>alias of <code class="xref py py-obj docutils literal notranslate"><span class="pre">Literal</span></code>[‘stretch’, ‘fit’, ‘fill’] | <code class="xref py py-obj docutils literal notranslate"><span class="pre">Literal</span></code>[‘social’]</p>
 </dd></dl>
 
 <dl class="py function">

@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>mixing.video.video_util &mdash; mixing 0.0.38 documentation</title>
+  <title>mixing.video.video_util &mdash; mixing 0.0.40 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
@@ -14,7 +14,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=423071ad"></script>
+      <script src="../../../_static/documentation_options.js?v=84bd753f"></script>
       <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="../../../_static/toggleprompt.js?v=d7ede5d2"></script>
@@ -109,24 +109,50 @@
 <span></span><span class="sd">"""Video utils.</span>
 
 <span class="sd">Utils that will be useful in multiple modules of the video package.</span>
+
+<span class="sd">**The geometry vocabulary comes from** :mod:`looks.geometry` **; the</span>
+<span class="sd">implementations stay here.** ``SOCIAL_SIZES``, the ``stretch``/``fit``/``fill``</span>
+<span class="sd">mode names and the two constants that parameterise the ``social`` backdrop are</span>
+<span class="sd">*imported*, not re-declared, so there is exactly one place that says what a</span>
+<span class="sd">"shorts" is or how blurred a social backdrop gets. What is deliberately **not**</span>
+<span class="sd">imported is the arithmetic: this module resizes with moviepy, and the ``social``</span>
+<span class="sd">branch is a composite (a scaled, centre-cropped, Gaussian-blurred, dimmed copy</span>
+<span class="sd">of the input behind the fitted foreground), not a formula. `looks` is</span>
+<span class="sd">stdlib-only, so importing the vocabulary costs nothing at import time.</span>
+
+<span class="sd">:func:`get_video_dimensions` stays here on purpose — it is a *probe* (it opens</span>
+<span class="sd">a file, or reads a live clip), not geometry, so it has no home in a pure-</span>
+<span class="sd">arithmetic module.</span>
 <span class="sd">"""</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Optional</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">moviepy</span><span class="w"> </span><span class="kn">import</span> <span class="n">VideoFileClip</span><span class="p">,</span> <span class="n">VideoClip</span><span class="p">,</span> <span class="n">ImageClip</span><span class="p">,</span> <span class="n">CompositeVideoClip</span>
 
-<span class="c1">#: Common social-media target sizes as ``(width, height)`` pixel presets, handy</span>
-<span class="c1">#: as the ``target_width``/``target_height`` for :func:`resize_to_dimensions`</span>
-<span class="c1">#: and friends. Landscape ``youtube`` is 16:9; the vertical 9:16 presets</span>
-<span class="c1">#: (``shorts`` / ``story`` / ``tiktok``) and the 1:1 ``square`` cover the usual</span>
-<span class="c1">#: short-form formats.</span>
-<span class="n">SOCIAL_SIZES</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">"youtube"</span><span class="p">:</span> <span class="p">(</span><span class="mi">1920</span><span class="p">,</span> <span class="mi">1080</span><span class="p">),</span>
-    <span class="s2">"shorts"</span><span class="p">:</span> <span class="p">(</span><span class="mi">1080</span><span class="p">,</span> <span class="mi">1920</span><span class="p">),</span>
-    <span class="s2">"square"</span><span class="p">:</span> <span class="p">(</span><span class="mi">1080</span><span class="p">,</span> <span class="mi">1080</span><span class="p">),</span>
-    <span class="s2">"story"</span><span class="p">:</span> <span class="p">(</span><span class="mi">1080</span><span class="p">,</span> <span class="mi">1920</span><span class="p">),</span>
-    <span class="s2">"tiktok"</span><span class="p">:</span> <span class="p">(</span><span class="mi">1080</span><span class="p">,</span> <span class="mi">1920</span><span class="p">),</span>
-<span class="p">}</span>
+<span class="c1"># The geometry vocabulary, imported rather than re-declared:</span>
+<span class="c1">#</span>
+<span class="c1"># - ``SOCIAL_SIZES`` maps a preset name to a ``(width, height)`` pixel pair,</span>
+<span class="c1">#   handy as the ``target_width``/``target_height`` for</span>
+<span class="c1">#   :func:`resize_to_dimensions` and friends. Landscape ``youtube`` is 16:9;</span>
+<span class="c1">#   the vertical 9:16 presets (``shorts`` / ``story`` / ``tiktok``) and the 1:1</span>
+<span class="c1">#   ``square`` cover the usual short-form formats.</span>
+<span class="c1"># - ``FitMode`` is the ``stretch``/``fit``/``fill`` name set.</span>
+<span class="c1"># - ``DFLT_BACKDROP_BLUR_SIGMA`` / ``DFLT_BACKDROP_DIM`` parameterise the</span>
+<span class="c1">#   ``social`` backdrop below. They were transcribed *from* this module into</span>
+<span class="c1">#   `looks`; importing them back is what stops the two copies drifting.</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">looks.geometry</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">DFLT_BACKDROP_BLUR_SIGMA</span><span class="p">,</span>
+    <span class="n">DFLT_BACKDROP_DIM</span><span class="p">,</span>
+    <span class="n">FitMode</span><span class="p">,</span>
+    <span class="n">SOCIAL_SIZES</span><span class="p">,</span>  <span class="c1"># noqa: F401  — deliberate re-export; a --fix would break the port</span>
+<span class="p">)</span>
+
+<span class="c1">#: How :func:`resize_to_dimensions` places a source frame in a target frame.</span>
+<span class="c1">#: The first three names are `looks`' :data:`~looks.geometry.FitMode`; ``social``</span>
+<span class="c1">#: is **not** a fourth mode but ``fit`` over a blurred, dimmed copy of the source</span>
+<span class="c1">#: instead of a solid colour — which is why it lives here (it is a composite)</span>
+<span class="c1">#: while the other three are arithmetic.</span>
+<span class="n">ResizeMethod</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="n">FitMode</span><span class="p">,</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"social"</span><span class="p">]]</span>
 
 
 <div class="viewcode-block" id="get_video_dimensions">
@@ -166,7 +192,7 @@
     <span class="n">target_width</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="n">target_height</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
-    <span class="n">method</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"stretch"</span><span class="p">,</span> <span class="s2">"fit"</span><span class="p">,</span> <span class="s2">"fill"</span><span class="p">,</span> <span class="s2">"social"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"fit"</span><span class="p">,</span>
+    <span class="n">method</span><span class="p">:</span> <span class="n">ResizeMethod</span> <span class="o">=</span> <span class="s2">"fit"</span><span class="p">,</span>
     <span class="n">bg_color</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">VideoFileClip</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""</span>
@@ -304,14 +330,20 @@
 
         <span class="c1"># Apply blur to background using PIL</span>
         <span class="k">def</span><span class="w"> </span><span class="nf">blur_frame</span><span class="p">(</span><span class="n">frame</span><span class="p">):</span>
-<span class="w">            </span><span class="sd">"""Apply Gaussian blur to a frame using PIL."""</span>
+<span class="w">            </span><span class="sd">"""Apply Gaussian blur to a frame using PIL.</span>
+
+<span class="sd">            PIL's ``GaussianBlur(radius=...)`` takes the standard deviation of</span>
+<span class="sd">            the kernel, which is what ``DFLT_BACKDROP_BLUR_SIGMA`` names.</span>
+<span class="sd">            """</span>
             <span class="kn">from</span><span class="w"> </span><span class="nn">PIL</span><span class="w"> </span><span class="kn">import</span> <span class="n">Image</span><span class="p">,</span> <span class="n">ImageFilter</span>
             <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 
             <span class="c1"># Convert numpy array to PIL Image</span>
             <span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">fromarray</span><span class="p">(</span><span class="n">frame</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">"uint8"</span><span class="p">))</span>
             <span class="c1"># Apply Gaussian blur</span>
-            <span class="n">blurred</span> <span class="o">=</span> <span class="n">img</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">ImageFilter</span><span class="o">.</span><span class="n">GaussianBlur</span><span class="p">(</span><span class="n">radius</span><span class="o">=</span><span class="mi">15</span><span class="p">))</span>
+            <span class="n">blurred</span> <span class="o">=</span> <span class="n">img</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+                <span class="n">ImageFilter</span><span class="o">.</span><span class="n">GaussianBlur</span><span class="p">(</span><span class="n">radius</span><span class="o">=</span><span class="n">DFLT_BACKDROP_BLUR_SIGMA</span><span class="p">)</span>
+            <span class="p">)</span>
             <span class="c1"># Convert back to numpy array</span>
             <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">blurred</span><span class="p">)</span>
 
@@ -320,7 +352,9 @@
         <span class="c1"># Optionally darken the background slightly for better contrast</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">moviepy</span><span class="w"> </span><span class="kn">import</span> <span class="n">vfx</span>
 
-        <span class="n">background</span> <span class="o">=</span> <span class="n">background</span><span class="o">.</span><span class="n">with_effects</span><span class="p">([</span><span class="n">vfx</span><span class="o">.</span><span class="n">MultiplyColor</span><span class="p">([</span><span class="mf">0.7</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">])])</span>
+        <span class="n">background</span> <span class="o">=</span> <span class="n">background</span><span class="o">.</span><span class="n">with_effects</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">vfx</span><span class="o">.</span><span class="n">MultiplyColor</span><span class="p">([</span><span class="n">DFLT_BACKDROP_DIM</span><span class="p">]</span> <span class="o">*</span> <span class="mi">3</span><span class="p">)]</span>
+        <span class="p">)</span>
 
         <span class="c1"># Center the foreground on the background</span>
         <span class="n">x_pos</span> <span class="o">=</span> <span class="p">(</span><span class="n">target_width</span> <span class="o">-</span> <span class="n">new_width</span><span class="p">)</span> <span class="o">//</span> <span class="mi">2</span>
@@ -350,7 +384,7 @@
     <span class="n">reference_video</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span> <span class="o">|</span> <span class="n">VideoFileClip</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
     <span class="n">target_width</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">target_height</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">method</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"stretch"</span><span class="p">,</span> <span class="s2">"fit"</span><span class="p">,</span> <span class="s2">"fill"</span><span class="p">,</span> <span class="s2">"social"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"social"</span><span class="p">,</span>
+    <span class="n">method</span><span class="p">:</span> <span class="n">ResizeMethod</span> <span class="o">=</span> <span class="s2">"social"</span><span class="p">,</span>
     <span class="n">bg_color</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">VideoFileClip</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">"""</span>
