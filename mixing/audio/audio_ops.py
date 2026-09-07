@@ -1331,6 +1331,26 @@ MIN_WINDOWS_FOR_SUPPORT = 2
 #: the choice is between a look nothing corroborates and a corroboration that is an echo.
 MAX_SUPPORT_OVERLAP = 0.5
 
+#: What one window's BALLOT MENTION is worth in the support tally, against the 1.0 of an
+#: independent argmax. A window that named the winning offset outright found it unaided;
+#: a window that merely could not separate it from its own answer
+#: (:data:`NEAR_TIE_RATIO`) is weaker evidence than that and stronger than nothing, so it
+#: casts half a vote rather than none (issue #45).
+#:
+#: Why half rather than some other fraction: at ``0.5`` the number reads as a scale with
+#: a boundary a caller can use. Ballot mentions alone can never carry the tally past
+#: ``0.5``, so **``support > 0.5`` means at least one independent window reached this
+#: offset on its own** — the old statistic's whole question, still answerable, now as the
+#: top half of a range instead of the whole of it.
+#:
+#: What it fixes: an argmax is a real opinion at a 20 s window and close to a coin flip
+#: at 4 s, so a bare argmax tally got *less* confident exactly as the fitted window
+#: (issue #41) made the estimator *more* reliable. Measured on real cross-device material
+#: (issue #45), 21 alignments that were all correct reported 0.00-1.00 with six at 0.00 —
+#: the vote landed on the right offset while no individual window's argmax agreed. A gate
+#: at 0.25 refused about half of them.
+BALLOT_VOTE_WEIGHT = 0.5
+
 #: Most near-tied lags one window may put forward. A cap, not a target: an exactly
 #: tiling reference offers one candidate per repeat, and the vote does not get better
 #: for counting all of them.
@@ -1897,13 +1917,32 @@ class ClipAlignment:
         overlaps: Whether the clip intersects the reference timeline at all. A clip that
             does not is still RETURNED, with its measured offset and confidence — see
             :func:`align_clips_to_reference` for why it is not dropped.
-        support: Fraction in ``[0, 1]`` of the clip's analysis windows that reached
-            :attr:`offset_s` **on their own**, before the consensus vote — "how much of
-            this clip agrees that this is where it goes". It is a different question
+        support: How much of the clip's analysis windows' own evidence — before the
+            consensus vote — reaches :attr:`offset_s`, in ``[0, 1]``: "how much of this
+            clip agrees that this is where it goes". It is a different question
             from :attr:`confidence`, which asks only how well the clip matches at the
             offset reported, and it is the one that catches the two failures a
             coefficient cannot: a clip that matches beautifully **somewhere else too**
             (repetitive music), and a clip only PART of which is the reference at all.
+
+            **A graded tally, not a headcount** (issue #45). A window whose own argmax
+            landed on :attr:`offset_s` contributes a full 1.0; a window that merely put
+            it on its ballot — could not separate it from its own answer, or had it
+            nominated by the other feature — contributes up to
+            :data:`BALLOT_VOTE_WEIGHT`, scaled by how close it scored; a window that
+            never considered it contributes nothing. Ballot mentions alone cannot carry
+            the tally past ``0.5``, so **``support > 0.5`` means at least one independent
+            window reached this offset unaided** — which is exactly what the whole number
+            used to mean, now the top half of a range rather than all of it.
+
+            The reason it is graded: an argmax is a real opinion at a 20 s window and
+            close to a coin flip at 4 s, so a bare headcount got *less* confident exactly
+            as fitting the window to the clip (issue #41) made the estimator *more*
+            reliable — backwards, for a trust gate. Measured on real cross-device
+            material, 21 alignments that were ALL correct reported 0.00-1.00 with six at
+            0.00: the vote landed on the right offset while no individual window's argmax
+            agreed.
+
             Measured on three phone recordings of one commercial track, the whole-clip
             argmax was 83 s, 174 s and 83 s wrong while its coefficient looked ordinary;
             consensus support was 10/24, 17/37 and 45/61 and pointed at offsets three
@@ -1925,8 +1964,10 @@ class ClipAlignment:
             ``None`` says "not measured", which a caller can fall back from.
 
             **It is relative to ``window_s``, so a gate on it is too.** Support asks how
-            many independent windows agreed, and a shorter window is a weaker opinion:
-            measured on the same three correct cross-device alignments, support read
+            much independent evidence agreed, and a shorter window is a weaker opinion.
+            Grading the tally softens that — a short window's near-miss is now worth
+            something rather than nothing — but it does not remove it: measured on the
+            same three correct cross-device alignments, the headcount this replaced read
             0.45/0.64/0.73 at ``window_s=20`` and 0.19/0.16/0.23 at ``window_s=5``. It is
             deliberately not normalised — dividing by something to make the numbers look
             stable would invent a statistic — so a caller that changes ``window_s`` must
@@ -1945,7 +1986,8 @@ class ClipAlignment:
             Read it whenever you gate on support. A fixed threshold applied across clips
             measured at different windows compares numbers that are not comparable:
             measured on real cross-device material, 21 alignments that were all CORRECT
-            reported support from 0.00 to 1.00 depending mostly on how long the clip was,
+            reported the bare argmax headcount from 0.00 to 1.00 (which is why that tally
+            is now graded — :data:`BALLOT_VOTE_WEIGHT`) depending mostly on clip length,
             because a 4 s window on a 12 s clip is a weaker opinion than a 20 s window on
             a 60 s one. With this field a caller can scale its gate to the window, or
             decline to gate when the window came out small — what it cannot do is read
@@ -2223,26 +2265,98 @@ def _independent_windows(
     return kept
 
 
+def _window_agreement(
+    window: "_WindowMeasurement",
+    offset_s: float,
+    *,
+    offset_tolerance_s: float,
+    ballot_weight: float = BALLOT_VOTE_WEIGHT,
+) -> float:
+    """How much ONE window's evidence says ``offset_s``, on a scale of ``[0, 1]``.
+
+    Three grades, and the middle one is the whole point (issue #45):
+
+    - **1.0** — the window's own argmax (:attr:`_WindowMeasurement.vote_offset_s`) is
+      there. It found the offset unaided; nothing corroborates it more strongly than
+      that.
+    - **``ballot_weight * score / best``** — the offset is on the window's ballot but was
+      not its answer: the window could not separate it from its own best-scoring
+      candidate (:data:`NEAR_TIE_RATIO`), or another feature nominated it. Scaled by how
+      close it came in the window's own scoring, so a near-tie counts for nearly the full
+      :data:`BALLOT_VOTE_WEIGHT` and a distant nomination counts for little.
+    - **0.0** — the window never considered it. No vote can be read out of an offset
+      nobody put forward.
+
+    Monotone in the evidence by construction: strengthening what a window says about
+    ``offset_s`` (unmentioned → mentioned → mentioned higher → argmax) never lowers this,
+    so it never lowers the support tally either.
+
+    ``ballot_weight=0.0`` reduces this to the bare argmax headcount that
+    :func:`_support_fraction` used to be — the before, available as a measurement.
+    """
+    if abs(window.vote_offset_s - offset_s) <= offset_tolerance_s:
+        return 1.0
+    best = max((score for _, score in window.candidates), default=0.0)
+    if best <= 0:
+        return 0.0
+    on_ballot = [
+        score
+        for candidate_offset, score in window.candidates
+        if abs(candidate_offset - offset_s) <= offset_tolerance_s
+    ]
+    if not on_ballot:
+        return 0.0
+    return ballot_weight * max(on_ballot) / best
+
+
 def _support_fraction(
     windows: "Sequence[_WindowMeasurement]",
     offset_s: float,
     *,
     offset_tolerance_s: float,
 ) -> "float | None":
-    """What fraction of the INDEPENDENT windows reached ``offset_s`` unaided, or ``None``.
+    """How much of the INDEPENDENT windows' evidence reaches ``offset_s``, or ``None``.
+
+    The mean of :func:`_window_agreement` over the independent windows: a window that
+    reached ``offset_s`` unaided contributes 1.0, one that only put it on its ballot
+    contributes up to :data:`BALLOT_VOTE_WEIGHT`, one that never considered it
+    contributes nothing.
+
+    **This was a bare argmax tally and is now a graded one** (issue #45). The old
+    definition asked "how many windows' independent argmax landed here", which is a real
+    question at a 20 s window and close to a coin flip at 4 s — so once the window was
+    fitted to the clip (issue #41) the estimator got *more* reliable as its confidence
+    statistic got *less*, which is the wrong way round for a trust gate. Measured on real
+    cross-device material, six of 21 alignments that were all CORRECT reported 0.00.
+    Grading the tally keeps the old question answerable — ballot mentions alone cannot
+    reach past :data:`BALLOT_VOTE_WEIGHT`, so ``support > 0.5`` still means some window
+    got there on its own — while giving the windows that nearly got there a number
+    instead of a zero.
 
     ``None`` means "not measured", and it is not spelled ``1.0`` on purpose: a fraction
     computed over fewer than :data:`MIN_WINDOWS_FOR_SUPPORT` independent looks is a
     unanimous vote of one, and a manufactured 1.0 VOUCHES for whatever it is attached to.
 
-    Counted on each window's own answer (:attr:`_WindowMeasurement.vote_offset_s`), never
-    on what the consensus assigned it — the assignment agrees with itself by construction.
+    Counted on each window's own candidates, never on what the consensus assigned it —
+    the assignment agrees with itself by construction.
     """
     counted = _independent_windows(windows)
     if len(counted) < MIN_WINDOWS_FOR_SUPPORT:
         return None
-    votes = np.array([w.vote_offset_s for w in counted])
-    return float(np.mean(np.abs(votes - offset_s) <= offset_tolerance_s))
+    # The weight is looked up here rather than left to the helper's default so that
+    # setting it to 0 — which is exactly the argmax headcount this replaced — is a thing a
+    # characterization test can do, the way `near_tie_ratio=0.0` restores the pre-#30
+    # argmax path.
+    agreement = [
+        _window_agreement(
+            w,
+            offset_s,
+            offset_tolerance_s=offset_tolerance_s,
+            ballot_weight=BALLOT_VOTE_WEIGHT,
+        )
+        for w in counted
+    ]
+    return float(np.mean(agreement))
 
 
 def _consensus_alignment(
@@ -2266,10 +2380,12 @@ def _consensus_alignment(
     on wins; the reported offset is the MEDIAN over that winning group, so the answer
     keeps sub-window precision rather than snapping to one window's estimate.
 
-    ``support`` is counted on the windows' INDEPENDENT argmaxes, not on what the vote
-    assigned them — the vote's own output would agree with itself and say nothing. So it
-    reads as "this fraction of the clip found this offset unaided", which drops both
-    when the reference repeats and when only part of the clip is the reference at all.
+    ``support`` is counted on the windows' OWN candidates, not on what the vote assigned
+    them — the vote's own output would agree with itself and say nothing. So it reads as
+    "this much of the clip's own evidence reaches this offset", which drops both when the
+    reference repeats and when only part of the clip is the reference at all. An
+    independent argmax counts fully and a bare ballot mention counts up to
+    :data:`BALLOT_VOTE_WEIGHT` (:func:`_window_agreement`).
     Under :data:`MIN_WINDOWS_FOR_SUPPORT` INDEPENDENT windows there is no second opinion
     to count — windows overlapping more than :data:`MAX_SUPPORT_OVERLAP` are one look
     read twice, not two — and it is ``None`` rather than 1.0 — see
@@ -2339,12 +2455,15 @@ class AlignedSpan:
             **how well the clip matches where this span puts it**, and on a reference
             that repeats verbatim that is a question with several excellent answers —
             see :attr:`support`, and gate on both.
-        support: Fraction in ``[0, 1]`` of the span's INDEPENDENT windows
-            (:data:`MAX_SUPPORT_OVERLAP`) that reached this offset **on their own**,
-            before the consensus vote, and relative to ``window_s`` the same way
+        support: How much of the span's INDEPENDENT windows' own evidence
+            (:data:`MAX_SUPPORT_OVERLAP`) reaches this offset, in ``[0, 1]``, before the
+            consensus vote and relative to ``window_s`` the same way
             :attr:`ClipAlignment.support` is — or ``None`` when the span was
             built from fewer than :data:`MIN_WINDOWS_FOR_SUPPORT` windows and there was
-            therefore nothing to agree. This is the number that knows about repetition.
+            therefore nothing to agree. A window that reached the offset unaided counts
+            1.0 and one that only put it on its ballot counts up to
+            :data:`BALLOT_VOTE_WEIGHT`, so ``support > 0.5`` still means some window got
+            there on its own (issue #45). This is the number that knows about repetition.
             A reference with no repeats gives 1.0; a verse/chorus reference gives less,
             because some windows correlated just as well against the wrong chorus and
             only the crowd put them right; an exactly tiling reference gives very
@@ -2746,9 +2865,10 @@ def _span_from_run(
     only as trustworthy as its typical window, and the max would let one lucky window
     speak for all of them.
 
-    ``support`` is counted on the windows' INDEPENDENT argmaxes
-    (:attr:`_WindowMeasurement.vote_offset_s`), not on the offsets consensus assigned
-    them. Counting the assigned offsets would be circular — every window in a run agrees
+    ``support`` is counted on the windows' own candidates — their independent argmax
+    (:attr:`_WindowMeasurement.vote_offset_s`) at full weight and the rest of their
+    ballot at :data:`BALLOT_VOTE_WEIGHT` — not on the offsets consensus assigned them.
+    Counting the assigned offsets would be circular — every window in a run agrees
     with its run by construction, so the number would be 1.0 always and would carry no
     information at all. A run too short to hold a disagreement
     (:data:`MIN_WINDOWS_FOR_SUPPORT`) reports ``None`` for the same reason: 1.0 there

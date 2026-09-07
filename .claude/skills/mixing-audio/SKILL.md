@@ -130,7 +130,7 @@ from mixing.audio import aligned_spans
 for sp in aligned_spans("song.mp3", "phone_recording.mp4"):
     sp.clip_start_s, sp.clip_end_s  # in the CLIP's timeline
     sp.offset_s, sp.confidence  # reference_time = clip_time + offset_s
-    sp.support  # how much of the span found that offset unaided — see below
+    sp.support  # how much of the span's evidence reaches that offset — see below
     sp.reference_span  # the same extent on the SONG timeline
 ```
 
@@ -164,14 +164,32 @@ So read the two numbers as different questions:
 
 - **`confidence`** — how well the clip matches *where this answer puts it*. On repetitive
   material it stays high, and it should: the match really is that good.
-- **`support`** (0–1, or `None`) — what fraction of the windows reached that offset **on
-  their own**. 1.0 on material with no repeats; ~0.44 on verse/chorus; ~0.0 on an exactly
-  tiling reference, where every offset is equally true and no confidence would ever say
-  so. It also drops when only *part* of the clip is the reference at all (measured 0.545
-  on a half-song/half-noise clip), which is what localises where a clip stops matching.
+- **`support`** (0–1, or `None`) — how much of the windows' own evidence reaches that
+  offset. A window whose independent argmax landed there counts a full 1.0; a window that
+  only put it on its **ballot** — could not separate it from its own answer — counts half,
+  scaled by how close it scored; a window that never considered it counts nothing. 1.0 on
+  material with no repeats; ~0.72 on verse/chorus; ~0.56 on an exactly tiling reference,
+  where every offset is equally true and no confidence would ever say so. It also drops
+  when only *part* of the clip is the reference at all (measured 0.545 on a
+  half-song/half-noise clip), which is what localises where a clip stops matching.
 
 High confidence with low support means *"it fits here beautifully — and it would fit
 elsewhere too."*
+
+**`support > 0.5` means at least one independent window found the offset unaided.** That
+is the boundary the half-weight buys: ballot mentions alone can never carry the tally past
+0.5, so the top half of the range is reserved for unaided agreement — which is exactly
+what the whole number used to mean before it was graded. Gate above 0.5 if that is the
+question you are asking; gate lower if "the clip's evidence points here" is enough.
+
+**It was a bare argmax headcount until 0.0.49** (issue #45), and the same fixtures read
+0.44 / 0.11 under the old definition. The headcount broke on short clips: an argmax is a
+real opinion at a 20 s window and close to a coin flip at the ~4 s window a 12 s clip is
+fitted to, so the statistic got *less* confident exactly as fitting the window made the
+estimator *more* reliable. Measured on real cross-device material, 21 alignments that were
+**all correct** scored 0.00–1.00 with six at 0.00, and a gate at 0.25 refused about half
+of them. Where the argmax was already decisive — a long clip at the default 20 s window —
+the graded tally reports exactly what the headcount did.
 
 **`align_clips_to_reference` fits the window to each clip.** Its `window_s`/`hop_s` default
 to `None`, which means `min(20 s, clip_duration / 3)` with a floor of 3 s (300 onset-envelope
@@ -191,9 +209,10 @@ overridden.
 clip's vote was actually held at — the scale its `support` is on — and it is `None` exactly
 when `support` is. Since the window is fitted per clip, a fixed threshold across clips of
 different lengths compares numbers that answer different questions: measured on real
-cross-device material, **21 alignments that were all correct reported support from 0.00 to
-1.00**, largely by clip length, because a 4 s window on a 12 s clip is a weaker opinion than
-a 20 s window on a 60 s one. Scale your threshold to `window_s`, or pass an explicit
+cross-device material, **21 alignments that were all correct reported the pre-0.0.49
+argmax headcount from 0.00 to 1.00**, largely by clip length, because a 4 s window on a
+12 s clip is a weaker opinion than a 20 s window on a 60 s one. Grading the tally softens
+that spread but does not remove it. Scale your threshold to `window_s`, or pass an explicit
 `window_s` to put every clip on one scale. `aligned_spans` is NOT adapted — there `window_s` is boundary resolution, which
 is the caller's to choose.
 
@@ -216,8 +235,9 @@ clip's support from 0.45 to 0.50 — offsets are unaffected either way.
 
 **`support` is relative to `window_s` — if you change the window, revisit your
 threshold.** A shorter window is a weaker opinion, so fewer of them agree. Measured on the
-same three correct cross-device alignments: 0.45 / 0.64 / 0.73 at `window_s=20`, and
-0.19 / 0.16 / 0.23 at `window_s=5`. It is deliberately not normalised, so compare clips at
+same three correct cross-device alignments, on the pre-0.0.49 headcount: 0.45 / 0.64 / 0.73
+at `window_s=20`, and 0.19 / 0.16 / 0.23 at `window_s=5`. It is deliberately not
+normalised, so compare clips at
 the same window and re-tune any gate you move the window under. With the fitted default,
 clips of different lengths are NOT at the same window — pass an explicit `window_s` when you
 rank clips by support.
