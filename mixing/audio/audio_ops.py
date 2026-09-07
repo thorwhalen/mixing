@@ -1996,6 +1996,79 @@ class ClipAlignment:
             enough to sit at the default; a caller that ranks clips by support should pass
             an explicit ``window_s`` to put them back on one scale, or read
             :attr:`window_s` and scale its threshold per clip.
+
+            It says how much evidence reaches this offset and nothing about how much
+            reaches somewhere else — see :attr:`margin` for that half.
+        margin: How far :attr:`support`'s tally for this offset sits above the tally for
+            the best DIFFERENT offset — the best one outside ``offset_tolerance_s`` of
+            it — or ``None`` when there was nothing to measure. Support says how much of
+            the clip's own evidence reaches this offset; margin says **whether anything
+            else has an equal claim** (issue #47). A coefficient cannot answer that: on
+            real material the wrong offset's peak scored 0.987-0.993 of the right one's,
+            and support cannot answer it either, because an ambiguous tiling lands mid-
+            scale by construction — every alias is genuinely well supported.
+
+            **Scale.** It is a difference of two support tallies, read on
+            :attr:`support`'s scale and in its units. ``1.0`` means every independent
+            window found this offset unaided and no window put any other offset forward
+            at all. ``0.0`` means some rival offset is backed by exactly as much of the
+            clip's evidence as the answer is.
+
+            **A wide margin is not a claim of sub-tolerance precision.** Differences
+            smaller than ``offset_tolerance_s`` are one hypothesis by construction — the
+            same equivalence the vote groups ballots by — so a candidate that close is
+            the answer, not a runner-up, and never subtracts. Measured at the default
+            tolerance: a rival 0.20 s away leaves the margin at 1.000, and the same
+            rival at 0.30 s takes it to 0.505. The field says nothing has an equal claim
+            *at a different offset*; how sharply the offset itself is located is
+            ``offset_tolerance_s``, and it is the caller's to set. Where no window nominated any rival the
+            runner-up's tally is ``0.0``, so the margin is simply the support — nothing
+            else has any claim. It can come back slightly NEGATIVE: the offset is chosen
+            by the vote's headcount over every window, while the tally is graded and read
+            over the independent subset only (:data:`MAX_SUPPORT_OVERLAP`), so the two
+            need not rank identically. A negative margin says the tally actually prefers
+            somewhere else, which is the strongest "do not trust this" this object
+            carries.
+
+            **How to combine it with support.** They answer different questions, and a
+            trust gate wants both:
+
+            - high support, wide margin — the evidence points here, and nowhere else;
+            - high support, margin near zero — the clip fits here *and fits somewhere
+              else exactly as well*. An exactly tiling reference is the pure case: every
+              alias draws the same tally, and no estimator can say which one was meant;
+            - low support, wide margin — thin evidence, undisputed. A short clip on a
+              repeating bed lands here (issue #45): no window's argmax resolved the tile,
+              so the tally sits near :data:`BALLOT_VOTE_WEIGHT`, and yet no other offset
+              drew any of it. This is the row a support-only gate refuses and should not;
+            - low support, margin near zero — nothing is known.
+
+            So **support is a floor and margin is a separator**. Measured on the real
+            cross-device material this was built for — 24 correct alignments against 6
+            pure-noise clips — the separator is doing nearly all of the work:
+            ``support > 0.5`` passed 18 of 24 and refused all 6; adding
+            ``and margin > 0`` to it changed nothing (margin never refused what support
+            passed); and **``margin > 0`` alone passed all 24 and still refused all 6**,
+            recovering every correct short clip the support floor was turning away.
+            Five of the six noise clips came back NEGATIVE (-0.167 to -0.317) and no
+            correct alignment did, so a negative margin is worth reading as a refusal
+            rather than merely as a failure to vouch.
+
+            **Keep a floor under it anyway.** The sixth noise clip scored exactly
+            ``+0.000`` — refused by an exact tie, which a different draw does not
+            guarantee — and two correct alignments passed at ``+0.014`` and ``+0.029``
+            on a support of 0.34-0.35, which is the "thin evidence, undisputed" row with
+            nothing beneath it. A conjunction such as ``support > 0.25 and margin > 0``
+            scored the same 24/6 there while giving five of the six noise clips a second,
+            independent reason to fail. Thirty cases is encouraging and is not proof.
+
+            Margin is relative to :attr:`window_s` for exactly the reason support is —
+            it is built from the same tally — so a threshold on it moves with the window
+            the same way.
+
+            **``None`` means unmeasured**, never manufactured, on the same quorum as
+            :attr:`support` (:data:`MIN_WINDOWS_FOR_SUPPORT`): one independent look has
+            no runner-up to be ahead of, and a number invented there would VOUCH.
         window_s: The analysis window this clip's vote was actually held at, in seconds —
             **the scale :attr:`support` is expressed on**, reported because since the
             window is fitted to the clip it is no longer something the caller can infer
@@ -2046,6 +2119,7 @@ class ClipAlignment:
     coverage: tuple[float, float]
     overlaps: bool = True
     support: "float | None" = None
+    margin: "float | None" = None
     window_s: "float | None" = None
     hop_s: "float | None" = None
 
@@ -2166,11 +2240,12 @@ def align_clips_to_reference(
             drop when it does. A spurious peak lands at a different lag in every window
             while the true offset is the one they share, so the windows' agreement is
             what separates them — and how much of the clip agrees is reported as
-            :attr:`~ClipAlignment.support`. ``False`` restores the single whole-clip
-            correlation exactly — same offset, same confidence, and ``support=None``
-            because nothing was put to a vote. It is cheaper (one correlation instead of
-            one per window) and is the right choice only when the reference is known not
-            to repeat.
+            :attr:`~ClipAlignment.support`, with how far that is ahead of the runner-up
+            offset as :attr:`~ClipAlignment.margin`. ``False`` restores the single
+            whole-clip correlation exactly — same offset, same confidence, and
+            ``support=None``, ``margin=None`` because nothing was put to a vote. It
+            is cheaper (one correlation instead of one per window) and is the right
+            choice only when the reference is known not to repeat.
         window_s: Analysis window for the vote. Ignored when ``consensus`` is False.
             ``None`` (the default) **fits the window to each clip** — see
             :func:`_clip_window_and_hop`: ``min(20 s, clip_duration / 3)``, floored at
@@ -2229,7 +2304,7 @@ def align_clips_to_reference(
                 window_s=window_s,
                 hop_s=hop_s,
             )
-            offset_s, coeff, support = _consensus_alignment(
+            offset_s, coeff, support, margin = _consensus_alignment(
                 ref,
                 query,
                 sample_rate,
@@ -2249,15 +2324,16 @@ def align_clips_to_reference(
                 min_overlap_ratio=min_overlap_ratio,
                 ref_envelope=ref_env,
             )
-            # Nothing was put to a vote, so neither support nor the window it would be
-            # relative to exists — and support is never 1.0 here.
-            offset_s, support = lag / sample_rate, None
+            # Nothing was put to a vote, so neither support, nor the margin over a
+            # runner-up, nor the window they would be relative to exists — and support
+            # is never 1.0 here.
+            offset_s, support, margin = lag / sample_rate, None, None
             clip_window_s = clip_hop_s = None
         else:
             lag, coeff = _normalized_xcorr(
                 ref, query, min_overlap_ratio=min_overlap_ratio
             )
-            offset_s, support = lag / sample_rate, None
+            offset_s, support, margin = lag / sample_rate, None, None
             clip_window_s = clip_hop_s = None
         dur_s = len(query) / sample_rate
         start = max(0.0, offset_s)
@@ -2272,6 +2348,7 @@ def align_clips_to_reference(
                 coverage=(start, end) if overlaps else (start, start),
                 overlaps=overlaps,
                 support=support,
+                margin=margin,
                 window_s=clip_window_s,
                 hop_s=clip_hop_s,
             )
@@ -2387,6 +2464,24 @@ def _support_fraction(
     counted = _independent_windows(windows)
     if len(counted) < MIN_WINDOWS_FOR_SUPPORT:
         return None
+    return _graded_tally(counted, offset_s, offset_tolerance_s=offset_tolerance_s)
+
+
+def _graded_tally(
+    counted: "Sequence[_WindowMeasurement]",
+    offset_s: float,
+    *,
+    offset_tolerance_s: float,
+) -> float:
+    """The mean of :func:`_window_agreement` over ALREADY-independent windows.
+
+    Split out from :func:`_support_fraction` because the same tally has to be read at
+    more than one offset: :func:`_support_margin` compares the winner's against every
+    rival's, and a margin between two numbers computed different ways would not be a
+    margin. The quorum rule and the ``None`` live with the caller — this is arithmetic
+    over the windows it is handed, and it assumes they were already filtered by
+    :func:`_independent_windows`.
+    """
     # The weight is looked up here rather than left to the helper's default so that
     # setting it to 0 — which is exactly the argmax headcount this replaced — is a thing a
     # characterization test can do, the way `near_tie_ratio=0.0` restores the pre-#30
@@ -2403,6 +2498,71 @@ def _support_fraction(
     return float(np.mean(agreement))
 
 
+def _rival_offsets(
+    counted: "Sequence[_WindowMeasurement]",
+    offset_s: float,
+    *,
+    offset_tolerance_s: float,
+) -> "list[float]":
+    """The DISTINCT offsets these windows put forward that are not ``offset_s``.
+
+    One representative per cluster: a candidate within ``offset_tolerance_s`` of one
+    already collected is the same hypothesis seen from another window — the same
+    equivalence :func:`_consensus_choice` groups ballots by — and counting a peak's
+    shoulders as several rivals would understate the margin for no reason.
+
+    Read off the windows' OWN ballots, so a rival exists only because some window
+    nominated it. An offset nobody put forward is not a runner-up; it is a number.
+    """
+    rivals: "list[float]" = []
+    for window in counted:
+        for candidate_offset, _score in window.candidates:
+            if abs(candidate_offset - offset_s) <= offset_tolerance_s:
+                continue
+            if any(abs(candidate_offset - r) <= offset_tolerance_s for r in rivals):
+                continue
+            rivals.append(candidate_offset)
+    return rivals
+
+
+def _support_margin(
+    windows: "Sequence[_WindowMeasurement]",
+    offset_s: float,
+    *,
+    offset_tolerance_s: float,
+) -> "float | None":
+    """How far ``offset_s``' tally sits above the best DIFFERENT offset's, or ``None``.
+
+    :func:`_support_fraction` answers "how much of the clip's evidence reaches here".
+    This answers the question that one cannot: **"and how much reaches somewhere else
+    instead?"** (issue #47). Both are the same :func:`_graded_tally` over the same
+    independent windows, so the difference is a difference of like for like.
+
+    The runner-up is the best-tallying offset outside ``offset_tolerance_s`` of the
+    winner — not the second-best voting group. The two differ exactly on the case that
+    matters: on an exactly tiling reference every alias draws the same tally, and the
+    aliases are what a caller needs to hear about. With no rival on any ballot the best
+    rival tally is ``0.0``, so the margin is the winner's tally itself — nothing else
+    has any claim at all.
+
+    ``None`` follows the same quorum rule as support and for the same reason: one
+    independent look cannot have a runner-up, and a manufactured margin VOUCHES.
+    """
+    counted = _independent_windows(windows)
+    if len(counted) < MIN_WINDOWS_FOR_SUPPORT:
+        return None
+    tally = _graded_tally(counted, offset_s, offset_tolerance_s=offset_tolerance_s)
+    rivals = _rival_offsets(counted, offset_s, offset_tolerance_s=offset_tolerance_s)
+    best_rival = max(
+        (
+            _graded_tally(counted, rival, offset_tolerance_s=offset_tolerance_s)
+            for rival in rivals
+        ),
+        default=0.0,
+    )
+    return tally - best_rival
+
+
 def _consensus_alignment(
     ref: np.ndarray,
     clip: np.ndarray,
@@ -2415,8 +2575,8 @@ def _consensus_alignment(
     near_tie_ratio: float,
     offset_tolerance_s: float,
     ref_envelope: "tuple[np.ndarray, float] | None",
-) -> "tuple[float, float, float]":
-    """One ``(offset_s, confidence, support)`` for a whole clip, by majority of windows.
+) -> "tuple[float, float, float | None, float | None]":
+    """One ``(offset_s, confidence, support, margin)`` for a clip, by majority of windows.
 
     The whole-clip counterpart of what :func:`aligned_spans` does per span, for the
     caller who wants one number. The clip is cut into windows, each window's near-tied
@@ -2441,7 +2601,9 @@ def _consensus_alignment(
     **Two offsets can genuinely tie.** A clip that fits equally often in two places
     splits its windows evenly and no evidence separates them; one is returned, with a
     support near 0.5 that is the honest report of a 50/50 — not a hedge, and not a claim
-    to have chosen.
+    to have chosen. ``margin`` is what makes that legible from the outside: it reads
+    near zero there, and wide where the runner-up is genuinely behind
+    (:func:`_support_margin`).
     """
     windows = _consensus_choice(
         _window_offsets(
@@ -2459,7 +2621,7 @@ def _consensus_alignment(
         offset_tolerance_s=offset_tolerance_s,
     )
     if not windows:  # an empty clip has no windows and so no opinion
-        return 0.0, 0.0, None
+        return 0.0, 0.0, None, None
     offsets = np.array([w.offset_s for w in windows])
     coeffs = np.array([w.confidence for w in windows])
     agree = np.abs(offsets[:, None] - offsets[None, :]) <= offset_tolerance_s
@@ -2474,7 +2636,8 @@ def _consensus_alignment(
     support = _support_fraction(
         windows, offset_s, offset_tolerance_s=offset_tolerance_s
     )
-    return offset_s, float(np.median(coeffs[members])), support
+    margin = _support_margin(windows, offset_s, offset_tolerance_s=offset_tolerance_s)
+    return offset_s, float(np.median(coeffs[members])), support, margin
 
 
 @dataclass(frozen=True)
@@ -2520,6 +2683,21 @@ class AlignedSpan:
             vouches for an offset nothing corroborated. ``None`` says "not measured",
             which a caller can fall back from; a manufactured 1.0 is what a caller
             trusts.
+        margin: How far this span's :attr:`support` tally sits above the tally for the
+            best DIFFERENT offset — the best one outside ``offset_tolerance_s`` of this
+            span's — or ``None`` on the same quorum support is ``None`` on. Same
+            statistic, same scale and same guidance as
+            :attr:`ClipAlignment.margin`, which documents both in full: support is the
+            floor ("this much of the span's evidence reaches here"), margin is the
+            separator ("and nothing else has an equal claim"). Gate on both.
+
+            It is the field that tells an exactly tiling reference from a merely
+            repetitive one. Both report a middling support; only the tiling one reports
+            a margin near zero, because there every alias is equally true and the span
+            reports one of them without having chosen (issue #47).
+
+            Two merged spans report the duration-weighted mean, and unmeasured plus
+            measured is unmeasured — the same rule :attr:`support` merges under.
     """
 
     clip_start_s: float
@@ -2527,6 +2705,7 @@ class AlignedSpan:
     offset_s: float
     confidence: float
     support: "float | None" = None
+    margin: "float | None" = None
 
     @property
     def duration_s(self) -> float:
@@ -2594,6 +2773,15 @@ def aligned_spans(
     an exactly tiling reference where there is genuinely no unique answer. **Gate on
     both.** High confidence with low support means "it fits here beautifully, and it
     would fit elsewhere too".
+
+    **And ``support`` in turn cannot see a runner-up**, which is what
+    :attr:`~AlignedSpan.margin` is for (issue #47). Support measures how much of the
+    span's evidence reaches this offset; on an exactly tiling reference every alias is
+    reached by the same evidence, so each of them would report a similar middling
+    support and none of them is more true than the others. The margin — this offset's
+    tally minus the best other offset's — reads near zero exactly there, and stays wide
+    where a short clip's thin evidence is nonetheless undisputed. **Support is a floor;
+    margin is a separator.**
 
     A span too short to hold a disagreement reports ``support=None``, meaning *not
     measured* — never 1.0. One window agrees with itself, and a unanimous vote of one
@@ -2917,15 +3105,21 @@ def _span_from_run(
     information at all. A run too short to hold a disagreement
     (:data:`MIN_WINDOWS_FOR_SUPPORT`) reports ``None`` for the same reason: 1.0 there
     would be a unanimous vote of one.
+
+    ``margin`` is read off the same ballots at the same time (:func:`_support_margin`),
+    because the question support cannot answer — whether any OTHER offset is backed by
+    as much of this run's evidence — is answerable from exactly the same windows.
     """
     offset = float(np.median([m.offset_s for m in run]))
     support = _support_fraction(run, offset, offset_tolerance_s=offset_tolerance_s)
+    margin = _support_margin(run, offset, offset_tolerance_s=offset_tolerance_s)
     return AlignedSpan(
         clip_start_s=run[0].clip_start_s,
         clip_end_s=run[-1].clip_end_s,
         offset_s=offset,
         confidence=float(np.median([m.confidence for m in run])),
         support=support,
+        margin=margin,
     )
 
 
@@ -3019,6 +3213,7 @@ def _merge_same_offset(
                     / max(prev.duration_s + span.duration_s, 1e-9),
                     confidence=min(prev.confidence, span.confidence),
                     support=_merge_support(prev, span),
+                    margin=_merge_margin(prev, span),
                 )
                 continue
         out.append(span)
@@ -3034,10 +3229,37 @@ def _merge_support(a: "AlignedSpan", b: "AlignedSpan") -> "float | None":
     other side's) would let a stretch nothing corroborated inherit the vouching of the
     stretch beside it. Unmeasured plus measured is unmeasured.
     """
-    if a.support is None or b.support is None:
+    return _merge_statistic(
+        a.support, b.support, a_duration_s=a.duration_s, b_duration_s=b.duration_s
+    )
+
+
+def _merge_margin(a: "AlignedSpan", b: "AlignedSpan") -> "float | None":
+    """The margin of two merged spans — the same rule :func:`_merge_support` uses.
+
+    Deliberately not recomputed from the merged run: the two spans were measured on
+    their own windows and the merge joins them across a gap nothing verified, so there
+    is no combined ballot to read a runner-up off. Averaging what was measured is the
+    honest move, and the ``None`` rule matters more here than for support — a span with
+    no runner-up measured must not inherit its neighbour's separation.
+    """
+    return _merge_statistic(
+        a.margin, b.margin, a_duration_s=a.duration_s, b_duration_s=b.duration_s
+    )
+
+
+def _merge_statistic(
+    a_value: "float | None",
+    b_value: "float | None",
+    *,
+    a_duration_s: float,
+    b_duration_s: float,
+) -> "float | None":
+    """Duration-weighted mean of two per-span statistics, ``None`` if either is ``None``."""
+    if a_value is None or b_value is None:
         return None
-    total = max(a.duration_s + b.duration_s, 1e-9)
-    return (a.support * a.duration_s + b.support * b.duration_s) / total
+    total = max(a_duration_s + b_duration_s, 1e-9)
+    return (a_value * a_duration_s + b_value * b_duration_s) / total
 
 
 def _disjoin(spans: "list[AlignedSpan]") -> "list[AlignedSpan]":

@@ -131,6 +131,7 @@ for sp in aligned_spans("song.mp3", "phone_recording.mp4"):
     sp.clip_start_s, sp.clip_end_s  # in the CLIP's timeline
     sp.offset_s, sp.confidence  # reference_time = clip_time + offset_s
     sp.support  # how much of the span's evidence reaches that offset — see below
+    sp.margin  # ...and how far that is AHEAD of the runner-up offset — see below
     sp.reference_span  # the same extent on the SONG timeline
 ```
 
@@ -172,6 +173,10 @@ So read the two numbers as different questions:
   where every offset is equally true and no confidence would ever say so. It also drops
   when only *part* of the clip is the reference at all (measured 0.545 on a
   half-song/half-noise clip), which is what localises where a clip stops matching.
+- **`margin`** (a difference of two `support` tallies, or `None`) — how far that evidence
+  sits **ahead of the best OTHER offset's**. Support cannot see a runner-up; this is the
+  field that can. ~0.99 with no repeats; ~0.33 on verse/chorus; ~0.00 on an exactly tiling
+  reference, where nine offsets are equally true.
 
 High confidence with low support means *"it fits here beautifully — and it would fit
 elsewhere too."*
@@ -277,6 +282,68 @@ normalised, so compare clips at
 the same window and re-tune any gate you move the window under. With the fitted default,
 clips of different lengths are NOT at the same window — pass an explicit `window_s` when you
 rank clips by support.
+
+### `support` is a floor; `margin` is a separator — gate on both
+
+`support` answers *"how much of the clip's own evidence reaches this offset"*. It cannot
+answer *"and how much reaches somewhere else instead?"* — and on repetitive material that
+second question is the one that decides whether the answer is trustworthy. `margin`
+(0.0.51, issue #47) answers it: the same graded tally, read at the best offset **outside
+`offset_tolerance_s`** of the answer, subtracted. Same scale as `support`, same units,
+same `None` rule.
+
+Why a third number rather than a better threshold on the second: three scalars have now
+been measured *not* to separate correct from wrong on real cross-device material.
+`confidence` — the wrong offset's peak scored 0.987–0.993 of the right one's, sometimes
+higher. `support` — an ambiguous tiling lands mid-scale *by construction*, because every
+alias genuinely is reached by the same evidence. The window guard — deleted in 0.0.50,
+having been measured not to separate them either. A fraction cannot see a runner-up.
+
+Read the pair as a 2×2:
+
+| | wide margin | margin ≈ 0 |
+|---|---|---|
+| **high support** | the evidence points here and nowhere else | it fits here *and fits somewhere else exactly as well* — an exact tiling |
+| **low support** | thin evidence, undisputed — a short clip on a repeating bed. **A support-only gate refuses this and should not** | nothing is known |
+
+Measured on synthetic material at `window_s=10`: no repetition `support 1.00 / margin
+0.99`; verse/chorus `0.72 / 0.33`; exactly tiling `0.50 / -0.00`. And at the fitted
+window, a **correct** 16 s clip on a bed that tiles every 2 s: `0.50 / +0.12`. That last
+pair is the point — the ambiguous tiling and the correct short clip are
+**indistinguishable on support** and opposite on margin.
+
+**Measured on real cross-device material, `margin` is not an addition to a `support`
+gate — it is a better gate.** 24 correct alignments against 6 pure-noise clips:
+`support > 0.5` (the gate this skill recommended above) passed **18/24** and refused
+**0/6**; `support > 0.5 and margin > 0` passed the same 18/24, so the conjunction added
+nothing; and **`margin > 0` alone passed 24/24 and still refused 0/6**, recovering every
+correct short clip the support floor was turning away. Five of the six noise clips came
+back **negative** (-0.167 to -0.317) and no correct alignment did — read a negative
+margin as a refusal, not just as a failure to vouch.
+
+**Keep a floor under it anyway.** The sixth noise clip scored exactly `+0.000` — refused
+by an exact tie, which a different draw does not guarantee — and two correct alignments
+passed at `+0.014` and `+0.029` on a support of 0.34–0.35, the "thin evidence,
+undisputed" row with nothing beneath it. `support > 0.25 and margin > 0` scored the same
+24/6 while giving five of the six noise clips a second, independent reason to fail.
+Thirty cases is encouraging and is not proof — so if you gate on one number, gate on
+`margin`; if you gate on two, put a low support floor under it rather than the old 0.5.
+
+**A wide margin is not a claim of sub-tolerance precision.** Offsets closer together
+than `offset_tolerance_s` are one hypothesis by construction, so a candidate that near is
+the answer and never subtracts: at the default tolerance a rival 0.20 s away leaves the
+margin at 1.000, and the same rival at 0.30 s takes it to 0.505. Margin says nothing else
+has an equal claim *at a different offset*; how sharply the offset itself is located is
+`offset_tolerance_s`, which is yours to set.
+
+**It can be slightly negative**, and is not clamped. The offset is chosen by the vote's
+headcount over every window; the tally is graded and read over the independent windows
+only, so the two need not rank identically. A negative margin says the tally actually
+prefers somewhere else — the strongest *do not trust this* the object carries.
+
+**`margin is None` exactly where `support is None`**, for the same reason: one independent
+look has no runner-up to be ahead of, and a number invented there would vouch. It is
+relative to `window_s` for the same reason `support` is — same tally, same scale.
 
 `near_tie_ratio=0.0` disables the vote and restores the old per-window argmax;
 `align_clips_to_reference(..., consensus=False)` restores its single whole-clip
