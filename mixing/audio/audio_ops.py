@@ -2021,6 +2021,16 @@ class ClipAlignment:
             opinion was; it does not put the number back on a scale a pre-#45 threshold
             was calibrated against. Nothing does. A threshold calibrated on the headcount
             has to be re-measured against this statistic, not re-pointed at it.
+
+            **And such a guard should be REMOVED by this change, not kept alongside a new
+            threshold** — measured, not reasoned. A rule that declines to trust support
+            below the default window has to route those clips somewhere, and the only
+            thing left is :attr:`confidence`. That fallback is weaker than the statistic
+            the guard was protecting against: on six pure-noise clips at a fitted 6.67 s
+            window, confidences of 0.017-0.173 passed a consumer's floor of 0.1 for
+            **four of the six**, while graded support at ``> 0.5`` refused all six.
+            Grading is what makes support usable at a fitted window in the first place,
+            so a window guard in front of it now costs more than it saves.
         hop_s: The step between those windows — the other half of the grid, reported for
             the same reason and ``None`` in the same cases. Support counts windows that
             are separated enough to be second opinions
