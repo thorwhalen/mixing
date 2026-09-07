@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>mixing.audio.audio_ops &mdash; mixing 0.0.45 documentation</title>
+  <title>mixing.audio.audio_ops &mdash; mixing 0.0.46 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
@@ -14,7 +14,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=dcb4eb81"></script>
+      <script src="../../../_static/documentation_options.js?v=eb4c61eb"></script>
       <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="../../../_static/toggleprompt.js?v=d7ede5d2"></script>
@@ -1486,9 +1486,17 @@
 <span class="c1">#: is exactly how an offset 102 s from the truth came back at ``support=1.00`` — the same</span>
 <span class="c1">#: shared-bias failure as issue #30, one level up. Windows closer together than this are</span>
 <span class="c1">#: still measured, still vote, and still set the offset; they are only excluded from the</span>
-<span class="c1">#: TALLY, whose whole meaning is "how many independent looks agree". The default hop</span>
-<span class="c1">#: (:data:`SPAN_HOP_S`, half a window) sits exactly at this bound, so every window counts</span>
-<span class="c1">#: at the shipped settings.</span>
+<span class="c1">#: TALLY, whose whole meaning is "how many independent looks agree".</span>
+<span class="c1">#:</span>
+<span class="c1">#: The default hop (:data:`SPAN_HOP_S`, half a window) sits exactly ON this bound, so every</span>
+<span class="c1">#: window of the regular grid counts. The one window that does not is the TAIL window</span>
+<span class="c1">#: :func:`_window_offsets` appends when a clip's length is not a whole number of hops: it</span>
+<span class="c1">#: starts wherever it must to reach the end, usually less than half a window after its</span>
+<span class="c1">#: neighbour, so it is excluded and the denominator loses one. Measured on real material,</span>
+<span class="c1">#: that moved one clip's support from 0.45 to 0.50 — the offsets did not move. It is the</span>
+<span class="c1">#: right call and it does cost something: the tail window is the only look at the clip's</span>
+<span class="c1">#: last stretch, and heavily-overlapped agreement is exactly what must not be counted, so</span>
+<span class="c1">#: the choice is between a look nothing corroborates and a corroboration that is an echo.</span>
 <span class="n">MAX_SUPPORT_OVERLAP</span> <span class="o">=</span> <span class="mf">0.5</span>
 
 <span class="c1">#: Most near-tied lags one window may put forward. A cap, not a target: an exactly</span>

@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>mixing.audio.audio_ops &mdash; mixing 0.0.45 documentation</title>
+  <title>mixing.audio.audio_ops &mdash; mixing 0.0.46 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
@@ -15,7 +15,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=dcb4eb81"></script>
+      <script src="../../../_static/documentation_options.js?v=eb4c61eb"></script>
       <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="../../../_static/toggleprompt.js?v=d7ede5d2"></script>
@@ -852,9 +852,16 @@ reason worth reporting. Measured on real material at <code class="docutils liter
 is exactly how an offset 102 s from the truth came back at <code class="docutils literal notranslate"><span class="pre">support=1.00</span></code> — the same
 shared-bias failure as issue #30, one level up. Windows closer together than this are
 still measured, still vote, and still set the offset; they are only excluded from the
-TALLY, whose whole meaning is “how many independent looks agree”. The default hop
-(<a class="reference internal" href="#mixing.audio.audio_ops.SPAN_HOP_S" title="mixing.audio.audio_ops.SPAN_HOP_S"><code class="xref py py-data docutils literal notranslate"><span class="pre">SPAN_HOP_S</span></code></a>, half a window) sits exactly at this bound, so every window counts
-at the shipped settings.</p>
+TALLY, whose whole meaning is “how many independent looks agree”.</p>
+<p>The default hop (<a class="reference internal" href="#mixing.audio.audio_ops.SPAN_HOP_S" title="mixing.audio.audio_ops.SPAN_HOP_S"><code class="xref py py-data docutils literal notranslate"><span class="pre">SPAN_HOP_S</span></code></a>, half a window) sits exactly ON this bound, so every
+window of the regular grid counts. The one window that does not is the TAIL window
+<code class="xref py py-func docutils literal notranslate"><span class="pre">_window_offsets()</span></code> appends when a clip’s length is not a whole number of hops: it
+starts wherever it must to reach the end, usually less than half a window after its
+neighbour, so it is excluded and the denominator loses one. Measured on real material,
+that moved one clip’s support from 0.45 to 0.50 — the offsets did not move. It is the
+right call and it does cost something: the tail window is the only look at the clip’s
+last stretch, and heavily-overlapped agreement is exactly what must not be counted, so
+the choice is between a look nothing corroborates and a corroboration that is an echo.</p>
 </dd></dl>
 
 <dl class="py data">
