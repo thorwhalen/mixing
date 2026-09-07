@@ -1335,7 +1335,9 @@ MAX_SUPPORT_OVERLAP = 0.5
 #: independent argmax. A window that named the winning offset outright found it unaided;
 #: a window that merely could not separate it from its own answer
 #: (:data:`NEAR_TIE_RATIO`) is weaker evidence than that and stronger than nothing, so it
-#: casts half a vote rather than none (issue #45).
+#: casts half a vote rather than none (issue #45). The mention is then scaled by the
+#: candidate's share of that window's own best score — both :func:`_dual_confidence`
+#: values, so the ratio is a WITHIN-WINDOW ranking and not a calibrated coefficient.
 #:
 #: Why half rather than some other fraction: at ``0.5`` the number reads as a scale with
 #: a boundary a caller can use. Ballot mentions alone can never carry the tally past
@@ -1939,7 +1941,18 @@ class ClipAlignment:
             meant.** Every value in ``(0, 0.5]`` is reachable with zero windows having
             found the offset unaided, so a gate at 0.25 now says "some of the clip's
             evidence mentions this offset", not "a quarter of the windows located it
-            themselves". A caller who meant the latter gates at ``> 0.5``.
+            themselves". A caller who meant the latter gates at ``> 0.5``, and that is
+            not a cosmetic re-tune: measured at the default window, an exactly tiling
+            reference — where the offset is a free choice among nine — now lands just
+            *below* 0.5 and a reference that is one half twice lands just *above* it, so
+            a gate at 0.5 separates them and a gate at 0.25 passes both.
+
+            **The change is a no-op only where the argmax was already decisive.** A long
+            clip at the default 20 s window is unchanged on a reference that does not
+            repeat, because every window got there on its own and there is nothing to
+            add. On a repeating reference the same long clip moves — measured, a 60 s
+            clip at ``window_s=20`` went from a headcount of 0.00 to about 0.50. Length
+            was never the thing that made the old number safe; an undisputed argmax was.
 
             The reason it is graded: an argmax is a real opinion at a 20 s window and
             close to a coin flip at 4 s, so a bare headcount got *less* confident exactly
@@ -2287,15 +2300,20 @@ def _window_agreement(
       that.
     - **``ballot_weight * score / best``** — the offset is on the window's ballot but was
       not its answer: the window could not separate it from its own best-scoring
-      candidate (:data:`NEAR_TIE_RATIO`), or another feature nominated it. Scaled by how
-      close it came in the window's own scoring, so a near-tie counts for nearly the full
-      :data:`BALLOT_VOTE_WEIGHT` and a distant nomination counts for little.
+      candidate (:data:`NEAR_TIE_RATIO`), or another feature nominated it. The ratio is
+      **within this window and uncalibrated** — both scores are
+      :func:`_dual_confidence` values, so it says how this candidate ranked against the
+      window's own best and nothing about either in absolute terms.
     - **0.0** — the window never considered it. No vote can be read out of an offset
       nobody put forward.
 
     Monotone in the evidence by construction: strengthening what a window says about
-    ``offset_s`` (unmentioned → mentioned → mentioned higher → argmax) never lowers this,
-    so it never lowers the support tally either.
+    ``offset_s`` (unmentioned → mentioned → mentioned higher → argmax) never lowers this
+    window's grade, so **for a fixed set of independent windows** it never lowers the
+    support tally either. That qualifier is load-bearing: adding a window changes which
+    windows :func:`_independent_windows` keeps, and the greedy stride can displace a
+    full-credit window in favour of the newcomer — so an extra agreeing window can lower
+    the mean even though no window's own grade fell.
 
     ``ballot_weight=0.0`` reduces this to the bare argmax headcount that
     :func:`_support_fraction` used to be — the before, available as a measurement.

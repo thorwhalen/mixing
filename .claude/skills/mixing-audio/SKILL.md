@@ -189,6 +189,18 @@ themselves" now means "some of the clip's evidence mentions it". A gate at 0.25 
 that band. If your threshold was chosen to mean unaided agreement, its equivalent on this
 scale is **`> 0.5`**, not `> 0.25`.
 
+That is not a cosmetic re-tune: measured at the default window, an **exactly tiling**
+reference (the offset is a free choice among nine) lands just *below* 0.5 and a reference
+that is **one half twice** lands just *above* it. A gate at 0.5 separates those two; a
+gate at 0.25 passes both.
+
+**What is unchanged by the grading is an undisputed argmax, not a long clip.** A 60 s clip
+at the default 20 s window is bit-identical on a non-repeating reference — every window
+got there on its own, so there is nothing to add. The same clip against a reference that
+repeats moves from 0.00 to about 0.50, because no window resolves the repeat alone and all
+of them have the true offset on their ballots. Length was never what made the old number
+safe.
+
 **It was a bare argmax headcount until 0.0.49** (issue #45), and the same fixtures read
 0.44 / 0.11 under the old definition. The headcount broke on short clips: an argmax is a
 real opinion at a 20 s window and close to a coin flip at the ~4 s window a 12 s clip is

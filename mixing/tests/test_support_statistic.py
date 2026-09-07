@@ -17,9 +17,13 @@ consequences worth stating rather than discovering:
 
 - **The old question is still answerable.** Ballot mentions alone cannot carry the tally
   past 0.5, so ``support > 0.5`` means at least one independent window got there unaided.
+  A gate carried over from the old scale at 0.25 does NOT mean that any more.
 - **The number now means "how much of the clip's evidence reaches this offset"**, not
   "how uniquely does the clip belong here". Those came apart in the old definition only by
   accident, and the accident is what broke on short clips.
+- **What is unchanged is an undisputed argmax, not a long clip.** A 60 s clip at the
+  default 20 s window is bit-identical on a non-repeating reference and moves a long way
+  on a repeating one; both are pinned below.
 
 The deterministic half of this file builds :class:`_WindowMeasurement` directly, because
 the properties being pinned — grading, monotonicity, the 0.5 boundary — are properties of
@@ -38,6 +42,7 @@ from mixing.audio.audio_ops import (
     MIN_WINDOWS_FOR_SUPPORT,
     SPAN_HOP_S,
     SPAN_WINDOW_S,
+    _independent_windows,
     _support_fraction,
     _window_agreement,
     _WindowMeasurement,
@@ -56,7 +61,7 @@ TOL = 0.25
 WIN, HOP = 10.0, 5.0
 
 
-def _window(index: int, candidates: "list[tuple[float, float]]") -> _WindowMeasurement:
+def _window(index: float, candidates: "list[tuple[float, float]]") -> _WindowMeasurement:
     """One window at ``index * HOP``, whose ballot is ``candidates`` best-first.
 
     ``candidates[0]`` is the window's own argmax, which is what ``vote_offset_s`` keeps —
@@ -129,13 +134,19 @@ def test_an_offset_nobody_nominated_is_worth_nothing():
 
 
 def test_more_agreeing_evidence_never_lowers_the_support():
-    """Monotone in the evidence — the property the old tally did not have.
+    """Monotone in the evidence, FOR A FIXED SET OF WINDOWS — what the old tally lacked.
 
     A statistic a caller gates on must not fall when a window says *more*. The old one
     could not fall, but it could not rise either: everything short of an argmax was a
     zero, so a window moving from "never considered it" to "could not separate it from
     its own answer" bought nothing. Here each step up the ladder raises the number, and
     no step ever lowers it.
+
+    The ladder varies ONE window's ballot and holds the window set fixed, which is the
+    only monotonicity claimed. Adding a window is a different operation: it changes which
+    windows :func:`_independent_windows` keeps (see
+    :func:`test_adding_a_window_can_displace_one_that_had_full_credit`), so support is
+    monotone in what the windows SAY and not in how many of them there are.
     """
     ladder = [
         [(RIVAL, 1.0)],  # never considered
@@ -148,6 +159,38 @@ def test_more_agreeing_evidence_never_lowers_the_support():
 
     assert measured == sorted(measured), measured
     assert measured[0] < measured[-1], "the ladder must actually climb"
+
+
+def test_adding_a_window_can_displace_one_that_had_full_credit():
+    """The limit of the monotonicity above, pinned so nobody over-reads it.
+
+    ``support`` averages over the INDEPENDENT windows, and which windows those are is a
+    greedy walk keyed on :data:`MAX_SUPPORT_OVERLAP`. Inserting a window changes the walk:
+    here an extra window that AGREES lands close enough to the first to be kept, and its
+    presence pushes the stride past a full-credit window that used to be counted. No
+    window's own grade fell; the denominator changed under them.
+
+    This is inherited from the old headcount, not introduced by grading — it is a property
+    of independence selection — but the docstrings must not promise more than it allows.
+    """
+    spaced = [_window(i, [(TRUTH, 0.9)]) for i in (0, 2, 4)]  # 0 s, 10 s, 20 s
+    assert _support(spaced) == 1.0
+
+    crowded = [spaced[0], _window(1.2, [(TRUTH, 0.9)])] + spaced[1:]  # + one at 6 s
+    kept = _independent_windows(crowded)
+    assert [w.clip_start_s for w in kept] == [0.0, 6.0, 20.0], (
+        "the newcomer displaces the 10 s window from the tally"
+    )
+    assert _support(crowded) == 1.0, "all three kept windows still agree unaided"
+
+    # And when the displaced window was the one carrying full credit, the mean falls.
+    mixed = [
+        _window(0, [(TRUTH, 0.9)]),
+        _window(1.2, [(RIVAL, 1.0), (TRUTH, 1.0)]),
+        _window(2, [(TRUTH, 0.9)]),
+        _window(4, [(TRUTH, 0.9)]),
+    ]
+    assert _support(mixed) < _support(spaced)
 
 
 def test_ballot_mentions_alone_cannot_reach_past_half():
@@ -427,6 +470,35 @@ def test_a_long_clip_at_the_default_window_reports_the_old_number_exactly(
     assert measured.support == before.support
     assert measured.support == 1.0, (
         "on a reference that does not repeat, every window gets there on its own"
+    )
+
+
+def test_a_long_clip_is_not_unchanged_when_the_reference_repeats(bed, tmp_path):
+    """The qualifier on the guarantee above, pinned so it cannot be read away.
+
+    It is an undisputed argmax that makes the tally unchanged, **not** clip length. The
+    same 60 s clip at the same 20 s window, against a reference that repeats verbatim,
+    moves a long way: no window resolves the tile on its own, every window has the true
+    offset on its ballot, and what was a flat 0.00 becomes roughly half.
+
+    Which is the whole point — that clip was correct all along. But a caller reading
+    "long clips at the default window are unaffected" would be reading a promise that was
+    never made.
+    """
+    reference_path, reference = bed
+    clip = _excerpt(
+        tmp_path, reference, "long_bed.wav", LONG_CLIP_START_S, LONG_CLIP_S, seed=19
+    )
+    grid = dict(window_s=SPAN_WINDOW_S, hop_s=SPAN_HOP_S)
+
+    measured = _aligned(reference_path, clip, **grid)
+    before = _as_argmax_headcount(reference_path, clip, **grid)
+
+    assert measured.offset_s == pytest.approx(LONG_CLIP_START_S, abs=0.05)
+    assert before.support <= 0.25, f"the headcount refused this too, got {before.support}"
+    assert measured.support > 0.25
+    assert measured.support == pytest.approx(BALLOT_VOTE_WEIGHT, abs=0.2), (
+        "ballot-only evidence, at the default window, on a 60 s clip"
     )
 
 
