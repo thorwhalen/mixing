@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>mixing.audio &mdash; mixing 0.0.48 documentation</title>
+  <title>mixing.audio &mdash; mixing 0.0.49 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
@@ -15,7 +15,7 @@
   
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../_static/documentation_options.js?v=a72e4630"></script>
+      <script src="../../_static/documentation_options.js?v=0356c229"></script>
       <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="../../_static/toggleprompt.js?v=d7ede5d2"></script>
@@ -900,6 +900,15 @@ on a bed that tiles. So reading this field tells a caller how strong each
 opinion was; it does not put the number back on a scale a pre-#45 threshold
 was calibrated against. Nothing does. A threshold calibrated on the headcount
 has to be re-measured against this statistic, not re-pointed at it.</p>
+<p><strong>And such a guard should be REMOVED by this change, not kept alongside a new
+threshold</strong> — measured, not reasoned. A rule that declines to trust support
+below the default window has to route those clips somewhere, and the only
+thing left is <a class="reference internal" href="#mixing.audio.ClipAlignment.confidence" title="mixing.audio.ClipAlignment.confidence"><code class="xref py py-attr docutils literal notranslate"><span class="pre">confidence</span></code></a>. That fallback is weaker than the statistic
+the guard was protecting against: on six pure-noise clips at a fitted 6.67 s
+window, confidences of 0.017-0.173 passed a consumer’s floor of 0.1 for
+<strong>four of the six</strong>, while graded support at <code class="docutils literal notranslate"><span class="pre">&gt;</span> <span class="pre">0.5</span></code> refused all six.
+Grading is what makes support usable at a fitted window in the first place,
+so a window guard in front of it now costs more than it saves.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>float | None</p>
