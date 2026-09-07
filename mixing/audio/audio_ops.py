@@ -2043,10 +2043,28 @@ class ClipAlignment:
               drew any of it. This is the row a support-only gate refuses and should not;
             - low support, margin near zero — nothing is known.
 
-            So **support is a floor and margin is a separator**, and neither substitutes
-            for the other. Margin is relative to :attr:`window_s` for exactly the reason
-            support is — it is built from the same tally — so a threshold on it moves
-            with the window the same way.
+            So **support is a floor and margin is a separator**. Measured on the real
+            cross-device material this was built for — 24 correct alignments against 6
+            pure-noise clips — the separator is doing nearly all of the work:
+            ``support > 0.5`` passed 18 of 24 and refused all 6; adding
+            ``and margin > 0`` to it changed nothing (margin never refused what support
+            passed); and **``margin > 0`` alone passed all 24 and still refused all 6**,
+            recovering every correct short clip the support floor was turning away.
+            Five of the six noise clips came back NEGATIVE (-0.167 to -0.317) and no
+            correct alignment did, so a negative margin is worth reading as a refusal
+            rather than merely as a failure to vouch.
+
+            **Keep a floor under it anyway.** The sixth noise clip scored exactly
+            ``+0.000`` — refused by an exact tie, which a different draw does not
+            guarantee — and two correct alignments passed at ``+0.014`` and ``+0.029``
+            on a support of 0.34-0.35, which is the "thin evidence, undisputed" row with
+            nothing beneath it. A conjunction such as ``support > 0.25 and margin > 0``
+            scored the same 24/6 there while giving five of the six noise clips a second,
+            independent reason to fail. Thirty cases is encouraging and is not proof.
+
+            Margin is relative to :attr:`window_s` for exactly the reason support is —
+            it is built from the same tally — so a threshold on it moves with the window
+            the same way.
 
             **``None`` means unmeasured**, never manufactured, on the same quorum as
             :attr:`support` (:data:`MIN_WINDOWS_FOR_SUPPORT`): one independent look has

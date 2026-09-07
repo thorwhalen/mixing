@@ -312,6 +312,23 @@ window, a **correct** 16 s clip on a bed that tiles every 2 s: `0.50 / +0.12`. T
 pair is the point — the ambiguous tiling and the correct short clip are
 **indistinguishable on support** and opposite on margin.
 
+**Measured on real cross-device material, `margin` is not an addition to a `support`
+gate — it is a better gate.** 24 correct alignments against 6 pure-noise clips:
+`support > 0.5` (the gate this skill recommended above) passed **18/24** and refused
+**0/6**; `support > 0.5 and margin > 0` passed the same 18/24, so the conjunction added
+nothing; and **`margin > 0` alone passed 24/24 and still refused 0/6**, recovering every
+correct short clip the support floor was turning away. Five of the six noise clips came
+back **negative** (-0.167 to -0.317) and no correct alignment did — read a negative
+margin as a refusal, not just as a failure to vouch.
+
+**Keep a floor under it anyway.** The sixth noise clip scored exactly `+0.000` — refused
+by an exact tie, which a different draw does not guarantee — and two correct alignments
+passed at `+0.014` and `+0.029` on a support of 0.34–0.35, the "thin evidence,
+undisputed" row with nothing beneath it. `support > 0.25 and margin > 0` scored the same
+24/6 while giving five of the six noise clips a second, independent reason to fail.
+Thirty cases is encouraging and is not proof — so if you gate on one number, gate on
+`margin`; if you gate on two, put a low support floor under it rather than the old 0.5.
+
 **A wide margin is not a claim of sub-tolerance precision.** Offsets closer together
 than `offset_tolerance_s` are one hypothesis by construction, so a candidate that near is
 the answer and never subtracts: at the default tolerance a rival 0.20 s away leaves the
