@@ -244,6 +244,14 @@ tells you how strong each opinion was; nothing puts the number back on the scale
 pre-0.0.49 threshold was calibrated against. **Re-measure such a threshold against this
 statistic; do not re-point it at it.**
 
+**If you have a window guard, DELETE it — do not keep it alongside a new threshold.** A
+rule that declines to trust `support` below the default window has to send those clips
+somewhere, and the only thing left is `confidence`. That fallback is weaker than the
+statistic the guard was protecting against. Measured on six pure-noise clips at a fitted
+6.67 s window: confidences of 0.017–0.173 cleared a consumer's floor of 0.1 for **four of
+the six**, while graded `support > 0.5` refused all six. Grading is what makes `support`
+usable at a fitted window in the first place, so gate on it directly.
+
 **`support is None` means NOT MEASURED — do not read it as 1.0.** You get it with
 `consensus=False`, for a clip shorter than one window *at the window in force*, and when
 the windows overlap by more than half (two windows sharing 95% of their samples are one
