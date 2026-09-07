@@ -257,6 +257,36 @@ def test_save_frame_requires_an_output_target(color_video):
         v.save_frame(0.0, output=False, copy_to_clipboard=False)
 
 
+def test_save_frame_is_silent_by_default(make_color_video, capsys):
+    """save_frame prints nothing on stdout unless quiet=False is passed (mixing#32)."""
+    pytest.importorskip("cv2")
+
+    path = make_color_video(1.0, fps=24, size=(320, 240))
+    v = Video(path)
+    out = _tmp_out(".png")
+    try:
+        v.save_frame(0.0, output=str(out))
+        captured = capsys.readouterr()
+        assert captured.out == ""
+    finally:
+        out.unlink(missing_ok=True)
+
+
+def test_save_frame_prints_when_opted_in(make_color_video, capsys):
+    """save_frame(..., quiet=False) still prints its progress message."""
+    pytest.importorskip("cv2")
+
+    path = make_color_video(1.0, fps=24, size=(320, 240))
+    v = Video(path)
+    out = _tmp_out(".png")
+    try:
+        v.save_frame(0.0, output=str(out), quiet=False)
+        captured = capsys.readouterr()
+        assert "Saved frame to:" in captured.out
+    finally:
+        out.unlink(missing_ok=True)
+
+
 def test_to_clip_returns_moviepy_clip_of_subduration(make_color_video):
     """.to_clip() returns a moviepy clip spanning the (sub)segment duration."""
     v = Video(make_color_video(2.0, fps=24))
