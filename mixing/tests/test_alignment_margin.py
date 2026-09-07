@@ -518,10 +518,16 @@ def test_without_a_vote_there_is_no_margin(references, tmp_path):
 
 #: ``0.0.50``'s ``(offset_s, confidence, support)`` for the longest span of one
 #: continuous take of each reference, at ``window_s=10, hop_s=5``.
+#:
+#: The exactly tiling reference is deliberately ABSENT. It has nine equally true
+#: answers, and which one a near-tie lands on is a function of the FFT build rather than
+#: of this package: pinned at ``10.0`` here, it came back ``0.0`` — also correct — on
+#: another platform. Pinning it would be pinning a coin flip, and the test would fail
+#: for being right. What IS stable there is pinned in
+#: :func:`test_an_exactly_tiling_reference_is_pinned_by_its_alias_grid_not_its_alias`.
 SPANS_0_0_50 = {
     "plain": (20.0, 0.984476713061276, 1.0),
     "verse/chorus": (20.0, 0.984572367514042, 0.7222125224346537),
-    "exact tiling": (10.0, 0.9845022902002918, 0.49998510877499713),
 }
 
 #: ``0.0.50``'s ``(offset_s, confidence, support, window_s, hop_s)`` for the short clip
@@ -549,6 +555,30 @@ def test_aligned_spans_returns_what_0_0_50_returned(references, tmp_path, name):
     assert span.confidence == pytest.approx(confidence, rel=CHARACTERIZATION_REL)
     assert span.support == pytest.approx(support, rel=CHARACTERIZATION_REL)
     assert span.margin is not None, "and the new field is populated"
+
+
+def test_an_exactly_tiling_reference_is_pinned_by_its_alias_grid_not_its_alias(
+    references, tmp_path
+):
+    """What a characterization can honestly claim where nine answers are equally true.
+
+    The offset here is a free choice among nine, so an absolute pin measures the FFT
+    build and not this package — measured: ``10.0`` on one platform and ``0.0``, equally
+    correct, on another. What does not vary is everything the alias grid does not touch:
+    the answer is ON the grid, the whole take is one span, the confidence is where a
+    good match sits, and support and margin land where the two shipped tiling tests
+    already say they do. Those are the statements 0.0.50 would also have satisfied.
+    """
+    span = _longest_span(*_take_case(tmp_path, references, "exact tiling"))
+    _, confidence, support = SPANS_0_0_50["verse/chorus"]
+
+    assert (span.offset_s - TAKE_S[0]) % TILE_S == pytest.approx(0.0, abs=0.05)
+    assert span.duration_s > TAKE_S[1] - TAKE_S[0] - 2 * WIN, "one take, one span"
+    assert span.confidence == pytest.approx(confidence, abs=NEAR_ZERO_MARGIN), (
+        "the coefficient does not notice the ambiguity — which is why margin exists"
+    )
+    assert span.support < support, "and the tally does notice it"
+    assert abs(span.margin) < NEAR_ZERO_MARGIN
 
 
 def test_align_clips_to_reference_returns_what_0_0_50_returned(tmp_path, bed):
