@@ -2011,6 +2011,16 @@ class ClipAlignment:
             a 60 s one. With this field a caller can scale its gate to the window, or
             decline to gate when the window came out small — what it cannot do is read
             0.33 and 0.75 as if they answered the same question.
+
+            **Necessary, and since #45 no longer sufficient.** A rule of the form "below
+            the default window, treat the value as unmeasured" was a complete defence
+            while support was an argmax headcount, because that was the only axis that
+            moved it. It is not any more: what a repeating reference does to the tally it
+            does at ``window_s=20`` too — a 60 s clip there went from 0.00 to about 0.50
+            on a bed that tiles. So reading this field tells a caller how strong each
+            opinion was; it does not put the number back on a scale a pre-#45 threshold
+            was calibrated against. Nothing does. A threshold calibrated on the headcount
+            has to be re-measured against this statistic, not re-pointed at it.
         hop_s: The step between those windows — the other half of the grid, reported for
             the same reason and ``None`` in the same cases. Support counts windows that
             are separated enough to be second opinions

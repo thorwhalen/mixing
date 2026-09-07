@@ -235,6 +235,15 @@ that spread but does not remove it. Scale your threshold to `window_s`, or pass 
 `window_s` to put every clip on one scale. `aligned_spans` is NOT adapted — there `window_s` is boundary resolution, which
 is the caller's to choose.
 
+**Reading `window_s` is necessary and, since 0.0.49, no longer sufficient.** A rule of the
+form *"below the default window, treat the value as unmeasured"* was a complete defence
+while `support` was an argmax headcount, because the window was the only axis that moved
+it. Not any more: what a repeating reference does to the tally, it does at `window_s=20`
+too — a 60 s clip there goes from 0.00 to about 0.50 on a bed that tiles. `window_s` still
+tells you how strong each opinion was; nothing puts the number back on the scale a
+pre-0.0.49 threshold was calibrated against. **Re-measure such a threshold against this
+statistic; do not re-point it at it.**
+
 **`support is None` means NOT MEASURED — do not read it as 1.0.** You get it with
 `consensus=False`, for a clip shorter than one window *at the window in force*, and when
 the windows overlap by more than half (two windows sharing 95% of their samples are one
