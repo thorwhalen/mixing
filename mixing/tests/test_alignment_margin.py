@@ -184,6 +184,23 @@ def test_an_offset_inside_the_tolerance_is_the_answer_and_not_a_rival():
     assert _margin(windows) == 1.0
 
 
+def test_a_wide_margin_is_not_a_claim_of_sub_tolerance_precision():
+    """The limit of what the number promises, pinned so the docstring cannot over-sell it.
+
+    ``offset_tolerance_s`` is the resolution at which two offsets are different
+    hypotheses at all. A rival inside it is the answer seen again, so it never
+    subtracts — and the margin stays at its ceiling however strongly that near neighbour
+    scores. Step the same rival just outside, and it takes half the margin with it. The
+    field says nothing has an equal claim *at a different offset*; how sharply the offset
+    itself is located is the caller's `offset_tolerance_s`, not this.
+    """
+    inside = [_window(i, [(TRUTH, 1.0), (TRUTH + 0.8 * TOL, 0.99)]) for i in range(4)]
+    outside = [_window(i, [(TRUTH, 1.0), (TRUTH + 1.2 * TOL, 0.99)]) for i in range(4)]
+
+    assert _margin(inside) == 1.0
+    assert _margin(outside) == pytest.approx(1.0 - BALLOT_VOTE_WEIGHT * 0.99)
+
+
 def test_the_best_rival_wins_even_when_it_is_not_the_second_voting_group():
     """The decision issue #47 left open, settled: best OFFSET outside tolerance.
 

@@ -2012,7 +2012,16 @@ class ClipAlignment:
             :attr:`support`'s scale and in its units. ``1.0`` means every independent
             window found this offset unaided and no window put any other offset forward
             at all. ``0.0`` means some rival offset is backed by exactly as much of the
-            clip's evidence as the answer is. Where no window nominated any rival the
+            clip's evidence as the answer is.
+
+            **A wide margin is not a claim of sub-tolerance precision.** Differences
+            smaller than ``offset_tolerance_s`` are one hypothesis by construction — the
+            same equivalence the vote groups ballots by — so a candidate that close is
+            the answer, not a runner-up, and never subtracts. Measured at the default
+            tolerance: a rival 0.20 s away leaves the margin at 1.000, and the same
+            rival at 0.30 s takes it to 0.505. The field says nothing has an equal claim
+            *at a different offset*; how sharply the offset itself is located is
+            ``offset_tolerance_s``, and it is the caller's to set. Where no window nominated any rival the
             runner-up's tally is ``0.0``, so the margin is simply the support — nothing
             else has any claim. It can come back slightly NEGATIVE: the offset is chosen
             by the vote's headcount over every window, while the tally is graded and read

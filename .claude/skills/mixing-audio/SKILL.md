@@ -312,6 +312,13 @@ window, a **correct** 16 s clip on a bed that tiles every 2 s: `0.50 / +0.12`. T
 pair is the point — the ambiguous tiling and the correct short clip are
 **indistinguishable on support** and opposite on margin.
 
+**A wide margin is not a claim of sub-tolerance precision.** Offsets closer together
+than `offset_tolerance_s` are one hypothesis by construction, so a candidate that near is
+the answer and never subtracts: at the default tolerance a rival 0.20 s away leaves the
+margin at 1.000, and the same rival at 0.30 s takes it to 0.505. Margin says nothing else
+has an equal claim *at a different offset*; how sharply the offset itself is located is
+`offset_tolerance_s`, which is yours to set.
+
 **It can be slightly negative**, and is not clamped. The offset is chosen by the vote's
 headcount over every window; the tally is graded and read over the independent windows
 only, so the two need not rank identically. A negative margin says the tally actually
