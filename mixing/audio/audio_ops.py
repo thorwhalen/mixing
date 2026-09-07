@@ -1935,6 +1935,12 @@ class ClipAlignment:
             window reached this offset unaided** — which is exactly what the whole number
             used to mean, now the top half of a range rather than all of it.
 
+            **A threshold carried over from before the change no longer means what it
+            meant.** Every value in ``(0, 0.5]`` is reachable with zero windows having
+            found the offset unaided, so a gate at 0.25 now says "some of the clip's
+            evidence mentions this offset", not "a quarter of the windows located it
+            themselves". A caller who meant the latter gates at ``> 0.5``.
+
             The reason it is graded: an argmax is a real opinion at a 20 s window and
             close to a coin flip at 4 s, so a bare headcount got *less* confident exactly
             as fitting the window to the clip (issue #41) made the estimator *more*

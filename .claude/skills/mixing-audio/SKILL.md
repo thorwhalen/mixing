@@ -182,6 +182,13 @@ is the boundary the half-weight buys: ballot mentions alone can never carry the 
 what the whole number used to mean before it was graded. Gate above 0.5 if that is the
 question you are asking; gate lower if "the clip's evidence points here" is enough.
 
+**If you carried a threshold over from 0.0.48 or earlier, move it — do not reuse the
+number.** Every value in `(0, 0.5]` is now reachable with *zero* windows having found the
+offset unaided, so a gate that used to mean "a quarter of the windows located this
+themselves" now means "some of the clip's evidence mentions it". A gate at 0.25 is inside
+that band. If your threshold was chosen to mean unaided agreement, its equivalent on this
+scale is **`> 0.5`**, not `> 0.25`.
+
 **It was a bare argmax headcount until 0.0.49** (issue #45), and the same fixtures read
 0.44 / 0.11 under the old definition. The headcount broke on short clips: an argmax is a
 real opinion at a 20 s window and close to a coin flip at the ~4 s window a 12 s clip is
