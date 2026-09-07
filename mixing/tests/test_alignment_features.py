@@ -310,8 +310,10 @@ DECOY_LEAD_IN_S = 1.0
 DECOY_WINDOW_S, DECOY_HOP_S = 5.0, 1.25
 
 
-def _tiling_bed(seconds: float, seed: int, *, top_hz: float) -> np.ndarray:
-    """A stationary tonal bed that tiles seamlessly at :data:`BED_LOOP_S`.
+def _tiling_bed(
+    seconds: float, seed: int, *, top_hz: float, loop_s: float = BED_LOOP_S
+) -> np.ndarray:
+    """A stationary tonal bed that tiles seamlessly at ``loop_s``.
 
     Stationary is the point: it carries a lot of waveform energy and almost no spectral
     flux, so it dominates a waveform correlation and is invisible to an onset envelope.
@@ -322,7 +324,7 @@ def _tiling_bed(seconds: float, seed: int, *, top_hz: float) -> np.ndarray:
     t = np.arange(int(seconds * SR)) / SR
     x = np.zeros_like(t)
     for harmonic in rng.choice(np.arange(400, 8000), size=60, replace=False):
-        frequency = harmonic / BED_LOOP_S
+        frequency = harmonic / loop_s
         if frequency > top_hz:
             continue
         x += np.sin(2 * np.pi * frequency * t + rng.uniform(0, 2 * np.pi))
@@ -478,3 +480,132 @@ def test_a_windows_candidates_are_ordered_by_the_confidence_they_carry(waveform_
     for window in windows:
         carried = [confidence for _, confidence in window.candidates]
         assert carried == sorted(carried, reverse=True), window.candidates
+
+
+# --------------------------------------------------------------------------
+# The ballot has a fixed number of seats (MAX_CANDIDATE_LAGS)
+#
+# Found by review of the fix above. A cap that is a plain budget re-creates the defect it
+# was part of fixing: on a reference that repeats verbatim the waveform can fill every
+# seat with near-tied aliases of one peak, all of them scoring above a cross-device
+# envelope match, and the envelope's only nominee falls off the end. The ballot is then
+# waveform-only again, silently — no warning, no confidence drop.
+# --------------------------------------------------------------------------
+
+#: Bed loop for the eviction fixture. Short enough that a :data:`DECOY_REFERENCE_S`
+#: reference holds more verbatim repeats than the ballot has seats — which is the whole
+#: point: the waveform must be ABLE to fill it.
+ALIAS_LOOP_S = 2.0
+#: Tiles left un-rolled-off around the truth, so the passage the clip actually belongs to
+#: is not one of the aliases the clip's device response matches.
+CLEAN_TILES_AROUND_TRUTH = 5
+
+
+@pytest.fixture(scope="module")
+def alias_flood(tmp_path_factory) -> "tuple[np.ndarray, np.ndarray]":
+    """``(reference, clip)`` where the waveform alone can fill the whole ballot.
+
+    Same construction as :func:`waveform_decoy`, wound up: the bed loops every
+    :data:`ALIAS_LOOP_S` and EVERY tile except the few around the truth is mixed with the
+    clip's device roll-off. So the clip's waveform matches ~25 places equally well and its
+    own home not as well, while its onset pattern still occurs exactly once.
+
+    Returned as arrays, not files: the assertions are about what one window nominates, not
+    about the decoded-file path.
+    """
+    tiles = int(DECOY_REFERENCE_S / ALIAS_LOOP_S)
+    full = _tiling_bed(ALIAS_LOOP_S, seed=11, top_hz=SR / 2, loop_s=ALIAS_LOOP_S)
+    device = _tiling_bed(ALIAS_LOOP_S, seed=11, top_hz=DEVICE_TOP_HZ, loop_s=ALIAS_LOOP_S)
+    reference_bed = np.tile(full, tiles)
+    home = int(DECOY_TRUE_OFFSET_S / ALIAS_LOOP_S)
+    clean = range(home, home + CLEAN_TILES_AROUND_TRUTH)
+    for tile in (t for t in range(tiles) if t not in clean):
+        reference_bed[tile * len(full) : (tile + 1) * len(full)] = device
+
+    rng = np.random.default_rng(7)
+    onsets = np.cumsum(rng.uniform(0.25, 0.9, 300))
+    onsets = onsets[onsets < DECOY_REFERENCE_S - 0.1]
+    reference = reference_bed + _onset_track(DECOY_REFERENCE_S, onsets, hz=3000)
+    reference[: int(DECOY_LEAD_IN_S * SR)] = 0.0
+
+    end_s = DECOY_TRUE_OFFSET_S + DECOY_CLIP_S
+    clip_bed = np.tile(device, tiles)[int(DECOY_TRUE_OFFSET_S * SR) : int(end_s * SR)]
+    heard = onsets[(onsets >= DECOY_TRUE_OFFSET_S) & (onsets < end_s)]
+    clip = clip_bed + _onset_track(DECOY_CLIP_S, heard - DECOY_TRUE_OFFSET_S, hz=300)
+    return reference, clip
+
+
+def test_the_envelopes_nominee_is_not_evicted_by_a_flood_of_waveform_aliases(
+    alias_flood,
+):
+    """The reviewer's case, constructed: the waveform CAN fill the ballot, and does.
+
+    What is asserted is that the envelope's answer is on the ballot at all — not that it
+    wins. On a reference where 25 of 30 passages are equally good waveform matches the
+    vote is genuinely ambiguous and ``support`` says so; the contract broken before this
+    fix was narrower and worse, namely that the answer was not even nominated, so no
+    downstream stage could ever choose it.
+    """
+    from mixing.audio.audio_ops import MAX_CANDIDATE_LAGS, _feature_candidates
+
+    reference, clip = alias_flood
+    window = clip[: int(DECOY_WINDOW_S * SR)]
+    candidates = _feature_candidates(
+        reference,
+        window,
+        SR,
+        feature="envelope",
+        min_overlap_ratio=0.5,
+        near_tie_ratio=0.05,
+        min_separation=int(round(0.25 * SR)),
+    )
+    assert len(candidates) == MAX_CANDIDATE_LAGS, (
+        "the fixture is only meaningful while the ballot is actually full"
+    )
+    offsets = [lag / SR for lag, _ in candidates]
+    assert any(abs(o - DECOY_TRUE_OFFSET_S) < 0.05 for o in offsets), offsets
+    # ...and it survived only because a seat was reserved: it is the lowest-scoring entry,
+    # so a plain by-score cut at MAX_CANDIDATE_LAGS would have dropped it.
+    truth = next(c for c in candidates if abs(c[0] / SR - DECOY_TRUE_OFFSET_S) < 0.05)
+    assert truth == min(candidates, key=lambda c: c[1])
+
+
+def test_a_reserved_seat_cannot_be_spent_by_a_louder_domain():
+    """`_best_separated` unit: the same eviction, with the audio taken out of it.
+
+    One domain nominating ``MAX_CANDIDATE_LAGS`` lags that all outscore the other
+    domain's single nominee is exactly the shape a verbatim-tiling reference produces.
+    Passed as ONE list the loser is dropped; passed as two it is kept, and the cap is
+    honoured by dropping the weakest of the flooding domain instead.
+    """
+    from mixing.audio.audio_ops import MAX_CANDIDATE_LAGS, _best_separated
+
+    step = 1000
+    flood = [(i * step, 0.9 - i / 1000) for i in range(1, MAX_CANDIDATE_LAGS + 2)]
+    lone = [(500_000, 0.4)]
+
+    flat = _best_separated([flood + lone], min_separation=step)
+    assert lone[0] not in flat, "one list is the pre-fix behaviour: the quiet one is cut"
+
+    reserved = _best_separated([flood, lone], min_separation=step)
+    assert len(reserved) == MAX_CANDIDATE_LAGS, "the cap is still a cap"
+    assert lone[0] in reserved
+    carried = [confidence for _, confidence in reserved]
+    assert carried == sorted(carried, reverse=True), "and the result stays score-ordered"
+
+
+def test_a_domain_whose_peak_is_already_on_the_ballot_gets_no_extra_seat():
+    """Reservation must not become a way to smuggle a second-choice lag onto the ballot.
+
+    When both domains nominate the same peak the second one is already represented, so it
+    is dropped as the duplicate it is rather than promoted to its next candidate.
+    """
+    from mixing.audio.audio_ops import _best_separated
+
+    agreed = (10_000, 0.8)
+    got = _best_separated(
+        [[agreed, (30_000, 0.7)], [(10_050, 0.6), (90_000, 0.5)]],
+        min_separation=1000,
+        max_candidates=2,
+    )
+    assert got == [agreed, (30_000, 0.7)]

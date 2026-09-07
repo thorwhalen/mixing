@@ -737,6 +737,67 @@ def test_a_span_too_short_to_disagree_reports_no_support(song, ref, tmp_path):
     assert span.support is None
 
 
+def test_windows_that_are_the_same_look_twice_do_not_count_as_support(
+    song, ref, tmp_path
+):
+    """Two windows sharing 95% of their samples are one opinion, not two.
+
+    Reported from real material (issue #30): a 10 s clip at ``window_s=9.5, hop_s=0.5``
+    produced two windows overlapping 95%, which agreed — of course they did, they saw the
+    same audio — and the pair was reported as ``support=1.00`` for an offset 102 s from
+    the truth. That is the shared-bias failure the consensus pass exists to avoid, one
+    level up: a count of agreeing windows only means something if the windows could have
+    disagreed. So the TALLY runs over windows separated by at least
+    :data:`~mixing.audio.audio_ops.MAX_SUPPORT_OVERLAP`, and below a quorum of those the
+    answer is ``None`` — unmeasured — rather than a manufactured 1.0.
+
+    The offset itself is unaffected: every window still votes.
+    """
+    rng = np.random.default_rng(41)
+    clip = _write(tmp_path, "overlapped.wav", _take(ref, 20, 30, rng))
+    (crowded,) = align_clips_to_reference(
+        song, [clip], sample_rate=SR, window_s=9.5, hop_s=0.5
+    )
+    assert crowded.offset_s == pytest.approx(20.0, abs=0.05), "the offset still measures"
+    assert crowded.support is None, "but 95%-overlapping windows are not two opinions"
+
+    (spaced,) = align_clips_to_reference(
+        song, [clip], sample_rate=SR, window_s=5.0, hop_s=2.5
+    )
+    assert spaced.offset_s == pytest.approx(20.0, abs=0.05)
+    assert spaced.support == 1.0, "at half-window hops every window still counts"
+
+
+def test_the_default_hop_keeps_every_window_in_the_tally(song, ref, tmp_path):
+    """The independence rule must not quietly halve support at the shipped settings.
+
+    ``SPAN_HOP_S`` is half of ``SPAN_WINDOW_S``, which sits exactly ON the bound rather
+    than inside it. If the comparison were strict, every default caller's support would be
+    computed over half its windows and every documented number would move.
+    """
+    from mixing.audio.audio_ops import (
+        SPAN_HOP_S,
+        SPAN_WINDOW_S,
+        _independent_windows,
+        _load_mono_samples,
+        _window_offsets,
+    )
+
+    rng = np.random.default_rng(42)
+    clip = _write(tmp_path, "default_hops.wav", _take(ref, 10, 70, rng))
+    windows = _window_offsets(
+        _load_mono_samples(song, SR),
+        _load_mono_samples(clip, SR),
+        SR,
+        window_s=SPAN_WINDOW_S,
+        hop_s=SPAN_HOP_S,
+        feature="envelope",
+        min_overlap_ratio=0.5,
+    )
+    assert len(windows) > 2, "the fixture must produce a real sequence of windows"
+    assert _independent_windows(windows) == windows
+
+
 def test_an_unmeasured_span_does_not_inherit_support_when_merged(song, ref, tmp_path):
     """A merge must not launder an unmeasured half through a measured one.
 
