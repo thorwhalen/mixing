@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>mixing.audio.audio_ops &mdash; mixing 0.0.44 documentation</title>
+  <title>mixing.audio.audio_ops &mdash; mixing 0.0.45 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
@@ -15,7 +15,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=78cc6f98"></script>
+      <script src="../../../_static/documentation_options.js?v=dcb4eb81"></script>
       <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="../../../_static/toggleprompt.js?v=d7ede5d2"></script>
@@ -109,7 +109,9 @@
 <li class="toctree-l2"><a class="reference internal" href="#mixing.audio.audio_ops.DEFAULT_LOOP_CROSSFADE_S"><code class="docutils literal notranslate"><span class="pre">DEFAULT_LOOP_CROSSFADE_S</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#mixing.audio.audio_ops.ENVELOPE_HOP"><code class="docutils literal notranslate"><span class="pre">ENVELOPE_HOP</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#mixing.audio.audio_ops.ENVELOPE_NFFT"><code class="docutils literal notranslate"><span class="pre">ENVELOPE_NFFT</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mixing.audio.audio_ops.ENVELOPE_REFINE_HOPS"><code class="docutils literal notranslate"><span class="pre">ENVELOPE_REFINE_HOPS</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#mixing.audio.audio_ops.MAX_CANDIDATE_LAGS"><code class="docutils literal notranslate"><span class="pre">MAX_CANDIDATE_LAGS</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mixing.audio.audio_ops.MAX_SUPPORT_OVERLAP"><code class="docutils literal notranslate"><span class="pre">MAX_SUPPORT_OVERLAP</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#mixing.audio.audio_ops.MIN_WINDOWS_FOR_SUPPORT"><code class="docutils literal notranslate"><span class="pre">MIN_WINDOWS_FOR_SUPPORT</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#mixing.audio.audio_ops.NEAR_TIE_RATIO"><code class="docutils literal notranslate"><span class="pre">NEAR_TIE_RATIO</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#mixing.audio.audio_ops.SPAN_HOP_S"><code class="docutils literal notranslate"><span class="pre">SPAN_HOP_S</span></code></a></li>
@@ -228,10 +230,15 @@
 <dl class="py data">
 <dt class="sig sig-object py" id="mixing.audio.audio_ops.ALIGNMENT_FEATURES">
 <span class="sig-prename descclassname"><span class="pre">mixing.audio.audio_ops.</span></span><span class="sig-name descname"><span class="pre">ALIGNMENT_FEATURES</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('envelope',</span> <span class="pre">'waveform')</span></span><a class="headerlink" href="#mixing.audio.audio_ops.ALIGNMENT_FEATURES" title="Link to this definition"></a></dt>
-<dd><p>Alignment features. <code class="docutils literal notranslate"><span class="pre">'envelope'</span></code> is coarse-to-fine (see
-<code class="xref py py-func docutils literal notranslate"><span class="pre">_envelope_then_waveform()</span></code>); <code class="docutils literal notranslate"><span class="pre">'waveform'</span></code> is raw normalized cross-correlation,
-correct when both signals come from the SAME source (re-aligning an export against its
-master) and misleading across devices.</p>
+<dd><p>Alignment features. <code class="docutils literal notranslate"><span class="pre">'waveform'</span></code> is raw normalized cross-correlation — correct when
+both signals come from the SAME source (re-aligning an export against its master) and
+misleading across devices. <code class="docutils literal notranslate"><span class="pre">'envelope'</span></code> adds the onset envelope: it scores every lag
+by the better of the two views (<code class="xref py py-func docutils literal notranslate"><span class="pre">_dual_confidence()</span></code>), and under <code class="docutils literal notranslate"><span class="pre">consensus</span></code> it
+also lets the envelope NOMINATE lags the waveform would never have offered
+(<code class="xref py py-func docutils literal notranslate"><span class="pre">_feature_candidates()</span></code>), which is what makes the choice move the offset and not
+only the confidence (issue #30). Whole-clip callers without consensus
+(<a class="reference internal" href="#mixing.audio.audio_ops.find_audio_offset_detailed" title="mixing.audio.audio_ops.find_audio_offset_detailed"><code class="xref py py-func docutils literal notranslate"><span class="pre">find_audio_offset_detailed()</span></code></a>) still locate on the waveform alone — see
+<code class="xref py py-func docutils literal notranslate"><span class="pre">_envelope_then_waveform()</span></code> for the material that justifies it.</p>
 </dd></dl>
 
 <dl class="py class">
@@ -297,8 +304,10 @@ see <a class="reference internal" href="#mixing.audio.audio_ops.AlignedSpan.supp
 <dl class="py attribute">
 <dt class="sig sig-object py" id="mixing.audio.audio_ops.AlignedSpan.support">
 <span class="sig-name descname"><span class="pre">support</span></span><a class="headerlink" href="#mixing.audio.audio_ops.AlignedSpan.support" title="Link to this definition"></a></dt>
-<dd><p>Fraction in <code class="docutils literal notranslate"><span class="pre">[0,</span> <span class="pre">1]</span></code> of the span’s windows that reached this offset
-<strong>on their own</strong>, before the consensus vote — or <code class="docutils literal notranslate"><span class="pre">None</span></code> when the span was
+<dd><p>Fraction in <code class="docutils literal notranslate"><span class="pre">[0,</span> <span class="pre">1]</span></code> of the span’s INDEPENDENT windows
+(<a class="reference internal" href="#mixing.audio.audio_ops.MAX_SUPPORT_OVERLAP" title="mixing.audio.audio_ops.MAX_SUPPORT_OVERLAP"><code class="xref py py-data docutils literal notranslate"><span class="pre">MAX_SUPPORT_OVERLAP</span></code></a>) that reached this offset <strong>on their own</strong>,
+before the consensus vote, and relative to <code class="docutils literal notranslate"><span class="pre">window_s</span></code> the same way
+<a class="reference internal" href="#mixing.audio.audio_ops.ClipAlignment.support" title="mixing.audio.audio_ops.ClipAlignment.support"><code class="xref py py-attr docutils literal notranslate"><span class="pre">ClipAlignment.support</span></code></a> is — or <code class="docutils literal notranslate"><span class="pre">None</span></code> when the span was
 built from fewer than <a class="reference internal" href="#mixing.audio.audio_ops.MIN_WINDOWS_FOR_SUPPORT" title="mixing.audio.audio_ops.MIN_WINDOWS_FOR_SUPPORT"><code class="xref py py-data docutils literal notranslate"><span class="pre">MIN_WINDOWS_FOR_SUPPORT</span></code></a> windows and there was
 therefore nothing to agree. This is the number that knows about repetition.
 A reference with no repeats gives 1.0; a verse/chorus reference gives less,
@@ -725,14 +734,25 @@ Measured on three phone recordings of one commercial track, the whole-clip
 argmax was 83 s, 174 s and 83 s wrong while its coefficient looked ordinary;
 consensus support was 10/24, 17/37 and 45/61 and pointed at offsets three
 independent methods then confirmed to within 40 ms (issue #30).
-<strong>``None`` when it was not measured</strong> — with <code class="docutils literal notranslate"><span class="pre">consensus=False</span></code>, and for
-a clip short enough to be a single window. Neither has a second opinion to
-compare against, and a support of 1.0 there would be a unanimous vote of
-one: a number that VOUCHES for an offset nothing corroborated. That is not
-hypothetical — a 15 s clip truly at offset 30.0, against a reference that is
-one half twice, comes back at offset 75.0 with confidence 0.979, and a
-manufactured <code class="docutils literal notranslate"><span class="pre">support=1.0</span></code> would carry it through any gate built on this
-field. <code class="docutils literal notranslate"><span class="pre">None</span></code> says “not measured”, which a caller can fall back from.</p>
+<strong>``None`` when it was not measured</strong> — with <code class="docutils literal notranslate"><span class="pre">consensus=False</span></code>, for a clip
+short enough to be a single window, and when the windows overlap too heavily
+to be separate opinions (<a class="reference internal" href="#mixing.audio.audio_ops.MAX_SUPPORT_OVERLAP" title="mixing.audio.audio_ops.MAX_SUPPORT_OVERLAP"><code class="xref py py-data docutils literal notranslate"><span class="pre">MAX_SUPPORT_OVERLAP</span></code></a>). None of those has a
+second opinion to compare against, and a support of 1.0 there would be a
+unanimous vote of one: a number that VOUCHES for an offset nothing
+corroborated. That is not hypothetical — a 15 s clip truly at offset 30.0,
+against a reference that is one half twice, comes back at offset 75.0 with
+confidence 0.979; and on real material a 10 s clip at <code class="docutils literal notranslate"><span class="pre">window_s=9.5,</span>
+<span class="pre">hop_s=0.5</span></code> gave two 95%-overlapping windows that agreed on an offset 102 s
+wrong, which the tally reported as 1.00 before those windows were excluded.
+<code class="docutils literal notranslate"><span class="pre">None</span></code> says “not measured”, which a caller can fall back from.</p>
+<p><strong>It is relative to ``window_s``, so a gate on it is too.</strong> Support asks how
+many independent windows agreed, and a shorter window is a weaker opinion:
+measured on the same three correct cross-device alignments, support read
+0.45/0.64/0.73 at <code class="docutils literal notranslate"><span class="pre">window_s=20</span></code> and 0.19/0.16/0.23 at <code class="docutils literal notranslate"><span class="pre">window_s=5</span></code>. It is
+deliberately not normalised — dividing by something to make the numbers look
+stable would invent a statistic — so a caller that changes <code class="docutils literal notranslate"><span class="pre">window_s</span></code> must
+revisit its threshold, and a caller comparing two clips must compare them at
+the same window.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>float | None</p>
@@ -801,6 +821,15 @@ onset, short enough not to smear it.</p>
 </dd></dl>
 
 <dl class="py data">
+<dt class="sig sig-object py" id="mixing.audio.audio_ops.ENVELOPE_REFINE_HOPS">
+<span class="sig-prename descclassname"><span class="pre">mixing.audio.audio_ops.</span></span><span class="sig-name descname"><span class="pre">ENVELOPE_REFINE_HOPS</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></span><a class="headerlink" href="#mixing.audio.audio_ops.ENVELOPE_REFINE_HOPS" title="Link to this definition"></a></dt>
+<dd><p>How far a waveform refinement may move a lag the envelope located, in envelope hops.
+One hop IS the envelope’s time resolution, so one hop is the whole uncertainty the
+refinement exists to remove — it buys back sample precision without letting the
+waveform relocate the window, which is the defect of issue #30.</p>
+</dd></dl>
+
+<dl class="py data">
 <dt class="sig sig-object py" id="mixing.audio.audio_ops.MAX_CANDIDATE_LAGS">
 <span class="sig-prename descclassname"><span class="pre">mixing.audio.audio_ops.</span></span><span class="sig-name descname"><span class="pre">MAX_CANDIDATE_LAGS</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">8</span></span><a class="headerlink" href="#mixing.audio.audio_ops.MAX_CANDIDATE_LAGS" title="Link to this definition"></a></dt>
 <dd><p>an exactly
@@ -811,6 +840,21 @@ for counting all of them.</p>
 <dd class="field-odd"><p>Most near-tied lags one window may put forward. A cap, not a target</p>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="mixing.audio.audio_ops.MAX_SUPPORT_OVERLAP">
+<span class="sig-prename descclassname"><span class="pre">mixing.audio.audio_ops.</span></span><span class="sig-name descname"><span class="pre">MAX_SUPPORT_OVERLAP</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0.5</span></span><a class="headerlink" href="#mixing.audio.audio_ops.MAX_SUPPORT_OVERLAP" title="Link to this definition"></a></dt>
+<dd><p>How much of its neighbour a window may SHARE and still be counted as a second opinion
+when support is tallied. Two windows overlapping 95% of their samples are one opinion
+read twice: they see the same content, so they inherit the same bias and agree for no
+reason worth reporting. Measured on real material at <code class="docutils literal notranslate"><span class="pre">window_s=9.5,</span> <span class="pre">hop_s=0.5</span></code>, that
+is exactly how an offset 102 s from the truth came back at <code class="docutils literal notranslate"><span class="pre">support=1.00</span></code> — the same
+shared-bias failure as issue #30, one level up. Windows closer together than this are
+still measured, still vote, and still set the offset; they are only excluded from the
+TALLY, whose whole meaning is “how many independent looks agree”. The default hop
+(<a class="reference internal" href="#mixing.audio.audio_ops.SPAN_HOP_S" title="mixing.audio.audio_ops.SPAN_HOP_S"><code class="xref py py-data docutils literal notranslate"><span class="pre">SPAN_HOP_S</span></code></a>, half a window) sits exactly at this bound, so every window counts
+at the shipped settings.</p>
 </dd></dl>
 
 <dl class="py data">
@@ -909,7 +953,11 @@ referenced as a side effect of being measured. Callers building an edit filter o
 <li><p><strong>sample_rate</strong> – Analysis sample rate (mono).</p></li>
 <li><p><strong>min_overlap_ratio</strong> – Passed through to the alignment (see
 <a class="reference internal" href="#mixing.audio.audio_ops.find_audio_offset_detailed" title="mixing.audio.audio_ops.find_audio_offset_detailed"><code class="xref py py-func docutils literal notranslate"><span class="pre">find_audio_offset_detailed()</span></code></a>).</p></li>
-<li><p><strong>feature</strong> – Similarity feature for the confidence — see <a class="reference internal" href="#mixing.audio.audio_ops.ALIGNMENT_FEATURES" title="mixing.audio.audio_ops.ALIGNMENT_FEATURES"><code class="xref py py-data docutils literal notranslate"><span class="pre">ALIGNMENT_FEATURES</span></code></a>.
+<li><p><strong>feature</strong> – Similarity feature the alignment is measured on — see
+<a class="reference internal" href="#mixing.audio.audio_ops.ALIGNMENT_FEATURES" title="mixing.audio.audio_ops.ALIGNMENT_FEATURES"><code class="xref py py-data docutils literal notranslate"><span class="pre">ALIGNMENT_FEATURES</span></code></a>. Under <code class="docutils literal notranslate"><span class="pre">consensus</span></code> it chooses the OFFSET and not
+only the confidence: <code class="docutils literal notranslate"><span class="pre">'envelope'</span></code> lets the onset envelope nominate lags the
+waveform never offers, which on cross-device material is the only way the true
+offset reaches a window’s ballot at all (issue #30).
 Defaults to <code class="docutils literal notranslate"><span class="pre">'envelope'</span></code> <strong>because this function’s whole purpose is the
 cross-device case</strong>, and a raw-waveform coefficient is not a usable trust gate
 there: two microphones in a room are not sample-correlated even when the
@@ -1023,9 +1071,9 @@ window. See <a class="reference internal" href="#mixing.audio.audio_ops.SPAN_MER
 decoded reference when omitted. Spans are trimmed to it, so a returned
 extent is always one the reference can honour. Same keyword, and the same
 purpose, as <a class="reference internal" href="#mixing.audio.audio_ops.align_clips_to_reference" title="mixing.audio.audio_ops.align_clips_to_reference"><code class="xref py py-func docutils literal notranslate"><span class="pre">align_clips_to_reference()</span></code></a>.</p></li>
-<li><p><strong>feature</strong> – As <a class="reference internal" href="#mixing.audio.audio_ops.find_audio_offset_detailed" title="mixing.audio.audio_ops.find_audio_offset_detailed"><code class="xref py py-func docutils literal notranslate"><span class="pre">find_audio_offset_detailed()</span></code></a>. Defaults to <code class="docutils literal notranslate"><span class="pre">'envelope'</span></code> for
-the same reason <a class="reference internal" href="#mixing.audio.audio_ops.align_clips_to_reference" title="mixing.audio.audio_ops.align_clips_to_reference"><code class="xref py py-func docutils literal notranslate"><span class="pre">align_clips_to_reference()</span></code></a> does — the cross-device case
-is what this is for.</p></li>
+<li><p><strong>feature</strong> – As <a class="reference internal" href="#mixing.audio.audio_ops.align_clips_to_reference" title="mixing.audio.audio_ops.align_clips_to_reference"><code class="xref py py-func docutils literal notranslate"><span class="pre">align_clips_to_reference()</span></code></a> — windowed, so it chooses the
+OFFSET and not only the confidence. Defaults to <code class="docutils literal notranslate"><span class="pre">'envelope'</span></code> for the same
+reason that function does: the cross-device case is what this is for.</p></li>
 <li><p><strong>min_overlap_ratio</strong> – Passed through to the correlation.</p></li>
 <li><p><strong>near_tie_ratio</strong> – How close a rival correlation peak must score to a window’s best
 one to join the vote, as a fraction of that best score — see
@@ -1255,7 +1303,11 @@ scalar helper’s assumption that <code class="docutils literal notranslate"><sp
 <li><p><strong>min_overlap_ratio</strong> – Reject lags overlapping less than this fraction of the
 shorter signal (guards against a tiny-overlap spurious peak).</p></li>
 <li><p><strong>feature</strong> – Which similarity feature the confidence is measured on — see
-<a class="reference internal" href="#mixing.audio.audio_ops.ALIGNMENT_FEATURES" title="mixing.audio.audio_ops.ALIGNMENT_FEATURES"><code class="xref py py-data docutils literal notranslate"><span class="pre">ALIGNMENT_FEATURES</span></code></a>. Defaults to <code class="docutils literal notranslate"><span class="pre">'waveform'</span></code> here because this is the
+<a class="reference internal" href="#mixing.audio.audio_ops.ALIGNMENT_FEATURES" title="mixing.audio.audio_ops.ALIGNMENT_FEATURES"><code class="xref py py-data docutils literal notranslate"><span class="pre">ALIGNMENT_FEATURES</span></code></a>. <strong>Here it moves only the confidence</strong>: one
+correlation over a whole clip has no vote to hold, so the lag is the
+waveform’s either way (<code class="xref py py-func docutils literal notranslate"><span class="pre">_envelope_then_waveform()</span></code>). The windowed
+<a class="reference internal" href="#mixing.audio.audio_ops.align_clips_to_reference" title="mixing.audio.audio_ops.align_clips_to_reference"><code class="xref py py-func docutils literal notranslate"><span class="pre">align_clips_to_reference()</span></code></a> is where the choice also moves the offset.
+Defaults to <code class="docutils literal notranslate"><span class="pre">'waveform'</span></code> here because this is the
 low-level primitive and the caller knows their own signals; use <code class="docutils literal notranslate"><span class="pre">'envelope'</span></code>
 whenever the two recordings came from <strong>different devices</strong>, where a waveform
 coefficient understates a correct alignment several-fold.

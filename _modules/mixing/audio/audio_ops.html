@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>mixing.audio.audio_ops &mdash; mixing 0.0.44 documentation</title>
+  <title>mixing.audio.audio_ops &mdash; mixing 0.0.45 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
@@ -14,7 +14,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=78cc6f98"></script>
+      <script src="../../../_static/documentation_options.js?v=dcb4eb81"></script>
       <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="../../../_static/toggleprompt.js?v=d7ede5d2"></script>
@@ -1479,6 +1479,18 @@
 <span class="c1">#: support is reported as ``None``.</span>
 <span class="n">MIN_WINDOWS_FOR_SUPPORT</span> <span class="o">=</span> <span class="mi">2</span>
 
+<span class="c1">#: How much of its neighbour a window may SHARE and still be counted as a second opinion</span>
+<span class="c1">#: when support is tallied. Two windows overlapping 95% of their samples are one opinion</span>
+<span class="c1">#: read twice: they see the same content, so they inherit the same bias and agree for no</span>
+<span class="c1">#: reason worth reporting. Measured on real material at ``window_s=9.5, hop_s=0.5``, that</span>
+<span class="c1">#: is exactly how an offset 102 s from the truth came back at ``support=1.00`` — the same</span>
+<span class="c1">#: shared-bias failure as issue #30, one level up. Windows closer together than this are</span>
+<span class="c1">#: still measured, still vote, and still set the offset; they are only excluded from the</span>
+<span class="c1">#: TALLY, whose whole meaning is "how many independent looks agree". The default hop</span>
+<span class="c1">#: (:data:`SPAN_HOP_S`, half a window) sits exactly at this bound, so every window counts</span>
+<span class="c1">#: at the shipped settings.</span>
+<span class="n">MAX_SUPPORT_OVERLAP</span> <span class="o">=</span> <span class="mf">0.5</span>
+
 <span class="c1">#: Most near-tied lags one window may put forward. A cap, not a target: an exactly</span>
 <span class="c1">#: tiling reference offers one candidate per repeat, and the vote does not get better</span>
 <span class="c1">#: for counting all of them.</span>
@@ -1594,12 +1606,22 @@
 
 <span class="sd">    Returns ``(lag_samples, confidence)``.</span>
 
-<span class="sd">    **The waveform locates.** Its peak *position* is reliable — on a real 6-device shoot it</span>
-<span class="sd">    agreed with two independent methods to within 10 ms — and it has full sample resolution.</span>
-<span class="sd">    It does not get to choose alone how good the match is, and the envelope does not get to</span>
-<span class="sd">    choose the lag: on signals whose energy is smoothly modulated rather than percussive</span>
-<span class="sd">    (linear chirps under a 1.7 Hz AM), the envelope autocorrelation is periodic, and</span>
-<span class="sd">    letting it pick moved a known -2.0 s offset to -2.5 s.</span>
+<span class="sd">    **The waveform locates, and here it locates alone.** Its peak *position* is reliable —</span>
+<span class="sd">    on a real 6-device shoot it agreed with two independent methods to within 10 ms — and</span>
+<span class="sd">    it has full sample resolution. It does not get to choose alone how good the match is,</span>
+<span class="sd">    and the envelope does not get to choose the lag *by itself*: on signals whose energy is</span>
+<span class="sd">    smoothly modulated rather than percussive (linear chirps under a 1.7 Hz AM), the</span>
+<span class="sd">    envelope autocorrelation is periodic, and letting it pick moved a known -2.0 s offset</span>
+<span class="sd">    to -2.5 s.</span>
+
+<span class="sd">    **This is the single-shot path, and it is a weaker estimator than the windowed one.**</span>
+<span class="sd">    Where the envelope's answer can be put to a vote across windows,</span>
+<span class="sd">    :func:`_feature_candidates` lets the envelope nominate too and the evidence decides —</span>
+<span class="sd">    which is the only way a cross-device offset the waveform cannot see is ever reached</span>
+<span class="sd">    (issue #30). One correlation over a whole clip has no vote to hold, so it keeps the</span>
+<span class="sd">    waveform's location and reports the better of the two scores for it. A caller on</span>
+<span class="sd">    cross-device material wants :func:`align_clips_to_reference`, whose consensus path is</span>
+<span class="sd">    on by default.</span>
 
 <span class="sd">    **The confidence is the larger of two correlations evaluated AT that lag** — the</span>
 <span class="sd">    waveform's and the onset envelope's. Not a trick to inflate the score: each feature is</span>
@@ -1631,12 +1653,14 @@
     <span class="p">)</span>
     <span class="n">env_query</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">onset_envelope</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">sample_rate</span><span class="p">)</span>
     <span class="n">wav_lag</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">_normalized_xcorr</span><span class="p">(</span><span class="n">ref</span><span class="p">,</span> <span class="n">query</span><span class="p">,</span> <span class="n">min_overlap_ratio</span><span class="o">=</span><span class="n">min_overlap_ratio</span><span class="p">)</span>
-    <span class="n">wav_at_lag</span> <span class="o">=</span> <span class="n">_correlation_at_lag</span><span class="p">(</span><span class="n">ref</span><span class="p">,</span> <span class="n">query</span><span class="p">,</span> <span class="n">wav_lag</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">env_ref</span><span class="o">.</span><span class="n">size</span> <span class="o">&lt;</span> <span class="mi">2</span> <span class="ow">or</span> <span class="n">env_query</span><span class="o">.</span><span class="n">size</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>  <span class="c1"># too short to have an envelope</span>
-        <span class="k">return</span> <span class="n">wav_lag</span><span class="p">,</span> <span class="n">wav_at_lag</span>
-    <span class="n">env_lag</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">wav_lag</span> <span class="o">*</span> <span class="n">env_rate</span> <span class="o">/</span> <span class="n">sample_rate</span><span class="p">))</span>
-    <span class="n">env_at_lag</span> <span class="o">=</span> <span class="n">_correlation_at_lag</span><span class="p">(</span><span class="n">env_ref</span><span class="p">,</span> <span class="n">env_query</span><span class="p">,</span> <span class="n">env_lag</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">wav_lag</span><span class="p">,</span> <span class="nb">max</span><span class="p">(</span><span class="n">wav_at_lag</span><span class="p">,</span> <span class="n">env_at_lag</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">wav_lag</span><span class="p">,</span> <span class="n">_dual_confidence</span><span class="p">(</span>
+        <span class="n">ref</span><span class="p">,</span>
+        <span class="n">query</span><span class="p">,</span>
+        <span class="n">wav_lag</span><span class="p">,</span>
+        <span class="n">env_ref</span><span class="o">=</span><span class="n">env_ref</span><span class="p">,</span>
+        <span class="n">env_query</span><span class="o">=</span><span class="n">env_query</span><span class="p">,</span>
+        <span class="n">lag_to_env</span><span class="o">=</span><span class="n">env_rate</span> <span class="o">/</span> <span class="n">sample_rate</span><span class="p">,</span>
+    <span class="p">)</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_correlation_at_lag</span><span class="p">(</span><span class="n">ref</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">query</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">lag</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
@@ -1660,6 +1684,134 @@
     <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">))</span> <span class="o">/</span> <span class="n">denom</span><span class="p">)</span>
 
 
+<span class="c1">#: How far a waveform refinement may move a lag the envelope located, in envelope hops.</span>
+<span class="c1">#: One hop IS the envelope's time resolution, so one hop is the whole uncertainty the</span>
+<span class="c1">#: refinement exists to remove — it buys back sample precision without letting the</span>
+<span class="c1">#: waveform relocate the window, which is the defect of issue #30.</span>
+<span class="n">ENVELOPE_REFINE_HOPS</span> <span class="o">=</span> <span class="mi">1</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_refine_lag_on_waveform</span><span class="p">(</span>
+    <span class="n">ref</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">query</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">lag</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">radius</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">min_overlap_ratio</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""The best waveform lag within ``radius`` samples of ``lag``.</span>
+
+<span class="sd">    A lag located on the onset envelope is quantized to the envelope's hop — 10 ms at the</span>
+<span class="sd">    default settings, which is visible as lip-sync error. The waveform has full sample</span>
+<span class="sd">    resolution, so it is asked WHERE INSIDE that hop the lag falls, and nothing else: the</span>
+<span class="sd">    search sees a slice of the reference only ``radius`` samples wider than the query on</span>
+<span class="sd">    each side, so it can sharpen the envelope's answer but never move it to a different</span>
+<span class="sd">    peak. That bound is the point — an unbounded waveform search is issue #30 itself.</span>
+
+<span class="sd">    Inside the radius the waveform can still be wrong: a periodic bed (a looped backing</span>
+<span class="sd">    track, a sustained tone) has a correlation cycle shorter than one envelope hop, so</span>
+<span class="sd">    this may lock onto the neighbouring cycle rather than the true one. That error is</span>
+<span class="sd">    bounded by ``radius`` — at most one envelope hop, 10 ms at the defaults — which is</span>
+<span class="sd">    the resolution the envelope had to offer in the first place, so the refinement never</span>
+<span class="sd">    leaves the answer worse than the lag it was handed.</span>
+<span class="sd">    """</span>
+    <span class="n">lo</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">lag</span> <span class="o">-</span> <span class="n">radius</span><span class="p">)</span>
+    <span class="n">hi</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">ref</span><span class="p">),</span> <span class="n">lag</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">query</span><span class="p">)</span> <span class="o">+</span> <span class="n">radius</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">hi</span> <span class="o">-</span> <span class="n">lo</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">lag</span>
+    <span class="n">lags</span><span class="p">,</span> <span class="n">scored</span> <span class="o">=</span> <span class="n">_xcorr_surface</span><span class="p">(</span>
+        <span class="n">ref</span><span class="p">[</span><span class="n">lo</span><span class="p">:</span><span class="n">hi</span><span class="p">],</span> <span class="n">query</span><span class="p">,</span> <span class="n">min_overlap_ratio</span><span class="o">=</span><span class="n">min_overlap_ratio</span>
+    <span class="p">)</span>
+    <span class="n">near</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">lags</span> <span class="o">-</span> <span class="p">(</span><span class="n">lag</span> <span class="o">-</span> <span class="n">lo</span><span class="p">))</span> <span class="o">&lt;=</span> <span class="n">radius</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">near</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+        <span class="k">return</span> <span class="n">lag</span>
+    <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">lags</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">near</span><span class="p">,</span> <span class="n">scored</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.0</span><span class="p">)))])</span> <span class="o">+</span> <span class="n">lo</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_dual_confidence</span><span class="p">(</span>
+    <span class="n">ref</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">query</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">lag</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">env_ref</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">env_query</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">lag_to_env</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""The larger of the waveform's and the envelope's correlation AT ``lag``.</span>
+
+<span class="sd">    The scoring half of :func:`_envelope_then_waveform`, factored out so that a lag</span>
+<span class="sd">    nominated by either feature is scored the same way — a comparison between two</span>
+<span class="sd">    candidates means nothing if one is scored by a measure the other never faced.</span>
+
+<span class="sd">    Each feature is blind in a regime the other sees clearly: an export against its own</span>
+<span class="sd">    master correlates near 1.0 in the waveform and can have no onset structure at all,</span>
+<span class="sd">    while two microphones in a room are not sample-correlated even when the alignment is</span>
+<span class="sd">    exact. The maximum answers "how similar are these here, by the most favourable of two</span>
+<span class="sd">    complementary views", and an unrelated pair is still low in both.</span>
+
+<span class="sd">    **What makes the maximum safe is that the two regimes are DISJOINT, not that the two</span>
+<span class="sd">    numbers are calibrated against each other.** A waveform coefficient and an envelope</span>
+<span class="sd">    coefficient are not the same quantity and comparing them as if they were would be</span>
+<span class="sd">    meaningless. What is true is that where one feature reads high the other reads low —</span>
+<span class="sd">    same-source material puts the waveform near 1.0 and the envelope near noise,</span>
+<span class="sd">    cross-device material does the reverse — so the maximum is in practice "the reading</span>
+<span class="sd">    from whichever feature can see", not a contest between two comparable scales. On</span>
+<span class="sd">    material that broke that separation the maximum would be picking between numbers that</span>
+<span class="sd">    do not mean the same thing, and neither this function nor its callers would notice.</span>
+<span class="sd">    """</span>
+    <span class="n">at_waveform</span> <span class="o">=</span> <span class="n">_correlation_at_lag</span><span class="p">(</span><span class="n">ref</span><span class="p">,</span> <span class="n">query</span><span class="p">,</span> <span class="n">lag</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">env_ref</span><span class="o">.</span><span class="n">size</span> <span class="o">&lt;</span> <span class="mi">2</span> <span class="ow">or</span> <span class="n">env_query</span><span class="o">.</span><span class="n">size</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>  <span class="c1"># too short to have an envelope</span>
+        <span class="k">return</span> <span class="n">at_waveform</span>
+    <span class="n">at_envelope</span> <span class="o">=</span> <span class="n">_correlation_at_lag</span><span class="p">(</span><span class="n">env_ref</span><span class="p">,</span> <span class="n">env_query</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">lag</span> <span class="o">*</span> <span class="n">lag_to_env</span><span class="p">)))</span>
+    <span class="k">return</span> <span class="nb">max</span><span class="p">(</span><span class="n">at_waveform</span><span class="p">,</span> <span class="n">at_envelope</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_best_separated</span><span class="p">(</span>
+    <span class="n">nominations</span><span class="p">:</span> <span class="s2">"Sequence[Sequence[tuple[int, float]]]"</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">min_separation</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">max_candidates</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">MAX_CANDIDATE_LAGS</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"list[tuple[int, float]]"</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""One ballot from several nominating domains — best-first, one slot each guaranteed.</span>
+
+<span class="sd">    ``nominations`` is one ``[(lag, confidence), ...]`` list PER DOMAIN. The result is</span>
+<span class="sd">    every surviving lag ordered by confidence, with two rules:</span>
+
+<span class="sd">    - **No lag twice.** A lag within ``min_separation`` of an already-accepted one is the</span>
+<span class="sd">      same peak found again; keeping both would let it out-vote a genuine rival for no</span>
+<span class="sd">      reason other than having been nominated twice.</span>
+<span class="sd">    - **Every domain that nominated is on the ballot.** Each domain's best surviving lag</span>
+<span class="sd">      is admitted before ``max_candidates`` may be spent, and survives the cap. Without</span>
+<span class="sd">      that reservation the cap is a silent failure mode rather than a budget: a reference</span>
+<span class="sd">      that repeats verbatim gives the waveform ``MAX_CANDIDATE_LAGS`` near-tied aliases,</span>
+<span class="sd">      every one of them scoring above a cross-device envelope match, so the envelope's</span>
+<span class="sd">      only nominee is evicted and the ballot is waveform-only again — issue #30 exactly,</span>
+<span class="sd">      restored by an off-by-a-budget. A domain whose best lag is suppressed as a</span>
+<span class="sd">      duplicate is already represented and does not get a substitute slot.</span>
+<span class="sd">    """</span>
+    <span class="n">picked</span><span class="p">:</span> <span class="s2">"list[tuple[int, float]]"</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">admit</span><span class="p">(</span><span class="n">candidate</span><span class="p">:</span> <span class="s2">"tuple[int, float]"</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">lag</span> <span class="o">=</span> <span class="n">candidate</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">lag</span> <span class="o">-</span> <span class="n">other</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">min_separation</span> <span class="k">for</span> <span class="n">other</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">picked</span><span class="p">):</span>
+            <span class="n">picked</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">candidate</span><span class="p">)</span>
+
+    <span class="n">ranked</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="nb">sorted</span><span class="p">(</span><span class="n">domain</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">c</span><span class="p">:</span> <span class="o">-</span><span class="n">c</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="k">for</span> <span class="n">domain</span> <span class="ow">in</span> <span class="n">nominations</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">domain</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
+    <span class="p">]</span>
+    <span class="c1"># Strongest domain first, so that when two domains nominate the same peak the slot is</span>
+    <span class="c1"># spent on the one that scored it higher.</span>
+    <span class="k">for</span> <span class="n">domain</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">ranked</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">d</span><span class="p">:</span> <span class="o">-</span><span class="n">d</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]):</span>
+        <span class="n">admit</span><span class="p">(</span><span class="n">domain</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="k">for</span> <span class="n">candidate</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span>
+        <span class="p">(</span><span class="n">c</span> <span class="k">for</span> <span class="n">domain</span> <span class="ow">in</span> <span class="n">ranked</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">domain</span><span class="p">),</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">c</span><span class="p">:</span> <span class="o">-</span><span class="n">c</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="p">):</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">picked</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">max_candidates</span><span class="p">:</span>
+            <span class="k">break</span>
+        <span class="n">admit</span><span class="p">(</span><span class="n">candidate</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">picked</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">c</span><span class="p">:</span> <span class="o">-</span><span class="n">c</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+
+
 <span class="k">def</span><span class="w"> </span><span class="nf">_feature_candidates</span><span class="p">(</span>
     <span class="n">ref</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
     <span class="n">query</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
@@ -1671,16 +1823,35 @@
     <span class="n">min_separation</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="n">ref_envelope</span><span class="p">:</span> <span class="s2">"tuple[np.ndarray, float] | None"</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"list[tuple[int, float]]"</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">""":func:`_candidate_lags`, scored the way ``feature`` scores — best-first.</span>
+<span class="w">    </span><span class="sd">"""The near-tied lags this window cannot choose between — best-first, by score.</span>
 
-<span class="sd">    The plural counterpart of :func:`_envelope_then_waveform`, and it keeps that</span>
-<span class="sd">    function's division of labour intact: **the waveform locates** (so the candidate</span>
-<span class="sd">    order is the waveform's), and the confidence at each candidate is the larger of the</span>
-<span class="sd">    waveform's and the envelope's correlation THERE. ``result[0]`` is therefore exactly</span>
-<span class="sd">    what :func:`_envelope_then_waveform` returns; the rest are the rivals it discarded</span>
-<span class="sd">    without saying so.</span>
+<span class="sd">    ``'waveform'`` is :func:`_candidate_lags` on the raw signals and nothing else.</span>
+<span class="sd">    ``'envelope'`` **also correlates the two onset envelopes and nominates the near-tied</span>
+<span class="sd">    peaks of that surface**, refined to sample precision on the waveform</span>
+<span class="sd">    (:func:`_refine_lag_on_waveform`); every nomination, from either feature, is then</span>
+<span class="sd">    scored by :func:`_dual_confidence` and the list is ordered by that score.</span>
+
+<span class="sd">    **Nomination is where the feature choice has to bite.** An earlier version generated</span>
+<span class="sd">    candidates with :func:`_candidate_lags` on the raw waveform alone and used the</span>
+<span class="sd">    envelope only to RE-SCORE them. Measured on real cross-device material (issue #30),</span>
+<span class="sd">    that made ``feature='envelope'`` and ``feature='waveform'`` return byte-identical</span>
+<span class="sd">    offsets — the flag moved the confidence and never the location — and it put an offset</span>
+<span class="sd">    15 s from the truth on every window's ballot while the true one reached none of them.</span>
+<span class="sd">    No vote can select an answer nobody nominated: :func:`_consensus_choice` cancels</span>
+<span class="sd">    errors that DIFFER across windows, and a feature-domain bias is shared by every</span>
+<span class="sd">    window, so consensus ratifies it instead and hands back ``support=1.0`` for it.</span>
+
+<span class="sd">    **Both features nominate; the evidence chooses.** Which feature can see is not</span>
+<span class="sd">    knowable in advance and is not a property of the caller's intent — it is a property</span>
+<span class="sd">    of this pair of signals — so ``'envelope'`` does not mean "ignore the waveform", it</span>
+<span class="sd">    means "the envelope also gets to put its answer on the ballot". Material whose</span>
+<span class="sd">    envelope carries no timing information (a slow chirp under a steady tremolo: its</span>
+<span class="sd">    spectral flux is the tremolo, identical everywhere) nominates noise, and that</span>
+<span class="sd">    nomination loses on score to a waveform peak correlating near 1.0. Material recorded</span>
+<span class="sd">    on two devices is the mirror image: the waveform's peak is junk with a junk score,</span>
+<span class="sd">    and the envelope's is the one that carries evidence.</span>
 <span class="sd">    """</span>
-    <span class="n">candidates</span> <span class="o">=</span> <span class="n">_candidate_lags</span><span class="p">(</span>
+    <span class="n">waveform_candidates</span> <span class="o">=</span> <span class="n">_candidate_lags</span><span class="p">(</span>
         <span class="n">ref</span><span class="p">,</span>
         <span class="n">query</span><span class="p">,</span>
         <span class="n">min_overlap_ratio</span><span class="o">=</span><span class="n">min_overlap_ratio</span><span class="p">,</span>
@@ -1688,27 +1859,72 @@
         <span class="n">min_separation</span><span class="o">=</span><span class="n">min_separation</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="k">if</span> <span class="n">feature</span> <span class="o">!=</span> <span class="s2">"envelope"</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">candidates</span>
+        <span class="k">return</span> <span class="n">waveform_candidates</span>
     <span class="n">env_ref</span><span class="p">,</span> <span class="n">env_rate</span> <span class="o">=</span> <span class="p">(</span>
         <span class="n">onset_envelope</span><span class="p">(</span><span class="n">ref</span><span class="p">,</span> <span class="n">sample_rate</span><span class="p">)</span> <span class="k">if</span> <span class="n">ref_envelope</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">ref_envelope</span>
     <span class="p">)</span>
     <span class="n">env_query</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">onset_envelope</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">sample_rate</span><span class="p">)</span>
-    <span class="n">scored</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">lag</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">candidates</span><span class="p">:</span>
-        <span class="n">wav_at_lag</span> <span class="o">=</span> <span class="n">_correlation_at_lag</span><span class="p">(</span><span class="n">ref</span><span class="p">,</span> <span class="n">query</span><span class="p">,</span> <span class="n">lag</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">env_ref</span><span class="o">.</span><span class="n">size</span> <span class="o">&lt;</span> <span class="mi">2</span> <span class="ow">or</span> <span class="n">env_query</span><span class="o">.</span><span class="n">size</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>  <span class="c1"># too short to have an envelope</span>
-            <span class="n">scored</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">lag</span><span class="p">,</span> <span class="n">wav_at_lag</span><span class="p">))</span>
-            <span class="k">continue</span>
-        <span class="n">env_lag</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">lag</span> <span class="o">*</span> <span class="n">env_rate</span> <span class="o">/</span> <span class="n">sample_rate</span><span class="p">))</span>
-        <span class="n">env_at_lag</span> <span class="o">=</span> <span class="n">_correlation_at_lag</span><span class="p">(</span><span class="n">env_ref</span><span class="p">,</span> <span class="n">env_query</span><span class="p">,</span> <span class="n">env_lag</span><span class="p">)</span>
-        <span class="n">scored</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">lag</span><span class="p">,</span> <span class="nb">max</span><span class="p">(</span><span class="n">wav_at_lag</span><span class="p">,</span> <span class="n">env_at_lag</span><span class="p">)))</span>
-    <span class="k">return</span> <span class="n">scored</span>
+    <span class="k">if</span> <span class="n">env_ref</span><span class="o">.</span><span class="n">size</span> <span class="o">&lt;</span> <span class="mi">2</span> <span class="ow">or</span> <span class="n">env_query</span><span class="o">.</span><span class="n">size</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>  <span class="c1"># too short to have an envelope</span>
+        <span class="k">return</span> <span class="n">waveform_candidates</span>
+    <span class="n">hop</span> <span class="o">=</span> <span class="n">sample_rate</span> <span class="o">/</span> <span class="n">env_rate</span>
+    <span class="c1"># `_candidate_lags` normalizes every lag by the energy of its own overlap</span>
+    <span class="c1"># (:func:`_xcorr_surface`), and in the envelope domain that is load-bearing rather</span>
+    <span class="c1"># than cosmetic: an envelope opens on the onset spike of the reference's first frame,</span>
+    <span class="c1"># and unnormalized, windows lock onto it and report that everything starts at t=0</span>
+    <span class="c1"># (measured on real material, issue #30).</span>
+    <span class="n">envelope_candidates</span> <span class="o">=</span> <span class="n">_candidate_lags</span><span class="p">(</span>
+        <span class="n">env_ref</span><span class="p">,</span>
+        <span class="n">env_query</span><span class="p">,</span>
+        <span class="n">min_overlap_ratio</span><span class="o">=</span><span class="n">min_overlap_ratio</span><span class="p">,</span>
+        <span class="n">near_tie_ratio</span><span class="o">=</span><span class="n">near_tie_ratio</span><span class="p">,</span>
+        <span class="n">min_separation</span><span class="o">=</span><span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">min_separation</span> <span class="o">/</span> <span class="n">hop</span><span class="p">))),</span>
+    <span class="p">)</span>
+    <span class="n">radius</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">ENVELOPE_REFINE_HOPS</span> <span class="o">*</span> <span class="n">hop</span><span class="p">)))</span>
+    <span class="n">refined</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">_refine_lag_on_waveform</span><span class="p">(</span>
+            <span class="n">ref</span><span class="p">,</span>
+            <span class="n">query</span><span class="p">,</span>
+            <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">env_lag</span> <span class="o">*</span> <span class="n">hop</span><span class="p">)),</span>
+            <span class="n">radius</span><span class="o">=</span><span class="n">radius</span><span class="p">,</span>
+            <span class="n">min_overlap_ratio</span><span class="o">=</span><span class="n">min_overlap_ratio</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">for</span> <span class="n">env_lag</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">envelope_candidates</span>
+    <span class="p">]</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">score</span><span class="p">(</span><span class="n">lags</span><span class="p">:</span> <span class="s2">"list[int]"</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"list[tuple[int, float]]"</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[</span>
+            <span class="p">(</span>
+                <span class="n">lag</span><span class="p">,</span>
+                <span class="n">_dual_confidence</span><span class="p">(</span>
+                    <span class="n">ref</span><span class="p">,</span>
+                    <span class="n">query</span><span class="p">,</span>
+                    <span class="n">lag</span><span class="p">,</span>
+                    <span class="n">env_ref</span><span class="o">=</span><span class="n">env_ref</span><span class="p">,</span>
+                    <span class="n">env_query</span><span class="o">=</span><span class="n">env_query</span><span class="p">,</span>
+                    <span class="n">lag_to_env</span><span class="o">=</span><span class="n">env_rate</span> <span class="o">/</span> <span class="n">sample_rate</span><span class="p">,</span>
+                <span class="p">),</span>
+            <span class="p">)</span>
+            <span class="k">for</span> <span class="n">lag</span> <span class="ow">in</span> <span class="n">lags</span>
+        <span class="p">]</span>
+
+    <span class="c1"># Kept as two lists, not concatenated: `_best_separated` guarantees each domain a</span>
+    <span class="c1"># slot, and a flat list would let the waveform's near-tied aliases on a repeating</span>
+    <span class="c1"># reference spend the whole ballot and evict the envelope's only nominee.</span>
+    <span class="k">return</span> <span class="n">_best_separated</span><span class="p">(</span>
+        <span class="p">[</span><span class="n">score</span><span class="p">([</span><span class="n">lag</span> <span class="k">for</span> <span class="n">lag</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">waveform_candidates</span><span class="p">]),</span> <span class="n">score</span><span class="p">(</span><span class="n">refined</span><span class="p">)],</span>
+        <span class="n">min_separation</span><span class="o">=</span><span class="n">min_separation</span><span class="p">,</span>
+    <span class="p">)</span>
 
 
-<span class="c1">#: Alignment features. ``'envelope'`` is coarse-to-fine (see</span>
-<span class="c1">#: :func:`_envelope_then_waveform`); ``'waveform'`` is raw normalized cross-correlation,</span>
-<span class="c1">#: correct when both signals come from the SAME source (re-aligning an export against its</span>
-<span class="c1">#: master) and misleading across devices.</span>
+<span class="c1">#: Alignment features. ``'waveform'`` is raw normalized cross-correlation — correct when</span>
+<span class="c1">#: both signals come from the SAME source (re-aligning an export against its master) and</span>
+<span class="c1">#: misleading across devices. ``'envelope'`` adds the onset envelope: it scores every lag</span>
+<span class="c1">#: by the better of the two views (:func:`_dual_confidence`), and under ``consensus`` it</span>
+<span class="c1">#: also lets the envelope NOMINATE lags the waveform would never have offered</span>
+<span class="c1">#: (:func:`_feature_candidates`), which is what makes the choice move the offset and not</span>
+<span class="c1">#: only the confidence (issue #30). Whole-clip callers without consensus</span>
+<span class="c1">#: (:func:`find_audio_offset_detailed`) still locate on the waveform alone — see</span>
+<span class="c1">#: :func:`_envelope_then_waveform` for the material that justifies it.</span>
 <span class="n">ALIGNMENT_FEATURES</span> <span class="o">=</span> <span class="p">(</span><span class="s2">"envelope"</span><span class="p">,</span> <span class="s2">"waveform"</span><span class="p">)</span>
 
 
@@ -1738,7 +1954,11 @@
 <span class="sd">        min_overlap_ratio: Reject lags overlapping less than this fraction of the</span>
 <span class="sd">            shorter signal (guards against a tiny-overlap spurious peak).</span>
 <span class="sd">        feature: Which similarity feature the confidence is measured on — see</span>
-<span class="sd">            :data:`ALIGNMENT_FEATURES`. Defaults to ``'waveform'`` here because this is the</span>
+<span class="sd">            :data:`ALIGNMENT_FEATURES`. **Here it moves only the confidence**: one</span>
+<span class="sd">            correlation over a whole clip has no vote to hold, so the lag is the</span>
+<span class="sd">            waveform's either way (:func:`_envelope_then_waveform`). The windowed</span>
+<span class="sd">            :func:`align_clips_to_reference` is where the choice also moves the offset.</span>
+<span class="sd">            Defaults to ``'waveform'`` here because this is the</span>
 <span class="sd">            low-level primitive and the caller knows their own signals; use ``'envelope'``</span>
 <span class="sd">            whenever the two recordings came from **different devices**, where a waveform</span>
 <span class="sd">            coefficient understates a correct alignment several-fold.</span>
@@ -1830,14 +2050,26 @@
 <span class="sd">            argmax was 83 s, 174 s and 83 s wrong while its coefficient looked ordinary;</span>
 <span class="sd">            consensus support was 10/24, 17/37 and 45/61 and pointed at offsets three</span>
 <span class="sd">            independent methods then confirmed to within 40 ms (issue #30).</span>
-<span class="sd">            **``None`` when it was not measured** — with ``consensus=False``, and for</span>
-<span class="sd">            a clip short enough to be a single window. Neither has a second opinion to</span>
-<span class="sd">            compare against, and a support of 1.0 there would be a unanimous vote of</span>
-<span class="sd">            one: a number that VOUCHES for an offset nothing corroborated. That is not</span>
-<span class="sd">            hypothetical — a 15 s clip truly at offset 30.0, against a reference that is</span>
-<span class="sd">            one half twice, comes back at offset 75.0 with confidence 0.979, and a</span>
-<span class="sd">            manufactured ``support=1.0`` would carry it through any gate built on this</span>
-<span class="sd">            field. ``None`` says "not measured", which a caller can fall back from.</span>
+<span class="sd">            **``None`` when it was not measured** — with ``consensus=False``, for a clip</span>
+<span class="sd">            short enough to be a single window, and when the windows overlap too heavily</span>
+<span class="sd">            to be separate opinions (:data:`MAX_SUPPORT_OVERLAP`). None of those has a</span>
+<span class="sd">            second opinion to compare against, and a support of 1.0 there would be a</span>
+<span class="sd">            unanimous vote of one: a number that VOUCHES for an offset nothing</span>
+<span class="sd">            corroborated. That is not hypothetical — a 15 s clip truly at offset 30.0,</span>
+<span class="sd">            against a reference that is one half twice, comes back at offset 75.0 with</span>
+<span class="sd">            confidence 0.979; and on real material a 10 s clip at ``window_s=9.5,</span>
+<span class="sd">            hop_s=0.5`` gave two 95%-overlapping windows that agreed on an offset 102 s</span>
+<span class="sd">            wrong, which the tally reported as 1.00 before those windows were excluded.</span>
+<span class="sd">            ``None`` says "not measured", which a caller can fall back from.</span>
+
+<span class="sd">            **It is relative to ``window_s``, so a gate on it is too.** Support asks how</span>
+<span class="sd">            many independent windows agreed, and a shorter window is a weaker opinion:</span>
+<span class="sd">            measured on the same three correct cross-device alignments, support read</span>
+<span class="sd">            0.45/0.64/0.73 at ``window_s=20`` and 0.19/0.16/0.23 at ``window_s=5``. It is</span>
+<span class="sd">            deliberately not normalised — dividing by something to make the numbers look</span>
+<span class="sd">            stable would invent a statistic — so a caller that changes ``window_s`` must</span>
+<span class="sd">            revisit its threshold, and a caller comparing two clips must compare them at</span>
+<span class="sd">            the same window.</span>
 <span class="sd">    """</span>
 
     <span class="n">index</span><span class="p">:</span> <span class="nb">int</span>
@@ -1891,7 +2123,11 @@
 <span class="sd">        sample_rate: Analysis sample rate (mono).</span>
 <span class="sd">        min_overlap_ratio: Passed through to the alignment (see</span>
 <span class="sd">            :func:`find_audio_offset_detailed`).</span>
-<span class="sd">        feature: Similarity feature for the confidence — see :data:`ALIGNMENT_FEATURES`.</span>
+<span class="sd">        feature: Similarity feature the alignment is measured on — see</span>
+<span class="sd">            :data:`ALIGNMENT_FEATURES`. Under ``consensus`` it chooses the OFFSET and not</span>
+<span class="sd">            only the confidence: ``'envelope'`` lets the onset envelope nominate lags the</span>
+<span class="sd">            waveform never offers, which on cross-device material is the only way the true</span>
+<span class="sd">            offset reaches a window's ballot at all (issue #30).</span>
 <span class="sd">            Defaults to ``'envelope'`` **because this function's whole purpose is the</span>
 <span class="sd">            cross-device case**, and a raw-waveform coefficient is not a usable trust gate</span>
 <span class="sd">            there: two microphones in a room are not sample-correlated even when the</span>
@@ -1988,6 +2224,53 @@
 
 
 
+<span class="k">def</span><span class="w"> </span><span class="nf">_independent_windows</span><span class="p">(</span>
+    <span class="n">windows</span><span class="p">:</span> <span class="s2">"Sequence[_WindowMeasurement]"</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">max_overlap</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">MAX_SUPPORT_OVERLAP</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"list[_WindowMeasurement]"</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""The subset of ``windows`` that are second opinions rather than the same look twice.</span>
+
+<span class="sd">    Greedy from the first window: keep a window only once it has moved on by at least</span>
+<span class="sd">    ``1 - max_overlap`` of the previously kept window's own length. Overlapping windows</span>
+<span class="sd">    are not noise to be removed — they are how a span boundary is located to better than</span>
+<span class="sd">    one window — but they are not INDEPENDENT, and support is a count of independent</span>
+<span class="sd">    agreement (see :data:`MAX_SUPPORT_OVERLAP`).</span>
+<span class="sd">    """</span>
+    <span class="n">kept</span><span class="p">:</span> <span class="s2">"list[_WindowMeasurement]"</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">window</span> <span class="ow">in</span> <span class="n">windows</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">kept</span><span class="p">:</span>
+            <span class="n">kept</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">window</span><span class="p">)</span>
+            <span class="k">continue</span>
+        <span class="n">previous</span> <span class="o">=</span> <span class="n">kept</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">stride</span> <span class="o">=</span> <span class="p">(</span><span class="n">previous</span><span class="o">.</span><span class="n">clip_end_s</span> <span class="o">-</span> <span class="n">previous</span><span class="o">.</span><span class="n">clip_start_s</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">max_overlap</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">window</span><span class="o">.</span><span class="n">clip_start_s</span> <span class="o">-</span> <span class="n">previous</span><span class="o">.</span><span class="n">clip_start_s</span> <span class="o">&gt;=</span> <span class="n">stride</span><span class="p">:</span>
+            <span class="n">kept</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">window</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">kept</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_support_fraction</span><span class="p">(</span>
+    <span class="n">windows</span><span class="p">:</span> <span class="s2">"Sequence[_WindowMeasurement]"</span><span class="p">,</span>
+    <span class="n">offset_s</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">offset_tolerance_s</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"float | None"</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""What fraction of the INDEPENDENT windows reached ``offset_s`` unaided, or ``None``.</span>
+
+<span class="sd">    ``None`` means "not measured", and it is not spelled ``1.0`` on purpose: a fraction</span>
+<span class="sd">    computed over fewer than :data:`MIN_WINDOWS_FOR_SUPPORT` independent looks is a</span>
+<span class="sd">    unanimous vote of one, and a manufactured 1.0 VOUCHES for whatever it is attached to.</span>
+
+<span class="sd">    Counted on each window's own answer (:attr:`_WindowMeasurement.vote_offset_s`), never</span>
+<span class="sd">    on what the consensus assigned it — the assignment agrees with itself by construction.</span>
+<span class="sd">    """</span>
+    <span class="n">counted</span> <span class="o">=</span> <span class="n">_independent_windows</span><span class="p">(</span><span class="n">windows</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">counted</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">MIN_WINDOWS_FOR_SUPPORT</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="n">votes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">w</span><span class="o">.</span><span class="n">vote_offset_s</span> <span class="k">for</span> <span class="n">w</span> <span class="ow">in</span> <span class="n">counted</span><span class="p">])</span>
+    <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">votes</span> <span class="o">-</span> <span class="n">offset_s</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">offset_tolerance_s</span><span class="p">))</span>
+
+
 <span class="k">def</span><span class="w"> </span><span class="nf">_consensus_alignment</span><span class="p">(</span>
     <span class="n">ref</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
     <span class="n">clip</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
@@ -2013,8 +2296,10 @@
 <span class="sd">    assigned them — the vote's own output would agree with itself and say nothing. So it</span>
 <span class="sd">    reads as "this fraction of the clip found this offset unaided", which drops both</span>
 <span class="sd">    when the reference repeats and when only part of the clip is the reference at all.</span>
-<span class="sd">    Under :data:`MIN_WINDOWS_FOR_SUPPORT` windows there is no second opinion to count,</span>
-<span class="sd">    and it is ``None`` rather than 1.0 — see :attr:`ClipAlignment.support`.</span>
+<span class="sd">    Under :data:`MIN_WINDOWS_FOR_SUPPORT` INDEPENDENT windows there is no second opinion</span>
+<span class="sd">    to count — windows overlapping more than :data:`MAX_SUPPORT_OVERLAP` are one look</span>
+<span class="sd">    read twice, not two — and it is ``None`` rather than 1.0 — see</span>
+<span class="sd">    :attr:`ClipAlignment.support`.</span>
 
 <span class="sd">    A clip shorter than one window is one window, and this returns exactly the offset</span>
 <span class="sd">    and confidence the single whole-clip correlation would have.</span>
@@ -2052,10 +2337,9 @@
     <span class="n">winner</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">lexsort</span><span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">counts</span><span class="o">.</span><span class="n">size</span><span class="p">),</span> <span class="o">-</span><span class="n">counts</span><span class="p">))[</span><span class="mi">0</span><span class="p">])</span>
     <span class="n">members</span> <span class="o">=</span> <span class="n">agree</span><span class="p">[</span><span class="n">winner</span><span class="p">]</span>
     <span class="n">offset_s</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">offsets</span><span class="p">[</span><span class="n">members</span><span class="p">]))</span>
-    <span class="n">support</span><span class="p">:</span> <span class="s2">"float | None"</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">windows</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">MIN_WINDOWS_FOR_SUPPORT</span><span class="p">:</span>
-        <span class="n">votes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">w</span><span class="o">.</span><span class="n">vote_offset_s</span> <span class="k">for</span> <span class="n">w</span> <span class="ow">in</span> <span class="n">windows</span><span class="p">])</span>
-        <span class="n">support</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">votes</span> <span class="o">-</span> <span class="n">offset_s</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">offset_tolerance_s</span><span class="p">))</span>
+    <span class="n">support</span> <span class="o">=</span> <span class="n">_support_fraction</span><span class="p">(</span>
+        <span class="n">windows</span><span class="p">,</span> <span class="n">offset_s</span><span class="p">,</span> <span class="n">offset_tolerance_s</span><span class="o">=</span><span class="n">offset_tolerance_s</span>
+    <span class="p">)</span>
     <span class="k">return</span> <span class="n">offset_s</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">coeffs</span><span class="p">[</span><span class="n">members</span><span class="p">])),</span> <span class="n">support</span>
 
 
@@ -2083,8 +2367,10 @@
 <span class="sd">            **how well the clip matches where this span puts it**, and on a reference</span>
 <span class="sd">            that repeats verbatim that is a question with several excellent answers —</span>
 <span class="sd">            see :attr:`support`, and gate on both.</span>
-<span class="sd">        support: Fraction in ``[0, 1]`` of the span's windows that reached this offset</span>
-<span class="sd">            **on their own**, before the consensus vote — or ``None`` when the span was</span>
+<span class="sd">        support: Fraction in ``[0, 1]`` of the span's INDEPENDENT windows</span>
+<span class="sd">            (:data:`MAX_SUPPORT_OVERLAP`) that reached this offset **on their own**,</span>
+<span class="sd">            before the consensus vote, and relative to ``window_s`` the same way</span>
+<span class="sd">            :attr:`ClipAlignment.support` is — or ``None`` when the span was</span>
 <span class="sd">            built from fewer than :data:`MIN_WINDOWS_FOR_SUPPORT` windows and there was</span>
 <span class="sd">            therefore nothing to agree. This is the number that knows about repetition.</span>
 <span class="sd">            A reference with no repeats gives 1.0; a verse/chorus reference gives less,</span>
@@ -2212,9 +2498,9 @@
 <span class="sd">            decoded reference when omitted. Spans are trimmed to it, so a returned</span>
 <span class="sd">            extent is always one the reference can honour. Same keyword, and the same</span>
 <span class="sd">            purpose, as :func:`align_clips_to_reference`.</span>
-<span class="sd">        feature: As :func:`find_audio_offset_detailed`. Defaults to ``'envelope'`` for</span>
-<span class="sd">            the same reason :func:`align_clips_to_reference` does — the cross-device case</span>
-<span class="sd">            is what this is for.</span>
+<span class="sd">        feature: As :func:`align_clips_to_reference` — windowed, so it chooses the</span>
+<span class="sd">            OFFSET and not only the confidence. Defaults to ``'envelope'`` for the same</span>
+<span class="sd">            reason that function does: the cross-device case is what this is for.</span>
 <span class="sd">        min_overlap_ratio: Passed through to the correlation.</span>
 <span class="sd">        near_tie_ratio: How close a rival correlation peak must score to a window's best</span>
 <span class="sd">            one to join the vote, as a fraction of that best score — see</span>
@@ -2287,12 +2573,12 @@
 <span class="k">class</span><span class="w"> </span><span class="nc">_WindowMeasurement</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""What one analysis window has to say, INCLUDING the rivals it could not separate.</span>
 
-<span class="sd">    ``candidates`` is ``((offset_s, confidence), ...)`` best-first, and the first entry</span>
-<span class="sd">    is the window's current answer — the plain argmax before :func:`_consensus_choice`</span>
-<span class="sd">    runs, the crowd's choice after. ``vote_offset_s`` keeps the argmax whatever happens</span>
-<span class="sd">    to ``candidates``: it is the window's INDEPENDENT opinion, and the fraction of</span>
-<span class="sd">    windows whose independent opinion matches the answer is what</span>
-<span class="sd">    :attr:`AlignedSpan.support` reports.</span>
+<span class="sd">    ``candidates`` is ``((offset_s, confidence), ...)`` ordered by that confidence, and</span>
+<span class="sd">    the first entry is the window's current answer — its own best-scoring nomination</span>
+<span class="sd">    before :func:`_consensus_choice` runs, the crowd's choice after. ``vote_offset_s``</span>
+<span class="sd">    keeps the window's own answer whatever happens to ``candidates``: it is its</span>
+<span class="sd">    INDEPENDENT opinion, and the fraction of windows whose independent opinion matches</span>
+<span class="sd">    the answer is what :attr:`AlignedSpan.support` reports.</span>
 <span class="sd">    """</span>
 
     <span class="n">clip_start_s</span><span class="p">:</span> <span class="nb">float</span>
@@ -2392,7 +2678,7 @@
 <span class="sd">    The fix for issue #30. Each window's near-tied candidates are ballots for an offset;</span>
 <span class="sd">    an offset's SUPPORT is the number of distinct windows that could be reading it; and</span>
 <span class="sd">    each window then takes whichever of its own candidates has the most support, keeping</span>
-<span class="sd">    its argmax to break a tie.</span>
+<span class="sd">    its own best-scoring one to break a tie.</span>
 
 <span class="sd">    Why this is the right shape rather than a smoothing pass: the disagreement between</span>
 <span class="sd">    windows on repetitive material is not noise, it is the signal. A spurious peak lands</span>
@@ -2430,7 +2716,7 @@
         <span class="n">own</span> <span class="o">=</span> <span class="n">support</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">searchsorted</span><span class="p">(</span><span class="n">hypotheses</span><span class="p">,</span> <span class="n">ballot</span><span class="p">)]</span>
         <span class="n">drift</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">ballot</span><span class="o">.</span><span class="n">size</span><span class="p">)</span> <span class="k">if</span> <span class="n">anchor</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">ballot</span> <span class="o">-</span> <span class="n">anchor</span><span class="p">)</span>
         <span class="c1"># Keys are applied last-first: most support, then nearest the previous window,</span>
-        <span class="c1"># then the window's own ranking (argmax first).</span>
+        <span class="c1"># then the window's own ranking (its best-scoring candidate first).</span>
         <span class="n">best</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">lexsort</span><span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">ballot</span><span class="o">.</span><span class="n">size</span><span class="p">),</span> <span class="n">drift</span><span class="p">,</span> <span class="o">-</span><span class="n">own</span><span class="p">))[</span><span class="mi">0</span><span class="p">])</span>
         <span class="n">chosen</span> <span class="o">=</span> <span class="n">window</span><span class="o">.</span><span class="n">candidates</span><span class="p">[</span><span class="n">best</span><span class="p">]</span>
         <span class="n">rest</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">c</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">window</span><span class="o">.</span><span class="n">candidates</span><span class="p">)</span> <span class="k">if</span> <span class="n">i</span> <span class="o">!=</span> <span class="n">best</span><span class="p">)</span>
@@ -2501,10 +2787,7 @@
 <span class="sd">    would be a unanimous vote of one.</span>
 <span class="sd">    """</span>
     <span class="n">offset</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">([</span><span class="n">m</span><span class="o">.</span><span class="n">offset_s</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">run</span><span class="p">]))</span>
-    <span class="n">support</span><span class="p">:</span> <span class="s2">"float | None"</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">run</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">MIN_WINDOWS_FOR_SUPPORT</span><span class="p">:</span>
-        <span class="n">agreed</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">vote_offset_s</span> <span class="o">-</span> <span class="n">offset</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">offset_tolerance_s</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">run</span><span class="p">)</span>
-        <span class="n">support</span> <span class="o">=</span> <span class="n">agreed</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">run</span><span class="p">)</span>
+    <span class="n">support</span> <span class="o">=</span> <span class="n">_support_fraction</span><span class="p">(</span><span class="n">run</span><span class="p">,</span> <span class="n">offset</span><span class="p">,</span> <span class="n">offset_tolerance_s</span><span class="o">=</span><span class="n">offset_tolerance_s</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">AlignedSpan</span><span class="p">(</span>
         <span class="n">clip_start_s</span><span class="o">=</span><span class="n">run</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">clip_start_s</span><span class="p">,</span>
         <span class="n">clip_end_s</span><span class="o">=</span><span class="n">run</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">clip_end_s</span><span class="p">,</span>
