@@ -174,16 +174,41 @@ High confidence with low support means *"it fits here beautifully — and it wou
 elsewhere too."*
 
 **`support is None` means NOT MEASURED — do not read it as 1.0.** You get it with
-`consensus=False`, and for a clip shorter than one window, because one window cannot
-disagree with itself and a unanimous vote of one would vouch for an offset nothing
-corroborated. Measured: a 15 s clip truly at offset 30 against a two-identical-halves
-reference comes back at offset 75.0 with confidence 0.979 — a `support` of 1.0 there
-would carry the wrong answer through any gate. When it is `None`, fall back to
-`confidence` and know you are trusting a single opinion.
+`consensus=False`, for a clip shorter than one window, and when the windows overlap by
+more than half (two windows sharing 95% of their samples are one look read twice, not two
+opinions). One window cannot disagree with itself, and a unanimous vote of one would vouch
+for an offset nothing corroborated. Measured: a 15 s clip truly at offset 30 against a
+two-identical-halves reference comes back at offset 75.0 with confidence 0.979; and on
+real footage a 10 s clip at `window_s=9.5, hop_s=0.5` had its two near-identical windows
+agree on an offset 102 s wrong. A `support` of 1.0 in either case carries the wrong answer
+through any gate. When it is `None`, fall back to `confidence` and know you are trusting a
+single opinion.
+
+**`support` is relative to `window_s` — if you change the window, revisit your
+threshold.** A shorter window is a weaker opinion, so fewer of them agree. Measured on the
+same three correct cross-device alignments: 0.45 / 0.64 / 0.73 at `window_s=20`, and
+0.19 / 0.16 / 0.23 at `window_s=5`. It is deliberately not normalised, so compare clips at
+the same window and re-tune any gate you move the window under.
 
 `near_tie_ratio=0.0` disables the vote and restores the old per-window argmax;
 `align_clips_to_reference(..., consensus=False)` restores its single whole-clip
 correlation exactly (cheaper: one correlation instead of one per window).
+
+### Cross-device recordings: `feature=` picks the offset, not just the score
+
+`align_clips_to_reference` and `aligned_spans` default to `feature='envelope'`, and under
+consensus (the default) that choice **moves the offset**. Two microphones in a room are not
+sample-correlated even when the alignment is exact, so a raw-waveform correlation can put
+its best peak somewhere the clip never was — measured on real multi-device footage at 15 s
+from the truth, and *at `support=1.00`*, because the bias is the same in every window and a
+vote ratifies what it cannot vary. The onset envelope reads WHEN energy arrives, which two
+devices share, so it nominates the lag the waveform never offers; each nomination is then
+scored by the better of the two views, so material with no onsets (a smooth tone, an export
+against its own master) still lands on the waveform's answer.
+
+Pass `feature='waveform'` when the clip comes from the SAME source as the reference.
+`find_audio_offset` / `find_audio_offset_detailed` are single-shot — no windows, no vote —
+so there `feature=` still changes only the confidence.
 
 ## Segmentation — split a long recording into pieces
 

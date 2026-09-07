@@ -1311,6 +1311,18 @@ NEAR_TIE_RATIO = 0.05
 #: support is reported as ``None``.
 MIN_WINDOWS_FOR_SUPPORT = 2
 
+#: How much of its neighbour a window may SHARE and still be counted as a second opinion
+#: when support is tallied. Two windows overlapping 95% of their samples are one opinion
+#: read twice: they see the same content, so they inherit the same bias and agree for no
+#: reason worth reporting. Measured on real material at ``window_s=9.5, hop_s=0.5``, that
+#: is exactly how an offset 102 s from the truth came back at ``support=1.00`` — the same
+#: shared-bias failure as issue #30, one level up. Windows closer together than this are
+#: still measured, still vote, and still set the offset; they are only excluded from the
+#: TALLY, whose whole meaning is "how many independent looks agree". The default hop
+#: (:data:`SPAN_HOP_S`, half a window) sits exactly at this bound, so every window counts
+#: at the shipped settings.
+MAX_SUPPORT_OVERLAP = 0.5
+
 #: Most near-tied lags one window may put forward. A cap, not a target: an exactly
 #: tiling reference offers one candidate per repeat, and the vote does not get better
 #: for counting all of them.
@@ -1423,12 +1435,22 @@ def _envelope_then_waveform(
 
     Returns ``(lag_samples, confidence)``.
 
-    **The waveform locates.** Its peak *position* is reliable — on a real 6-device shoot it
-    agreed with two independent methods to within 10 ms — and it has full sample resolution.
-    It does not get to choose alone how good the match is, and the envelope does not get to
-    choose the lag: on signals whose energy is smoothly modulated rather than percussive
-    (linear chirps under a 1.7 Hz AM), the envelope autocorrelation is periodic, and
-    letting it pick moved a known -2.0 s offset to -2.5 s.
+    **The waveform locates, and here it locates alone.** Its peak *position* is reliable —
+    on a real 6-device shoot it agreed with two independent methods to within 10 ms — and
+    it has full sample resolution. It does not get to choose alone how good the match is,
+    and the envelope does not get to choose the lag *by itself*: on signals whose energy is
+    smoothly modulated rather than percussive (linear chirps under a 1.7 Hz AM), the
+    envelope autocorrelation is periodic, and letting it pick moved a known -2.0 s offset
+    to -2.5 s.
+
+    **This is the single-shot path, and it is a weaker estimator than the windowed one.**
+    Where the envelope's answer can be put to a vote across windows,
+    :func:`_feature_candidates` lets the envelope nominate too and the evidence decides —
+    which is the only way a cross-device offset the waveform cannot see is ever reached
+    (issue #30). One correlation over a whole clip has no vote to hold, so it keeps the
+    waveform's location and reports the better of the two scores for it. A caller on
+    cross-device material wants :func:`align_clips_to_reference`, whose consensus path is
+    on by default.
 
     **The confidence is the larger of two correlations evaluated AT that lag** — the
     waveform's and the onset envelope's. Not a trick to inflate the score: each feature is
@@ -1460,12 +1482,14 @@ def _envelope_then_waveform(
     )
     env_query, _ = onset_envelope(query, sample_rate)
     wav_lag, _ = _normalized_xcorr(ref, query, min_overlap_ratio=min_overlap_ratio)
-    wav_at_lag = _correlation_at_lag(ref, query, wav_lag)
-    if env_ref.size < 2 or env_query.size < 2:  # too short to have an envelope
-        return wav_lag, wav_at_lag
-    env_lag = int(round(wav_lag * env_rate / sample_rate))
-    env_at_lag = _correlation_at_lag(env_ref, env_query, env_lag)
-    return wav_lag, max(wav_at_lag, env_at_lag)
+    return wav_lag, _dual_confidence(
+        ref,
+        query,
+        wav_lag,
+        env_ref=env_ref,
+        env_query=env_query,
+        lag_to_env=env_rate / sample_rate,
+    )
 
 
 def _correlation_at_lag(ref: np.ndarray, query: np.ndarray, lag: int) -> float:
@@ -1489,6 +1513,134 @@ def _correlation_at_lag(ref: np.ndarray, query: np.ndarray, lag: int) -> float:
     return float(abs(np.dot(a, b)) / denom)
 
 
+#: How far a waveform refinement may move a lag the envelope located, in envelope hops.
+#: One hop IS the envelope's time resolution, so one hop is the whole uncertainty the
+#: refinement exists to remove — it buys back sample precision without letting the
+#: waveform relocate the window, which is the defect of issue #30.
+ENVELOPE_REFINE_HOPS = 1
+
+
+def _refine_lag_on_waveform(
+    ref: np.ndarray,
+    query: np.ndarray,
+    lag: int,
+    *,
+    radius: int,
+    min_overlap_ratio: float,
+) -> int:
+    """The best waveform lag within ``radius`` samples of ``lag``.
+
+    A lag located on the onset envelope is quantized to the envelope's hop — 10 ms at the
+    default settings, which is visible as lip-sync error. The waveform has full sample
+    resolution, so it is asked WHERE INSIDE that hop the lag falls, and nothing else: the
+    search sees a slice of the reference only ``radius`` samples wider than the query on
+    each side, so it can sharpen the envelope's answer but never move it to a different
+    peak. That bound is the point — an unbounded waveform search is issue #30 itself.
+
+    Inside the radius the waveform can still be wrong: a periodic bed (a looped backing
+    track, a sustained tone) has a correlation cycle shorter than one envelope hop, so
+    this may lock onto the neighbouring cycle rather than the true one. That error is
+    bounded by ``radius`` — at most one envelope hop, 10 ms at the defaults — which is
+    the resolution the envelope had to offer in the first place, so the refinement never
+    leaves the answer worse than the lag it was handed.
+    """
+    lo = max(0, lag - radius)
+    hi = min(len(ref), lag + len(query) + radius)
+    if hi - lo <= 0:
+        return lag
+    lags, scored = _xcorr_surface(
+        ref[lo:hi], query, min_overlap_ratio=min_overlap_ratio
+    )
+    near = np.abs(lags - (lag - lo)) <= radius
+    if not near.any():
+        return lag
+    return int(lags[int(np.argmax(np.where(near, scored, -1.0)))]) + lo
+
+
+def _dual_confidence(
+    ref: np.ndarray,
+    query: np.ndarray,
+    lag: int,
+    *,
+    env_ref: np.ndarray,
+    env_query: np.ndarray,
+    lag_to_env: float,
+) -> float:
+    """The larger of the waveform's and the envelope's correlation AT ``lag``.
+
+    The scoring half of :func:`_envelope_then_waveform`, factored out so that a lag
+    nominated by either feature is scored the same way — a comparison between two
+    candidates means nothing if one is scored by a measure the other never faced.
+
+    Each feature is blind in a regime the other sees clearly: an export against its own
+    master correlates near 1.0 in the waveform and can have no onset structure at all,
+    while two microphones in a room are not sample-correlated even when the alignment is
+    exact. The maximum answers "how similar are these here, by the most favourable of two
+    complementary views", and an unrelated pair is still low in both.
+
+    **What makes the maximum safe is that the two regimes are DISJOINT, not that the two
+    numbers are calibrated against each other.** A waveform coefficient and an envelope
+    coefficient are not the same quantity and comparing them as if they were would be
+    meaningless. What is true is that where one feature reads high the other reads low —
+    same-source material puts the waveform near 1.0 and the envelope near noise,
+    cross-device material does the reverse — so the maximum is in practice "the reading
+    from whichever feature can see", not a contest between two comparable scales. On
+    material that broke that separation the maximum would be picking between numbers that
+    do not mean the same thing, and neither this function nor its callers would notice.
+    """
+    at_waveform = _correlation_at_lag(ref, query, lag)
+    if env_ref.size < 2 or env_query.size < 2:  # too short to have an envelope
+        return at_waveform
+    at_envelope = _correlation_at_lag(env_ref, env_query, int(round(lag * lag_to_env)))
+    return max(at_waveform, at_envelope)
+
+
+def _best_separated(
+    nominations: "Sequence[Sequence[tuple[int, float]]]",
+    *,
+    min_separation: int,
+    max_candidates: int = MAX_CANDIDATE_LAGS,
+) -> "list[tuple[int, float]]":
+    """One ballot from several nominating domains — best-first, one slot each guaranteed.
+
+    ``nominations`` is one ``[(lag, confidence), ...]`` list PER DOMAIN. The result is
+    every surviving lag ordered by confidence, with two rules:
+
+    - **No lag twice.** A lag within ``min_separation`` of an already-accepted one is the
+      same peak found again; keeping both would let it out-vote a genuine rival for no
+      reason other than having been nominated twice.
+    - **Every domain that nominated is on the ballot.** Each domain's best surviving lag
+      is admitted before ``max_candidates`` may be spent, and survives the cap. Without
+      that reservation the cap is a silent failure mode rather than a budget: a reference
+      that repeats verbatim gives the waveform ``MAX_CANDIDATE_LAGS`` near-tied aliases,
+      every one of them scoring above a cross-device envelope match, so the envelope's
+      only nominee is evicted and the ballot is waveform-only again — issue #30 exactly,
+      restored by an off-by-a-budget. A domain whose best lag is suppressed as a
+      duplicate is already represented and does not get a substitute slot.
+    """
+    picked: "list[tuple[int, float]]" = []
+
+    def admit(candidate: "tuple[int, float]") -> None:
+        lag = candidate[0]
+        if all(abs(lag - other) >= min_separation for other, _ in picked):
+            picked.append(candidate)
+
+    ranked = [
+        sorted(domain, key=lambda c: -c[1]) for domain in nominations if len(domain) > 0
+    ]
+    # Strongest domain first, so that when two domains nominate the same peak the slot is
+    # spent on the one that scored it higher.
+    for domain in sorted(ranked, key=lambda d: -d[0][1]):
+        admit(domain[0])
+    for candidate in sorted(
+        (c for domain in ranked for c in domain), key=lambda c: -c[1]
+    ):
+        if len(picked) >= max_candidates:
+            break
+        admit(candidate)
+    return sorted(picked, key=lambda c: -c[1])
+
+
 def _feature_candidates(
     ref: np.ndarray,
     query: np.ndarray,
@@ -1500,16 +1652,35 @@ def _feature_candidates(
     min_separation: int,
     ref_envelope: "tuple[np.ndarray, float] | None" = None,
 ) -> "list[tuple[int, float]]":
-    """:func:`_candidate_lags`, scored the way ``feature`` scores — best-first.
+    """The near-tied lags this window cannot choose between — best-first, by score.
 
-    The plural counterpart of :func:`_envelope_then_waveform`, and it keeps that
-    function's division of labour intact: **the waveform locates** (so the candidate
-    order is the waveform's), and the confidence at each candidate is the larger of the
-    waveform's and the envelope's correlation THERE. ``result[0]`` is therefore exactly
-    what :func:`_envelope_then_waveform` returns; the rest are the rivals it discarded
-    without saying so.
+    ``'waveform'`` is :func:`_candidate_lags` on the raw signals and nothing else.
+    ``'envelope'`` **also correlates the two onset envelopes and nominates the near-tied
+    peaks of that surface**, refined to sample precision on the waveform
+    (:func:`_refine_lag_on_waveform`); every nomination, from either feature, is then
+    scored by :func:`_dual_confidence` and the list is ordered by that score.
+
+    **Nomination is where the feature choice has to bite.** An earlier version generated
+    candidates with :func:`_candidate_lags` on the raw waveform alone and used the
+    envelope only to RE-SCORE them. Measured on real cross-device material (issue #30),
+    that made ``feature='envelope'`` and ``feature='waveform'`` return byte-identical
+    offsets — the flag moved the confidence and never the location — and it put an offset
+    15 s from the truth on every window's ballot while the true one reached none of them.
+    No vote can select an answer nobody nominated: :func:`_consensus_choice` cancels
+    errors that DIFFER across windows, and a feature-domain bias is shared by every
+    window, so consensus ratifies it instead and hands back ``support=1.0`` for it.
+
+    **Both features nominate; the evidence chooses.** Which feature can see is not
+    knowable in advance and is not a property of the caller's intent — it is a property
+    of this pair of signals — so ``'envelope'`` does not mean "ignore the waveform", it
+    means "the envelope also gets to put its answer on the ballot". Material whose
+    envelope carries no timing information (a slow chirp under a steady tremolo: its
+    spectral flux is the tremolo, identical everywhere) nominates noise, and that
+    nomination loses on score to a waveform peak correlating near 1.0. Material recorded
+    on two devices is the mirror image: the waveform's peak is junk with a junk score,
+    and the envelope's is the one that carries evidence.
     """
-    candidates = _candidate_lags(
+    waveform_candidates = _candidate_lags(
         ref,
         query,
         min_overlap_ratio=min_overlap_ratio,
@@ -1517,27 +1688,72 @@ def _feature_candidates(
         min_separation=min_separation,
     )
     if feature != "envelope":
-        return candidates
+        return waveform_candidates
     env_ref, env_rate = (
         onset_envelope(ref, sample_rate) if ref_envelope is None else ref_envelope
     )
     env_query, _ = onset_envelope(query, sample_rate)
-    scored = []
-    for lag, _ in candidates:
-        wav_at_lag = _correlation_at_lag(ref, query, lag)
-        if env_ref.size < 2 or env_query.size < 2:  # too short to have an envelope
-            scored.append((lag, wav_at_lag))
-            continue
-        env_lag = int(round(lag * env_rate / sample_rate))
-        env_at_lag = _correlation_at_lag(env_ref, env_query, env_lag)
-        scored.append((lag, max(wav_at_lag, env_at_lag)))
-    return scored
+    if env_ref.size < 2 or env_query.size < 2:  # too short to have an envelope
+        return waveform_candidates
+    hop = sample_rate / env_rate
+    # `_candidate_lags` normalizes every lag by the energy of its own overlap
+    # (:func:`_xcorr_surface`), and in the envelope domain that is load-bearing rather
+    # than cosmetic: an envelope opens on the onset spike of the reference's first frame,
+    # and unnormalized, windows lock onto it and report that everything starts at t=0
+    # (measured on real material, issue #30).
+    envelope_candidates = _candidate_lags(
+        env_ref,
+        env_query,
+        min_overlap_ratio=min_overlap_ratio,
+        near_tie_ratio=near_tie_ratio,
+        min_separation=max(1, int(round(min_separation / hop))),
+    )
+    radius = max(1, int(round(ENVELOPE_REFINE_HOPS * hop)))
+    refined = [
+        _refine_lag_on_waveform(
+            ref,
+            query,
+            int(round(env_lag * hop)),
+            radius=radius,
+            min_overlap_ratio=min_overlap_ratio,
+        )
+        for env_lag, _ in envelope_candidates
+    ]
+
+    def score(lags: "list[int]") -> "list[tuple[int, float]]":
+        return [
+            (
+                lag,
+                _dual_confidence(
+                    ref,
+                    query,
+                    lag,
+                    env_ref=env_ref,
+                    env_query=env_query,
+                    lag_to_env=env_rate / sample_rate,
+                ),
+            )
+            for lag in lags
+        ]
+
+    # Kept as two lists, not concatenated: `_best_separated` guarantees each domain a
+    # slot, and a flat list would let the waveform's near-tied aliases on a repeating
+    # reference spend the whole ballot and evict the envelope's only nominee.
+    return _best_separated(
+        [score([lag for lag, _ in waveform_candidates]), score(refined)],
+        min_separation=min_separation,
+    )
 
 
-#: Alignment features. ``'envelope'`` is coarse-to-fine (see
-#: :func:`_envelope_then_waveform`); ``'waveform'`` is raw normalized cross-correlation,
-#: correct when both signals come from the SAME source (re-aligning an export against its
-#: master) and misleading across devices.
+#: Alignment features. ``'waveform'`` is raw normalized cross-correlation — correct when
+#: both signals come from the SAME source (re-aligning an export against its master) and
+#: misleading across devices. ``'envelope'`` adds the onset envelope: it scores every lag
+#: by the better of the two views (:func:`_dual_confidence`), and under ``consensus`` it
+#: also lets the envelope NOMINATE lags the waveform would never have offered
+#: (:func:`_feature_candidates`), which is what makes the choice move the offset and not
+#: only the confidence (issue #30). Whole-clip callers without consensus
+#: (:func:`find_audio_offset_detailed`) still locate on the waveform alone — see
+#: :func:`_envelope_then_waveform` for the material that justifies it.
 ALIGNMENT_FEATURES = ("envelope", "waveform")
 
 
@@ -1565,7 +1781,11 @@ def find_audio_offset_detailed(
         min_overlap_ratio: Reject lags overlapping less than this fraction of the
             shorter signal (guards against a tiny-overlap spurious peak).
         feature: Which similarity feature the confidence is measured on — see
-            :data:`ALIGNMENT_FEATURES`. Defaults to ``'waveform'`` here because this is the
+            :data:`ALIGNMENT_FEATURES`. **Here it moves only the confidence**: one
+            correlation over a whole clip has no vote to hold, so the lag is the
+            waveform's either way (:func:`_envelope_then_waveform`). The windowed
+            :func:`align_clips_to_reference` is where the choice also moves the offset.
+            Defaults to ``'waveform'`` here because this is the
             low-level primitive and the caller knows their own signals; use ``'envelope'``
             whenever the two recordings came from **different devices**, where a waveform
             coefficient understates a correct alignment several-fold.
@@ -1654,14 +1874,26 @@ class ClipAlignment:
             argmax was 83 s, 174 s and 83 s wrong while its coefficient looked ordinary;
             consensus support was 10/24, 17/37 and 45/61 and pointed at offsets three
             independent methods then confirmed to within 40 ms (issue #30).
-            **``None`` when it was not measured** — with ``consensus=False``, and for
-            a clip short enough to be a single window. Neither has a second opinion to
-            compare against, and a support of 1.0 there would be a unanimous vote of
-            one: a number that VOUCHES for an offset nothing corroborated. That is not
-            hypothetical — a 15 s clip truly at offset 30.0, against a reference that is
-            one half twice, comes back at offset 75.0 with confidence 0.979, and a
-            manufactured ``support=1.0`` would carry it through any gate built on this
-            field. ``None`` says "not measured", which a caller can fall back from.
+            **``None`` when it was not measured** — with ``consensus=False``, for a clip
+            short enough to be a single window, and when the windows overlap too heavily
+            to be separate opinions (:data:`MAX_SUPPORT_OVERLAP`). None of those has a
+            second opinion to compare against, and a support of 1.0 there would be a
+            unanimous vote of one: a number that VOUCHES for an offset nothing
+            corroborated. That is not hypothetical — a 15 s clip truly at offset 30.0,
+            against a reference that is one half twice, comes back at offset 75.0 with
+            confidence 0.979; and on real material a 10 s clip at ``window_s=9.5,
+            hop_s=0.5`` gave two 95%-overlapping windows that agreed on an offset 102 s
+            wrong, which the tally reported as 1.00 before those windows were excluded.
+            ``None`` says "not measured", which a caller can fall back from.
+
+            **It is relative to ``window_s``, so a gate on it is too.** Support asks how
+            many independent windows agreed, and a shorter window is a weaker opinion:
+            measured on the same three correct cross-device alignments, support read
+            0.45/0.64/0.73 at ``window_s=20`` and 0.19/0.16/0.23 at ``window_s=5``. It is
+            deliberately not normalised — dividing by something to make the numbers look
+            stable would invent a statistic — so a caller that changes ``window_s`` must
+            revisit its threshold, and a caller comparing two clips must compare them at
+            the same window.
     """
 
     index: int
@@ -1712,7 +1944,11 @@ def align_clips_to_reference(
         sample_rate: Analysis sample rate (mono).
         min_overlap_ratio: Passed through to the alignment (see
             :func:`find_audio_offset_detailed`).
-        feature: Similarity feature for the confidence — see :data:`ALIGNMENT_FEATURES`.
+        feature: Similarity feature the alignment is measured on — see
+            :data:`ALIGNMENT_FEATURES`. Under ``consensus`` it chooses the OFFSET and not
+            only the confidence: ``'envelope'`` lets the onset envelope nominate lags the
+            waveform never offers, which on cross-device material is the only way the true
+            offset reaches a window's ballot at all (issue #30).
             Defaults to ``'envelope'`` **because this function's whole purpose is the
             cross-device case**, and a raw-waveform coefficient is not a usable trust gate
             there: two microphones in a room are not sample-correlated even when the
@@ -1808,6 +2044,53 @@ def align_clips_to_reference(
     return out
 
 
+def _independent_windows(
+    windows: "Sequence[_WindowMeasurement]",
+    *,
+    max_overlap: float = MAX_SUPPORT_OVERLAP,
+) -> "list[_WindowMeasurement]":
+    """The subset of ``windows`` that are second opinions rather than the same look twice.
+
+    Greedy from the first window: keep a window only once it has moved on by at least
+    ``1 - max_overlap`` of the previously kept window's own length. Overlapping windows
+    are not noise to be removed — they are how a span boundary is located to better than
+    one window — but they are not INDEPENDENT, and support is a count of independent
+    agreement (see :data:`MAX_SUPPORT_OVERLAP`).
+    """
+    kept: "list[_WindowMeasurement]" = []
+    for window in windows:
+        if not kept:
+            kept.append(window)
+            continue
+        previous = kept[-1]
+        stride = (previous.clip_end_s - previous.clip_start_s) * (1.0 - max_overlap)
+        if window.clip_start_s - previous.clip_start_s >= stride:
+            kept.append(window)
+    return kept
+
+
+def _support_fraction(
+    windows: "Sequence[_WindowMeasurement]",
+    offset_s: float,
+    *,
+    offset_tolerance_s: float,
+) -> "float | None":
+    """What fraction of the INDEPENDENT windows reached ``offset_s`` unaided, or ``None``.
+
+    ``None`` means "not measured", and it is not spelled ``1.0`` on purpose: a fraction
+    computed over fewer than :data:`MIN_WINDOWS_FOR_SUPPORT` independent looks is a
+    unanimous vote of one, and a manufactured 1.0 VOUCHES for whatever it is attached to.
+
+    Counted on each window's own answer (:attr:`_WindowMeasurement.vote_offset_s`), never
+    on what the consensus assigned it — the assignment agrees with itself by construction.
+    """
+    counted = _independent_windows(windows)
+    if len(counted) < MIN_WINDOWS_FOR_SUPPORT:
+        return None
+    votes = np.array([w.vote_offset_s for w in counted])
+    return float(np.mean(np.abs(votes - offset_s) <= offset_tolerance_s))
+
+
 def _consensus_alignment(
     ref: np.ndarray,
     clip: np.ndarray,
@@ -1833,8 +2116,10 @@ def _consensus_alignment(
     assigned them — the vote's own output would agree with itself and say nothing. So it
     reads as "this fraction of the clip found this offset unaided", which drops both
     when the reference repeats and when only part of the clip is the reference at all.
-    Under :data:`MIN_WINDOWS_FOR_SUPPORT` windows there is no second opinion to count,
-    and it is ``None`` rather than 1.0 — see :attr:`ClipAlignment.support`.
+    Under :data:`MIN_WINDOWS_FOR_SUPPORT` INDEPENDENT windows there is no second opinion
+    to count — windows overlapping more than :data:`MAX_SUPPORT_OVERLAP` are one look
+    read twice, not two — and it is ``None`` rather than 1.0 — see
+    :attr:`ClipAlignment.support`.
 
     A clip shorter than one window is one window, and this returns exactly the offset
     and confidence the single whole-clip correlation would have.
@@ -1872,10 +2157,9 @@ def _consensus_alignment(
     winner = int(np.lexsort((np.arange(counts.size), -counts))[0])
     members = agree[winner]
     offset_s = float(np.median(offsets[members]))
-    support: "float | None" = None
-    if len(windows) >= MIN_WINDOWS_FOR_SUPPORT:
-        votes = np.array([w.vote_offset_s for w in windows])
-        support = float(np.mean(np.abs(votes - offset_s) <= offset_tolerance_s))
+    support = _support_fraction(
+        windows, offset_s, offset_tolerance_s=offset_tolerance_s
+    )
     return offset_s, float(np.median(coeffs[members])), support
 
 
@@ -1901,8 +2185,10 @@ class AlignedSpan:
             **how well the clip matches where this span puts it**, and on a reference
             that repeats verbatim that is a question with several excellent answers —
             see :attr:`support`, and gate on both.
-        support: Fraction in ``[0, 1]`` of the span's windows that reached this offset
-            **on their own**, before the consensus vote — or ``None`` when the span was
+        support: Fraction in ``[0, 1]`` of the span's INDEPENDENT windows
+            (:data:`MAX_SUPPORT_OVERLAP`) that reached this offset **on their own**,
+            before the consensus vote, and relative to ``window_s`` the same way
+            :attr:`ClipAlignment.support` is — or ``None`` when the span was
             built from fewer than :data:`MIN_WINDOWS_FOR_SUPPORT` windows and there was
             therefore nothing to agree. This is the number that knows about repetition.
             A reference with no repeats gives 1.0; a verse/chorus reference gives less,
@@ -2027,9 +2313,9 @@ def aligned_spans(
             decoded reference when omitted. Spans are trimmed to it, so a returned
             extent is always one the reference can honour. Same keyword, and the same
             purpose, as :func:`align_clips_to_reference`.
-        feature: As :func:`find_audio_offset_detailed`. Defaults to ``'envelope'`` for
-            the same reason :func:`align_clips_to_reference` does — the cross-device case
-            is what this is for.
+        feature: As :func:`align_clips_to_reference` — windowed, so it chooses the
+            OFFSET and not only the confidence. Defaults to ``'envelope'`` for the same
+            reason that function does: the cross-device case is what this is for.
         min_overlap_ratio: Passed through to the correlation.
         near_tie_ratio: How close a rival correlation peak must score to a window's best
             one to join the vote, as a fraction of that best score — see
@@ -2101,12 +2387,12 @@ def aligned_spans(
 class _WindowMeasurement:
     """What one analysis window has to say, INCLUDING the rivals it could not separate.
 
-    ``candidates`` is ``((offset_s, confidence), ...)`` best-first, and the first entry
-    is the window's current answer — the plain argmax before :func:`_consensus_choice`
-    runs, the crowd's choice after. ``vote_offset_s`` keeps the argmax whatever happens
-    to ``candidates``: it is the window's INDEPENDENT opinion, and the fraction of
-    windows whose independent opinion matches the answer is what
-    :attr:`AlignedSpan.support` reports.
+    ``candidates`` is ``((offset_s, confidence), ...)`` ordered by that confidence, and
+    the first entry is the window's current answer — its own best-scoring nomination
+    before :func:`_consensus_choice` runs, the crowd's choice after. ``vote_offset_s``
+    keeps the window's own answer whatever happens to ``candidates``: it is its
+    INDEPENDENT opinion, and the fraction of windows whose independent opinion matches
+    the answer is what :attr:`AlignedSpan.support` reports.
     """
 
     clip_start_s: float
@@ -2206,7 +2492,7 @@ def _consensus_choice(
     The fix for issue #30. Each window's near-tied candidates are ballots for an offset;
     an offset's SUPPORT is the number of distinct windows that could be reading it; and
     each window then takes whichever of its own candidates has the most support, keeping
-    its argmax to break a tie.
+    its own best-scoring one to break a tie.
 
     Why this is the right shape rather than a smoothing pass: the disagreement between
     windows on repetitive material is not noise, it is the signal. A spurious peak lands
@@ -2244,7 +2530,7 @@ def _consensus_choice(
         own = support[np.searchsorted(hypotheses, ballot)]
         drift = np.zeros(ballot.size) if anchor is None else np.abs(ballot - anchor)
         # Keys are applied last-first: most support, then nearest the previous window,
-        # then the window's own ranking (argmax first).
+        # then the window's own ranking (its best-scoring candidate first).
         best = int(np.lexsort((np.arange(ballot.size), drift, -own))[0])
         chosen = window.candidates[best]
         rest = tuple(c for i, c in enumerate(window.candidates) if i != best)
@@ -2315,10 +2601,7 @@ def _span_from_run(
     would be a unanimous vote of one.
     """
     offset = float(np.median([m.offset_s for m in run]))
-    support: "float | None" = None
-    if len(run) >= MIN_WINDOWS_FOR_SUPPORT:
-        agreed = sum(abs(m.vote_offset_s - offset) <= offset_tolerance_s for m in run)
-        support = agreed / len(run)
+    support = _support_fraction(run, offset, offset_tolerance_s=offset_tolerance_s)
     return AlignedSpan(
         clip_start_s=run[0].clip_start_s,
         clip_end_s=run[-1].clip_end_s,
