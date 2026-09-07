@@ -1318,9 +1318,17 @@ MIN_WINDOWS_FOR_SUPPORT = 2
 #: is exactly how an offset 102 s from the truth came back at ``support=1.00`` — the same
 #: shared-bias failure as issue #30, one level up. Windows closer together than this are
 #: still measured, still vote, and still set the offset; they are only excluded from the
-#: TALLY, whose whole meaning is "how many independent looks agree". The default hop
-#: (:data:`SPAN_HOP_S`, half a window) sits exactly at this bound, so every window counts
-#: at the shipped settings.
+#: TALLY, whose whole meaning is "how many independent looks agree".
+#:
+#: The default hop (:data:`SPAN_HOP_S`, half a window) sits exactly ON this bound, so every
+#: window of the regular grid counts. The one window that does not is the TAIL window
+#: :func:`_window_offsets` appends when a clip's length is not a whole number of hops: it
+#: starts wherever it must to reach the end, usually less than half a window after its
+#: neighbour, so it is excluded and the denominator loses one. Measured on real material,
+#: that moved one clip's support from 0.45 to 0.50 — the offsets did not move. It is the
+#: right call and it does cost something: the tail window is the only look at the clip's
+#: last stretch, and heavily-overlapped agreement is exactly what must not be counted, so
+#: the choice is between a look nothing corroborates and a corroboration that is an echo.
 MAX_SUPPORT_OVERLAP = 0.5
 
 #: Most near-tied lags one window may put forward. A cap, not a target: an exactly

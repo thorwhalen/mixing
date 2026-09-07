@@ -768,13 +768,54 @@ def test_windows_that_are_the_same_look_twice_do_not_count_as_support(
     assert spaced.support == 1.0, "at half-window hops every window still counts"
 
 
-def test_the_default_hop_keeps_every_window_in_the_tally(song, ref, tmp_path):
-    """The independence rule must not quietly halve support at the shipped settings.
+def _spaced_windows(starts, length: float):
+    """One ``_WindowMeasurement`` per start — only the extents matter to the tally."""
+    from mixing.audio.audio_ops import _WindowMeasurement
 
-    ``SPAN_HOP_S`` is half of ``SPAN_WINDOW_S``, which sits exactly ON the bound rather
-    than inside it. If the comparison were strict, every default caller's support would be
-    computed over half its windows and every documented number would move.
+    return [
+        _WindowMeasurement(
+            clip_start_s=s0,
+            clip_end_s=s0 + length,
+            candidates=((0.0, 1.0),),
+            vote_offset_s=0.0,
+        )
+        for s0 in starts
+    ]
+
+
+@pytest.mark.parametrize(
+    "starts,kept,why",
+    [
+        ([0.0, 10.0, 20.0, 30.0], 4, "a hop of exactly half a window keeps them all"),
+        ([0.0, 10.1, 20.2, 30.3], 4, "and anything wider certainly does"),
+        ([0.0, 5.0, 10.0, 15.0, 20.0], 3, "a quarter-window hop counts every other one"),
+        ([0.0, 0.5], 1, "95% overlap is one look, not two — the real-material case"),
+        ([0.0, 10.0, 20.0, 30.0, 35.0], 4, "the appended TAIL window is not a new look"),
+    ],
+)
+def test_where_the_independence_bound_falls(starts, kept, why):
+    """The bound is asserted ON the boundary, not on a clip that happens to sit near it.
+
+    ``SPAN_HOP_S`` is exactly half of ``SPAN_WINDOW_S``, so whether the comparison is
+    ``>=`` or ``>`` decides whether every default caller tallies all of its windows or
+    every other one — a one-character difference that would halve every documented
+    support number. A test on representative audio cannot see that; these cases can,
+    because they sit exactly on it.
+
+    The last case is the one that costs something. ``_window_offsets`` appends a tail
+    window so a clip whose length is not a whole number of hops is still covered to its
+    end, and that window usually lands less than half a window after its neighbour. It
+    still votes and still sets the offset — it is only excluded from the TALLY, which
+    lowers the denominator by one. Measured on real material, that moved one clip's
+    support from 0.45 to 0.50.
     """
+    from mixing.audio.audio_ops import _independent_windows
+
+    assert len(_independent_windows(_spaced_windows(starts, 20.0))) == kept, why
+
+
+def test_the_default_settings_tally_the_whole_regular_grid(song, ref, tmp_path):
+    """The same boundary, reached through the real windowing code rather than by hand."""
     from mixing.audio.audio_ops import (
         SPAN_HOP_S,
         SPAN_WINDOW_S,

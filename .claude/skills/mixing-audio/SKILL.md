@@ -184,6 +184,11 @@ agree on an offset 102 s wrong. A `support` of 1.0 in either case carries the wr
 through any gate. When it is `None`, fall back to `confidence` and know you are trusting a
 single opinion.
 
+One consequence worth knowing: the tail window that covers a clip whose length is not a
+whole number of hops usually starts less than half a window after its neighbour, so it is
+excluded from the tally and the denominator loses one. Measured, that moved one real
+clip's support from 0.45 to 0.50 — offsets are unaffected either way.
+
 **`support` is relative to `window_s` — if you change the window, revisit your
 threshold.** A shorter window is a weaker opinion, so fewer of them agree. Measured on the
 same three correct cross-device alignments: 0.45 / 0.64 / 0.73 at `window_s=20`, and
