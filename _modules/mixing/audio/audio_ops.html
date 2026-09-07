@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>mixing.audio.audio_ops &mdash; mixing 0.0.46 documentation</title>
+  <title>mixing.audio.audio_ops &mdash; mixing 0.0.47 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
@@ -14,7 +14,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=eb4c61eb"></script>
+      <script src="../../../_static/documentation_options.js?v=4f34e5f2"></script>
       <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="../../../_static/toggleprompt.js?v=d7ede5d2"></script>
@@ -2004,6 +2004,32 @@
 <span class="c1">#: by two windows and a boundary can never fall in the blind spot between them.</span>
 <span class="n">SPAN_HOP_S</span> <span class="o">=</span> <span class="mf">10.0</span>
 
+<span class="c1">#: How many window LENGTHS the adaptive rule tries to fit into a clip whose caller did not</span>
+<span class="c1">#: choose a window (:func:`_clip_window_and_hop`). One more than</span>
+<span class="c1">#: :data:`MIN_WINDOWS_FOR_SUPPORT`, and the margin is the point: aiming AT the quorum would</span>
+<span class="c1">#: leave a clip exactly on it, so the one window the tally excludes — the tail</span>
+<span class="c1">#: :func:`_window_offsets` appends when a clip is not a whole number of hops</span>
+<span class="c1">#: (:data:`MAX_SUPPORT_OVERLAP`) — would drop it back under and support would read ``None``</span>
+<span class="c1">#: again. Three window lengths at a half-window hop is five windows, of which at least</span>
+<span class="c1">#: three are independent looks.</span>
+<span class="n">MIN_WINDOWS_FOR_SUPPORT_TARGET</span> <span class="o">=</span> <span class="n">MIN_WINDOWS_FOR_SUPPORT</span> <span class="o">+</span> <span class="mi">1</span>
+
+<span class="c1">#: The shortest window the adaptive rule will choose, counted in ONSET-ENVELOPE FRAMES</span>
+<span class="c1">#: rather than seconds: under the default ``feature='envelope'`` it is the envelope that</span>
+<span class="c1">#: nominates the lag, so :data:`ENVELOPE_HOP` is what a window's real resolution is made</span>
+<span class="c1">#: of, and the floor has to follow the analysis rate rather than assume one. 300 frames is</span>
+<span class="c1">#: 3.0 s at 16 kHz — the shortest window measured to land all three clips of a real</span>
+<span class="c1">#: cross-device shoot on their true offsets (issue #41; 3, 4, 5 and 6 s windows all did,</span>
+<span class="c1">#: the default 20 s did not). Below this a window stops carrying enough onsets to</span>
+<span class="c1">#: correlate, and shrinking further buys votes by making each one worthless.</span>
+<span class="n">ADAPTIVE_WINDOW_MIN_FRAMES</span> <span class="o">=</span> <span class="mi">300</span>
+
+<span class="c1">#: The hop the adaptive rule pairs with the window it picks, as a fraction of that window.</span>
+<span class="c1">#: It is the DEFAULT pair's own ratio rather than a new number, so an adapted grid has the</span>
+<span class="c1">#: same shape as the default one: every instant covered by two windows, and every window of</span>
+<span class="c1">#: the regular grid exactly on the :data:`MAX_SUPPORT_OVERLAP` bound, hence counted.</span>
+<span class="n">ADAPTIVE_HOP_RATIO</span> <span class="o">=</span> <span class="n">SPAN_HOP_S</span> <span class="o">/</span> <span class="n">SPAN_WINDOW_S</span>
+
 <span class="c1">#: A window must reach this for its span to exist at all.</span>
 <span class="n">SPAN_MIN_CONFIDENCE</span> <span class="o">=</span> <span class="mf">0.15</span>
 
@@ -2059,7 +2085,11 @@
 <span class="sd">            consensus support was 10/24, 17/37 and 45/61 and pointed at offsets three</span>
 <span class="sd">            independent methods then confirmed to within 40 ms (issue #30).</span>
 <span class="sd">            **``None`` when it was not measured** — with ``consensus=False``, for a clip</span>
-<span class="sd">            short enough to be a single window, and when the windows overlap too heavily</span>
+<span class="sd">            short enough that the window in force gives it fewer than two INDEPENDENT</span>
+<span class="sd">            looks — which takes about ``window_s + hop_s`` of clip, not one window's worth,</span>
+<span class="sd">            so at the default grid a 26 s clip had no support either; with</span>
+<span class="sd">            ``window_s=None`` that threshold moves down to one floor-window plus its hop</span>
+<span class="sd">            (see :func:`_clip_window_and_hop`) — and when the windows overlap too heavily</span>
 <span class="sd">            to be separate opinions (:data:`MAX_SUPPORT_OVERLAP`). None of those has a</span>
 <span class="sd">            second opinion to compare against, and a support of 1.0 there would be a</span>
 <span class="sd">            unanimous vote of one: a number that VOUCHES for an offset nothing</span>
@@ -2077,7 +2107,31 @@
 <span class="sd">            deliberately not normalised — dividing by something to make the numbers look</span>
 <span class="sd">            stable would invent a statistic — so a caller that changes ``window_s`` must</span>
 <span class="sd">            revisit its threshold, and a caller comparing two clips must compare them at</span>
-<span class="sd">            the same window.</span>
+<span class="sd">            the same window. With ``window_s=None`` the window is fitted to each clip, so</span>
+<span class="sd">            two clips of different lengths are NOT at the same window unless both are long</span>
+<span class="sd">            enough to sit at the default; a caller that ranks clips by support should pass</span>
+<span class="sd">            an explicit ``window_s`` to put them back on one scale, or read</span>
+<span class="sd">            :attr:`window_s` and scale its threshold per clip.</span>
+<span class="sd">        window_s: The analysis window this clip's vote was actually held at, in seconds —</span>
+<span class="sd">            **the scale :attr:`support` is expressed on**, reported because since the</span>
+<span class="sd">            window is fitted to the clip it is no longer something the caller can infer</span>
+<span class="sd">            from its own arguments. ``None`` when no vote was held (``consensus=False``),</span>
+<span class="sd">            for the same reason ``support`` is.</span>
+
+<span class="sd">            Read it whenever you gate on support. A fixed threshold applied across clips</span>
+<span class="sd">            measured at different windows compares numbers that are not comparable:</span>
+<span class="sd">            measured on real cross-device material, 21 alignments that were all CORRECT</span>
+<span class="sd">            reported support from 0.00 to 1.00 depending mostly on how long the clip was,</span>
+<span class="sd">            because a 4 s window on a 12 s clip is a weaker opinion than a 20 s window on</span>
+<span class="sd">            a 60 s one. With this field a caller can scale its gate to the window, or</span>
+<span class="sd">            decline to gate when the window came out small — what it cannot do is read</span>
+<span class="sd">            0.33 and 0.75 as if they answered the same question.</span>
+<span class="sd">        hop_s: The step between those windows — the other half of the grid, reported for</span>
+<span class="sd">            the same reason and ``None`` in the same cases. Support counts windows that</span>
+<span class="sd">            are separated enough to be second opinions</span>
+<span class="sd">            (:data:`MAX_SUPPORT_OVERLAP`), so which windows were *eligible* to agree</span>
+<span class="sd">            depends on the hop as much as on the window: a support figure is reproducible</span>
+<span class="sd">            from ``(window_s, hop_s)`` and not from either alone.</span>
 <span class="sd">    """</span>
 
     <span class="n">index</span><span class="p">:</span> <span class="nb">int</span>
@@ -2086,8 +2140,65 @@
     <span class="n">duration_s</span><span class="p">:</span> <span class="nb">float</span>
     <span class="n">coverage</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span>
     <span class="n">overlaps</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
-    <span class="n">support</span><span class="p">:</span> <span class="s2">"float | None"</span> <span class="o">=</span> <span class="kc">None</span></div>
+    <span class="n">support</span><span class="p">:</span> <span class="s2">"float | None"</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">window_s</span><span class="p">:</span> <span class="s2">"float | None"</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">hop_s</span><span class="p">:</span> <span class="s2">"float | None"</span> <span class="o">=</span> <span class="kc">None</span></div>
 
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_clip_window_and_hop</span><span class="p">(</span>
+    <span class="n">clip_duration_s</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">sample_rate</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">window_s</span><span class="p">:</span> <span class="s2">"float | None"</span><span class="p">,</span>
+    <span class="n">hop_s</span><span class="p">:</span> <span class="s2">"float | None"</span><span class="p">,</span>
+    <span class="n">default_window_s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">SPAN_WINDOW_S</span><span class="p">,</span>
+    <span class="n">target_windows</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">MIN_WINDOWS_FOR_SUPPORT_TARGET</span><span class="p">,</span>
+    <span class="n">min_frames</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">ADAPTIVE_WINDOW_MIN_FRAMES</span><span class="p">,</span>
+    <span class="n">envelope_hop</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">ENVELOPE_HOP</span><span class="p">,</span>
+    <span class="n">hop_ratio</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">ADAPTIVE_HOP_RATIO</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"tuple[float, float]"</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""The window and hop to measure ONE clip with — ``None`` means "fit them to it".</span>
+
+<span class="sd">    ``window_s = min(default, clip_duration_s / target_windows)``, floored at the shortest</span>
+<span class="sd">    window the onset envelope can carry (:data:`ADAPTIVE_WINDOW_MIN_FRAMES` frames of</span>
+<span class="sd">    :data:`ENVELOPE_HOP`), with a hop of :data:`ADAPTIVE_HOP_RATIO` of whatever window</span>
+<span class="sd">    comes out. An explicit ``window_s`` is never overridden — the caller has said what a</span>
+<span class="sd">    window means for their material and that outranks any rule here — and an explicit</span>
+<span class="sd">    ``hop_s`` likewise.</span>
+
+<span class="sd">    **Why a clip's own length decides.** A clip too short for the window in force has no</span>
+<span class="sd">    second opinion to arbitrate: the offset it returns is whatever one correlation says,</span>
+<span class="sd">    and :func:`_support_fraction` honestly reports ``None`` for it. Measured on a real</span>
+<span class="sd">    cross-device shoot (issue #41), a 10 s clip against a 250 s reference came back 102 s</span>
+<span class="sd">    from the truth at confidence 0.834 that way, while the same clip at every window from</span>
+<span class="sd">    3 s to 6 s was right. The clip's length is known before any correlation runs, so this</span>
+<span class="sd">    is decidable up front, and the vote the estimator already knows how to hold is simply</span>
+<span class="sd">    made available to short clips too.</span>
+
+<span class="sd">    **"Too short" is about independent LOOKS, not about fitting in a window.** Support</span>
+<span class="sd">    counts windows separated by at least :data:`MAX_SUPPORT_OVERLAP` of their length, so</span>
+<span class="sd">    the default grid needs roughly ``window_s + hop_s`` — 30 s — before a clip has a second</span>
+<span class="sd">    look at all: measured, 22, 24 and 26 s clips against a 90 s reference all reported</span>
+<span class="sd">    ``None`` at the default, and the 22 s one landed 64 s from the truth at confidence</span>
+<span class="sd">    0.279 where ``window_s=10`` was right to 3 ms. Fitting the window to the clip covers</span>
+<span class="sd">    every one of them; a rule written on "shorter than one window" would have covered none.</span>
+<span class="sd">    Below one floor-window plus its hop, no windowing can hold a quorum and ``None``</span>
+<span class="sd">    remains the answer.</span>
+
+<span class="sd">    **It moves ``support``, not only the offset.** Support is relative to ``window_s``</span>
+<span class="sd">    (see :attr:`ClipAlignment.support`), so a clip measured at an adapted 3.3 s window</span>
+<span class="sd">    reports a smaller number than the same clip would at 20 s — the same three correct</span>
+<span class="sd">    real alignments read 0.45/0.64/0.73 at 20 s and 0.19/0.16/0.23 at 5 s. A short clip had</span>
+<span class="sd">    no support at all before, so nothing is being reinterpreted; but a caller gating on</span>
+<span class="sd">    support must know that the number arrives on the clip's scale, not the default's.</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">window_s</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">floor_s</span> <span class="o">=</span> <span class="n">min_frames</span> <span class="o">*</span> <span class="n">envelope_hop</span> <span class="o">/</span> <span class="n">sample_rate</span>
+        <span class="n">window_s</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">default_window_s</span><span class="p">,</span> <span class="nb">max</span><span class="p">(</span><span class="n">floor_s</span><span class="p">,</span> <span class="n">clip_duration_s</span> <span class="o">/</span> <span class="n">target_windows</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">hop_s</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">hop_s</span> <span class="o">=</span> <span class="n">window_s</span> <span class="o">*</span> <span class="n">hop_ratio</span>
+    <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">window_s</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">hop_s</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="align_clips_to_reference">
@@ -2101,8 +2212,8 @@
     <span class="n">min_overlap_ratio</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span>
     <span class="n">feature</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"envelope"</span><span class="p">,</span>
     <span class="n">consensus</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-    <span class="n">window_s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">SPAN_WINDOW_S</span><span class="p">,</span>
-    <span class="n">hop_s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">SPAN_HOP_S</span><span class="p">,</span>
+    <span class="n">window_s</span><span class="p">:</span> <span class="s2">"float | None"</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">hop_s</span><span class="p">:</span> <span class="s2">"float | None"</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">offset_tolerance_s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">SPAN_OFFSET_TOLERANCE_S</span><span class="p">,</span>
     <span class="n">near_tie_ratio</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">NEAR_TIE_RATIO</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">ClipAlignment</span><span class="p">]:</span>
@@ -2158,10 +2269,32 @@
 <span class="sd">            because nothing was put to a vote. It is cheaper (one correlation instead of</span>
 <span class="sd">            one per window) and is the right choice only when the reference is known not</span>
 <span class="sd">            to repeat.</span>
-<span class="sd">        window_s: Analysis window for the vote. Ignored when ``consensus`` is False. A</span>
-<span class="sd">            clip shorter than this is a single window, so it takes the whole-clip path's</span>
-<span class="sd">            answer either way.</span>
-<span class="sd">        hop_s: Step between those windows. Ignored when ``consensus`` is False.</span>
+<span class="sd">        window_s: Analysis window for the vote. Ignored when ``consensus`` is False.</span>
+<span class="sd">            ``None`` (the default) **fits the window to each clip** — see</span>
+<span class="sd">            :func:`_clip_window_and_hop`: ``min(20 s, clip_duration / 3)``, floored at</span>
+<span class="sd">            what the onset envelope can carry, so a clip too short to hold three default</span>
+<span class="sd">            windows still gets a vote and a measured ``support`` instead of one</span>
+<span class="sd">            uncorroborated correlation (issue #41). Whatever window each clip ends up</span>
+<span class="sd">            measured at is reported back as :attr:`ClipAlignment.window_s`, because it is</span>
+<span class="sd">            the scale its ``support`` is on. A clip of three default windows or</span>
+<span class="sd">            more is measured at :data:`SPAN_WINDOW_S` exactly, so nothing about a long</span>
+<span class="sd">            clip's answer moves. Pass a number to fix the window yourself — an explicit</span>
+<span class="sd">            value is never overridden, and it is how the pre-adaptation answer for a short</span>
+<span class="sd">            clip is reproduced.</span>
+<span class="sd">        hop_s: Step between those windows. Ignored when ``consensus`` is False. ``None``</span>
+<span class="sd">            (the default) is :data:`ADAPTIVE_HOP_RATIO` of whatever window is in force —</span>
+<span class="sd">            half of it, the default pair's own ratio — so an adapted grid keeps the</span>
+<span class="sd">            default grid's shape.</span>
+
+<span class="sd">            **Passing ``window_s`` alone now moves the hop too**, and that is a change:</span>
+<span class="sd">            before the window was fitted, an unpassed ``hop_s`` was a flat 10 s, so</span>
+<span class="sd">            ``window_s=5`` meant the pair ``(5, 10)`` — a hop twice the window, which</span>
+<span class="sd">            skips over half the clip and was never anyone's intent. It now means</span>
+<span class="sd">            ``(5, 2.5)``. Nothing else about an explicit ``window_s`` moved, but a</span>
+<span class="sd">            ``support`` measured at ``window_s=5`` on an earlier version is not</span>
+<span class="sd">            reproducible here without passing ``hop_s=10`` alongside it. The pair each</span>
+<span class="sd">            clip was actually measured at comes back as :attr:`ClipAlignment.window_s`</span>
+<span class="sd">            and :attr:`ClipAlignment.hop_s`.</span>
 <span class="sd">        offset_tolerance_s: How far two windows' offsets may differ and still count as</span>
 <span class="sd">            the same answer.</span>
 <span class="sd">        near_tie_ratio: How close a rival peak must score to a window's best one to join</span>
@@ -2186,12 +2319,20 @@
     <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">clip</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">clips</span><span class="p">):</span>
         <span class="n">query</span> <span class="o">=</span> <span class="n">_load_mono_samples</span><span class="p">(</span><span class="n">clip</span><span class="p">,</span> <span class="n">sample_rate</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">consensus</span><span class="p">:</span>
+            <span class="c1"># Per clip, not per call: the windowing is fitted to the clip being measured,</span>
+            <span class="c1"># so a short clip in a set does not inherit a long one's window.</span>
+            <span class="n">clip_window_s</span><span class="p">,</span> <span class="n">clip_hop_s</span> <span class="o">=</span> <span class="n">_clip_window_and_hop</span><span class="p">(</span>
+                <span class="nb">len</span><span class="p">(</span><span class="n">query</span><span class="p">)</span> <span class="o">/</span> <span class="n">sample_rate</span><span class="p">,</span>
+                <span class="n">sample_rate</span><span class="p">,</span>
+                <span class="n">window_s</span><span class="o">=</span><span class="n">window_s</span><span class="p">,</span>
+                <span class="n">hop_s</span><span class="o">=</span><span class="n">hop_s</span><span class="p">,</span>
+            <span class="p">)</span>
             <span class="n">offset_s</span><span class="p">,</span> <span class="n">coeff</span><span class="p">,</span> <span class="n">support</span> <span class="o">=</span> <span class="n">_consensus_alignment</span><span class="p">(</span>
                 <span class="n">ref</span><span class="p">,</span>
                 <span class="n">query</span><span class="p">,</span>
                 <span class="n">sample_rate</span><span class="p">,</span>
-                <span class="n">window_s</span><span class="o">=</span><span class="n">window_s</span><span class="p">,</span>
-                <span class="n">hop_s</span><span class="o">=</span><span class="n">hop_s</span><span class="p">,</span>
+                <span class="n">window_s</span><span class="o">=</span><span class="n">clip_window_s</span><span class="p">,</span>
+                <span class="n">hop_s</span><span class="o">=</span><span class="n">clip_hop_s</span><span class="p">,</span>
                 <span class="n">feature</span><span class="o">=</span><span class="n">feature</span><span class="p">,</span>
                 <span class="n">min_overlap_ratio</span><span class="o">=</span><span class="n">min_overlap_ratio</span><span class="p">,</span>
                 <span class="n">near_tie_ratio</span><span class="o">=</span><span class="n">near_tie_ratio</span><span class="p">,</span>
@@ -2206,13 +2347,16 @@
                 <span class="n">min_overlap_ratio</span><span class="o">=</span><span class="n">min_overlap_ratio</span><span class="p">,</span>
                 <span class="n">ref_envelope</span><span class="o">=</span><span class="n">ref_env</span><span class="p">,</span>
             <span class="p">)</span>
-            <span class="c1"># Nothing was put to a vote, so support is not measured — never 1.0.</span>
+            <span class="c1"># Nothing was put to a vote, so neither support nor the window it would be</span>
+            <span class="c1"># relative to exists — and support is never 1.0 here.</span>
             <span class="n">offset_s</span><span class="p">,</span> <span class="n">support</span> <span class="o">=</span> <span class="n">lag</span> <span class="o">/</span> <span class="n">sample_rate</span><span class="p">,</span> <span class="kc">None</span>
+            <span class="n">clip_window_s</span> <span class="o">=</span> <span class="n">clip_hop_s</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">lag</span><span class="p">,</span> <span class="n">coeff</span> <span class="o">=</span> <span class="n">_normalized_xcorr</span><span class="p">(</span>
                 <span class="n">ref</span><span class="p">,</span> <span class="n">query</span><span class="p">,</span> <span class="n">min_overlap_ratio</span><span class="o">=</span><span class="n">min_overlap_ratio</span>
             <span class="p">)</span>
             <span class="n">offset_s</span><span class="p">,</span> <span class="n">support</span> <span class="o">=</span> <span class="n">lag</span> <span class="o">/</span> <span class="n">sample_rate</span><span class="p">,</span> <span class="kc">None</span>
+            <span class="n">clip_window_s</span> <span class="o">=</span> <span class="n">clip_hop_s</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="n">dur_s</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">query</span><span class="p">)</span> <span class="o">/</span> <span class="n">sample_rate</span>
         <span class="n">start</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">offset_s</span><span class="p">)</span>
         <span class="n">end</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">ref_dur</span><span class="p">,</span> <span class="n">offset_s</span> <span class="o">+</span> <span class="n">dur_s</span><span class="p">)</span>
@@ -2226,6 +2370,8 @@
                 <span class="n">coverage</span><span class="o">=</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">)</span> <span class="k">if</span> <span class="n">overlaps</span> <span class="k">else</span> <span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">start</span><span class="p">),</span>
                 <span class="n">overlaps</span><span class="o">=</span><span class="n">overlaps</span><span class="p">,</span>
                 <span class="n">support</span><span class="o">=</span><span class="n">support</span><span class="p">,</span>
+                <span class="n">window_s</span><span class="o">=</span><span class="n">clip_window_s</span><span class="p">,</span>
+                <span class="n">hop_s</span><span class="o">=</span><span class="n">clip_hop_s</span><span class="p">,</span>
             <span class="p">)</span>
         <span class="p">)</span>
     <span class="k">return</span> <span class="n">out</span></div>
