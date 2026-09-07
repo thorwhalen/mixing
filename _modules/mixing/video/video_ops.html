@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>mixing.video.video_ops &mdash; mixing 0.0.43 documentation</title>
+  <title>mixing.video.video_ops &mdash; mixing 0.0.44 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
@@ -14,7 +14,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=b345ff55"></script>
+      <script src="../../../_static/documentation_options.js?v=78cc6f98"></script>
       <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="../../../_static/toggleprompt.js?v=d7ede5d2"></script>
@@ -623,6 +623,7 @@
         <span class="o">*</span><span class="p">,</span>
         <span class="n">image_format</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"png"</span><span class="p">,</span>
         <span class="n">copy_to_clipboard</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">quiet</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Save a single frame as an image and/or copy to clipboard.</span>
@@ -635,6 +636,9 @@
 <span class="sd">                only). See mixing.egress.</span>
 <span class="sd">            image_format: Image format (png, jpg, etc.)</span>
 <span class="sd">            copy_to_clipboard: If True, copy image to system clipboard</span>
+<span class="sd">            quiet: If False, print progress messages ("Copying image to</span>
+<span class="sd">                clipboard...", "Saved frame to: ..."). Defaults to True so</span>
+<span class="sd">                library callers keep a clean stdout (see mixing#32).</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            Path to saved image, or None if only copied to clipboard</span>
@@ -658,7 +662,8 @@
 
         <span class="c1"># Copy to clipboard if requested</span>
         <span class="k">if</span> <span class="n">copy_to_clipboard</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s2">"Copying image to clipboard..."</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">quiet</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">"Copying image to clipboard..."</span><span class="p">)</span>
             <span class="n">_copy_frame_to_clipboard</span><span class="p">(</span><span class="n">frame</span><span class="p">)</span>
 
         <span class="c1"># Save to file if requested</span>
@@ -674,7 +679,8 @@
 
             <span class="k">def</span><span class="w"> </span><span class="nf">_write</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">cv2</span><span class="o">.</span><span class="n">imwrite</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">path</span><span class="p">),</span> <span class="n">frame</span><span class="p">)</span>
-                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Saved frame to: </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">quiet</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Saved frame to: </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
             <span class="k">return</span> <span class="n">write_egress</span><span class="p">(</span><span class="n">output</span><span class="p">,</span> <span class="n">default_path</span><span class="o">=</span><span class="n">default_path</span><span class="p">,</span> <span class="n">write</span><span class="o">=</span><span class="n">_write</span><span class="p">)</span>
 
@@ -801,7 +807,7 @@
                 <span class="s2">"crop_box is not supported for single-frame extraction "</span>
                 <span class="s2">"(start == end); use save_frame and crop the image instead"</span>
             <span class="p">)</span>
-        <span class="n">frame_kwargs</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"image_format"</span><span class="p">,</span> <span class="s2">"copy_to_clipboard"</span><span class="p">}</span>
+        <span class="n">frame_kwargs</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"image_format"</span><span class="p">,</span> <span class="s2">"copy_to_clipboard"</span><span class="p">,</span> <span class="s2">"quiet"</span><span class="p">}</span>
         <span class="n">segment_only</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">save_kwargs</span><span class="p">)</span> <span class="o">-</span> <span class="n">frame_kwargs</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">segment_only</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
@@ -827,6 +833,7 @@
     <span class="n">output</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">image_format</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"png"</span><span class="p">,</span>
     <span class="n">copy_to_clipboard</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">quiet</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Extract and save a frame from a video file.</span>
@@ -845,6 +852,8 @@
 <span class="sd">            ``False`` means "don't save to file" (requires copy_to_clipboard).</span>
 <span class="sd">        image_format: Default image format if not specified in output</span>
 <span class="sd">        copy_to_clipboard: If True, copy image to system clipboard</span>
+<span class="sd">        quiet: If False, print progress messages. Defaults to True so library</span>
+<span class="sd">            callers keep a clean stdout (see mixing#32).</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        Path to the saved image file, or None if only copied to clipboard</span>
@@ -907,6 +916,7 @@
         <span class="n">output</span><span class="o">=</span><span class="n">output_path</span><span class="p">,</span>
         <span class="n">image_format</span><span class="o">=</span><span class="n">image_format</span><span class="p">,</span>
         <span class="n">copy_to_clipboard</span><span class="o">=</span><span class="n">copy_to_clipboard</span><span class="p">,</span>
+        <span class="n">quiet</span><span class="o">=</span><span class="n">quiet</span><span class="p">,</span>
     <span class="p">)</span></div>
 
 
