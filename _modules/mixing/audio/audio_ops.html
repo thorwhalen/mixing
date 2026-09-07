@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>mixing.audio.audio_ops &mdash; mixing 0.0.47 documentation</title>
+  <title>mixing.audio.audio_ops &mdash; mixing 0.0.48 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
@@ -14,7 +14,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=4f34e5f2"></script>
+      <script src="../../../_static/documentation_options.js?v=a72e4630"></script>
       <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="../../../_static/toggleprompt.js?v=d7ede5d2"></script>
@@ -1499,6 +1499,28 @@
 <span class="c1">#: the choice is between a look nothing corroborates and a corroboration that is an echo.</span>
 <span class="n">MAX_SUPPORT_OVERLAP</span> <span class="o">=</span> <span class="mf">0.5</span>
 
+<span class="c1">#: What one window's BALLOT MENTION is worth in the support tally, against the 1.0 of an</span>
+<span class="c1">#: independent argmax. A window that named the winning offset outright found it unaided;</span>
+<span class="c1">#: a window that merely could not separate it from its own answer</span>
+<span class="c1">#: (:data:`NEAR_TIE_RATIO`) is weaker evidence than that and stronger than nothing, so it</span>
+<span class="c1">#: casts half a vote rather than none (issue #45). The mention is then scaled by the</span>
+<span class="c1">#: candidate's share of that window's own best score — both :func:`_dual_confidence`</span>
+<span class="c1">#: values, so the ratio is a WITHIN-WINDOW ranking and not a calibrated coefficient.</span>
+<span class="c1">#:</span>
+<span class="c1">#: Why half rather than some other fraction: at ``0.5`` the number reads as a scale with</span>
+<span class="c1">#: a boundary a caller can use. Ballot mentions alone can never carry the tally past</span>
+<span class="c1">#: ``0.5``, so **``support &gt; 0.5`` means at least one independent window reached this</span>
+<span class="c1">#: offset on its own** — the old statistic's whole question, still answerable, now as the</span>
+<span class="c1">#: top half of a range instead of the whole of it.</span>
+<span class="c1">#:</span>
+<span class="c1">#: What it fixes: an argmax is a real opinion at a 20 s window and close to a coin flip</span>
+<span class="c1">#: at 4 s, so a bare argmax tally got *less* confident exactly as the fitted window</span>
+<span class="c1">#: (issue #41) made the estimator *more* reliable. Measured on real cross-device material</span>
+<span class="c1">#: (issue #45), 21 alignments that were all correct reported 0.00-1.00 with six at 0.00 —</span>
+<span class="c1">#: the vote landed on the right offset while no individual window's argmax agreed. A gate</span>
+<span class="c1">#: at 0.25 refused about half of them.</span>
+<span class="n">BALLOT_VOTE_WEIGHT</span> <span class="o">=</span> <span class="mf">0.5</span>
+
 <span class="c1">#: Most near-tied lags one window may put forward. A cap, not a target: an exactly</span>
 <span class="c1">#: tiling reference offers one candidate per repeat, and the vote does not get better</span>
 <span class="c1">#: for counting all of them.</span>
@@ -2073,13 +2095,49 @@
 <span class="sd">        overlaps: Whether the clip intersects the reference timeline at all. A clip that</span>
 <span class="sd">            does not is still RETURNED, with its measured offset and confidence — see</span>
 <span class="sd">            :func:`align_clips_to_reference` for why it is not dropped.</span>
-<span class="sd">        support: Fraction in ``[0, 1]`` of the clip's analysis windows that reached</span>
-<span class="sd">            :attr:`offset_s` **on their own**, before the consensus vote — "how much of</span>
-<span class="sd">            this clip agrees that this is where it goes". It is a different question</span>
+<span class="sd">        support: How much of the clip's analysis windows' own evidence — before the</span>
+<span class="sd">            consensus vote — reaches :attr:`offset_s`, in ``[0, 1]``: "how much of this</span>
+<span class="sd">            clip agrees that this is where it goes". It is a different question</span>
 <span class="sd">            from :attr:`confidence`, which asks only how well the clip matches at the</span>
 <span class="sd">            offset reported, and it is the one that catches the two failures a</span>
 <span class="sd">            coefficient cannot: a clip that matches beautifully **somewhere else too**</span>
 <span class="sd">            (repetitive music), and a clip only PART of which is the reference at all.</span>
+
+<span class="sd">            **A graded tally, not a headcount** (issue #45). A window whose own argmax</span>
+<span class="sd">            landed on :attr:`offset_s` contributes a full 1.0; a window that merely put</span>
+<span class="sd">            it on its ballot — could not separate it from its own answer, or had it</span>
+<span class="sd">            nominated by the other feature — contributes up to</span>
+<span class="sd">            :data:`BALLOT_VOTE_WEIGHT`, scaled by how close it scored; a window that</span>
+<span class="sd">            never considered it contributes nothing. Ballot mentions alone cannot carry</span>
+<span class="sd">            the tally past ``0.5``, so **``support &gt; 0.5`` means at least one independent</span>
+<span class="sd">            window reached this offset unaided** — which is exactly what the whole number</span>
+<span class="sd">            used to mean, now the top half of a range rather than all of it.</span>
+
+<span class="sd">            **A threshold carried over from before the change no longer means what it</span>
+<span class="sd">            meant.** Every value in ``(0, 0.5]`` is reachable with zero windows having</span>
+<span class="sd">            found the offset unaided, so a gate at 0.25 now says "some of the clip's</span>
+<span class="sd">            evidence mentions this offset", not "a quarter of the windows located it</span>
+<span class="sd">            themselves". A caller who meant the latter gates at ``&gt; 0.5``, and that is</span>
+<span class="sd">            not a cosmetic re-tune: measured at the default window, an exactly tiling</span>
+<span class="sd">            reference — where the offset is a free choice among nine — now lands just</span>
+<span class="sd">            *below* 0.5 and a reference that is one half twice lands just *above* it, so</span>
+<span class="sd">            a gate at 0.5 separates them and a gate at 0.25 passes both.</span>
+
+<span class="sd">            **The change is a no-op only where the argmax was already decisive.** A long</span>
+<span class="sd">            clip at the default 20 s window is unchanged on a reference that does not</span>
+<span class="sd">            repeat, because every window got there on its own and there is nothing to</span>
+<span class="sd">            add. On a repeating reference the same long clip moves — measured, a 60 s</span>
+<span class="sd">            clip at ``window_s=20`` went from a headcount of 0.00 to about 0.50. Length</span>
+<span class="sd">            was never the thing that made the old number safe; an undisputed argmax was.</span>
+
+<span class="sd">            The reason it is graded: an argmax is a real opinion at a 20 s window and</span>
+<span class="sd">            close to a coin flip at 4 s, so a bare headcount got *less* confident exactly</span>
+<span class="sd">            as fitting the window to the clip (issue #41) made the estimator *more*</span>
+<span class="sd">            reliable — backwards, for a trust gate. Measured on real cross-device</span>
+<span class="sd">            material, 21 alignments that were ALL correct reported 0.00-1.00 with six at</span>
+<span class="sd">            0.00: the vote landed on the right offset while no individual window's argmax</span>
+<span class="sd">            agreed.</span>
+
 <span class="sd">            Measured on three phone recordings of one commercial track, the whole-clip</span>
 <span class="sd">            argmax was 83 s, 174 s and 83 s wrong while its coefficient looked ordinary;</span>
 <span class="sd">            consensus support was 10/24, 17/37 and 45/61 and pointed at offsets three</span>
@@ -2101,8 +2159,10 @@
 <span class="sd">            ``None`` says "not measured", which a caller can fall back from.</span>
 
 <span class="sd">            **It is relative to ``window_s``, so a gate on it is too.** Support asks how</span>
-<span class="sd">            many independent windows agreed, and a shorter window is a weaker opinion:</span>
-<span class="sd">            measured on the same three correct cross-device alignments, support read</span>
+<span class="sd">            much independent evidence agreed, and a shorter window is a weaker opinion.</span>
+<span class="sd">            Grading the tally softens that — a short window's near-miss is now worth</span>
+<span class="sd">            something rather than nothing — but it does not remove it: measured on the</span>
+<span class="sd">            same three correct cross-device alignments, the headcount this replaced read</span>
 <span class="sd">            0.45/0.64/0.73 at ``window_s=20`` and 0.19/0.16/0.23 at ``window_s=5``. It is</span>
 <span class="sd">            deliberately not normalised — dividing by something to make the numbers look</span>
 <span class="sd">            stable would invent a statistic — so a caller that changes ``window_s`` must</span>
@@ -2121,11 +2181,22 @@
 <span class="sd">            Read it whenever you gate on support. A fixed threshold applied across clips</span>
 <span class="sd">            measured at different windows compares numbers that are not comparable:</span>
 <span class="sd">            measured on real cross-device material, 21 alignments that were all CORRECT</span>
-<span class="sd">            reported support from 0.00 to 1.00 depending mostly on how long the clip was,</span>
+<span class="sd">            reported the bare argmax headcount from 0.00 to 1.00 (which is why that tally</span>
+<span class="sd">            is now graded — :data:`BALLOT_VOTE_WEIGHT`) depending mostly on clip length,</span>
 <span class="sd">            because a 4 s window on a 12 s clip is a weaker opinion than a 20 s window on</span>
 <span class="sd">            a 60 s one. With this field a caller can scale its gate to the window, or</span>
 <span class="sd">            decline to gate when the window came out small — what it cannot do is read</span>
 <span class="sd">            0.33 and 0.75 as if they answered the same question.</span>
+
+<span class="sd">            **Necessary, and since #45 no longer sufficient.** A rule of the form "below</span>
+<span class="sd">            the default window, treat the value as unmeasured" was a complete defence</span>
+<span class="sd">            while support was an argmax headcount, because that was the only axis that</span>
+<span class="sd">            moved it. It is not any more: what a repeating reference does to the tally it</span>
+<span class="sd">            does at ``window_s=20`` too — a 60 s clip there went from 0.00 to about 0.50</span>
+<span class="sd">            on a bed that tiles. So reading this field tells a caller how strong each</span>
+<span class="sd">            opinion was; it does not put the number back on a scale a pre-#45 threshold</span>
+<span class="sd">            was calibrated against. Nothing does. A threshold calibrated on the headcount</span>
+<span class="sd">            has to be re-measured against this statistic, not re-pointed at it.</span>
 <span class="sd">        hop_s: The step between those windows — the other half of the grid, reported for</span>
 <span class="sd">            the same reason and ``None`` in the same cases. Support counts windows that</span>
 <span class="sd">            are separated enough to be second opinions</span>
@@ -2403,26 +2474,103 @@
     <span class="k">return</span> <span class="n">kept</span>
 
 
+<span class="k">def</span><span class="w"> </span><span class="nf">_window_agreement</span><span class="p">(</span>
+    <span class="n">window</span><span class="p">:</span> <span class="s2">"_WindowMeasurement"</span><span class="p">,</span>
+    <span class="n">offset_s</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">offset_tolerance_s</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">ballot_weight</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">BALLOT_VOTE_WEIGHT</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""How much ONE window's evidence says ``offset_s``, on a scale of ``[0, 1]``.</span>
+
+<span class="sd">    Three grades, and the middle one is the whole point (issue #45):</span>
+
+<span class="sd">    - **1.0** — the window's own argmax (:attr:`_WindowMeasurement.vote_offset_s`) is</span>
+<span class="sd">      there. It found the offset unaided; nothing corroborates it more strongly than</span>
+<span class="sd">      that.</span>
+<span class="sd">    - **``ballot_weight * score / best``** — the offset is on the window's ballot but was</span>
+<span class="sd">      not its answer: the window could not separate it from its own best-scoring</span>
+<span class="sd">      candidate (:data:`NEAR_TIE_RATIO`), or another feature nominated it. The ratio is</span>
+<span class="sd">      **within this window and uncalibrated** — both scores are</span>
+<span class="sd">      :func:`_dual_confidence` values, so it says how this candidate ranked against the</span>
+<span class="sd">      window's own best and nothing about either in absolute terms.</span>
+<span class="sd">    - **0.0** — the window never considered it. No vote can be read out of an offset</span>
+<span class="sd">      nobody put forward.</span>
+
+<span class="sd">    Monotone in the evidence by construction: strengthening what a window says about</span>
+<span class="sd">    ``offset_s`` (unmentioned → mentioned → mentioned higher → argmax) never lowers this</span>
+<span class="sd">    window's grade, so **for a fixed set of independent windows** it never lowers the</span>
+<span class="sd">    support tally either. That qualifier is load-bearing: adding a window changes which</span>
+<span class="sd">    windows :func:`_independent_windows` keeps, and the greedy stride can displace a</span>
+<span class="sd">    full-credit window in favour of the newcomer — so an extra agreeing window can lower</span>
+<span class="sd">    the mean even though no window's own grade fell.</span>
+
+<span class="sd">    ``ballot_weight=0.0`` reduces this to the bare argmax headcount that</span>
+<span class="sd">    :func:`_support_fraction` used to be — the before, available as a measurement.</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">window</span><span class="o">.</span><span class="n">vote_offset_s</span> <span class="o">-</span> <span class="n">offset_s</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">offset_tolerance_s</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mf">1.0</span>
+    <span class="n">best</span> <span class="o">=</span> <span class="nb">max</span><span class="p">((</span><span class="n">score</span> <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">score</span> <span class="ow">in</span> <span class="n">window</span><span class="o">.</span><span class="n">candidates</span><span class="p">),</span> <span class="n">default</span><span class="o">=</span><span class="mf">0.0</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">best</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mf">0.0</span>
+    <span class="n">on_ballot</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">score</span>
+        <span class="k">for</span> <span class="n">candidate_offset</span><span class="p">,</span> <span class="n">score</span> <span class="ow">in</span> <span class="n">window</span><span class="o">.</span><span class="n">candidates</span>
+        <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">candidate_offset</span> <span class="o">-</span> <span class="n">offset_s</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">offset_tolerance_s</span>
+    <span class="p">]</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">on_ballot</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mf">0.0</span>
+    <span class="k">return</span> <span class="n">ballot_weight</span> <span class="o">*</span> <span class="nb">max</span><span class="p">(</span><span class="n">on_ballot</span><span class="p">)</span> <span class="o">/</span> <span class="n">best</span>
+
+
 <span class="k">def</span><span class="w"> </span><span class="nf">_support_fraction</span><span class="p">(</span>
     <span class="n">windows</span><span class="p">:</span> <span class="s2">"Sequence[_WindowMeasurement]"</span><span class="p">,</span>
     <span class="n">offset_s</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
     <span class="n">offset_tolerance_s</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"float | None"</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">"""What fraction of the INDEPENDENT windows reached ``offset_s`` unaided, or ``None``.</span>
+<span class="w">    </span><span class="sd">"""How much of the INDEPENDENT windows' evidence reaches ``offset_s``, or ``None``.</span>
+
+<span class="sd">    The mean of :func:`_window_agreement` over the independent windows: a window that</span>
+<span class="sd">    reached ``offset_s`` unaided contributes 1.0, one that only put it on its ballot</span>
+<span class="sd">    contributes up to :data:`BALLOT_VOTE_WEIGHT`, one that never considered it</span>
+<span class="sd">    contributes nothing.</span>
+
+<span class="sd">    **This was a bare argmax tally and is now a graded one** (issue #45). The old</span>
+<span class="sd">    definition asked "how many windows' independent argmax landed here", which is a real</span>
+<span class="sd">    question at a 20 s window and close to a coin flip at 4 s — so once the window was</span>
+<span class="sd">    fitted to the clip (issue #41) the estimator got *more* reliable as its confidence</span>
+<span class="sd">    statistic got *less*, which is the wrong way round for a trust gate. Measured on real</span>
+<span class="sd">    cross-device material, six of 21 alignments that were all CORRECT reported 0.00.</span>
+<span class="sd">    Grading the tally keeps the old question answerable — ballot mentions alone cannot</span>
+<span class="sd">    reach past :data:`BALLOT_VOTE_WEIGHT`, so ``support &gt; 0.5`` still means some window</span>
+<span class="sd">    got there on its own — while giving the windows that nearly got there a number</span>
+<span class="sd">    instead of a zero.</span>
 
 <span class="sd">    ``None`` means "not measured", and it is not spelled ``1.0`` on purpose: a fraction</span>
 <span class="sd">    computed over fewer than :data:`MIN_WINDOWS_FOR_SUPPORT` independent looks is a</span>
 <span class="sd">    unanimous vote of one, and a manufactured 1.0 VOUCHES for whatever it is attached to.</span>
 
-<span class="sd">    Counted on each window's own answer (:attr:`_WindowMeasurement.vote_offset_s`), never</span>
-<span class="sd">    on what the consensus assigned it — the assignment agrees with itself by construction.</span>
+<span class="sd">    Counted on each window's own candidates, never on what the consensus assigned it —</span>
+<span class="sd">    the assignment agrees with itself by construction.</span>
 <span class="sd">    """</span>
     <span class="n">counted</span> <span class="o">=</span> <span class="n">_independent_windows</span><span class="p">(</span><span class="n">windows</span><span class="p">)</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">counted</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">MIN_WINDOWS_FOR_SUPPORT</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">None</span>
-    <span class="n">votes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">w</span><span class="o">.</span><span class="n">vote_offset_s</span> <span class="k">for</span> <span class="n">w</span> <span class="ow">in</span> <span class="n">counted</span><span class="p">])</span>
-    <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">votes</span> <span class="o">-</span> <span class="n">offset_s</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">offset_tolerance_s</span><span class="p">))</span>
+    <span class="c1"># The weight is looked up here rather than left to the helper's default so that</span>
+    <span class="c1"># setting it to 0 — which is exactly the argmax headcount this replaced — is a thing a</span>
+    <span class="c1"># characterization test can do, the way `near_tie_ratio=0.0` restores the pre-#30</span>
+    <span class="c1"># argmax path.</span>
+    <span class="n">agreement</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">_window_agreement</span><span class="p">(</span>
+            <span class="n">w</span><span class="p">,</span>
+            <span class="n">offset_s</span><span class="p">,</span>
+            <span class="n">offset_tolerance_s</span><span class="o">=</span><span class="n">offset_tolerance_s</span><span class="p">,</span>
+            <span class="n">ballot_weight</span><span class="o">=</span><span class="n">BALLOT_VOTE_WEIGHT</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">for</span> <span class="n">w</span> <span class="ow">in</span> <span class="n">counted</span>
+    <span class="p">]</span>
+    <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">agreement</span><span class="p">))</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_consensus_alignment</span><span class="p">(</span>
@@ -2446,10 +2594,12 @@
 <span class="sd">    on wins; the reported offset is the MEDIAN over that winning group, so the answer</span>
 <span class="sd">    keeps sub-window precision rather than snapping to one window's estimate.</span>
 
-<span class="sd">    ``support`` is counted on the windows' INDEPENDENT argmaxes, not on what the vote</span>
-<span class="sd">    assigned them — the vote's own output would agree with itself and say nothing. So it</span>
-<span class="sd">    reads as "this fraction of the clip found this offset unaided", which drops both</span>
-<span class="sd">    when the reference repeats and when only part of the clip is the reference at all.</span>
+<span class="sd">    ``support`` is counted on the windows' OWN candidates, not on what the vote assigned</span>
+<span class="sd">    them — the vote's own output would agree with itself and say nothing. So it reads as</span>
+<span class="sd">    "this much of the clip's own evidence reaches this offset", which drops both when the</span>
+<span class="sd">    reference repeats and when only part of the clip is the reference at all. An</span>
+<span class="sd">    independent argmax counts fully and a bare ballot mention counts up to</span>
+<span class="sd">    :data:`BALLOT_VOTE_WEIGHT` (:func:`_window_agreement`).</span>
 <span class="sd">    Under :data:`MIN_WINDOWS_FOR_SUPPORT` INDEPENDENT windows there is no second opinion</span>
 <span class="sd">    to count — windows overlapping more than :data:`MAX_SUPPORT_OVERLAP` are one look</span>
 <span class="sd">    read twice, not two — and it is ``None`` rather than 1.0 — see</span>
@@ -2521,12 +2671,15 @@
 <span class="sd">            **how well the clip matches where this span puts it**, and on a reference</span>
 <span class="sd">            that repeats verbatim that is a question with several excellent answers —</span>
 <span class="sd">            see :attr:`support`, and gate on both.</span>
-<span class="sd">        support: Fraction in ``[0, 1]`` of the span's INDEPENDENT windows</span>
-<span class="sd">            (:data:`MAX_SUPPORT_OVERLAP`) that reached this offset **on their own**,</span>
-<span class="sd">            before the consensus vote, and relative to ``window_s`` the same way</span>
+<span class="sd">        support: How much of the span's INDEPENDENT windows' own evidence</span>
+<span class="sd">            (:data:`MAX_SUPPORT_OVERLAP`) reaches this offset, in ``[0, 1]``, before the</span>
+<span class="sd">            consensus vote and relative to ``window_s`` the same way</span>
 <span class="sd">            :attr:`ClipAlignment.support` is — or ``None`` when the span was</span>
 <span class="sd">            built from fewer than :data:`MIN_WINDOWS_FOR_SUPPORT` windows and there was</span>
-<span class="sd">            therefore nothing to agree. This is the number that knows about repetition.</span>
+<span class="sd">            therefore nothing to agree. A window that reached the offset unaided counts</span>
+<span class="sd">            1.0 and one that only put it on its ballot counts up to</span>
+<span class="sd">            :data:`BALLOT_VOTE_WEIGHT`, so ``support &gt; 0.5`` still means some window got</span>
+<span class="sd">            there on its own (issue #45). This is the number that knows about repetition.</span>
 <span class="sd">            A reference with no repeats gives 1.0; a verse/chorus reference gives less,</span>
 <span class="sd">            because some windows correlated just as well against the wrong chorus and</span>
 <span class="sd">            only the crowd put them right; an exactly tiling reference gives very</span>
@@ -2932,9 +3085,10 @@
 <span class="sd">    only as trustworthy as its typical window, and the max would let one lucky window</span>
 <span class="sd">    speak for all of them.</span>
 
-<span class="sd">    ``support`` is counted on the windows' INDEPENDENT argmaxes</span>
-<span class="sd">    (:attr:`_WindowMeasurement.vote_offset_s`), not on the offsets consensus assigned</span>
-<span class="sd">    them. Counting the assigned offsets would be circular — every window in a run agrees</span>
+<span class="sd">    ``support`` is counted on the windows' own candidates — their independent argmax</span>
+<span class="sd">    (:attr:`_WindowMeasurement.vote_offset_s`) at full weight and the rest of their</span>
+<span class="sd">    ballot at :data:`BALLOT_VOTE_WEIGHT` — not on the offsets consensus assigned them.</span>
+<span class="sd">    Counting the assigned offsets would be circular — every window in a run agrees</span>
 <span class="sd">    with its run by construction, so the number would be 1.0 always and would carry no</span>
 <span class="sd">    information at all. A run too short to hold a disagreement</span>
 <span class="sd">    (:data:`MIN_WINDOWS_FOR_SUPPORT`) reports ``None`` for the same reason: 1.0 there</span>

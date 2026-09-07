@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>mixing.audio.audio_ops &mdash; mixing 0.0.47 documentation</title>
+  <title>mixing.audio.audio_ops &mdash; mixing 0.0.48 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
@@ -15,7 +15,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=4f34e5f2"></script>
+      <script src="../../../_static/documentation_options.js?v=a72e4630"></script>
       <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="../../../_static/toggleprompt.js?v=d7ede5d2"></script>
@@ -92,6 +92,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#mixing.audio.audio_ops.AudioSamples"><code class="docutils literal notranslate"><span class="pre">AudioSamples</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mixing.audio.audio_ops.BALLOT_VOTE_WEIGHT"><code class="docutils literal notranslate"><span class="pre">BALLOT_VOTE_WEIGHT</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#mixing.audio.audio_ops.ClipAlignment"><code class="docutils literal notranslate"><span class="pre">ClipAlignment</span></code></a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#mixing.audio.audio_ops.ClipAlignment.index"><code class="docutils literal notranslate"><span class="pre">ClipAlignment.index</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#mixing.audio.audio_ops.ClipAlignment.offset_s"><code class="docutils literal notranslate"><span class="pre">ClipAlignment.offset_s</span></code></a></li>
@@ -331,12 +332,15 @@ see <a class="reference internal" href="#mixing.audio.audio_ops.AlignedSpan.supp
 <dl class="py attribute">
 <dt class="sig sig-object py" id="mixing.audio.audio_ops.AlignedSpan.support">
 <span class="sig-name descname"><span class="pre">support</span></span><a class="headerlink" href="#mixing.audio.audio_ops.AlignedSpan.support" title="Link to this definition"></a></dt>
-<dd><p>Fraction in <code class="docutils literal notranslate"><span class="pre">[0,</span> <span class="pre">1]</span></code> of the span’s INDEPENDENT windows
-(<a class="reference internal" href="#mixing.audio.audio_ops.MAX_SUPPORT_OVERLAP" title="mixing.audio.audio_ops.MAX_SUPPORT_OVERLAP"><code class="xref py py-data docutils literal notranslate"><span class="pre">MAX_SUPPORT_OVERLAP</span></code></a>) that reached this offset <strong>on their own</strong>,
-before the consensus vote, and relative to <code class="docutils literal notranslate"><span class="pre">window_s</span></code> the same way
+<dd><p>How much of the span’s INDEPENDENT windows’ own evidence
+(<a class="reference internal" href="#mixing.audio.audio_ops.MAX_SUPPORT_OVERLAP" title="mixing.audio.audio_ops.MAX_SUPPORT_OVERLAP"><code class="xref py py-data docutils literal notranslate"><span class="pre">MAX_SUPPORT_OVERLAP</span></code></a>) reaches this offset, in <code class="docutils literal notranslate"><span class="pre">[0,</span> <span class="pre">1]</span></code>, before the
+consensus vote and relative to <code class="docutils literal notranslate"><span class="pre">window_s</span></code> the same way
 <a class="reference internal" href="#mixing.audio.audio_ops.ClipAlignment.support" title="mixing.audio.audio_ops.ClipAlignment.support"><code class="xref py py-attr docutils literal notranslate"><span class="pre">ClipAlignment.support</span></code></a> is — or <code class="docutils literal notranslate"><span class="pre">None</span></code> when the span was
 built from fewer than <a class="reference internal" href="#mixing.audio.audio_ops.MIN_WINDOWS_FOR_SUPPORT" title="mixing.audio.audio_ops.MIN_WINDOWS_FOR_SUPPORT"><code class="xref py py-data docutils literal notranslate"><span class="pre">MIN_WINDOWS_FOR_SUPPORT</span></code></a> windows and there was
-therefore nothing to agree. This is the number that knows about repetition.
+therefore nothing to agree. A window that reached the offset unaided counts
+1.0 and one that only put it on its ballot counts up to
+<a class="reference internal" href="#mixing.audio.audio_ops.BALLOT_VOTE_WEIGHT" title="mixing.audio.audio_ops.BALLOT_VOTE_WEIGHT"><code class="xref py py-data docutils literal notranslate"><span class="pre">BALLOT_VOTE_WEIGHT</span></code></a>, so <code class="docutils literal notranslate"><span class="pre">support</span> <span class="pre">&gt;</span> <span class="pre">0.5</span></code> still means some window got
+there on its own (issue #45). This is the number that knows about repetition.
 A reference with no repeats gives 1.0; a verse/chorus reference gives less,
 because some windows correlated just as well against the wrong chorus and
 only the crowd put them right; an exactly tiling reference gives very
@@ -672,6 +676,29 @@ indexing and slicing. Samples are returned as normalized float values.</p>
 </div>
 </dd></dl>
 
+<dl class="py data">
+<dt class="sig sig-object py" id="mixing.audio.audio_ops.BALLOT_VOTE_WEIGHT">
+<span class="sig-prename descclassname"><span class="pre">mixing.audio.audio_ops.</span></span><span class="sig-name descname"><span class="pre">BALLOT_VOTE_WEIGHT</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0.5</span></span><a class="headerlink" href="#mixing.audio.audio_ops.BALLOT_VOTE_WEIGHT" title="Link to this definition"></a></dt>
+<dd><p>What one window’s BALLOT MENTION is worth in the support tally, against the 1.0 of an
+independent argmax. A window that named the winning offset outright found it unaided;
+a window that merely could not separate it from its own answer
+(<a class="reference internal" href="#mixing.audio.audio_ops.NEAR_TIE_RATIO" title="mixing.audio.audio_ops.NEAR_TIE_RATIO"><code class="xref py py-data docutils literal notranslate"><span class="pre">NEAR_TIE_RATIO</span></code></a>) is weaker evidence than that and stronger than nothing, so it
+casts half a vote rather than none (issue #45). The mention is then scaled by the
+candidate’s share of that window’s own best score — both <code class="xref py py-func docutils literal notranslate"><span class="pre">_dual_confidence()</span></code>
+values, so the ratio is a WITHIN-WINDOW ranking and not a calibrated coefficient.</p>
+<p>Why half rather than some other fraction: at <code class="docutils literal notranslate"><span class="pre">0.5</span></code> the number reads as a scale with
+a boundary a caller can use. Ballot mentions alone can never carry the tally past
+<code class="docutils literal notranslate"><span class="pre">0.5</span></code>, so <strong>``support &gt; 0.5`` means at least one independent window reached this
+offset on its own</strong> — the old statistic’s whole question, still answerable, now as the
+top half of a range instead of the whole of it.</p>
+<p>What it fixes: an argmax is a real opinion at a 20 s window and close to a coin flip
+at 4 s, so a bare argmax tally got <em>less</em> confident exactly as the fitted window
+(issue #41) made the estimator <em>more</em> reliable. Measured on real cross-device material
+(issue #45), 21 alignments that were all correct reported 0.00-1.00 with six at 0.00 —
+the vote landed on the right offset while no individual window’s argmax agreed. A gate
+at 0.25 refused about half of them.</p>
+</dd></dl>
+
 <dl class="py class">
 <dt class="sig sig-object py" id="mixing.audio.audio_ops.ClipAlignment">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">mixing.audio.audio_ops.</span></span><span class="sig-name descname"><span class="pre">ClipAlignment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">offset_s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">confidence</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">duration_s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coverage</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overlaps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">support</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">window_s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hop_s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/mixing/audio/audio_ops.html#ClipAlignment"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.audio.audio_ops.ClipAlignment" title="Link to this definition"></a></dt>
@@ -750,14 +777,45 @@ does not is still RETURNED, with its measured offset and confidence — see
 <dl class="py attribute">
 <dt class="sig sig-object py" id="mixing.audio.audio_ops.ClipAlignment.support">
 <span class="sig-name descname"><span class="pre">support</span></span><a class="headerlink" href="#mixing.audio.audio_ops.ClipAlignment.support" title="Link to this definition"></a></dt>
-<dd><p>Fraction in <code class="docutils literal notranslate"><span class="pre">[0,</span> <span class="pre">1]</span></code> of the clip’s analysis windows that reached
-<a class="reference internal" href="#mixing.audio.audio_ops.ClipAlignment.offset_s" title="mixing.audio.audio_ops.ClipAlignment.offset_s"><code class="xref py py-attr docutils literal notranslate"><span class="pre">offset_s</span></code></a> <strong>on their own</strong>, before the consensus vote — “how much of
-this clip agrees that this is where it goes”. It is a different question
+<dd><p>How much of the clip’s analysis windows’ own evidence — before the
+consensus vote — reaches <a class="reference internal" href="#mixing.audio.audio_ops.ClipAlignment.offset_s" title="mixing.audio.audio_ops.ClipAlignment.offset_s"><code class="xref py py-attr docutils literal notranslate"><span class="pre">offset_s</span></code></a>, in <code class="docutils literal notranslate"><span class="pre">[0,</span> <span class="pre">1]</span></code>: “how much of this
+clip agrees that this is where it goes”. It is a different question
 from <a class="reference internal" href="#mixing.audio.audio_ops.ClipAlignment.confidence" title="mixing.audio.audio_ops.ClipAlignment.confidence"><code class="xref py py-attr docutils literal notranslate"><span class="pre">confidence</span></code></a>, which asks only how well the clip matches at the
 offset reported, and it is the one that catches the two failures a
 coefficient cannot: a clip that matches beautifully <strong>somewhere else too</strong>
-(repetitive music), and a clip only PART of which is the reference at all.
-Measured on three phone recordings of one commercial track, the whole-clip
+(repetitive music), and a clip only PART of which is the reference at all.</p>
+<p><strong>A graded tally, not a headcount</strong> (issue #45). A window whose own argmax
+landed on <a class="reference internal" href="#mixing.audio.audio_ops.ClipAlignment.offset_s" title="mixing.audio.audio_ops.ClipAlignment.offset_s"><code class="xref py py-attr docutils literal notranslate"><span class="pre">offset_s</span></code></a> contributes a full 1.0; a window that merely put
+it on its ballot — could not separate it from its own answer, or had it
+nominated by the other feature — contributes up to
+<a class="reference internal" href="#mixing.audio.audio_ops.BALLOT_VOTE_WEIGHT" title="mixing.audio.audio_ops.BALLOT_VOTE_WEIGHT"><code class="xref py py-data docutils literal notranslate"><span class="pre">BALLOT_VOTE_WEIGHT</span></code></a>, scaled by how close it scored; a window that
+never considered it contributes nothing. Ballot mentions alone cannot carry
+the tally past <code class="docutils literal notranslate"><span class="pre">0.5</span></code>, so <strong>``support &gt; 0.5`` means at least one independent
+window reached this offset unaided</strong> — which is exactly what the whole number
+used to mean, now the top half of a range rather than all of it.</p>
+<p><strong>A threshold carried over from before the change no longer means what it
+meant.</strong> Every value in <code class="docutils literal notranslate"><span class="pre">(0,</span> <span class="pre">0.5]</span></code> is reachable with zero windows having
+found the offset unaided, so a gate at 0.25 now says “some of the clip’s
+evidence mentions this offset”, not “a quarter of the windows located it
+themselves”. A caller who meant the latter gates at <code class="docutils literal notranslate"><span class="pre">&gt;</span> <span class="pre">0.5</span></code>, and that is
+not a cosmetic re-tune: measured at the default window, an exactly tiling
+reference — where the offset is a free choice among nine — now lands just
+<em>below</em> 0.5 and a reference that is one half twice lands just <em>above</em> it, so
+a gate at 0.5 separates them and a gate at 0.25 passes both.</p>
+<p><strong>The change is a no-op only where the argmax was already decisive.</strong> A long
+clip at the default 20 s window is unchanged on a reference that does not
+repeat, because every window got there on its own and there is nothing to
+add. On a repeating reference the same long clip moves — measured, a 60 s
+clip at <code class="docutils literal notranslate"><span class="pre">window_s=20</span></code> went from a headcount of 0.00 to about 0.50. Length
+was never the thing that made the old number safe; an undisputed argmax was.</p>
+<p>The reason it is graded: an argmax is a real opinion at a 20 s window and
+close to a coin flip at 4 s, so a bare headcount got <em>less</em> confident exactly
+as fitting the window to the clip (issue #41) made the estimator <em>more</em>
+reliable — backwards, for a trust gate. Measured on real cross-device
+material, 21 alignments that were ALL correct reported 0.00-1.00 with six at
+0.00: the vote landed on the right offset while no individual window’s argmax
+agreed.</p>
+<p>Measured on three phone recordings of one commercial track, the whole-clip
 argmax was 83 s, 174 s and 83 s wrong while its coefficient looked ordinary;
 consensus support was 10/24, 17/37 and 45/61 and pointed at offsets three
 independent methods then confirmed to within 40 ms (issue #30).
@@ -777,8 +835,10 @@ confidence 0.979; and on real material a 10 s clip at <code class="docutils lite
 wrong, which the tally reported as 1.00 before those windows were excluded.
 <code class="docutils literal notranslate"><span class="pre">None</span></code> says “not measured”, which a caller can fall back from.</p>
 <p><strong>It is relative to ``window_s``, so a gate on it is too.</strong> Support asks how
-many independent windows agreed, and a shorter window is a weaker opinion:
-measured on the same three correct cross-device alignments, support read
+much independent evidence agreed, and a shorter window is a weaker opinion.
+Grading the tally softens that — a short window’s near-miss is now worth
+something rather than nothing — but it does not remove it: measured on the
+same three correct cross-device alignments, the headcount this replaced read
 0.45/0.64/0.73 at <code class="docutils literal notranslate"><span class="pre">window_s=20</span></code> and 0.19/0.16/0.23 at <code class="docutils literal notranslate"><span class="pre">window_s=5</span></code>. It is
 deliberately not normalised — dividing by something to make the numbers look
 stable would invent a statistic — so a caller that changes <code class="docutils literal notranslate"><span class="pre">window_s</span></code> must
@@ -806,11 +866,21 @@ for the same reason <code class="docutils literal notranslate"><span class="pre"
 <p>Read it whenever you gate on support. A fixed threshold applied across clips
 measured at different windows compares numbers that are not comparable:
 measured on real cross-device material, 21 alignments that were all CORRECT
-reported support from 0.00 to 1.00 depending mostly on how long the clip was,
+reported the bare argmax headcount from 0.00 to 1.00 (which is why that tally
+is now graded — <a class="reference internal" href="#mixing.audio.audio_ops.BALLOT_VOTE_WEIGHT" title="mixing.audio.audio_ops.BALLOT_VOTE_WEIGHT"><code class="xref py py-data docutils literal notranslate"><span class="pre">BALLOT_VOTE_WEIGHT</span></code></a>) depending mostly on clip length,
 because a 4 s window on a 12 s clip is a weaker opinion than a 20 s window on
 a 60 s one. With this field a caller can scale its gate to the window, or
 decline to gate when the window came out small — what it cannot do is read
 0.33 and 0.75 as if they answered the same question.</p>
+<p><strong>Necessary, and since #45 no longer sufficient.</strong> A rule of the form “below
+the default window, treat the value as unmeasured” was a complete defence
+while support was an argmax headcount, because that was the only axis that
+moved it. It is not any more: what a repeating reference does to the tally it
+does at <code class="docutils literal notranslate"><span class="pre">window_s=20</span></code> too — a 60 s clip there went from 0.00 to about 0.50
+on a bed that tiles. So reading this field tells a caller how strong each
+opinion was; it does not put the number back on a scale a pre-#45 threshold
+was calibrated against. Nothing does. A threshold calibrated on the headcount
+has to be re-measured against this statistic, not re-pointed at it.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>float | None</p>
