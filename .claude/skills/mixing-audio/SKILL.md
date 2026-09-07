@@ -173,16 +173,41 @@ So read the two numbers as different questions:
 High confidence with low support means *"it fits here beautifully — and it would fit
 elsewhere too."*
 
+**`align_clips_to_reference` fits the window to each clip.** Its `window_s`/`hop_s` default
+to `None`, which means `min(20 s, clip_duration / 3)` with a floor of 3 s (300 onset-envelope
+frames) and a hop of half whatever window comes out. A clip holding three default windows or
+more is measured at 20 s exactly, so long clips are untouched; a short clip that used to be
+one window — no vote, `support=None`, and whatever a single correlation said — now gets
+several. Measured on real cross-device material: a 10 s clip against a 250 s reference came
+back 102 s from the truth at confidence 0.834 as one window, and was right at every window
+from 3 s to 6 s. **The threshold is independent LOOKS, not one window**: support needs two
+windows separated by half a window, so the default grid needed about `window_s + hop_s` =
+30 s before a clip had a second opinion — 22, 24 and 26 s clips against a 90 s reference all
+read `None`, and the 22 s one was 64 s wrong at confidence 0.279 where `window_s=10` was
+right to 3 ms. Pass a number to fix the window yourself; an explicit value is never
+overridden.
+
+**Read `ClipAlignment.window_s` whenever you gate on `support`.** It reports the window that
+clip's vote was actually held at — the scale its `support` is on — and it is `None` exactly
+when `support` is. Since the window is fitted per clip, a fixed threshold across clips of
+different lengths compares numbers that answer different questions: measured on real
+cross-device material, **21 alignments that were all correct reported support from 0.00 to
+1.00**, largely by clip length, because a 4 s window on a 12 s clip is a weaker opinion than
+a 20 s window on a 60 s one. Scale your threshold to `window_s`, or pass an explicit
+`window_s` to put every clip on one scale. `aligned_spans` is NOT adapted — there `window_s` is boundary resolution, which
+is the caller's to choose.
+
 **`support is None` means NOT MEASURED — do not read it as 1.0.** You get it with
-`consensus=False`, for a clip shorter than one window, and when the windows overlap by
-more than half (two windows sharing 95% of their samples are one look read twice, not two
-opinions). One window cannot disagree with itself, and a unanimous vote of one would vouch
-for an offset nothing corroborated. Measured: a 15 s clip truly at offset 30 against a
-two-identical-halves reference comes back at offset 75.0 with confidence 0.979; and on
-real footage a 10 s clip at `window_s=9.5, hop_s=0.5` had its two near-identical windows
-agree on an offset 102 s wrong. A `support` of 1.0 in either case carries the wrong answer
-through any gate. When it is `None`, fall back to `confidence` and know you are trusting a
-single opinion.
+`consensus=False`, for a clip shorter than one window *at the window in force*, and when
+the windows overlap by more than half (two windows sharing 95% of their samples are one
+look read twice, not two opinions). One window cannot disagree with itself, and a unanimous
+vote of one would vouch for an offset nothing corroborated. Measured, both at a pinned
+`window_s=20`: a 15 s clip truly at offset 30 against a two-identical-halves reference comes
+back at offset 75.0 with confidence 0.979 — and at the fitted default it comes back at 30.0,
+which is the point of fitting it; and on real footage a 10 s clip at `window_s=9.5, hop_s=0.5`
+had its two near-identical windows agree on an offset 102 s wrong. A `support` of 1.0 in
+either case carries the wrong answer through any gate. When it is `None`, fall back to
+`confidence` and know you are trusting a single opinion.
 
 One consequence worth knowing: the tail window that covers a clip whose length is not a
 whole number of hops usually starts less than half a window after its neighbour, so it is
@@ -193,7 +218,9 @@ clip's support from 0.45 to 0.50 — offsets are unaffected either way.
 threshold.** A shorter window is a weaker opinion, so fewer of them agree. Measured on the
 same three correct cross-device alignments: 0.45 / 0.64 / 0.73 at `window_s=20`, and
 0.19 / 0.16 / 0.23 at `window_s=5`. It is deliberately not normalised, so compare clips at
-the same window and re-tune any gate you move the window under.
+the same window and re-tune any gate you move the window under. With the fitted default,
+clips of different lengths are NOT at the same window — pass an explicit `window_s` when you
+rank clips by support.
 
 `near_tie_ratio=0.0` disables the vote and restores the old per-window argmax;
 `align_clips_to_reference(..., consensus=False)` restores its single whole-clip

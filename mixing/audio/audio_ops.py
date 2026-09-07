@@ -1830,6 +1830,32 @@ SPAN_WINDOW_S = 20.0
 #: by two windows and a boundary can never fall in the blind spot between them.
 SPAN_HOP_S = 10.0
 
+#: How many window LENGTHS the adaptive rule tries to fit into a clip whose caller did not
+#: choose a window (:func:`_clip_window_and_hop`). One more than
+#: :data:`MIN_WINDOWS_FOR_SUPPORT`, and the margin is the point: aiming AT the quorum would
+#: leave a clip exactly on it, so the one window the tally excludes — the tail
+#: :func:`_window_offsets` appends when a clip is not a whole number of hops
+#: (:data:`MAX_SUPPORT_OVERLAP`) — would drop it back under and support would read ``None``
+#: again. Three window lengths at a half-window hop is five windows, of which at least
+#: three are independent looks.
+MIN_WINDOWS_FOR_SUPPORT_TARGET = MIN_WINDOWS_FOR_SUPPORT + 1
+
+#: The shortest window the adaptive rule will choose, counted in ONSET-ENVELOPE FRAMES
+#: rather than seconds: under the default ``feature='envelope'`` it is the envelope that
+#: nominates the lag, so :data:`ENVELOPE_HOP` is what a window's real resolution is made
+#: of, and the floor has to follow the analysis rate rather than assume one. 300 frames is
+#: 3.0 s at 16 kHz — the shortest window measured to land all three clips of a real
+#: cross-device shoot on their true offsets (issue #41; 3, 4, 5 and 6 s windows all did,
+#: the default 20 s did not). Below this a window stops carrying enough onsets to
+#: correlate, and shrinking further buys votes by making each one worthless.
+ADAPTIVE_WINDOW_MIN_FRAMES = 300
+
+#: The hop the adaptive rule pairs with the window it picks, as a fraction of that window.
+#: It is the DEFAULT pair's own ratio rather than a new number, so an adapted grid has the
+#: same shape as the default one: every instant covered by two windows, and every window of
+#: the regular grid exactly on the :data:`MAX_SUPPORT_OVERLAP` bound, hence counted.
+ADAPTIVE_HOP_RATIO = SPAN_HOP_S / SPAN_WINDOW_S
+
 #: A window must reach this for its span to exist at all.
 SPAN_MIN_CONFIDENCE = 0.15
 
@@ -1883,7 +1909,11 @@ class ClipAlignment:
             consensus support was 10/24, 17/37 and 45/61 and pointed at offsets three
             independent methods then confirmed to within 40 ms (issue #30).
             **``None`` when it was not measured** — with ``consensus=False``, for a clip
-            short enough to be a single window, and when the windows overlap too heavily
+            short enough that the window in force gives it fewer than two INDEPENDENT
+            looks — which takes about ``window_s + hop_s`` of clip, not one window's worth,
+            so at the default grid a 26 s clip had no support either; with
+            ``window_s=None`` that threshold moves down to one floor-window plus its hop
+            (see :func:`_clip_window_and_hop`) — and when the windows overlap too heavily
             to be separate opinions (:data:`MAX_SUPPORT_OVERLAP`). None of those has a
             second opinion to compare against, and a support of 1.0 there would be a
             unanimous vote of one: a number that VOUCHES for an offset nothing
@@ -1901,7 +1931,31 @@ class ClipAlignment:
             deliberately not normalised — dividing by something to make the numbers look
             stable would invent a statistic — so a caller that changes ``window_s`` must
             revisit its threshold, and a caller comparing two clips must compare them at
-            the same window.
+            the same window. With ``window_s=None`` the window is fitted to each clip, so
+            two clips of different lengths are NOT at the same window unless both are long
+            enough to sit at the default; a caller that ranks clips by support should pass
+            an explicit ``window_s`` to put them back on one scale, or read
+            :attr:`window_s` and scale its threshold per clip.
+        window_s: The analysis window this clip's vote was actually held at, in seconds —
+            **the scale :attr:`support` is expressed on**, reported because since the
+            window is fitted to the clip it is no longer something the caller can infer
+            from its own arguments. ``None`` when no vote was held (``consensus=False``),
+            for the same reason ``support`` is.
+
+            Read it whenever you gate on support. A fixed threshold applied across clips
+            measured at different windows compares numbers that are not comparable:
+            measured on real cross-device material, 21 alignments that were all CORRECT
+            reported support from 0.00 to 1.00 depending mostly on how long the clip was,
+            because a 4 s window on a 12 s clip is a weaker opinion than a 20 s window on
+            a 60 s one. With this field a caller can scale its gate to the window, or
+            decline to gate when the window came out small — what it cannot do is read
+            0.33 and 0.75 as if they answered the same question.
+        hop_s: The step between those windows — the other half of the grid, reported for
+            the same reason and ``None`` in the same cases. Support counts windows that
+            are separated enough to be second opinions
+            (:data:`MAX_SUPPORT_OVERLAP`), so which windows were *eligible* to agree
+            depends on the hop as much as on the window: a support figure is reproducible
+            from ``(window_s, hop_s)`` and not from either alone.
     """
 
     index: int
@@ -1911,6 +1965,63 @@ class ClipAlignment:
     coverage: tuple[float, float]
     overlaps: bool = True
     support: "float | None" = None
+    window_s: "float | None" = None
+    hop_s: "float | None" = None
+
+
+def _clip_window_and_hop(
+    clip_duration_s: float,
+    sample_rate: int,
+    *,
+    window_s: "float | None",
+    hop_s: "float | None",
+    default_window_s: float = SPAN_WINDOW_S,
+    target_windows: int = MIN_WINDOWS_FOR_SUPPORT_TARGET,
+    min_frames: int = ADAPTIVE_WINDOW_MIN_FRAMES,
+    envelope_hop: int = ENVELOPE_HOP,
+    hop_ratio: float = ADAPTIVE_HOP_RATIO,
+) -> "tuple[float, float]":
+    """The window and hop to measure ONE clip with — ``None`` means "fit them to it".
+
+    ``window_s = min(default, clip_duration_s / target_windows)``, floored at the shortest
+    window the onset envelope can carry (:data:`ADAPTIVE_WINDOW_MIN_FRAMES` frames of
+    :data:`ENVELOPE_HOP`), with a hop of :data:`ADAPTIVE_HOP_RATIO` of whatever window
+    comes out. An explicit ``window_s`` is never overridden — the caller has said what a
+    window means for their material and that outranks any rule here — and an explicit
+    ``hop_s`` likewise.
+
+    **Why a clip's own length decides.** A clip too short for the window in force has no
+    second opinion to arbitrate: the offset it returns is whatever one correlation says,
+    and :func:`_support_fraction` honestly reports ``None`` for it. Measured on a real
+    cross-device shoot (issue #41), a 10 s clip against a 250 s reference came back 102 s
+    from the truth at confidence 0.834 that way, while the same clip at every window from
+    3 s to 6 s was right. The clip's length is known before any correlation runs, so this
+    is decidable up front, and the vote the estimator already knows how to hold is simply
+    made available to short clips too.
+
+    **"Too short" is about independent LOOKS, not about fitting in a window.** Support
+    counts windows separated by at least :data:`MAX_SUPPORT_OVERLAP` of their length, so
+    the default grid needs roughly ``window_s + hop_s`` — 30 s — before a clip has a second
+    look at all: measured, 22, 24 and 26 s clips against a 90 s reference all reported
+    ``None`` at the default, and the 22 s one landed 64 s from the truth at confidence
+    0.279 where ``window_s=10`` was right to 3 ms. Fitting the window to the clip covers
+    every one of them; a rule written on "shorter than one window" would have covered none.
+    Below one floor-window plus its hop, no windowing can hold a quorum and ``None``
+    remains the answer.
+
+    **It moves ``support``, not only the offset.** Support is relative to ``window_s``
+    (see :attr:`ClipAlignment.support`), so a clip measured at an adapted 3.3 s window
+    reports a smaller number than the same clip would at 20 s — the same three correct
+    real alignments read 0.45/0.64/0.73 at 20 s and 0.19/0.16/0.23 at 5 s. A short clip had
+    no support at all before, so nothing is being reinterpreted; but a caller gating on
+    support must know that the number arrives on the clip's scale, not the default's.
+    """
+    if window_s is None:
+        floor_s = min_frames * envelope_hop / sample_rate
+        window_s = min(default_window_s, max(floor_s, clip_duration_s / target_windows))
+    if hop_s is None:
+        hop_s = window_s * hop_ratio
+    return float(window_s), float(hop_s)
 
 
 def align_clips_to_reference(
@@ -1922,8 +2033,8 @@ def align_clips_to_reference(
     min_overlap_ratio: float = 0.5,
     feature: str = "envelope",
     consensus: bool = True,
-    window_s: float = SPAN_WINDOW_S,
-    hop_s: float = SPAN_HOP_S,
+    window_s: "float | None" = None,
+    hop_s: "float | None" = None,
     offset_tolerance_s: float = SPAN_OFFSET_TOLERANCE_S,
     near_tie_ratio: float = NEAR_TIE_RATIO,
 ) -> list[ClipAlignment]:
@@ -1979,10 +2090,32 @@ def align_clips_to_reference(
             because nothing was put to a vote. It is cheaper (one correlation instead of
             one per window) and is the right choice only when the reference is known not
             to repeat.
-        window_s: Analysis window for the vote. Ignored when ``consensus`` is False. A
-            clip shorter than this is a single window, so it takes the whole-clip path's
-            answer either way.
-        hop_s: Step between those windows. Ignored when ``consensus`` is False.
+        window_s: Analysis window for the vote. Ignored when ``consensus`` is False.
+            ``None`` (the default) **fits the window to each clip** — see
+            :func:`_clip_window_and_hop`: ``min(20 s, clip_duration / 3)``, floored at
+            what the onset envelope can carry, so a clip too short to hold three default
+            windows still gets a vote and a measured ``support`` instead of one
+            uncorroborated correlation (issue #41). Whatever window each clip ends up
+            measured at is reported back as :attr:`ClipAlignment.window_s`, because it is
+            the scale its ``support`` is on. A clip of three default windows or
+            more is measured at :data:`SPAN_WINDOW_S` exactly, so nothing about a long
+            clip's answer moves. Pass a number to fix the window yourself — an explicit
+            value is never overridden, and it is how the pre-adaptation answer for a short
+            clip is reproduced.
+        hop_s: Step between those windows. Ignored when ``consensus`` is False. ``None``
+            (the default) is :data:`ADAPTIVE_HOP_RATIO` of whatever window is in force —
+            half of it, the default pair's own ratio — so an adapted grid keeps the
+            default grid's shape.
+
+            **Passing ``window_s`` alone now moves the hop too**, and that is a change:
+            before the window was fitted, an unpassed ``hop_s`` was a flat 10 s, so
+            ``window_s=5`` meant the pair ``(5, 10)`` — a hop twice the window, which
+            skips over half the clip and was never anyone's intent. It now means
+            ``(5, 2.5)``. Nothing else about an explicit ``window_s`` moved, but a
+            ``support`` measured at ``window_s=5`` on an earlier version is not
+            reproducible here without passing ``hop_s=10`` alongside it. The pair each
+            clip was actually measured at comes back as :attr:`ClipAlignment.window_s`
+            and :attr:`ClipAlignment.hop_s`.
         offset_tolerance_s: How far two windows' offsets may differ and still count as
             the same answer.
         near_tie_ratio: How close a rival peak must score to a window's best one to join
@@ -2007,12 +2140,20 @@ def align_clips_to_reference(
     for i, clip in enumerate(clips):
         query = _load_mono_samples(clip, sample_rate)
         if consensus:
+            # Per clip, not per call: the windowing is fitted to the clip being measured,
+            # so a short clip in a set does not inherit a long one's window.
+            clip_window_s, clip_hop_s = _clip_window_and_hop(
+                len(query) / sample_rate,
+                sample_rate,
+                window_s=window_s,
+                hop_s=hop_s,
+            )
             offset_s, coeff, support = _consensus_alignment(
                 ref,
                 query,
                 sample_rate,
-                window_s=window_s,
-                hop_s=hop_s,
+                window_s=clip_window_s,
+                hop_s=clip_hop_s,
                 feature=feature,
                 min_overlap_ratio=min_overlap_ratio,
                 near_tie_ratio=near_tie_ratio,
@@ -2027,13 +2168,16 @@ def align_clips_to_reference(
                 min_overlap_ratio=min_overlap_ratio,
                 ref_envelope=ref_env,
             )
-            # Nothing was put to a vote, so support is not measured — never 1.0.
+            # Nothing was put to a vote, so neither support nor the window it would be
+            # relative to exists — and support is never 1.0 here.
             offset_s, support = lag / sample_rate, None
+            clip_window_s = clip_hop_s = None
         else:
             lag, coeff = _normalized_xcorr(
                 ref, query, min_overlap_ratio=min_overlap_ratio
             )
             offset_s, support = lag / sample_rate, None
+            clip_window_s = clip_hop_s = None
         dur_s = len(query) / sample_rate
         start = max(0.0, offset_s)
         end = min(ref_dur, offset_s + dur_s)
@@ -2047,6 +2191,8 @@ def align_clips_to_reference(
                 coverage=(start, end) if overlaps else (start, start),
                 overlaps=overlaps,
                 support=support,
+                window_s=clip_window_s,
+                hop_s=clip_hop_s,
             )
         )
     return out
