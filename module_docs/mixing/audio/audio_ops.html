@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>mixing.audio.audio_ops &mdash; mixing 0.0.42 documentation</title>
+  <title>mixing.audio.audio_ops &mdash; mixing 0.0.43 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
@@ -15,7 +15,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=173d7b4c"></script>
+      <script src="../../../_static/documentation_options.js?v=b345ff55"></script>
       <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="../../../_static/toggleprompt.js?v=d7ede5d2"></script>
@@ -60,6 +60,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#mixing.audio.audio_ops.AlignedSpan.clip_end_s"><code class="docutils literal notranslate"><span class="pre">AlignedSpan.clip_end_s</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#mixing.audio.audio_ops.AlignedSpan.offset_s"><code class="docutils literal notranslate"><span class="pre">AlignedSpan.offset_s</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#mixing.audio.audio_ops.AlignedSpan.confidence"><code class="docutils literal notranslate"><span class="pre">AlignedSpan.confidence</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mixing.audio.audio_ops.AlignedSpan.support"><code class="docutils literal notranslate"><span class="pre">AlignedSpan.support</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#mixing.audio.audio_ops.AlignedSpan.reference_span"><code class="docutils literal notranslate"><span class="pre">AlignedSpan.reference_span</span></code></a></li>
 </ul>
 </li>
@@ -96,6 +97,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#mixing.audio.audio_ops.ClipAlignment.duration_s"><code class="docutils literal notranslate"><span class="pre">ClipAlignment.duration_s</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#mixing.audio.audio_ops.ClipAlignment.coverage"><code class="docutils literal notranslate"><span class="pre">ClipAlignment.coverage</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#mixing.audio.audio_ops.ClipAlignment.overlaps"><code class="docutils literal notranslate"><span class="pre">ClipAlignment.overlaps</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mixing.audio.audio_ops.ClipAlignment.support"><code class="docutils literal notranslate"><span class="pre">ClipAlignment.support</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#mixing.audio.audio_ops.DEFAULT_DUCK_ATTACK_S"><code class="docutils literal notranslate"><span class="pre">DEFAULT_DUCK_ATTACK_S</span></code></a></li>
@@ -107,6 +109,9 @@
 <li class="toctree-l2"><a class="reference internal" href="#mixing.audio.audio_ops.DEFAULT_LOOP_CROSSFADE_S"><code class="docutils literal notranslate"><span class="pre">DEFAULT_LOOP_CROSSFADE_S</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#mixing.audio.audio_ops.ENVELOPE_HOP"><code class="docutils literal notranslate"><span class="pre">ENVELOPE_HOP</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#mixing.audio.audio_ops.ENVELOPE_NFFT"><code class="docutils literal notranslate"><span class="pre">ENVELOPE_NFFT</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mixing.audio.audio_ops.MAX_CANDIDATE_LAGS"><code class="docutils literal notranslate"><span class="pre">MAX_CANDIDATE_LAGS</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mixing.audio.audio_ops.MIN_WINDOWS_FOR_SUPPORT"><code class="docutils literal notranslate"><span class="pre">MIN_WINDOWS_FOR_SUPPORT</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mixing.audio.audio_ops.NEAR_TIE_RATIO"><code class="docutils literal notranslate"><span class="pre">NEAR_TIE_RATIO</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#mixing.audio.audio_ops.SPAN_HOP_S"><code class="docutils literal notranslate"><span class="pre">SPAN_HOP_S</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#mixing.audio.audio_ops.SPAN_MERGE_GAP_S"><code class="docutils literal notranslate"><span class="pre">SPAN_MERGE_GAP_S</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#mixing.audio.audio_ops.SPAN_MIN_CONFIDENCE"><code class="docutils literal notranslate"><span class="pre">SPAN_MIN_CONFIDENCE</span></code></a></li>
@@ -231,7 +236,7 @@ master) and misleading across devices.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="mixing.audio.audio_ops.AlignedSpan">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">mixing.audio.audio_ops.</span></span><span class="sig-name descname"><span class="pre">AlignedSpan</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">clip_start_s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clip_end_s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">offset_s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">confidence</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/mixing/audio/audio_ops.html#AlignedSpan"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.audio.audio_ops.AlignedSpan" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">mixing.audio.audio_ops.</span></span><span class="sig-name descname"><span class="pre">AlignedSpan</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">clip_start_s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clip_end_s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">offset_s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">confidence</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">support</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/mixing/audio/audio_ops.html#AlignedSpan"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.audio.audio_ops.AlignedSpan" title="Link to this definition"></a></dt>
 <dd><p>A maximal run of CLIP time that tracks the reference at one stable offset.</p>
 <p><code class="docutils literal notranslate"><span class="pre">align_clips_to_reference</span></code> answers “where does this clip sit?” with a single
 number, which is the right answer only when the clip is one continuous take of the
@@ -278,10 +283,38 @@ convention as <a class="reference internal" href="#mixing.audio.audio_ops.ClipAl
 <dt class="sig sig-object py" id="mixing.audio.audio_ops.AlignedSpan.confidence">
 <span class="sig-name descname"><span class="pre">confidence</span></span><a class="headerlink" href="#mixing.audio.audio_ops.AlignedSpan.confidence" title="Link to this definition"></a></dt>
 <dd><p>Representative confidence for the span (the median over its windows,
-not the max — a span is only as trustworthy as its typical window).</p>
+not the max — a span is only as trustworthy as its typical window). It says
+<strong>how well the clip matches where this span puts it</strong>, and on a reference
+that repeats verbatim that is a question with several excellent answers —
+see <a class="reference internal" href="#mixing.audio.audio_ops.AlignedSpan.support" title="mixing.audio.audio_ops.AlignedSpan.support"><code class="xref py py-attr docutils literal notranslate"><span class="pre">support</span></code></a>, and gate on both.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mixing.audio.audio_ops.AlignedSpan.support">
+<span class="sig-name descname"><span class="pre">support</span></span><a class="headerlink" href="#mixing.audio.audio_ops.AlignedSpan.support" title="Link to this definition"></a></dt>
+<dd><p>Fraction in <code class="docutils literal notranslate"><span class="pre">[0,</span> <span class="pre">1]</span></code> of the span’s windows that reached this offset
+<strong>on their own</strong>, before the consensus vote — or <code class="docutils literal notranslate"><span class="pre">None</span></code> when the span was
+built from fewer than <a class="reference internal" href="#mixing.audio.audio_ops.MIN_WINDOWS_FOR_SUPPORT" title="mixing.audio.audio_ops.MIN_WINDOWS_FOR_SUPPORT"><code class="xref py py-data docutils literal notranslate"><span class="pre">MIN_WINDOWS_FOR_SUPPORT</span></code></a> windows and there was
+therefore nothing to agree. This is the number that knows about repetition.
+A reference with no repeats gives 1.0; a verse/chorus reference gives less,
+because some windows correlated just as well against the wrong chorus and
+only the crowd put them right; an exactly tiling reference gives very
+little, because there genuinely is no unique answer and the confidence alone
+would never say so. Low support with high confidence means “it fits here
+beautifully, and it would fit elsewhere too”.</p>
+<p><strong>``None`` is not 1.0.</strong> A span of one window cannot disagree with itself,
+so reporting 1.0 there would be a unanimous vote of one — a number that
+vouches for an offset nothing corroborated. <code class="docutils literal notranslate"><span class="pre">None</span></code> says “not measured”,
+which a caller can fall back from; a manufactured 1.0 is what a caller
+trusts.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float | None</p>
 </dd>
 </dl>
 </dd></dl>
@@ -605,7 +638,7 @@ indexing and slicing. Samples are returned as normalized float values.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="mixing.audio.audio_ops.ClipAlignment">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">mixing.audio.audio_ops.</span></span><span class="sig-name descname"><span class="pre">ClipAlignment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">offset_s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">confidence</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">duration_s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coverage</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overlaps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/mixing/audio/audio_ops.html#ClipAlignment"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.audio.audio_ops.ClipAlignment" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">mixing.audio.audio_ops.</span></span><span class="sig-name descname"><span class="pre">ClipAlignment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">offset_s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">confidence</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">duration_s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coverage</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overlaps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">support</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/mixing/audio/audio_ops.html#ClipAlignment"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.audio.audio_ops.ClipAlignment" title="Link to this definition"></a></dt>
 <dd><p>Where one clip sits on a reference (song) timeline.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="mixing.audio.audio_ops.ClipAlignment.index">
@@ -678,6 +711,35 @@ does not is still RETURNED, with its measured offset and confidence — see
 </dl>
 </dd></dl>
 
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mixing.audio.audio_ops.ClipAlignment.support">
+<span class="sig-name descname"><span class="pre">support</span></span><a class="headerlink" href="#mixing.audio.audio_ops.ClipAlignment.support" title="Link to this definition"></a></dt>
+<dd><p>Fraction in <code class="docutils literal notranslate"><span class="pre">[0,</span> <span class="pre">1]</span></code> of the clip’s analysis windows that reached
+<a class="reference internal" href="#mixing.audio.audio_ops.ClipAlignment.offset_s" title="mixing.audio.audio_ops.ClipAlignment.offset_s"><code class="xref py py-attr docutils literal notranslate"><span class="pre">offset_s</span></code></a> <strong>on their own</strong>, before the consensus vote — “how much of
+this clip agrees that this is where it goes”. It is a different question
+from <a class="reference internal" href="#mixing.audio.audio_ops.ClipAlignment.confidence" title="mixing.audio.audio_ops.ClipAlignment.confidence"><code class="xref py py-attr docutils literal notranslate"><span class="pre">confidence</span></code></a>, which asks only how well the clip matches at the
+offset reported, and it is the one that catches the two failures a
+coefficient cannot: a clip that matches beautifully <strong>somewhere else too</strong>
+(repetitive music), and a clip only PART of which is the reference at all.
+Measured on three phone recordings of one commercial track, the whole-clip
+argmax was 83 s, 174 s and 83 s wrong while its coefficient looked ordinary;
+consensus support was 10/24, 17/37 and 45/61 and pointed at offsets three
+independent methods then confirmed to within 40 ms (issue #30).
+<strong>``None`` when it was not measured</strong> — with <code class="docutils literal notranslate"><span class="pre">consensus=False</span></code>, and for
+a clip short enough to be a single window. Neither has a second opinion to
+compare against, and a support of 1.0 there would be a unanimous vote of
+one: a number that VOUCHES for an offset nothing corroborated. That is not
+hypothetical — a 15 s clip truly at offset 30.0, against a reference that is
+one half twice, comes back at offset 75.0 with confidence 0.979, and a
+manufactured <code class="docutils literal notranslate"><span class="pre">support=1.0</span></code> would carry it through any gate built on this
+field. <code class="docutils literal notranslate"><span class="pre">None</span></code> says “not measured”, which a caller can fall back from.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float | None</p>
+</dd>
+</dl>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="py data">
@@ -739,6 +801,41 @@ onset, short enough not to smear it.</p>
 </dd></dl>
 
 <dl class="py data">
+<dt class="sig sig-object py" id="mixing.audio.audio_ops.MAX_CANDIDATE_LAGS">
+<span class="sig-prename descclassname"><span class="pre">mixing.audio.audio_ops.</span></span><span class="sig-name descname"><span class="pre">MAX_CANDIDATE_LAGS</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">8</span></span><a class="headerlink" href="#mixing.audio.audio_ops.MAX_CANDIDATE_LAGS" title="Link to this definition"></a></dt>
+<dd><p>an exactly
+tiling reference offers one candidate per repeat, and the vote does not get better
+for counting all of them.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Most near-tied lags one window may put forward. A cap, not a target</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="mixing.audio.audio_ops.MIN_WINDOWS_FOR_SUPPORT">
+<span class="sig-prename descclassname"><span class="pre">mixing.audio.audio_ops.</span></span><span class="sig-name descname"><span class="pre">MIN_WINDOWS_FOR_SUPPORT</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2</span></span><a class="headerlink" href="#mixing.audio.audio_ops.MIN_WINDOWS_FOR_SUPPORT" title="Link to this definition"></a></dt>
+<dd><p>How many independent windows it takes before “how many of them agree” is a fact
+rather than a tautology. One window agrees with itself, so a support fraction
+computed over a single vote is always 1.0 and has measured nothing — and a
+manufactured 1.0 is worse than no number at all, because it VOUCHES. Below this,
+support is reported as <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="mixing.audio.audio_ops.NEAR_TIE_RATIO">
+<span class="sig-prename descclassname"><span class="pre">mixing.audio.audio_ops.</span></span><span class="sig-name descname"><span class="pre">NEAR_TIE_RATIO</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0.05</span></span><a class="headerlink" href="#mixing.audio.audio_ops.NEAR_TIE_RATIO" title="Link to this definition"></a></dt>
+<dd><p>How close a rival correlation peak must score to the best one before it counts as a
+NEAR-TIE — a fraction of the best score. Measured on real music (issue #30), the
+second peak reaches 0.987-0.993 of the first at musical periods, and on synthetic
+repeats the two are within 0.2%. At that separation the argmax is a coin flip, so
+everything inside this band is treated as “the correlation has no opinion” and the
+choice is handed to the vote. Above it, a peak wins on its own evidence — which is
+what keeps a genuine stop/restart free to depart from its neighbours.</p>
+</dd></dl>
+
+<dl class="py data">
 <dt class="sig sig-object py" id="mixing.audio.audio_ops.SPAN_HOP_S">
 <span class="sig-prename descclassname"><span class="pre">mixing.audio.audio_ops.</span></span><span class="sig-name descname"><span class="pre">SPAN_HOP_S</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">10.0</span></span><a class="headerlink" href="#mixing.audio.audio_ops.SPAN_HOP_S" title="Link to this definition"></a></dt>
 <dd><p>Default hop between windows. Half the window, so every instant of the clip is covered
@@ -787,7 +884,7 @@ cost: halving it doubles the number of correlations.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="mixing.audio.audio_ops.align_clips_to_reference">
-<span class="sig-prename descclassname"><span class="pre">mixing.audio.audio_ops.</span></span><span class="sig-name descname"><span class="pre">align_clips_to_reference</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reference_audio</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">AudioSegment</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clips</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">AudioSource</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">reference_duration</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_rate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">16000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_overlap_ratio</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">feature</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'envelope'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#mixing.audio.audio_ops.ClipAlignment" title="mixing.audio.audio_ops.ClipAlignment"><span class="pre">ClipAlignment</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/mixing/audio/audio_ops.html#align_clips_to_reference"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.audio.audio_ops.align_clips_to_reference" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">mixing.audio.audio_ops.</span></span><span class="sig-name descname"><span class="pre">align_clips_to_reference</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reference_audio</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">AudioSegment</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clips</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">AudioSource</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">reference_duration</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_rate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">16000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_overlap_ratio</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">feature</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'envelope'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">consensus</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">window_s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">20.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hop_s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">offset_tolerance_s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.25</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">near_tie_ratio</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.05</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#mixing.audio.audio_ops.ClipAlignment" title="mixing.audio.audio_ops.ClipAlignment"><span class="pre">ClipAlignment</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/mixing/audio/audio_ops.html#align_clips_to_reference"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.audio.audio_ops.align_clips_to_reference" title="Link to this definition"></a></dt>
 <dd><p>Align a SET of clips to one reference — the multi-device / multicam primitive.</p>
 <p>Aligns each clip against <code class="docutils literal notranslate"><span class="pre">reference_audio</span></code> (e.g. the clean song) and returns its
 offset, a scale-invariant confidence, and its <strong>coverage clamped to the reference
@@ -822,6 +919,27 @@ caller would sensibly set — while the envelope scored them 0.441-0.634 and a
 genuine non-match at 0.102. Pass <code class="docutils literal notranslate"><span class="pre">'waveform'</span></code> when the clips come from the
 SAME source as the reference (e.g. verifying an export against its master),
 where sample correlation is meaningful and gives finer confidence resolution.</p></li>
+<li><p><strong>consensus</strong> – Estimate the offset by putting the clip’s analysis windows to a vote
+rather than by one argmax over the whole clip (issue #30). <strong>On by default,
+because the whole-clip argmax is measurably wrong on repetitive material</strong>:
+it minimises a correlation whose peaks are near-tied at musical periods, so
+it returns whichever repeat won a coin flip, and its coefficient does not
+drop when it does. A spurious peak lands at a different lag in every window
+while the true offset is the one they share, so the windows’ agreement is
+what separates them — and how much of the clip agrees is reported as
+<a class="reference internal" href="#mixing.audio.audio_ops.ClipAlignment.support" title="mixing.audio.audio_ops.ClipAlignment.support"><code class="xref py py-attr docutils literal notranslate"><span class="pre">support</span></code></a>. <code class="docutils literal notranslate"><span class="pre">False</span></code> restores the single whole-clip
+correlation exactly — same offset, same confidence, and <code class="docutils literal notranslate"><span class="pre">support=None</span></code>
+because nothing was put to a vote. It is cheaper (one correlation instead of
+one per window) and is the right choice only when the reference is known not
+to repeat.</p></li>
+<li><p><strong>window_s</strong> – Analysis window for the vote. Ignored when <code class="docutils literal notranslate"><span class="pre">consensus</span></code> is False. A
+clip shorter than this is a single window, so it takes the whole-clip path’s
+answer either way.</p></li>
+<li><p><strong>hop_s</strong> – Step between those windows. Ignored when <code class="docutils literal notranslate"><span class="pre">consensus</span></code> is False.</p></li>
+<li><p><strong>offset_tolerance_s</strong> – How far two windows’ offsets may differ and still count as
+the same answer.</p></li>
+<li><p><strong>near_tie_ratio</strong> – How close a rival peak must score to a window’s best one to join
+the vote — see <a class="reference internal" href="#mixing.audio.audio_ops.NEAR_TIE_RATIO" title="mixing.audio.audio_ops.NEAR_TIE_RATIO"><code class="xref py py-data docutils literal notranslate"><span class="pre">NEAR_TIE_RATIO</span></code></a>.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -832,7 +950,7 @@ where sample correlation is meaningful and gives finer confidence resolution.</p
 
 <dl class="py function">
 <dt class="sig sig-object py" id="mixing.audio.audio_ops.aligned_spans">
-<span class="sig-prename descclassname"><span class="pre">mixing.audio.audio_ops.</span></span><span class="sig-name descname"><span class="pre">aligned_spans</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reference_audio</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">AudioSegment</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clip_audio</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">AudioSegment</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">reference_duration</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_rate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">16000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">window_s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">20.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hop_s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_confidence</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.15</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">offset_tolerance_s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.25</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">merge_gap_s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">feature</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'envelope'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_overlap_ratio</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.5</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#mixing.audio.audio_ops.AlignedSpan" title="mixing.audio.audio_ops.AlignedSpan"><span class="pre">AlignedSpan</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/mixing/audio/audio_ops.html#aligned_spans"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.audio.audio_ops.aligned_spans" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">mixing.audio.audio_ops.</span></span><span class="sig-name descname"><span class="pre">aligned_spans</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reference_audio</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">AudioSegment</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clip_audio</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">AudioSegment</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">reference_duration</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_rate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">16000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">window_s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">20.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hop_s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_confidence</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.15</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">offset_tolerance_s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.25</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">merge_gap_s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">feature</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'envelope'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_overlap_ratio</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">near_tie_ratio</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.05</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#mixing.audio.audio_ops.AlignedSpan" title="mixing.audio.audio_ops.AlignedSpan"><span class="pre">AlignedSpan</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/mixing/audio/audio_ops.html#aligned_spans"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.audio.audio_ops.aligned_spans" title="Link to this definition"></a></dt>
 <dd><p>The MAXIMAL spans of <code class="docutils literal notranslate"><span class="pre">clip_audio</span></code> that align to <code class="docutils literal notranslate"><span class="pre">reference_audio</span></code>.</p>
 <p>The windowed counterpart of <a class="reference internal" href="#mixing.audio.audio_ops.find_audio_offset_detailed" title="mixing.audio.audio_ops.find_audio_offset_detailed"><code class="xref py py-func docutils literal notranslate"><span class="pre">find_audio_offset_detailed()</span></code></a>. Where that answers
 “where does this clip sit on the reference?” with one number, this answers “which
@@ -847,14 +965,33 @@ in two ways, both measured:</p>
 <li><p>A stretch longer than <code class="docutils literal notranslate"><span class="pre">merge_gap_s</span></code> that nothing can verify (hard silence, a hand
 over the mic) splits the take into two spans reporting the SAME offset. Two
 same-offset neighbours are the <em>signal</em> that this happened, not a stop/restart.</p></li>
-<li><p><strong>A reference that repeats itself verbatim fragments a take</strong>, because each window
-picks its lag by an independent argmax and a repeated chorus makes two peaks
-near-tied. Measured: a verse/chorus reference split one continuous take into 3
-spans, and one of them reported a WRONG offset at 0.985 confidence. Music is the
-material this is for, so treat a short span whose offset disagrees with its
-neighbours as suspect. Giving the window chooser a continuity prior is the fix and
-is not done here.</p></li>
+<li><p>A reference whose repeats are EXACT admits several true answers, and this reports
+one of them with a low <a class="reference internal" href="#mixing.audio.audio_ops.AlignedSpan.support" title="mixing.audio.audio_ops.AlignedSpan.support"><code class="xref py py-attr docutils literal notranslate"><span class="pre">support</span></code></a> rather than pretending to have
+chosen (see below).</p></li>
 </ul>
+<p><strong>Repetition is decided by consensus, not by argmax</strong> (issue #30). A verse/chorus
+reference used to shatter one continuous take into 3 spans — one of them reporting a
+WRONG offset at 0.985 confidence — because each window picked its lag independently
+and a repeated chorus makes two peaks near-tied (measured within 0.2% here, and
+0.987-0.993 second-to-first on real music). So each window now puts its near-tied
+rivals forward instead of only its argmax, and takes whichever of them the most
+other windows can also read. A spurious peak lands at a different lag in every
+window; the true offset is the one they share. Measured on a repeated motif:
+verse/chorus 3 spans → 1, two identical halves 6 → 1, exact tiling 8 → 1, with the
+genuine stop/restart still at 2 and the non-repetitive take still at 1 — a window is
+never moved to a lag its own correlation did not already rate a near-tie, and a
+restarted take has no such lag near the old offset, so it departs freely.</p>
+<p><strong>What that costs you is told by ``support``, not by ``confidence``.</strong> The
+confidence says how well the clip matches where the span puts it, and on repetitive
+material that question has several excellent answers. <code class="docutils literal notranslate"><span class="pre">support</span></code> — the fraction of
+the span’s windows that found this offset unaided — is the one that knows: 1.0 on a
+reference with no repeats, less where the crowd had to intervene, and very little on
+an exactly tiling reference where there is genuinely no unique answer. <strong>Gate on
+both.</strong> High confidence with low support means “it fits here beautifully, and it
+would fit elsewhere too”.</p>
+<p>A span too short to hold a disagreement reports <code class="docutils literal notranslate"><span class="pre">support=None</span></code>, meaning <em>not
+measured</em> — never 1.0. One window agrees with itself, and a unanimous vote of one
+is exactly the kind of number a caller would trust and should not.</p>
 <p><strong>Boundary resolution is ``window_s``, and no better.</strong> A window is evidence that its
 whole extent aligns; a boundary falling inside a window degrades that window rather
 than locating itself within it. So a returned edge is accurate to roughly ±
@@ -890,6 +1027,12 @@ purpose, as <a class="reference internal" href="#mixing.audio.audio_ops.align_cl
 the same reason <a class="reference internal" href="#mixing.audio.audio_ops.align_clips_to_reference" title="mixing.audio.audio_ops.align_clips_to_reference"><code class="xref py py-func docutils literal notranslate"><span class="pre">align_clips_to_reference()</span></code></a> does — the cross-device case
 is what this is for.</p></li>
 <li><p><strong>min_overlap_ratio</strong> – Passed through to the correlation.</p></li>
+<li><p><strong>near_tie_ratio</strong> – How close a rival correlation peak must score to a window’s best
+one to join the vote, as a fraction of that best score — see
+<a class="reference internal" href="#mixing.audio.audio_ops.NEAR_TIE_RATIO" title="mixing.audio.audio_ops.NEAR_TIE_RATIO"><code class="xref py py-data docutils literal notranslate"><span class="pre">NEAR_TIE_RATIO</span></code></a>. <code class="docutils literal notranslate"><span class="pre">0.0</span></code> disables the consensus pass entirely and
+restores the per-window argmax this function shipped with, which is
+measurably wrong on repetitive material and is offered only for reproducing
+an older result.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>

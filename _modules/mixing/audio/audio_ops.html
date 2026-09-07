@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>mixing.audio.audio_ops &mdash; mixing 0.0.42 documentation</title>
+  <title>mixing.audio.audio_ops &mdash; mixing 0.0.43 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
@@ -14,7 +14,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=173d7b4c"></script>
+      <script src="../../../_static/documentation_options.js?v=b345ff55"></script>
       <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="../../../_static/toggleprompt.js?v=d7ede5d2"></script>
@@ -1395,19 +1395,22 @@
     <span class="k">return</span> <span class="n">_resample_samples</span><span class="p">(</span><span class="n">samples</span><span class="p">,</span> <span class="n">seg</span><span class="o">.</span><span class="n">frame_rate</span><span class="p">,</span> <span class="n">sample_rate</span><span class="p">)</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_normalized_xcorr</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_xcorr_surface</span><span class="p">(</span>
     <span class="n">ref</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">query</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">min_overlap_ratio</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.5</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">"""Overlap-normalized cross-correlation of two mono signals.</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"tuple[np.ndarray, np.ndarray]"</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""``(lags, scores)`` — the whole overlap-normalized correlation surface.</span>
 
-<span class="sd">    Returns ``(lag_samples, coefficient)`` where ``lag_samples`` is where ``query``</span>
-<span class="sd">    begins within ``ref`` (may be negative) and ``coefficient`` is the normalized</span>
-<span class="sd">    cross-correlation in ``[0, 1]`` at that lag. Normalizing each lag by the energy of</span>
-<span class="sd">    its actual overlap makes the score scale-invariant (comparable across clips) AND</span>
-<span class="sd">    removes the triangular-overlap argmax bias for clips that extend before/after the</span>
-<span class="sd">    reference — the common multi-device case. Lags overlapping less than</span>
-<span class="sd">    ``min_overlap_ratio`` of the shorter signal are excluded so a tiny sliver of overlap</span>
-<span class="sd">    can't win.</span>
+<span class="sd">    ``scores`` is ``abs(coefficient)`` in ``[0, 1]`` at every admissible lag and ``-1.0``</span>
+<span class="sd">    at the lags excluded by ``min_overlap_ratio``, so an argmax over it is already the</span>
+<span class="sd">    guarded one. Split out of :func:`_normalized_xcorr` because the SHAPE of this surface</span>
+<span class="sd">    is the evidence a repetitive reference destroys: its argmax alone cannot say which</span>
+<span class="sd">    repeat a window came from, and only a caller that can see the rival peaks</span>
+<span class="sd">    (:func:`_candidate_lags`) has anything to put to a vote.</span>
+
+<span class="sd">    **Normalize per lag, by the energy of that lag's overlap** — the trap named in issue</span>
+<span class="sd">    #30. An unnormalized FFT correlation lets a boundary spike in the reference make</span>
+<span class="sd">    every window lock onto the same lag, which reads downstream as a confident and</span>
+<span class="sd">    entirely fictitious "everything aligns at t≈0".</span>
 <span class="sd">    """</span>
     <span class="n">correlate</span> <span class="o">=</span> <span class="n">require_package</span><span class="p">(</span><span class="s2">"scipy.signal"</span><span class="p">)</span><span class="o">.</span><span class="n">correlate</span>
     <span class="n">ref</span> <span class="o">=</span> <span class="n">ref</span> <span class="o">-</span> <span class="n">ref</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
@@ -1433,9 +1436,93 @@
     <span class="n">nz</span> <span class="o">=</span> <span class="n">denom</span> <span class="o">&gt;</span> <span class="mi">0</span>
     <span class="n">np</span><span class="o">.</span><span class="n">divide</span><span class="p">(</span><span class="n">num</span><span class="p">,</span> <span class="n">denom</span><span class="p">,</span> <span class="n">out</span><span class="o">=</span><span class="n">coeff</span><span class="p">,</span> <span class="n">where</span><span class="o">=</span><span class="n">nz</span><span class="p">)</span>
     <span class="n">valid</span> <span class="o">=</span> <span class="n">overlap</span> <span class="o">&gt;=</span> <span class="nb">max</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">min_overlap_ratio</span> <span class="o">*</span> <span class="nb">min</span><span class="p">(</span><span class="n">n_r</span><span class="p">,</span> <span class="n">n_q</span><span class="p">))</span>
-    <span class="n">scored</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">valid</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">coeff</span><span class="p">),</span> <span class="o">-</span><span class="mf">1.0</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">lags</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">valid</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">coeff</span><span class="p">),</span> <span class="o">-</span><span class="mf">1.0</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_normalized_xcorr</span><span class="p">(</span>
+    <span class="n">ref</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">query</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">min_overlap_ratio</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.5</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Overlap-normalized cross-correlation of two mono signals.</span>
+
+<span class="sd">    Returns ``(lag_samples, coefficient)`` where ``lag_samples`` is where ``query``</span>
+<span class="sd">    begins within ``ref`` (may be negative) and ``coefficient`` is the normalized</span>
+<span class="sd">    cross-correlation in ``[0, 1]`` at that lag. Normalizing each lag by the energy of</span>
+<span class="sd">    its actual overlap makes the score scale-invariant (comparable across clips) AND</span>
+<span class="sd">    removes the triangular-overlap argmax bias for clips that extend before/after the</span>
+<span class="sd">    reference — the common multi-device case. Lags overlapping less than</span>
+<span class="sd">    ``min_overlap_ratio`` of the shorter signal are excluded so a tiny sliver of overlap</span>
+<span class="sd">    can't win.</span>
+
+<span class="sd">    **The argmax is only trustworthy when the surface has one peak.** On material that</span>
+<span class="sd">    repeats verbatim it does not, and the rival peaks are near-tied — so this returns a</span>
+<span class="sd">    near-coin-flip with a coefficient that looks excellent (issue #30). Callers that can</span>
+<span class="sd">    be handed repetitive material go through :func:`_candidate_lags` instead.</span>
+<span class="sd">    """</span>
+    <span class="n">lags</span><span class="p">,</span> <span class="n">scored</span> <span class="o">=</span> <span class="n">_xcorr_surface</span><span class="p">(</span><span class="n">ref</span><span class="p">,</span> <span class="n">query</span><span class="p">,</span> <span class="n">min_overlap_ratio</span><span class="o">=</span><span class="n">min_overlap_ratio</span><span class="p">)</span>
     <span class="n">best</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">scored</span><span class="p">))</span>
-    <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">lags</span><span class="p">[</span><span class="n">best</span><span class="p">]),</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">coeff</span><span class="p">[</span><span class="n">best</span><span class="p">]))</span>
+    <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">lags</span><span class="p">[</span><span class="n">best</span><span class="p">]),</span> <span class="nb">float</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">scored</span><span class="p">[</span><span class="n">best</span><span class="p">],</span> <span class="mf">0.0</span><span class="p">))</span>
+
+
+<span class="c1">#: How close a rival correlation peak must score to the best one before it counts as a</span>
+<span class="c1">#: NEAR-TIE — a fraction of the best score. Measured on real music (issue #30), the</span>
+<span class="c1">#: second peak reaches 0.987-0.993 of the first at musical periods, and on synthetic</span>
+<span class="c1">#: repeats the two are within 0.2%. At that separation the argmax is a coin flip, so</span>
+<span class="c1">#: everything inside this band is treated as "the correlation has no opinion" and the</span>
+<span class="c1">#: choice is handed to the vote. Above it, a peak wins on its own evidence — which is</span>
+<span class="c1">#: what keeps a genuine stop/restart free to depart from its neighbours.</span>
+<span class="n">NEAR_TIE_RATIO</span> <span class="o">=</span> <span class="mf">0.05</span>
+
+<span class="c1">#: How many independent windows it takes before "how many of them agree" is a fact</span>
+<span class="c1">#: rather than a tautology. One window agrees with itself, so a support fraction</span>
+<span class="c1">#: computed over a single vote is always 1.0 and has measured nothing — and a</span>
+<span class="c1">#: manufactured 1.0 is worse than no number at all, because it VOUCHES. Below this,</span>
+<span class="c1">#: support is reported as ``None``.</span>
+<span class="n">MIN_WINDOWS_FOR_SUPPORT</span> <span class="o">=</span> <span class="mi">2</span>
+
+<span class="c1">#: Most near-tied lags one window may put forward. A cap, not a target: an exactly</span>
+<span class="c1">#: tiling reference offers one candidate per repeat, and the vote does not get better</span>
+<span class="c1">#: for counting all of them.</span>
+<span class="n">MAX_CANDIDATE_LAGS</span> <span class="o">=</span> <span class="mi">8</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_candidate_lags</span><span class="p">(</span>
+    <span class="n">ref</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">query</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">min_overlap_ratio</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">near_tie_ratio</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">min_separation</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">max_candidates</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">MAX_CANDIDATE_LAGS</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"list[tuple[int, float]]"</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""The near-tied lags this correlation genuinely cannot choose between.</span>
+
+<span class="sd">    Returns ``[(lag_samples, coefficient), ...]`` ordered best-first and always</span>
+<span class="sd">    non-empty, so ``result[0]`` is exactly what :func:`_normalized_xcorr` would have</span>
+<span class="sd">    returned. A ``near_tie_ratio`` of ``0.0`` therefore reduces this to the plain argmax.</span>
+
+<span class="sd">    Only LOCAL MAXIMA are eligible, and each accepted peak suppresses everything within</span>
+<span class="sd">    ``min_separation`` samples of it — otherwise the shoulders of one peak would flood</span>
+<span class="sd">    the ballot and a single lag would out-vote every real rival.</span>
+<span class="sd">    """</span>
+    <span class="n">lags</span><span class="p">,</span> <span class="n">scored</span> <span class="o">=</span> <span class="n">_xcorr_surface</span><span class="p">(</span><span class="n">ref</span><span class="p">,</span> <span class="n">query</span><span class="p">,</span> <span class="n">min_overlap_ratio</span><span class="o">=</span><span class="n">min_overlap_ratio</span><span class="p">)</span>
+    <span class="n">top</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">scored</span><span class="p">))</span>
+    <span class="n">best</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">scored</span><span class="p">[</span><span class="n">top</span><span class="p">])</span>
+    <span class="k">if</span> <span class="n">best</span> <span class="o">&lt;=</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">near_tie_ratio</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[(</span><span class="nb">int</span><span class="p">(</span><span class="n">lags</span><span class="p">[</span><span class="n">top</span><span class="p">]),</span> <span class="nb">max</span><span class="p">(</span><span class="n">best</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">))]</span>
+    <span class="n">interior</span> <span class="o">=</span> <span class="n">scored</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">peaks</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">flatnonzero</span><span class="p">((</span><span class="n">interior</span> <span class="o">&gt;=</span> <span class="n">scored</span><span class="p">[:</span><span class="o">-</span><span class="mi">2</span><span class="p">])</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">interior</span> <span class="o">&gt;</span> <span class="n">scored</span><span class="p">[</span><span class="mi">2</span><span class="p">:]))</span> <span class="o">+</span> <span class="mi">1</span>
+    <span class="c1"># The argmax may sit on an edge, where "local maximum" is undefined; it is always a</span>
+    <span class="c1"># candidate, and always the first one.</span>
+    <span class="n">eligible</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([[</span><span class="n">top</span><span class="p">],</span> <span class="n">peaks</span><span class="p">]))</span>
+    <span class="n">eligible</span> <span class="o">=</span> <span class="n">eligible</span><span class="p">[</span><span class="n">scored</span><span class="p">[</span><span class="n">eligible</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">best</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">near_tie_ratio</span><span class="p">)]</span>
+    <span class="n">order</span> <span class="o">=</span> <span class="n">eligible</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="o">-</span><span class="n">scored</span><span class="p">[</span><span class="n">eligible</span><span class="p">],</span> <span class="n">kind</span><span class="o">=</span><span class="s2">"stable"</span><span class="p">)]</span>
+    <span class="n">picked</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">map</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">order</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">k</span> <span class="o">-</span> <span class="n">j</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">min_separation</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">picked</span><span class="p">):</span>
+            <span class="n">picked</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">k</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">picked</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">max_candidates</span><span class="p">:</span>
+                <span class="k">break</span>
+    <span class="k">return</span> <span class="p">[(</span><span class="nb">int</span><span class="p">(</span><span class="n">lags</span><span class="p">[</span><span class="n">k</span><span class="p">]),</span> <span class="nb">float</span><span class="p">(</span><span class="n">scored</span><span class="p">[</span><span class="n">k</span><span class="p">]))</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">picked</span><span class="p">]</span>
 
 
 <span class="c1">#: Envelope hop, in samples at the analysis rate. 160 @ 16 kHz = 10 ms frames (100 Hz).</span>
@@ -1573,6 +1660,51 @@
     <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">))</span> <span class="o">/</span> <span class="n">denom</span><span class="p">)</span>
 
 
+<span class="k">def</span><span class="w"> </span><span class="nf">_feature_candidates</span><span class="p">(</span>
+    <span class="n">ref</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">query</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">sample_rate</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">feature</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">min_overlap_ratio</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">near_tie_ratio</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">min_separation</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">ref_envelope</span><span class="p">:</span> <span class="s2">"tuple[np.ndarray, float] | None"</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"list[tuple[int, float]]"</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">""":func:`_candidate_lags`, scored the way ``feature`` scores — best-first.</span>
+
+<span class="sd">    The plural counterpart of :func:`_envelope_then_waveform`, and it keeps that</span>
+<span class="sd">    function's division of labour intact: **the waveform locates** (so the candidate</span>
+<span class="sd">    order is the waveform's), and the confidence at each candidate is the larger of the</span>
+<span class="sd">    waveform's and the envelope's correlation THERE. ``result[0]`` is therefore exactly</span>
+<span class="sd">    what :func:`_envelope_then_waveform` returns; the rest are the rivals it discarded</span>
+<span class="sd">    without saying so.</span>
+<span class="sd">    """</span>
+    <span class="n">candidates</span> <span class="o">=</span> <span class="n">_candidate_lags</span><span class="p">(</span>
+        <span class="n">ref</span><span class="p">,</span>
+        <span class="n">query</span><span class="p">,</span>
+        <span class="n">min_overlap_ratio</span><span class="o">=</span><span class="n">min_overlap_ratio</span><span class="p">,</span>
+        <span class="n">near_tie_ratio</span><span class="o">=</span><span class="n">near_tie_ratio</span><span class="p">,</span>
+        <span class="n">min_separation</span><span class="o">=</span><span class="n">min_separation</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="n">feature</span> <span class="o">!=</span> <span class="s2">"envelope"</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">candidates</span>
+    <span class="n">env_ref</span><span class="p">,</span> <span class="n">env_rate</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">onset_envelope</span><span class="p">(</span><span class="n">ref</span><span class="p">,</span> <span class="n">sample_rate</span><span class="p">)</span> <span class="k">if</span> <span class="n">ref_envelope</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">ref_envelope</span>
+    <span class="p">)</span>
+    <span class="n">env_query</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">onset_envelope</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">sample_rate</span><span class="p">)</span>
+    <span class="n">scored</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">lag</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">candidates</span><span class="p">:</span>
+        <span class="n">wav_at_lag</span> <span class="o">=</span> <span class="n">_correlation_at_lag</span><span class="p">(</span><span class="n">ref</span><span class="p">,</span> <span class="n">query</span><span class="p">,</span> <span class="n">lag</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">env_ref</span><span class="o">.</span><span class="n">size</span> <span class="o">&lt;</span> <span class="mi">2</span> <span class="ow">or</span> <span class="n">env_query</span><span class="o">.</span><span class="n">size</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>  <span class="c1"># too short to have an envelope</span>
+            <span class="n">scored</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">lag</span><span class="p">,</span> <span class="n">wav_at_lag</span><span class="p">))</span>
+            <span class="k">continue</span>
+        <span class="n">env_lag</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">lag</span> <span class="o">*</span> <span class="n">env_rate</span> <span class="o">/</span> <span class="n">sample_rate</span><span class="p">))</span>
+        <span class="n">env_at_lag</span> <span class="o">=</span> <span class="n">_correlation_at_lag</span><span class="p">(</span><span class="n">env_ref</span><span class="p">,</span> <span class="n">env_query</span><span class="p">,</span> <span class="n">env_lag</span><span class="p">)</span>
+        <span class="n">scored</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">lag</span><span class="p">,</span> <span class="nb">max</span><span class="p">(</span><span class="n">wav_at_lag</span><span class="p">,</span> <span class="n">env_at_lag</span><span class="p">)))</span>
+    <span class="k">return</span> <span class="n">scored</span>
+
+
 <span class="c1">#: Alignment features. ``'envelope'`` is coarse-to-fine (see</span>
 <span class="c1">#: :func:`_envelope_then_waveform`); ``'waveform'`` is raw normalized cross-correlation,</span>
 <span class="c1">#: correct when both signals come from the SAME source (re-aligning an export against its</span>
@@ -1634,6 +1766,41 @@
 
 
 
+<span class="c1">#: Default analysis window for :func:`aligned_spans`, in seconds. Long enough that a</span>
+<span class="c1">#: window of a real recording carries enough structure to correlate, short enough that a</span>
+<span class="c1">#: span boundary is locatable. This is the knob that trades boundary resolution against</span>
+<span class="c1">#: cost: halving it doubles the number of correlations.</span>
+<span class="n">SPAN_WINDOW_S</span> <span class="o">=</span> <span class="mf">20.0</span>
+
+<span class="c1">#: Default hop between windows. Half the window, so every instant of the clip is covered</span>
+<span class="c1">#: by two windows and a boundary can never fall in the blind spot between them.</span>
+<span class="n">SPAN_HOP_S</span> <span class="o">=</span> <span class="mf">10.0</span>
+
+<span class="c1">#: A window must reach this for its span to exist at all.</span>
+<span class="n">SPAN_MIN_CONFIDENCE</span> <span class="o">=</span> <span class="mf">0.15</span>
+
+<span class="c1">#: How far two windows' implied offsets may disagree and still be called the same span.</span>
+<span class="c1">#: Wider than a frame at any sane rate (a span is not a cut point) but far tighter than</span>
+<span class="c1">#: the drift a genuine stop/restart introduces.</span>
+<span class="n">SPAN_OFFSET_TOLERANCE_S</span> <span class="o">=</span> <span class="mf">0.25</span>
+
+<span class="c1">#: How long an UNVERIFIED gap between two same-offset spans may be and still be treated</span>
+<span class="c1">#: as one take. Defaults to one window.</span>
+<span class="c1">#:</span>
+<span class="c1">#: A dozen seconds of silence mid-take collapses the windows inside it to a confidence of</span>
+<span class="c1">#: zero, so one continuous recording comes back as two spans carrying the SAME offset —</span>
+<span class="c1">#: measured, and downstream that reads as a stop/restart that never happened. Two spans</span>
+<span class="c1">#: agreeing on the offset across a short gap are one take with an unusable patch: the</span>
+<span class="c1">#: camera kept rolling in sync, only the audio stopped saying so.</span>
+<span class="c1">#:</span>
+<span class="c1">#: The bound is what stops that from becoming a lie. A clip that records the song, then</span>
+<span class="c1">#: five minutes of something else, then the song again at the same offset would otherwise</span>
+<span class="c1">#: be merged into one span claiming those five minutes align. Past this gap the two are</span>
+<span class="c1">#: reported separately, because correlation cannot tell "quiet" from "different material"</span>
+<span class="c1">#: and inventing an answer is worse than reporting both.</span>
+<span class="n">SPAN_MERGE_GAP_S</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+
+
 <div class="viewcode-block" id="ClipAlignment">
 <a class="viewcode-back" href="../../../module_docs/mixing/audio/audio_ops.html#mixing.ClipAlignment">[docs]</a>
 <span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -1652,6 +1819,25 @@
 <span class="sd">        overlaps: Whether the clip intersects the reference timeline at all. A clip that</span>
 <span class="sd">            does not is still RETURNED, with its measured offset and confidence — see</span>
 <span class="sd">            :func:`align_clips_to_reference` for why it is not dropped.</span>
+<span class="sd">        support: Fraction in ``[0, 1]`` of the clip's analysis windows that reached</span>
+<span class="sd">            :attr:`offset_s` **on their own**, before the consensus vote — "how much of</span>
+<span class="sd">            this clip agrees that this is where it goes". It is a different question</span>
+<span class="sd">            from :attr:`confidence`, which asks only how well the clip matches at the</span>
+<span class="sd">            offset reported, and it is the one that catches the two failures a</span>
+<span class="sd">            coefficient cannot: a clip that matches beautifully **somewhere else too**</span>
+<span class="sd">            (repetitive music), and a clip only PART of which is the reference at all.</span>
+<span class="sd">            Measured on three phone recordings of one commercial track, the whole-clip</span>
+<span class="sd">            argmax was 83 s, 174 s and 83 s wrong while its coefficient looked ordinary;</span>
+<span class="sd">            consensus support was 10/24, 17/37 and 45/61 and pointed at offsets three</span>
+<span class="sd">            independent methods then confirmed to within 40 ms (issue #30).</span>
+<span class="sd">            **``None`` when it was not measured** — with ``consensus=False``, and for</span>
+<span class="sd">            a clip short enough to be a single window. Neither has a second opinion to</span>
+<span class="sd">            compare against, and a support of 1.0 there would be a unanimous vote of</span>
+<span class="sd">            one: a number that VOUCHES for an offset nothing corroborated. That is not</span>
+<span class="sd">            hypothetical — a 15 s clip truly at offset 30.0, against a reference that is</span>
+<span class="sd">            one half twice, comes back at offset 75.0 with confidence 0.979, and a</span>
+<span class="sd">            manufactured ``support=1.0`` would carry it through any gate built on this</span>
+<span class="sd">            field. ``None`` says "not measured", which a caller can fall back from.</span>
 <span class="sd">    """</span>
 
     <span class="n">index</span><span class="p">:</span> <span class="nb">int</span>
@@ -1659,7 +1845,8 @@
     <span class="n">confidence</span><span class="p">:</span> <span class="nb">float</span>
     <span class="n">duration_s</span><span class="p">:</span> <span class="nb">float</span>
     <span class="n">coverage</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span>
-    <span class="n">overlaps</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span></div>
+    <span class="n">overlaps</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="n">support</span><span class="p">:</span> <span class="s2">"float | None"</span> <span class="o">=</span> <span class="kc">None</span></div>
 
 
 
@@ -1673,6 +1860,11 @@
     <span class="n">sample_rate</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">16000</span><span class="p">,</span>
     <span class="n">min_overlap_ratio</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span>
     <span class="n">feature</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"envelope"</span><span class="p">,</span>
+    <span class="n">consensus</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">window_s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">SPAN_WINDOW_S</span><span class="p">,</span>
+    <span class="n">hop_s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">SPAN_HOP_S</span><span class="p">,</span>
+    <span class="n">offset_tolerance_s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">SPAN_OFFSET_TOLERANCE_S</span><span class="p">,</span>
+    <span class="n">near_tie_ratio</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">NEAR_TIE_RATIO</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">ClipAlignment</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">"""Align a SET of clips to one reference — the multi-device / multicam primitive.</span>
 
@@ -1709,6 +1901,27 @@
 <span class="sd">            genuine non-match at 0.102. Pass ``'waveform'`` when the clips come from the</span>
 <span class="sd">            SAME source as the reference (e.g. verifying an export against its master),</span>
 <span class="sd">            where sample correlation is meaningful and gives finer confidence resolution.</span>
+<span class="sd">        consensus: Estimate the offset by putting the clip's analysis windows to a vote</span>
+<span class="sd">            rather than by one argmax over the whole clip (issue #30). **On by default,</span>
+<span class="sd">            because the whole-clip argmax is measurably wrong on repetitive material**:</span>
+<span class="sd">            it minimises a correlation whose peaks are near-tied at musical periods, so</span>
+<span class="sd">            it returns whichever repeat won a coin flip, and its coefficient does not</span>
+<span class="sd">            drop when it does. A spurious peak lands at a different lag in every window</span>
+<span class="sd">            while the true offset is the one they share, so the windows' agreement is</span>
+<span class="sd">            what separates them — and how much of the clip agrees is reported as</span>
+<span class="sd">            :attr:`~ClipAlignment.support`. ``False`` restores the single whole-clip</span>
+<span class="sd">            correlation exactly — same offset, same confidence, and ``support=None``</span>
+<span class="sd">            because nothing was put to a vote. It is cheaper (one correlation instead of</span>
+<span class="sd">            one per window) and is the right choice only when the reference is known not</span>
+<span class="sd">            to repeat.</span>
+<span class="sd">        window_s: Analysis window for the vote. Ignored when ``consensus`` is False. A</span>
+<span class="sd">            clip shorter than this is a single window, so it takes the whole-clip path's</span>
+<span class="sd">            answer either way.</span>
+<span class="sd">        hop_s: Step between those windows. Ignored when ``consensus`` is False.</span>
+<span class="sd">        offset_tolerance_s: How far two windows' offsets may differ and still count as</span>
+<span class="sd">            the same answer.</span>
+<span class="sd">        near_tie_ratio: How close a rival peak must score to a window's best one to join</span>
+<span class="sd">            the vote — see :data:`NEAR_TIE_RATIO`.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        A list of :class:`ClipAlignment`, in input order (minus dropped clips).</span>
@@ -1717,22 +1930,45 @@
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
             <span class="sa">f</span><span class="s2">"unknown feature </span><span class="si">{</span><span class="n">feature</span><span class="si">!r}</span><span class="s2">; expected one of </span><span class="si">{</span><span class="n">ALIGNMENT_FEATURES</span><span class="si">}</span><span class="s2">"</span>
         <span class="p">)</span>
+    <span class="k">if</span> <span class="n">near_tie_ratio</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"near_tie_ratio must not be negative, got </span><span class="si">{</span><span class="n">near_tie_ratio</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
     <span class="n">ref</span> <span class="o">=</span> <span class="n">_load_mono_samples</span><span class="p">(</span><span class="n">reference_audio</span><span class="p">,</span> <span class="n">sample_rate</span><span class="p">)</span>
     <span class="n">ref_dur</span> <span class="o">=</span> <span class="p">(</span>
         <span class="n">reference_duration</span> <span class="k">if</span> <span class="n">reference_duration</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">len</span><span class="p">(</span><span class="n">ref</span><span class="p">)</span> <span class="o">/</span> <span class="n">sample_rate</span>
     <span class="p">)</span>
+    <span class="c1"># The reference's envelope does not change between clips, let alone between windows.</span>
+    <span class="n">ref_env</span> <span class="o">=</span> <span class="n">onset_envelope</span><span class="p">(</span><span class="n">ref</span><span class="p">,</span> <span class="n">sample_rate</span><span class="p">)</span> <span class="k">if</span> <span class="n">feature</span> <span class="o">==</span> <span class="s2">"envelope"</span> <span class="k">else</span> <span class="kc">None</span>
     <span class="n">out</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">ClipAlignment</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">clip</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">clips</span><span class="p">):</span>
         <span class="n">query</span> <span class="o">=</span> <span class="n">_load_mono_samples</span><span class="p">(</span><span class="n">clip</span><span class="p">,</span> <span class="n">sample_rate</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">feature</span> <span class="o">==</span> <span class="s2">"envelope"</span><span class="p">:</span>
-            <span class="n">lag</span><span class="p">,</span> <span class="n">coeff</span> <span class="o">=</span> <span class="n">_envelope_then_waveform</span><span class="p">(</span>
-                <span class="n">ref</span><span class="p">,</span> <span class="n">query</span><span class="p">,</span> <span class="n">sample_rate</span><span class="p">,</span> <span class="n">min_overlap_ratio</span><span class="o">=</span><span class="n">min_overlap_ratio</span>
+        <span class="k">if</span> <span class="n">consensus</span><span class="p">:</span>
+            <span class="n">offset_s</span><span class="p">,</span> <span class="n">coeff</span><span class="p">,</span> <span class="n">support</span> <span class="o">=</span> <span class="n">_consensus_alignment</span><span class="p">(</span>
+                <span class="n">ref</span><span class="p">,</span>
+                <span class="n">query</span><span class="p">,</span>
+                <span class="n">sample_rate</span><span class="p">,</span>
+                <span class="n">window_s</span><span class="o">=</span><span class="n">window_s</span><span class="p">,</span>
+                <span class="n">hop_s</span><span class="o">=</span><span class="n">hop_s</span><span class="p">,</span>
+                <span class="n">feature</span><span class="o">=</span><span class="n">feature</span><span class="p">,</span>
+                <span class="n">min_overlap_ratio</span><span class="o">=</span><span class="n">min_overlap_ratio</span><span class="p">,</span>
+                <span class="n">near_tie_ratio</span><span class="o">=</span><span class="n">near_tie_ratio</span><span class="p">,</span>
+                <span class="n">offset_tolerance_s</span><span class="o">=</span><span class="n">offset_tolerance_s</span><span class="p">,</span>
+                <span class="n">ref_envelope</span><span class="o">=</span><span class="n">ref_env</span><span class="p">,</span>
             <span class="p">)</span>
+        <span class="k">elif</span> <span class="n">feature</span> <span class="o">==</span> <span class="s2">"envelope"</span><span class="p">:</span>
+            <span class="n">lag</span><span class="p">,</span> <span class="n">coeff</span> <span class="o">=</span> <span class="n">_envelope_then_waveform</span><span class="p">(</span>
+                <span class="n">ref</span><span class="p">,</span>
+                <span class="n">query</span><span class="p">,</span>
+                <span class="n">sample_rate</span><span class="p">,</span>
+                <span class="n">min_overlap_ratio</span><span class="o">=</span><span class="n">min_overlap_ratio</span><span class="p">,</span>
+                <span class="n">ref_envelope</span><span class="o">=</span><span class="n">ref_env</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="c1"># Nothing was put to a vote, so support is not measured — never 1.0.</span>
+            <span class="n">offset_s</span><span class="p">,</span> <span class="n">support</span> <span class="o">=</span> <span class="n">lag</span> <span class="o">/</span> <span class="n">sample_rate</span><span class="p">,</span> <span class="kc">None</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">lag</span><span class="p">,</span> <span class="n">coeff</span> <span class="o">=</span> <span class="n">_normalized_xcorr</span><span class="p">(</span>
                 <span class="n">ref</span><span class="p">,</span> <span class="n">query</span><span class="p">,</span> <span class="n">min_overlap_ratio</span><span class="o">=</span><span class="n">min_overlap_ratio</span>
             <span class="p">)</span>
-        <span class="n">offset_s</span> <span class="o">=</span> <span class="n">lag</span> <span class="o">/</span> <span class="n">sample_rate</span>
+            <span class="n">offset_s</span><span class="p">,</span> <span class="n">support</span> <span class="o">=</span> <span class="n">lag</span> <span class="o">/</span> <span class="n">sample_rate</span><span class="p">,</span> <span class="kc">None</span>
         <span class="n">dur_s</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">query</span><span class="p">)</span> <span class="o">/</span> <span class="n">sample_rate</span>
         <span class="n">start</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">offset_s</span><span class="p">)</span>
         <span class="n">end</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">ref_dur</span><span class="p">,</span> <span class="n">offset_s</span> <span class="o">+</span> <span class="n">dur_s</span><span class="p">)</span>
@@ -1745,45 +1981,82 @@
                 <span class="n">duration_s</span><span class="o">=</span><span class="n">dur_s</span><span class="p">,</span>
                 <span class="n">coverage</span><span class="o">=</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">)</span> <span class="k">if</span> <span class="n">overlaps</span> <span class="k">else</span> <span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">start</span><span class="p">),</span>
                 <span class="n">overlaps</span><span class="o">=</span><span class="n">overlaps</span><span class="p">,</span>
+                <span class="n">support</span><span class="o">=</span><span class="n">support</span><span class="p">,</span>
             <span class="p">)</span>
         <span class="p">)</span>
     <span class="k">return</span> <span class="n">out</span></div>
 
 
 
-<span class="c1">#: Default analysis window for :func:`aligned_spans`, in seconds. Long enough that a</span>
-<span class="c1">#: window of a real recording carries enough structure to correlate, short enough that a</span>
-<span class="c1">#: span boundary is locatable. This is the knob that trades boundary resolution against</span>
-<span class="c1">#: cost: halving it doubles the number of correlations.</span>
-<span class="n">SPAN_WINDOW_S</span> <span class="o">=</span> <span class="mf">20.0</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_consensus_alignment</span><span class="p">(</span>
+    <span class="n">ref</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">clip</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">sample_rate</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">window_s</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">hop_s</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">feature</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">min_overlap_ratio</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">near_tie_ratio</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">offset_tolerance_s</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">ref_envelope</span><span class="p">:</span> <span class="s2">"tuple[np.ndarray, float] | None"</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"tuple[float, float, float]"</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""One ``(offset_s, confidence, support)`` for a whole clip, by majority of windows.</span>
 
-<span class="c1">#: Default hop between windows. Half the window, so every instant of the clip is covered</span>
-<span class="c1">#: by two windows and a boundary can never fall in the blind spot between them.</span>
-<span class="n">SPAN_HOP_S</span> <span class="o">=</span> <span class="mf">10.0</span>
+<span class="sd">    The whole-clip counterpart of what :func:`aligned_spans` does per span, for the</span>
+<span class="sd">    caller who wants one number. The clip is cut into windows, each window's near-tied</span>
+<span class="sd">    candidates vote (:func:`_consensus_choice`), and the offset the most windows landed</span>
+<span class="sd">    on wins; the reported offset is the MEDIAN over that winning group, so the answer</span>
+<span class="sd">    keeps sub-window precision rather than snapping to one window's estimate.</span>
 
-<span class="c1">#: A window must reach this for its span to exist at all.</span>
-<span class="n">SPAN_MIN_CONFIDENCE</span> <span class="o">=</span> <span class="mf">0.15</span>
+<span class="sd">    ``support`` is counted on the windows' INDEPENDENT argmaxes, not on what the vote</span>
+<span class="sd">    assigned them — the vote's own output would agree with itself and say nothing. So it</span>
+<span class="sd">    reads as "this fraction of the clip found this offset unaided", which drops both</span>
+<span class="sd">    when the reference repeats and when only part of the clip is the reference at all.</span>
+<span class="sd">    Under :data:`MIN_WINDOWS_FOR_SUPPORT` windows there is no second opinion to count,</span>
+<span class="sd">    and it is ``None`` rather than 1.0 — see :attr:`ClipAlignment.support`.</span>
 
-<span class="c1">#: How far two windows' implied offsets may disagree and still be called the same span.</span>
-<span class="c1">#: Wider than a frame at any sane rate (a span is not a cut point) but far tighter than</span>
-<span class="c1">#: the drift a genuine stop/restart introduces.</span>
-<span class="n">SPAN_OFFSET_TOLERANCE_S</span> <span class="o">=</span> <span class="mf">0.25</span>
+<span class="sd">    A clip shorter than one window is one window, and this returns exactly the offset</span>
+<span class="sd">    and confidence the single whole-clip correlation would have.</span>
 
-<span class="c1">#: How long an UNVERIFIED gap between two same-offset spans may be and still be treated</span>
-<span class="c1">#: as one take. Defaults to one window.</span>
-<span class="c1">#:</span>
-<span class="c1">#: A dozen seconds of silence mid-take collapses the windows inside it to a confidence of</span>
-<span class="c1">#: zero, so one continuous recording comes back as two spans carrying the SAME offset —</span>
-<span class="c1">#: measured, and downstream that reads as a stop/restart that never happened. Two spans</span>
-<span class="c1">#: agreeing on the offset across a short gap are one take with an unusable patch: the</span>
-<span class="c1">#: camera kept rolling in sync, only the audio stopped saying so.</span>
-<span class="c1">#:</span>
-<span class="c1">#: The bound is what stops that from becoming a lie. A clip that records the song, then</span>
-<span class="c1">#: five minutes of something else, then the song again at the same offset would otherwise</span>
-<span class="c1">#: be merged into one span claiming those five minutes align. Past this gap the two are</span>
-<span class="c1">#: reported separately, because correlation cannot tell "quiet" from "different material"</span>
-<span class="c1">#: and inventing an answer is worse than reporting both.</span>
-<span class="n">SPAN_MERGE_GAP_S</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="sd">    **Two offsets can genuinely tie.** A clip that fits equally often in two places</span>
+<span class="sd">    splits its windows evenly and no evidence separates them; one is returned, with a</span>
+<span class="sd">    support near 0.5 that is the honest report of a 50/50 — not a hedge, and not a claim</span>
+<span class="sd">    to have chosen.</span>
+<span class="sd">    """</span>
+    <span class="n">windows</span> <span class="o">=</span> <span class="n">_consensus_choice</span><span class="p">(</span>
+        <span class="n">_window_offsets</span><span class="p">(</span>
+            <span class="n">ref</span><span class="p">,</span>
+            <span class="n">clip</span><span class="p">,</span>
+            <span class="n">sample_rate</span><span class="p">,</span>
+            <span class="n">window_s</span><span class="o">=</span><span class="n">window_s</span><span class="p">,</span>
+            <span class="n">hop_s</span><span class="o">=</span><span class="n">hop_s</span><span class="p">,</span>
+            <span class="n">feature</span><span class="o">=</span><span class="n">feature</span><span class="p">,</span>
+            <span class="n">min_overlap_ratio</span><span class="o">=</span><span class="n">min_overlap_ratio</span><span class="p">,</span>
+            <span class="n">near_tie_ratio</span><span class="o">=</span><span class="n">near_tie_ratio</span><span class="p">,</span>
+            <span class="n">offset_tolerance_s</span><span class="o">=</span><span class="n">offset_tolerance_s</span><span class="p">,</span>
+            <span class="n">ref_envelope</span><span class="o">=</span><span class="n">ref_envelope</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">offset_tolerance_s</span><span class="o">=</span><span class="n">offset_tolerance_s</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">windows</span><span class="p">:</span>  <span class="c1"># an empty clip has no windows and so no opinion</span>
+        <span class="k">return</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="kc">None</span>
+    <span class="n">offsets</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">w</span><span class="o">.</span><span class="n">offset_s</span> <span class="k">for</span> <span class="n">w</span> <span class="ow">in</span> <span class="n">windows</span><span class="p">])</span>
+    <span class="n">coeffs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">w</span><span class="o">.</span><span class="n">confidence</span> <span class="k">for</span> <span class="n">w</span> <span class="ow">in</span> <span class="n">windows</span><span class="p">])</span>
+    <span class="n">agree</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">offsets</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">-</span> <span class="n">offsets</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="p">:])</span> <span class="o">&lt;=</span> <span class="n">offset_tolerance_s</span>
+    <span class="c1"># Most windows wins; a tie goes to the group the EARLIER windows settled on. That is</span>
+    <span class="c1"># the same continuity rule `_consensus_choice` breaks its own ties by, and it is one</span>
+    <span class="c1"># rule on purpose: two passes tie-breaking on different principles could settle one</span>
+    <span class="c1"># 50/50 clip two different ways inside a single call.</span>
+    <span class="n">counts</span> <span class="o">=</span> <span class="n">agree</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">winner</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">lexsort</span><span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">counts</span><span class="o">.</span><span class="n">size</span><span class="p">),</span> <span class="o">-</span><span class="n">counts</span><span class="p">))[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">members</span> <span class="o">=</span> <span class="n">agree</span><span class="p">[</span><span class="n">winner</span><span class="p">]</span>
+    <span class="n">offset_s</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">offsets</span><span class="p">[</span><span class="n">members</span><span class="p">]))</span>
+    <span class="n">support</span><span class="p">:</span> <span class="s2">"float | None"</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">windows</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">MIN_WINDOWS_FOR_SUPPORT</span><span class="p">:</span>
+        <span class="n">votes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">w</span><span class="o">.</span><span class="n">vote_offset_s</span> <span class="k">for</span> <span class="n">w</span> <span class="ow">in</span> <span class="n">windows</span><span class="p">])</span>
+        <span class="n">support</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">votes</span> <span class="o">-</span> <span class="n">offset_s</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">offset_tolerance_s</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">offset_s</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">coeffs</span><span class="p">[</span><span class="n">members</span><span class="p">])),</span> <span class="n">support</span>
 
 
 <div class="viewcode-block" id="AlignedSpan">
@@ -1806,13 +2079,33 @@
 <span class="sd">            convention as :attr:`ClipAlignment.offset_s`, so</span>
 <span class="sd">            ``reference_time = clip_time + offset_s`` holds inside the span.</span>
 <span class="sd">        confidence: Representative confidence for the span (the median over its windows,</span>
-<span class="sd">            not the max — a span is only as trustworthy as its typical window).</span>
+<span class="sd">            not the max — a span is only as trustworthy as its typical window). It says</span>
+<span class="sd">            **how well the clip matches where this span puts it**, and on a reference</span>
+<span class="sd">            that repeats verbatim that is a question with several excellent answers —</span>
+<span class="sd">            see :attr:`support`, and gate on both.</span>
+<span class="sd">        support: Fraction in ``[0, 1]`` of the span's windows that reached this offset</span>
+<span class="sd">            **on their own**, before the consensus vote — or ``None`` when the span was</span>
+<span class="sd">            built from fewer than :data:`MIN_WINDOWS_FOR_SUPPORT` windows and there was</span>
+<span class="sd">            therefore nothing to agree. This is the number that knows about repetition.</span>
+<span class="sd">            A reference with no repeats gives 1.0; a verse/chorus reference gives less,</span>
+<span class="sd">            because some windows correlated just as well against the wrong chorus and</span>
+<span class="sd">            only the crowd put them right; an exactly tiling reference gives very</span>
+<span class="sd">            little, because there genuinely is no unique answer and the confidence alone</span>
+<span class="sd">            would never say so. Low support with high confidence means "it fits here</span>
+<span class="sd">            beautifully, and it would fit elsewhere too".</span>
+
+<span class="sd">            **``None`` is not 1.0.** A span of one window cannot disagree with itself,</span>
+<span class="sd">            so reporting 1.0 there would be a unanimous vote of one — a number that</span>
+<span class="sd">            vouches for an offset nothing corroborated. ``None`` says "not measured",</span>
+<span class="sd">            which a caller can fall back from; a manufactured 1.0 is what a caller</span>
+<span class="sd">            trusts.</span>
 <span class="sd">    """</span>
 
     <span class="n">clip_start_s</span><span class="p">:</span> <span class="nb">float</span>
     <span class="n">clip_end_s</span><span class="p">:</span> <span class="nb">float</span>
     <span class="n">offset_s</span><span class="p">:</span> <span class="nb">float</span>
     <span class="n">confidence</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">support</span><span class="p">:</span> <span class="s2">"float | None"</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">duration_s</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
@@ -1840,6 +2133,7 @@
     <span class="n">merge_gap_s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">SPAN_MERGE_GAP_S</span><span class="p">,</span>
     <span class="n">feature</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"envelope"</span><span class="p">,</span>
     <span class="n">min_overlap_ratio</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span>
+    <span class="n">near_tie_ratio</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">NEAR_TIE_RATIO</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"list[AlignedSpan]"</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""The MAXIMAL spans of ``clip_audio`` that align to ``reference_audio``.</span>
 
@@ -1857,13 +2151,35 @@
 <span class="sd">    - A stretch longer than ``merge_gap_s`` that nothing can verify (hard silence, a hand</span>
 <span class="sd">      over the mic) splits the take into two spans reporting the SAME offset. Two</span>
 <span class="sd">      same-offset neighbours are the *signal* that this happened, not a stop/restart.</span>
-<span class="sd">    - **A reference that repeats itself verbatim fragments a take**, because each window</span>
-<span class="sd">      picks its lag by an independent argmax and a repeated chorus makes two peaks</span>
-<span class="sd">      near-tied. Measured: a verse/chorus reference split one continuous take into 3</span>
-<span class="sd">      spans, and one of them reported a WRONG offset at 0.985 confidence. Music is the</span>
-<span class="sd">      material this is for, so treat a short span whose offset disagrees with its</span>
-<span class="sd">      neighbours as suspect. Giving the window chooser a continuity prior is the fix and</span>
-<span class="sd">      is not done here.</span>
+<span class="sd">    - A reference whose repeats are EXACT admits several true answers, and this reports</span>
+<span class="sd">      one of them with a low :attr:`~AlignedSpan.support` rather than pretending to have</span>
+<span class="sd">      chosen (see below).</span>
+
+<span class="sd">    **Repetition is decided by consensus, not by argmax** (issue #30). A verse/chorus</span>
+<span class="sd">    reference used to shatter one continuous take into 3 spans — one of them reporting a</span>
+<span class="sd">    WRONG offset at 0.985 confidence — because each window picked its lag independently</span>
+<span class="sd">    and a repeated chorus makes two peaks near-tied (measured within 0.2% here, and</span>
+<span class="sd">    0.987-0.993 second-to-first on real music). So each window now puts its near-tied</span>
+<span class="sd">    rivals forward instead of only its argmax, and takes whichever of them the most</span>
+<span class="sd">    other windows can also read. A spurious peak lands at a different lag in every</span>
+<span class="sd">    window; the true offset is the one they share. Measured on a repeated motif:</span>
+<span class="sd">    verse/chorus 3 spans → 1, two identical halves 6 → 1, exact tiling 8 → 1, with the</span>
+<span class="sd">    genuine stop/restart still at 2 and the non-repetitive take still at 1 — a window is</span>
+<span class="sd">    never moved to a lag its own correlation did not already rate a near-tie, and a</span>
+<span class="sd">    restarted take has no such lag near the old offset, so it departs freely.</span>
+
+<span class="sd">    **What that costs you is told by ``support``, not by ``confidence``.** The</span>
+<span class="sd">    confidence says how well the clip matches where the span puts it, and on repetitive</span>
+<span class="sd">    material that question has several excellent answers. ``support`` — the fraction of</span>
+<span class="sd">    the span's windows that found this offset unaided — is the one that knows: 1.0 on a</span>
+<span class="sd">    reference with no repeats, less where the crowd had to intervene, and very little on</span>
+<span class="sd">    an exactly tiling reference where there is genuinely no unique answer. **Gate on</span>
+<span class="sd">    both.** High confidence with low support means "it fits here beautifully, and it</span>
+<span class="sd">    would fit elsewhere too".</span>
+
+<span class="sd">    A span too short to hold a disagreement reports ``support=None``, meaning *not</span>
+<span class="sd">    measured* — never 1.0. One window agrees with itself, and a unanimous vote of one</span>
+<span class="sd">    is exactly the kind of number a caller would trust and should not.</span>
 
 <span class="sd">    **Boundary resolution is ``window_s``, and no better.** A window is evidence that its</span>
 <span class="sd">    whole extent aligns; a boundary falling inside a window degrades that window rather</span>
@@ -1900,6 +2216,12 @@
 <span class="sd">            the same reason :func:`align_clips_to_reference` does — the cross-device case</span>
 <span class="sd">            is what this is for.</span>
 <span class="sd">        min_overlap_ratio: Passed through to the correlation.</span>
+<span class="sd">        near_tie_ratio: How close a rival correlation peak must score to a window's best</span>
+<span class="sd">            one to join the vote, as a fraction of that best score — see</span>
+<span class="sd">            :data:`NEAR_TIE_RATIO`. ``0.0`` disables the consensus pass entirely and</span>
+<span class="sd">            restores the per-window argmax this function shipped with, which is</span>
+<span class="sd">            measurably wrong on repetitive material and is offered only for reproducing</span>
+<span class="sd">            an older result.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        Spans in clip order, non-overlapping, and each lying entirely within</span>
@@ -1930,16 +2252,23 @@
             <span class="s2">"leaves clip time unmeasured, and a span would then assert alignment over "</span>
             <span class="s2">"instants no window ever looked at."</span>
         <span class="p">)</span>
+    <span class="k">if</span> <span class="n">near_tie_ratio</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"near_tie_ratio must not be negative, got </span><span class="si">{</span><span class="n">near_tie_ratio</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
     <span class="n">ref</span> <span class="o">=</span> <span class="n">_load_mono_samples</span><span class="p">(</span><span class="n">reference_audio</span><span class="p">,</span> <span class="n">sample_rate</span><span class="p">)</span>
     <span class="n">clip</span> <span class="o">=</span> <span class="n">_load_mono_samples</span><span class="p">(</span><span class="n">clip_audio</span><span class="p">,</span> <span class="n">sample_rate</span><span class="p">)</span>
-    <span class="n">measured</span> <span class="o">=</span> <span class="n">_window_offsets</span><span class="p">(</span>
-        <span class="n">ref</span><span class="p">,</span>
-        <span class="n">clip</span><span class="p">,</span>
-        <span class="n">sample_rate</span><span class="p">,</span>
-        <span class="n">window_s</span><span class="o">=</span><span class="n">window_s</span><span class="p">,</span>
-        <span class="n">hop_s</span><span class="o">=</span><span class="n">hop_s</span><span class="p">,</span>
-        <span class="n">feature</span><span class="o">=</span><span class="n">feature</span><span class="p">,</span>
-        <span class="n">min_overlap_ratio</span><span class="o">=</span><span class="n">min_overlap_ratio</span><span class="p">,</span>
+    <span class="n">measured</span> <span class="o">=</span> <span class="n">_consensus_choice</span><span class="p">(</span>
+        <span class="n">_window_offsets</span><span class="p">(</span>
+            <span class="n">ref</span><span class="p">,</span>
+            <span class="n">clip</span><span class="p">,</span>
+            <span class="n">sample_rate</span><span class="p">,</span>
+            <span class="n">window_s</span><span class="o">=</span><span class="n">window_s</span><span class="p">,</span>
+            <span class="n">hop_s</span><span class="o">=</span><span class="n">hop_s</span><span class="p">,</span>
+            <span class="n">feature</span><span class="o">=</span><span class="n">feature</span><span class="p">,</span>
+            <span class="n">min_overlap_ratio</span><span class="o">=</span><span class="n">min_overlap_ratio</span><span class="p">,</span>
+            <span class="n">near_tie_ratio</span><span class="o">=</span><span class="n">near_tie_ratio</span><span class="p">,</span>
+            <span class="n">offset_tolerance_s</span><span class="o">=</span><span class="n">offset_tolerance_s</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">offset_tolerance_s</span><span class="o">=</span><span class="n">offset_tolerance_s</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">spans</span> <span class="o">=</span> <span class="n">_spans_from_windows</span><span class="p">(</span>
         <span class="n">measured</span><span class="p">,</span>
@@ -1954,6 +2283,32 @@
 
 
 
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">_WindowMeasurement</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""What one analysis window has to say, INCLUDING the rivals it could not separate.</span>
+
+<span class="sd">    ``candidates`` is ``((offset_s, confidence), ...)`` best-first, and the first entry</span>
+<span class="sd">    is the window's current answer — the plain argmax before :func:`_consensus_choice`</span>
+<span class="sd">    runs, the crowd's choice after. ``vote_offset_s`` keeps the argmax whatever happens</span>
+<span class="sd">    to ``candidates``: it is the window's INDEPENDENT opinion, and the fraction of</span>
+<span class="sd">    windows whose independent opinion matches the answer is what</span>
+<span class="sd">    :attr:`AlignedSpan.support` reports.</span>
+<span class="sd">    """</span>
+
+    <span class="n">clip_start_s</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">clip_end_s</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">candidates</span><span class="p">:</span> <span class="s2">"tuple[tuple[float, float], ...]"</span>
+    <span class="n">vote_offset_s</span><span class="p">:</span> <span class="nb">float</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">offset_s</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">candidates</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">confidence</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">candidates</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+
+
 <span class="k">def</span><span class="w"> </span><span class="nf">_window_offsets</span><span class="p">(</span>
     <span class="n">ref</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
     <span class="n">clip</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
@@ -1963,14 +2318,26 @@
     <span class="n">hop_s</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
     <span class="n">feature</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">min_overlap_ratio</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"list[tuple[float, float, float, float]]"</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">"""One ``(clip_start_s, clip_end_s, offset_s, confidence)`` per analysis window.</span>
+    <span class="n">near_tie_ratio</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">NEAR_TIE_RATIO</span><span class="p">,</span>
+    <span class="n">offset_tolerance_s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.25</span><span class="p">,</span>
+    <span class="n">ref_envelope</span><span class="p">:</span> <span class="s2">"tuple[np.ndarray, float] | None"</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"list[_WindowMeasurement]"</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""One :class:`_WindowMeasurement` per analysis window.</span>
 
 <span class="sd">    The offset conversion is the load-bearing line. The correlation reports where the</span>
 <span class="sd">    WINDOW begins on the reference; the window itself begins ``start_s`` into the clip;</span>
 <span class="sd">    so the offset the window implies for the clip as a whole is ``lag - start_s``.</span>
 <span class="sd">    Skipping that subtraction would make every window of a correctly-aligned clip report</span>
 <span class="sd">    a different offset, and no two of them would ever be grouped.</span>
+
+<span class="sd">    Each window reports its near-tied rivals rather than only its argmax, because on a</span>
+<span class="sd">    reference that repeats verbatim the argmax is a coin flip (issue #30). Resolving the</span>
+<span class="sd">    flip is :func:`_consensus_choice`'s job, and it cannot do it from an answer that has</span>
+<span class="sd">    already thrown the alternatives away.</span>
+
+<span class="sd">    ``offset_tolerance_s`` is not a filter here — it sets how far apart two candidates</span>
+<span class="sd">    must be to count as different lags at all, so one peak's shoulders cannot appear on</span>
+<span class="sd">    the ballot as several rivals.</span>
 <span class="sd">    """</span>
     <span class="n">n_win</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">window_s</span> <span class="o">*</span> <span class="n">sample_rate</span><span class="p">)))</span>
     <span class="n">n_hop</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">hop_s</span> <span class="o">*</span> <span class="n">sample_rate</span><span class="p">)))</span>
@@ -1982,39 +2349,98 @@
 
     <span class="c1"># Computed once for the whole call rather than per window — 2.11x measured, and</span>
     <span class="c1"># the reference does not change between windows.</span>
-    <span class="n">ref_env</span> <span class="o">=</span> <span class="n">onset_envelope</span><span class="p">(</span><span class="n">ref</span><span class="p">,</span> <span class="n">sample_rate</span><span class="p">)</span> <span class="k">if</span> <span class="n">feature</span> <span class="o">==</span> <span class="s2">"envelope"</span> <span class="k">else</span> <span class="kc">None</span>
+    <span class="n">ref_env</span> <span class="o">=</span> <span class="n">ref_envelope</span>
+    <span class="k">if</span> <span class="n">feature</span> <span class="o">==</span> <span class="s2">"envelope"</span> <span class="ow">and</span> <span class="n">ref_env</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">ref_env</span> <span class="o">=</span> <span class="n">onset_envelope</span><span class="p">(</span><span class="n">ref</span><span class="p">,</span> <span class="n">sample_rate</span><span class="p">)</span>
+    <span class="n">min_separation</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">offset_tolerance_s</span> <span class="o">*</span> <span class="n">sample_rate</span><span class="p">)))</span>
 
-    <span class="n">out</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">out</span><span class="p">:</span> <span class="s2">"list[_WindowMeasurement]"</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">s0</span> <span class="ow">in</span> <span class="n">starts</span><span class="p">:</span>
         <span class="n">win</span> <span class="o">=</span> <span class="n">clip</span><span class="p">[</span><span class="n">s0</span> <span class="p">:</span> <span class="n">s0</span> <span class="o">+</span> <span class="n">n_win</span><span class="p">]</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">win</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">continue</span>
-        <span class="k">if</span> <span class="n">feature</span> <span class="o">==</span> <span class="s2">"envelope"</span><span class="p">:</span>
-            <span class="n">lag</span><span class="p">,</span> <span class="n">coeff</span> <span class="o">=</span> <span class="n">_envelope_then_waveform</span><span class="p">(</span>
-                <span class="n">ref</span><span class="p">,</span>
-                <span class="n">win</span><span class="p">,</span>
-                <span class="n">sample_rate</span><span class="p">,</span>
-                <span class="n">min_overlap_ratio</span><span class="o">=</span><span class="n">min_overlap_ratio</span><span class="p">,</span>
-                <span class="n">ref_envelope</span><span class="o">=</span><span class="n">ref_env</span><span class="p">,</span>
-            <span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">lag</span><span class="p">,</span> <span class="n">coeff</span> <span class="o">=</span> <span class="n">_normalized_xcorr</span><span class="p">(</span>
-                <span class="n">ref</span><span class="p">,</span> <span class="n">win</span><span class="p">,</span> <span class="n">min_overlap_ratio</span><span class="o">=</span><span class="n">min_overlap_ratio</span>
-            <span class="p">)</span>
+        <span class="n">candidates</span> <span class="o">=</span> <span class="n">_feature_candidates</span><span class="p">(</span>
+            <span class="n">ref</span><span class="p">,</span>
+            <span class="n">win</span><span class="p">,</span>
+            <span class="n">sample_rate</span><span class="p">,</span>
+            <span class="n">feature</span><span class="o">=</span><span class="n">feature</span><span class="p">,</span>
+            <span class="n">min_overlap_ratio</span><span class="o">=</span><span class="n">min_overlap_ratio</span><span class="p">,</span>
+            <span class="n">near_tie_ratio</span><span class="o">=</span><span class="n">near_tie_ratio</span><span class="p">,</span>
+            <span class="n">min_separation</span><span class="o">=</span><span class="n">min_separation</span><span class="p">,</span>
+            <span class="n">ref_envelope</span><span class="o">=</span><span class="n">ref_env</span><span class="p">,</span>
+        <span class="p">)</span>
         <span class="n">start_s</span> <span class="o">=</span> <span class="n">s0</span> <span class="o">/</span> <span class="n">sample_rate</span>
+        <span class="n">offsets</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span>
+            <span class="p">(</span><span class="n">lag</span> <span class="o">/</span> <span class="n">sample_rate</span> <span class="o">-</span> <span class="n">start_s</span><span class="p">,</span> <span class="n">coeff</span><span class="p">)</span> <span class="k">for</span> <span class="n">lag</span><span class="p">,</span> <span class="n">coeff</span> <span class="ow">in</span> <span class="n">candidates</span>
+        <span class="p">)</span>
         <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-            <span class="p">(</span>
-                <span class="n">start_s</span><span class="p">,</span>
-                <span class="p">(</span><span class="n">s0</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">win</span><span class="p">))</span> <span class="o">/</span> <span class="n">sample_rate</span><span class="p">,</span>
-                <span class="n">lag</span> <span class="o">/</span> <span class="n">sample_rate</span> <span class="o">-</span> <span class="n">start_s</span><span class="p">,</span>
-                <span class="n">coeff</span><span class="p">,</span>
+            <span class="n">_WindowMeasurement</span><span class="p">(</span>
+                <span class="n">clip_start_s</span><span class="o">=</span><span class="n">start_s</span><span class="p">,</span>
+                <span class="n">clip_end_s</span><span class="o">=</span><span class="p">(</span><span class="n">s0</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">win</span><span class="p">))</span> <span class="o">/</span> <span class="n">sample_rate</span><span class="p">,</span>
+                <span class="n">candidates</span><span class="o">=</span><span class="n">offsets</span><span class="p">,</span>
+                <span class="n">vote_offset_s</span><span class="o">=</span><span class="n">offsets</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span>
             <span class="p">)</span>
         <span class="p">)</span>
     <span class="k">return</span> <span class="n">out</span>
 
 
+<span class="k">def</span><span class="w"> </span><span class="nf">_consensus_choice</span><span class="p">(</span>
+    <span class="n">windows</span><span class="p">:</span> <span class="s2">"list[_WindowMeasurement]"</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">offset_tolerance_s</span><span class="p">:</span> <span class="nb">float</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"list[_WindowMeasurement]"</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Let the near-ties vote: a window departs from the crowd only on real evidence.</span>
+
+<span class="sd">    The fix for issue #30. Each window's near-tied candidates are ballots for an offset;</span>
+<span class="sd">    an offset's SUPPORT is the number of distinct windows that could be reading it; and</span>
+<span class="sd">    each window then takes whichever of its own candidates has the most support, keeping</span>
+<span class="sd">    its argmax to break a tie.</span>
+
+<span class="sd">    Why this is the right shape rather than a smoothing pass: the disagreement between</span>
+<span class="sd">    windows on repetitive material is not noise, it is the signal. A spurious peak lands</span>
+<span class="sd">    at a DIFFERENT lag in each window (it comes from wherever that window's content</span>
+<span class="sd">    happens to also fit), while the true offset is the one lag every window has in</span>
+<span class="sd">    common. So the offset that repeats across windows is the true one almost by</span>
+<span class="sd">    construction, and no window is ever moved to a lag its own correlation did not</span>
+<span class="sd">    already rate as a near-tie — which is what leaves a genuine stop/restart alone. A</span>
+<span class="sd">    restarted take has NO peak near the old offset, so it has nothing to vote for there</span>
+<span class="sd">    and departs freely.</span>
+
+<span class="sd">    **Support alone cannot settle an exactly tiling reference**, where every window</span>
+<span class="sd">    offers a candidate at every repeat and all of them draw the same support. The tie is</span>
+<span class="sd">    broken by CONTINUITY — stay with the previous window's offset — which is the honest</span>
+<span class="sd">    move, because on an exact tiling those offsets are all equally true and the only</span>
+<span class="sd">    thing left to prefer is the one that describes the clip as one take. That the answer</span>
+<span class="sd">    was arbitrary is not swallowed: it shows up as a low</span>
+<span class="sd">    :attr:`AlignedSpan.support`. Continuity is deliberately the SECOND key: support is</span>
+<span class="sd">    evidence gathered from the whole clip, and a local prior must not overrule it.</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">windows</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[]</span>
+    <span class="n">ballots</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">off</span> <span class="k">for</span> <span class="n">off</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">w</span><span class="o">.</span><span class="n">candidates</span><span class="p">])</span> <span class="k">for</span> <span class="n">w</span> <span class="ow">in</span> <span class="n">windows</span><span class="p">]</span>
+    <span class="n">hypotheses</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">ballots</span><span class="p">))</span>
+    <span class="n">support</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">hypotheses</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">ballot</span> <span class="ow">in</span> <span class="n">ballots</span><span class="p">:</span>
+        <span class="n">support</span> <span class="o">+=</span> <span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">hypotheses</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">-</span> <span class="n">ballot</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="p">:])</span> <span class="o">&lt;=</span> <span class="n">offset_tolerance_s</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="n">out</span><span class="p">:</span> <span class="s2">"list[_WindowMeasurement]"</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">anchor</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">for</span> <span class="n">window</span><span class="p">,</span> <span class="n">ballot</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">windows</span><span class="p">,</span> <span class="n">ballots</span><span class="p">):</span>
+        <span class="c1"># `hypotheses` holds every candidate value exactly, so this is a lookup.</span>
+        <span class="n">own</span> <span class="o">=</span> <span class="n">support</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">searchsorted</span><span class="p">(</span><span class="n">hypotheses</span><span class="p">,</span> <span class="n">ballot</span><span class="p">)]</span>
+        <span class="n">drift</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">ballot</span><span class="o">.</span><span class="n">size</span><span class="p">)</span> <span class="k">if</span> <span class="n">anchor</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">ballot</span> <span class="o">-</span> <span class="n">anchor</span><span class="p">)</span>
+        <span class="c1"># Keys are applied last-first: most support, then nearest the previous window,</span>
+        <span class="c1"># then the window's own ranking (argmax first).</span>
+        <span class="n">best</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">lexsort</span><span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">ballot</span><span class="o">.</span><span class="n">size</span><span class="p">),</span> <span class="n">drift</span><span class="p">,</span> <span class="o">-</span><span class="n">own</span><span class="p">))[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">chosen</span> <span class="o">=</span> <span class="n">window</span><span class="o">.</span><span class="n">candidates</span><span class="p">[</span><span class="n">best</span><span class="p">]</span>
+        <span class="n">rest</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">c</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">window</span><span class="o">.</span><span class="n">candidates</span><span class="p">)</span> <span class="k">if</span> <span class="n">i</span> <span class="o">!=</span> <span class="n">best</span><span class="p">)</span>
+        <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">replace</span><span class="p">(</span><span class="n">window</span><span class="p">,</span> <span class="n">candidates</span><span class="o">=</span><span class="p">(</span><span class="n">chosen</span><span class="p">,)</span> <span class="o">+</span> <span class="n">rest</span><span class="p">))</span>
+        <span class="n">anchor</span> <span class="o">=</span> <span class="n">chosen</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">out</span>
+
+
 <span class="k">def</span><span class="w"> </span><span class="nf">_spans_from_windows</span><span class="p">(</span>
-    <span class="n">measured</span><span class="p">:</span> <span class="s2">"list[tuple[float, float, float, float]]"</span><span class="p">,</span>
+    <span class="n">measured</span><span class="p">:</span> <span class="s2">"list[_WindowMeasurement]"</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
     <span class="n">min_confidence</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
     <span class="n">offset_tolerance_s</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
@@ -2032,12 +2458,12 @@
 <span class="sd">    a window degraded by silence does not dip, it collapses to zero — far under any keep</span>
 <span class="sd">    threshold — so hysteresis was never what decided. Merging same-offset neighbours is.</span>
 <span class="sd">    """</span>
-    <span class="n">runs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]]</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="n">current</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">runs</span><span class="p">:</span> <span class="s2">"list[list[_WindowMeasurement]]"</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">current</span><span class="p">:</span> <span class="s2">"list[_WindowMeasurement]"</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">w</span> <span class="ow">in</span> <span class="n">measured</span><span class="p">:</span>
-        <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">offset</span><span class="p">,</span> <span class="n">coeff</span> <span class="o">=</span> <span class="n">w</span>
+        <span class="n">offset</span><span class="p">,</span> <span class="n">coeff</span> <span class="o">=</span> <span class="n">w</span><span class="o">.</span><span class="n">offset_s</span><span class="p">,</span> <span class="n">w</span><span class="o">.</span><span class="n">confidence</span>
         <span class="k">if</span> <span class="n">current</span><span class="p">:</span>
-            <span class="n">ref_offset</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">([</span><span class="n">m</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">current</span><span class="p">]))</span>
+            <span class="n">ref_offset</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">([</span><span class="n">m</span><span class="o">.</span><span class="n">offset_s</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">current</span><span class="p">]))</span>
             <span class="k">if</span> <span class="p">(</span>
                 <span class="n">coeff</span> <span class="o">&gt;=</span> <span class="n">min_confidence</span>
                 <span class="ow">and</span> <span class="nb">abs</span><span class="p">(</span><span class="n">offset</span> <span class="o">-</span> <span class="n">ref_offset</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">offset_tolerance_s</span>
@@ -2051,17 +2477,40 @@
     <span class="k">if</span> <span class="n">current</span><span class="p">:</span>
         <span class="n">runs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">current</span><span class="p">)</span>
 
-    <span class="n">spans</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="n">AlignedSpan</span><span class="p">(</span>
-            <span class="n">clip_start_s</span><span class="o">=</span><span class="n">run</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span>
-            <span class="n">clip_end_s</span><span class="o">=</span><span class="n">run</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span>
-            <span class="n">offset_s</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">([</span><span class="n">m</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">run</span><span class="p">])),</span>
-            <span class="n">confidence</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">([</span><span class="n">m</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">run</span><span class="p">])),</span>
-        <span class="p">)</span>
-        <span class="k">for</span> <span class="n">run</span> <span class="ow">in</span> <span class="n">runs</span>
-    <span class="p">]</span>
+    <span class="n">spans</span> <span class="o">=</span> <span class="p">[</span><span class="n">_span_from_run</span><span class="p">(</span><span class="n">run</span><span class="p">,</span> <span class="n">offset_tolerance_s</span><span class="o">=</span><span class="n">offset_tolerance_s</span><span class="p">)</span> <span class="k">for</span> <span class="n">run</span> <span class="ow">in</span> <span class="n">runs</span><span class="p">]</span>
     <span class="k">return</span> <span class="n">_merge_same_offset</span><span class="p">(</span>
         <span class="n">_disjoin</span><span class="p">(</span><span class="n">spans</span><span class="p">),</span> <span class="n">offset_tolerance_s</span><span class="o">=</span><span class="n">offset_tolerance_s</span><span class="p">,</span> <span class="n">merge_gap_s</span><span class="o">=</span><span class="n">merge_gap_s</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_span_from_run</span><span class="p">(</span>
+    <span class="n">run</span><span class="p">:</span> <span class="s2">"list[_WindowMeasurement]"</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">offset_tolerance_s</span><span class="p">:</span> <span class="nb">float</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"AlignedSpan"</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""One run of agreeing windows → one :class:`AlignedSpan`, support included.</span>
+
+<span class="sd">    Both the offset and the confidence are the MEDIAN over the run's windows — a span is</span>
+<span class="sd">    only as trustworthy as its typical window, and the max would let one lucky window</span>
+<span class="sd">    speak for all of them.</span>
+
+<span class="sd">    ``support`` is counted on the windows' INDEPENDENT argmaxes</span>
+<span class="sd">    (:attr:`_WindowMeasurement.vote_offset_s`), not on the offsets consensus assigned</span>
+<span class="sd">    them. Counting the assigned offsets would be circular — every window in a run agrees</span>
+<span class="sd">    with its run by construction, so the number would be 1.0 always and would carry no</span>
+<span class="sd">    information at all. A run too short to hold a disagreement</span>
+<span class="sd">    (:data:`MIN_WINDOWS_FOR_SUPPORT`) reports ``None`` for the same reason: 1.0 there</span>
+<span class="sd">    would be a unanimous vote of one.</span>
+<span class="sd">    """</span>
+    <span class="n">offset</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">([</span><span class="n">m</span><span class="o">.</span><span class="n">offset_s</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">run</span><span class="p">]))</span>
+    <span class="n">support</span><span class="p">:</span> <span class="s2">"float | None"</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">run</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">MIN_WINDOWS_FOR_SUPPORT</span><span class="p">:</span>
+        <span class="n">agreed</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">vote_offset_s</span> <span class="o">-</span> <span class="n">offset</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">offset_tolerance_s</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">run</span><span class="p">)</span>
+        <span class="n">support</span> <span class="o">=</span> <span class="n">agreed</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">run</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">AlignedSpan</span><span class="p">(</span>
+        <span class="n">clip_start_s</span><span class="o">=</span><span class="n">run</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">clip_start_s</span><span class="p">,</span>
+        <span class="n">clip_end_s</span><span class="o">=</span><span class="n">run</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">clip_end_s</span><span class="p">,</span>
+        <span class="n">offset_s</span><span class="o">=</span><span class="n">offset</span><span class="p">,</span>
+        <span class="n">confidence</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">([</span><span class="n">m</span><span class="o">.</span><span class="n">confidence</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">run</span><span class="p">])),</span>
+        <span class="n">support</span><span class="o">=</span><span class="n">support</span><span class="p">,</span>
     <span class="p">)</span>
 
 
@@ -2154,10 +2603,26 @@
                     <span class="p">)</span>
                     <span class="o">/</span> <span class="nb">max</span><span class="p">(</span><span class="n">prev</span><span class="o">.</span><span class="n">duration_s</span> <span class="o">+</span> <span class="n">span</span><span class="o">.</span><span class="n">duration_s</span><span class="p">,</span> <span class="mf">1e-9</span><span class="p">),</span>
                     <span class="n">confidence</span><span class="o">=</span><span class="nb">min</span><span class="p">(</span><span class="n">prev</span><span class="o">.</span><span class="n">confidence</span><span class="p">,</span> <span class="n">span</span><span class="o">.</span><span class="n">confidence</span><span class="p">),</span>
+                    <span class="n">support</span><span class="o">=</span><span class="n">_merge_support</span><span class="p">(</span><span class="n">prev</span><span class="p">,</span> <span class="n">span</span><span class="p">),</span>
                 <span class="p">)</span>
                 <span class="k">continue</span>
         <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">span</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">out</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_merge_support</span><span class="p">(</span><span class="n">a</span><span class="p">:</span> <span class="s2">"AlignedSpan"</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="s2">"AlignedSpan"</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"float | None"</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""The support of two merged spans — duration-weighted, and ``None`` if either is.</span>
+
+<span class="sd">    Weighted like the offset, so a long span is not dragged by a short one. The</span>
+<span class="sd">    ``None`` rule is the load-bearing half: a span that never measured its support has</span>
+<span class="sd">    no fraction to average in, and defaulting it to 1.0 (or dropping it and keeping the</span>
+<span class="sd">    other side's) would let a stretch nothing corroborated inherit the vouching of the</span>
+<span class="sd">    stretch beside it. Unmeasured plus measured is unmeasured.</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">a</span><span class="o">.</span><span class="n">support</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">b</span><span class="o">.</span><span class="n">support</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="n">total</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">duration_s</span> <span class="o">+</span> <span class="n">b</span><span class="o">.</span><span class="n">duration_s</span><span class="p">,</span> <span class="mf">1e-9</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">support</span> <span class="o">*</span> <span class="n">a</span><span class="o">.</span><span class="n">duration_s</span> <span class="o">+</span> <span class="n">b</span><span class="o">.</span><span class="n">support</span> <span class="o">*</span> <span class="n">b</span><span class="o">.</span><span class="n">duration_s</span><span class="p">)</span> <span class="o">/</span> <span class="n">total</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_disjoin</span><span class="p">(</span><span class="n">spans</span><span class="p">:</span> <span class="s2">"list[AlignedSpan]"</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"list[AlignedSpan]"</span><span class="p">:</span>
