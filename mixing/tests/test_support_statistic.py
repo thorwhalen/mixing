@@ -61,7 +61,9 @@ TOL = 0.25
 WIN, HOP = 10.0, 5.0
 
 
-def _window(index: float, candidates: "list[tuple[float, float]]") -> _WindowMeasurement:
+def _window(
+    index: float, candidates: "list[tuple[float, float]]"
+) -> _WindowMeasurement:
     """One window at ``index * HOP``, whose ballot is ``candidates`` best-first.
 
     ``candidates[0]`` is the window's own argmax, which is what ``vote_offset_s`` keeps —
@@ -495,7 +497,9 @@ def test_a_long_clip_is_not_unchanged_when_the_reference_repeats(bed, tmp_path):
     before = _as_argmax_headcount(reference_path, clip, **grid)
 
     assert measured.offset_s == pytest.approx(LONG_CLIP_START_S, abs=0.05)
-    assert before.support <= 0.25, f"the headcount refused this too, got {before.support}"
+    assert before.support <= 0.25, (
+        f"the headcount refused this too, got {before.support}"
+    )
     assert measured.support > 0.25
     assert measured.support == pytest.approx(BALLOT_VOTE_WEIGHT, abs=0.2), (
         "ballot-only evidence, at the default window, on a 60 s clip"
