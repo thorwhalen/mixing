@@ -185,6 +185,22 @@ would carry the wrong answer through any gate. When it is `None`, fall back to
 `align_clips_to_reference(..., consensus=False)` restores its single whole-clip
 correlation exactly (cheaper: one correlation instead of one per window).
 
+### Cross-device recordings: `feature=` picks the offset, not just the score
+
+`align_clips_to_reference` and `aligned_spans` default to `feature='envelope'`, and under
+consensus (the default) that choice **moves the offset**. Two microphones in a room are not
+sample-correlated even when the alignment is exact, so a raw-waveform correlation can put
+its best peak somewhere the clip never was — measured on real multi-device footage at 15 s
+from the truth, and *at `support=1.00`*, because the bias is the same in every window and a
+vote ratifies what it cannot vary. The onset envelope reads WHEN energy arrives, which two
+devices share, so it nominates the lag the waveform never offers; each nomination is then
+scored by the better of the two views, so material with no onsets (a smooth tone, an export
+against its own master) still lands on the waveform's answer.
+
+Pass `feature='waveform'` when the clip comes from the SAME source as the reference.
+`find_audio_offset` / `find_audio_offset_detailed` are single-shot — no windows, no vote —
+so there `feature=` still changes only the confidence.
+
 ## Segmentation — split a long recording into pieces
 
 ```python

@@ -40,8 +40,9 @@ def _percussive(seconds: float = 20.0, seed: int = 0) -> np.ndarray:
 
     Deliberately NOT the smooth-AM chirp used by test_audio_alignment: a signal whose energy
     is smoothly modulated has no onsets, so its envelope is periodic and envelope-based
-    LOCATION is ambiguous on it. (That is why the waveform, not the envelope, chooses the
-    lag — see ``_envelope_then_waveform``.) Here we test the confidence, which needs onsets.
+    LOCATION is ambiguous on it — which is why a lag the envelope nominates has to win on
+    score against the waveform's rather than by fiat (see ``_feature_candidates``, and the
+    decoy section at the end of this file). Here we test the confidence, which needs onsets.
     """
     rng = np.random.default_rng(seed)
     n = int(seconds * SR)
@@ -148,7 +149,14 @@ class TestCrossDeviceConfidence:
         assert env.confidence > wav.confidence, "the SCORE is what the waveform gets wrong"
 
     def test_features_agree_on_the_offset(self, reference):
-        """The envelope changes the SCORE, never the reported offset."""
+        """Where both features can locate, the feature choice changes only the SCORE.
+
+        This is the common case and it must stay boring: a mild cross-device simulation
+        has an unambiguous peak in either domain, so the envelope's nomination and the
+        waveform's are the same lag. That the choice CAN move the offset, on material
+        where the two domains disagree, is asserted by
+        ``test_the_feature_choice_moves_the_offset_and_not_only_the_confidence``.
+        """
         ref_p, ref = reference
         p = _write(reference[0].parent, "same.wav", _cross_device(ref, start_s=6.0, dur_s=9.0, seed=2))
         wav = find_audio_offset_detailed(ref_p, p, sample_rate=SR, feature="waveform")
@@ -265,3 +273,208 @@ class TestBlindSpots:
         noise = _write(reference[0].parent, "pure_noise.wav", rng.normal(0, 0.3, 12 * SR))
         got = find_audio_offset_detailed(ref_p, noise, sample_rate=SR, feature="envelope")
         assert got.confidence < GATE
+
+# --------------------------------------------------------------------------
+# WHICH DOMAIN NOMINATES THE CANDIDATE LAGS (issue #30, reopened)
+#
+# Everything above measures the CONFIDENCE the feature choice produces. This section
+# measures the OFFSET it produces, which is the thing that was not actually wired up:
+# candidate lags were generated on the raw waveform and the envelope was used only to
+# re-score them, so `feature='envelope'` and `feature='waveform'` returned byte-identical
+# offsets on every input that exists, and a waveform-domain bias — shared by every window,
+# so consensus ratifies rather than cancels it — reached the caller as `support=1.0` for
+# an offset 15 s wrong. Measured on real cross-device material in issue #30.
+# --------------------------------------------------------------------------
+
+#: The tiling period of the fixture's backing bed, in seconds. Every partial in the bed is
+#: an exact multiple of ``1 / BED_LOOP_S`` Hz, so tiling it is seamless — no boundary
+#: transient, and therefore no onset the envelope could use to count tiles.
+BED_LOOP_S = 4.0
+#: Length of the fixture's "song".
+DECOY_REFERENCE_S = 60.0
+#: Where the fixture's clip really belongs on that song's timeline.
+DECOY_TRUE_OFFSET_S = 33.0
+#: How much of the song the clip covers.
+DECOY_CLIP_S = 10.0
+#: Which tile of the bed is mixed the way the clip's device hears it — the passage whose
+#: WAVEFORM the clip resembles most, and nowhere near where the clip belongs.
+DECOY_TILE = 2
+#: The clip's device rolls off above this; the decoy tile is mixed the same way, which is
+#: what makes it the waveform's best answer under per-lag normalization.
+DEVICE_TOP_HZ = 900.0
+#: Silence before the song starts. A recording that begins from silence puts a large onset
+#: in the envelope's first frames, and an envelope correlation that is not normalized per
+#: lag locks onto it — the trap named in issue #30.
+DECOY_LEAD_IN_S = 1.0
+#: Analysis windows for the fixture, matching the reproduction in issue #30.
+DECOY_WINDOW_S, DECOY_HOP_S = 5.0, 1.25
+
+
+def _tiling_bed(seconds: float, seed: int, *, top_hz: float) -> np.ndarray:
+    """A stationary tonal bed that tiles seamlessly at :data:`BED_LOOP_S`.
+
+    Stationary is the point: it carries a lot of waveform energy and almost no spectral
+    flux, so it dominates a waveform correlation and is invisible to an onset envelope.
+    Tiling it makes the reference's WAVEFORM repeat verbatim — issue #30's material — while
+    ``top_hz`` models a device that rolls off the highs.
+    """
+    rng = np.random.default_rng(seed)
+    t = np.arange(int(seconds * SR)) / SR
+    x = np.zeros_like(t)
+    for harmonic in rng.choice(np.arange(400, 8000), size=60, replace=False):
+        frequency = harmonic / BED_LOOP_S
+        if frequency > top_hz:
+            continue
+        x += np.sin(2 * np.pi * frequency * t + rng.uniform(0, 2 * np.pi))
+    return x / np.max(np.abs(x))
+
+
+def _onset_track(seconds: float, times: np.ndarray, *, hz: float) -> np.ndarray:
+    """Short decaying bursts at ``times`` — pure onsets, at a device-specific timbre.
+
+    Two devices playing the same part give bursts at the SAME times with DIFFERENT
+    waveforms, which is precisely the split this section exists to exercise: the onset
+    envelope sees the times, the waveform correlation sees almost nothing.
+    """
+    x = np.zeros(int(seconds * SR))
+    burst_t = np.arange(int(0.04 * SR)) / SR
+    burst = np.sin(2 * np.pi * hz * burst_t) * np.exp(-burst_t / 0.01)
+    for onset in times:
+        i = int(onset * SR)
+        x[i : i + len(burst)] += burst[: len(x) - i]
+    return x
+
+
+@pytest.fixture(scope="module")
+def waveform_decoy(tmp_path_factory) -> "tuple[str, str]":
+    """``(reference, clip)`` where the waveform's best answer is far from the truth.
+
+    The reference is a stationary bed tiled every :data:`BED_LOOP_S` — so its waveform
+    repeats verbatim — with an irregular onset track over it. The clip is another device's
+    recording of :data:`DECOY_TRUE_OFFSET_S`: same onset TIMES, different burst timbre,
+    and a bed rolled off at :data:`DEVICE_TOP_HZ`. One tile of the reference,
+    :data:`DECOY_TILE`, is mixed with that same roll-off, so it — not the truth — is where
+    the waveform correlates best.
+
+    Nothing here is tuned to a conclusion: each half follows from what the two features
+    claim to read. The waveform reads sample similarity, and the clip's samples genuinely
+    do resemble the decoy tile more than they resemble their own home, because a different
+    device recorded them. The envelope reads onset TIMING, which the two devices share, and
+    the onset pattern is irregular, so it occurs exactly once.
+    """
+    tiles = int(DECOY_REFERENCE_S / BED_LOOP_S)
+    bed = _tiling_bed(BED_LOOP_S, seed=11, top_hz=SR / 2)
+    device_bed = _tiling_bed(BED_LOOP_S, seed=11, top_hz=DEVICE_TOP_HZ)
+    reference_bed = np.tile(bed, tiles)
+    reference_bed[DECOY_TILE * len(bed) : (DECOY_TILE + 1) * len(bed)] = device_bed
+
+    rng = np.random.default_rng(7)
+    onsets = np.cumsum(rng.uniform(0.25, 0.9, 300))
+    onsets = onsets[onsets < DECOY_REFERENCE_S - 0.1]
+    reference = reference_bed + _onset_track(DECOY_REFERENCE_S, onsets, hz=3000)
+    reference[: int(DECOY_LEAD_IN_S * SR)] = 0.0
+
+    end_s = DECOY_TRUE_OFFSET_S + DECOY_CLIP_S
+    clip_bed = np.tile(device_bed, tiles)[
+        int(DECOY_TRUE_OFFSET_S * SR) : int(end_s * SR)
+    ]
+    heard = onsets[(onsets >= DECOY_TRUE_OFFSET_S) & (onsets < end_s)]
+    clip = clip_bed + _onset_track(DECOY_CLIP_S, heard - DECOY_TRUE_OFFSET_S, hz=300)
+
+    out = tmp_path_factory.mktemp("decoy")
+    return (
+        str(_write(out, "decoy_ref.wav", reference / np.max(np.abs(reference)))),
+        str(_write(out, "decoy_clip.wav", clip / np.max(np.abs(clip)))),
+    )
+
+
+def _decoy_alignment(waveform_decoy, **kw):
+    reference, clip = waveform_decoy
+    (got,) = align_clips_to_reference(
+        reference,
+        [clip],
+        sample_rate=SR,
+        window_s=DECOY_WINDOW_S,
+        hop_s=DECOY_HOP_S,
+        **kw,
+    )
+    return got
+
+
+def _decoy_windows(waveform_decoy):
+    from mixing.audio.audio_ops import _load_mono_samples, _window_offsets
+
+    reference, clip = waveform_decoy
+    return _window_offsets(
+        _load_mono_samples(reference, SR),
+        _load_mono_samples(clip, SR),
+        SR,
+        window_s=DECOY_WINDOW_S,
+        hop_s=DECOY_HOP_S,
+        feature="envelope",
+        min_overlap_ratio=0.5,
+    )
+
+
+def test_the_envelope_domain_reaches_an_offset_the_waveform_cannot(waveform_decoy):
+    """The headline, and the shape measured on the real material in issue #30.
+
+    Every window's ballot used to be generated on the waveform, so the true offset was on
+    none of them and the vote could only ratify the decoy. With the envelope nominating,
+    the windows reach the truth unaided — ``support`` of 1.0 here is a real unanimity, the
+    thing the 1.0 reported before this fix was pretending to be.
+    """
+    got = _decoy_alignment(waveform_decoy, feature="envelope")
+    assert got.offset_s == pytest.approx(DECOY_TRUE_OFFSET_S, abs=0.05)
+    assert got.support == 1.0, "and every window found it on its own"
+
+
+def test_the_feature_choice_moves_the_offset_and_not_only_the_confidence(
+    waveform_decoy,
+):
+    """The regression test issue #30 asked for by name.
+
+    Before the fix these two were byte-identical on every input that exists, which is the
+    one-line proof that ``feature=`` was documented as choosing a locator and in fact chose
+    only a scorer. The waveform's own answer is left unpinned beyond "not the truth": which
+    wrong peak it lands on is not the contract, that it is free to land on one is.
+    """
+    envelope = _decoy_alignment(waveform_decoy, feature="envelope")
+    waveform = _decoy_alignment(waveform_decoy, feature="waveform")
+    assert envelope.offset_s != waveform.offset_s
+    assert abs(waveform.offset_s - DECOY_TRUE_OFFSET_S) > DECOY_CLIP_S, (
+        "the fixture is only meaningful while the waveform really is misled"
+    )
+
+
+def test_the_references_opening_onset_does_not_capture_the_windows(waveform_decoy):
+    """Per-lag normalization, in the envelope domain, is load-bearing (issue #30).
+
+    An envelope built from a recording that starts in silence opens with a large onset. A
+    correlation normalized once for the whole surface lets that one spike outscore real
+    structure at every lag, and each window then reports that it begins at the start of the
+    song. Candidate generation goes through ``_xcorr_surface``, which divides each lag by
+    the energy of ITS OWN overlap, so the spike is worth no more than what it overlaps.
+    """
+    windows = _decoy_windows(waveform_decoy)
+    assert len(windows) > 1, "a single window would make unanimity vacuous"
+    for window in windows:
+        assert window.vote_offset_s == pytest.approx(DECOY_TRUE_OFFSET_S, abs=0.05), (
+            f"the window at {window.clip_start_s}s did not find the truth unaided"
+        )
+
+
+def test_a_windows_candidates_are_ordered_by_the_confidence_they_carry(waveform_decoy):
+    """The ballot must be sorted by the score printed on it.
+
+    Candidates used to be ordered by the waveform while carrying ``max(waveform,
+    envelope)``, so ``candidates[0]`` was not the highest-confidence entry in its own list
+    — measured on real material at ``[(53.68, 0.482), (38.56, 0.484)]``. Two features
+    nominate now, so there is no single domain whose order could stand in for the score,
+    and the score is the order.
+    """
+    windows = _decoy_windows(waveform_decoy)
+    assert any(len(w.candidates) > 1 for w in windows), "nothing to be ordered"
+    for window in windows:
+        carried = [confidence for _, confidence in window.candidates]
+        assert carried == sorted(carried, reverse=True), window.candidates
