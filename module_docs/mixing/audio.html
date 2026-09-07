@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>mixing.audio &mdash; mixing 0.0.49 documentation</title>
+  <title>mixing.audio &mdash; mixing 0.0.50 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
@@ -15,7 +15,7 @@
   
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../_static/documentation_options.js?v=0356c229"></script>
+      <script src="../../_static/documentation_options.js?v=e072a57b"></script>
       <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="../../_static/toggleprompt.js?v=d7ede5d2"></script>
@@ -59,6 +59,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#mixing.audio.AlignedSpan.offset_s"><code class="docutils literal notranslate"><span class="pre">AlignedSpan.offset_s</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#mixing.audio.AlignedSpan.confidence"><code class="docutils literal notranslate"><span class="pre">AlignedSpan.confidence</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#mixing.audio.AlignedSpan.support"><code class="docutils literal notranslate"><span class="pre">AlignedSpan.support</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mixing.audio.AlignedSpan.margin"><code class="docutils literal notranslate"><span class="pre">AlignedSpan.margin</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#mixing.audio.AlignedSpan.reference_span"><code class="docutils literal notranslate"><span class="pre">AlignedSpan.reference_span</span></code></a></li>
 </ul>
 </li>
@@ -106,6 +107,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#mixing.audio.ClipAlignment.coverage"><code class="docutils literal notranslate"><span class="pre">ClipAlignment.coverage</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#mixing.audio.ClipAlignment.overlaps"><code class="docutils literal notranslate"><span class="pre">ClipAlignment.overlaps</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#mixing.audio.ClipAlignment.support"><code class="docutils literal notranslate"><span class="pre">ClipAlignment.support</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mixing.audio.ClipAlignment.margin"><code class="docutils literal notranslate"><span class="pre">ClipAlignment.margin</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#mixing.audio.ClipAlignment.window_s"><code class="docutils literal notranslate"><span class="pre">ClipAlignment.window_s</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#mixing.audio.ClipAlignment.hop_s"><code class="docutils literal notranslate"><span class="pre">ClipAlignment.hop_s</span></code></a></li>
 </ul>
@@ -233,7 +235,7 @@
 </div>
 <dl class="py class">
 <dt class="sig sig-object py" id="mixing.audio.AlignedSpan">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">mixing.audio.</span></span><span class="sig-name descname"><span class="pre">AlignedSpan</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">clip_start_s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clip_end_s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">offset_s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">confidence</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">support</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/mixing/audio/audio_ops.html#AlignedSpan"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.audio.AlignedSpan" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">mixing.audio.</span></span><span class="sig-name descname"><span class="pre">AlignedSpan</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">clip_start_s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clip_end_s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">offset_s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">confidence</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">support</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">margin</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/mixing/audio/audio_ops.html#AlignedSpan"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.audio.AlignedSpan" title="Link to this definition"></a></dt>
 <dd><p>A maximal run of CLIP time that tracks the reference at one stable offset.</p>
 <p><code class="docutils literal notranslate"><span class="pre">align_clips_to_reference</span></code> answers “where does this clip sit?” with a single
 number, which is the right answer only when the clip is one continuous take of the
@@ -314,6 +316,29 @@ so reporting 1.0 there would be a unanimous vote of one — a number that
 vouches for an offset nothing corroborated. <code class="docutils literal notranslate"><span class="pre">None</span></code> says “not measured”,
 which a caller can fall back from; a manufactured 1.0 is what a caller
 trusts.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float | None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mixing.audio.AlignedSpan.margin">
+<span class="sig-name descname"><span class="pre">margin</span></span><a class="headerlink" href="#mixing.audio.AlignedSpan.margin" title="Link to this definition"></a></dt>
+<dd><p>How far this span’s <a class="reference internal" href="#mixing.audio.AlignedSpan.support" title="mixing.audio.AlignedSpan.support"><code class="xref py py-attr docutils literal notranslate"><span class="pre">support</span></code></a> tally sits above the tally for the
+best DIFFERENT offset — the best one outside <code class="docutils literal notranslate"><span class="pre">offset_tolerance_s</span></code> of this
+span’s — or <code class="docutils literal notranslate"><span class="pre">None</span></code> on the same quorum support is <code class="docutils literal notranslate"><span class="pre">None</span></code> on. Same
+statistic, same scale and same guidance as
+<a class="reference internal" href="#mixing.audio.ClipAlignment.margin" title="mixing.audio.ClipAlignment.margin"><code class="xref py py-attr docutils literal notranslate"><span class="pre">ClipAlignment.margin</span></code></a>, which documents both in full: support is the
+floor (“this much of the span’s evidence reaches here”), margin is the
+separator (“and nothing else has an equal claim”). Gate on both.</p>
+<p>It is the field that tells an exactly tiling reference from a merely
+repetitive one. Both report a middling support; only the tiling one reports
+a margin near zero, because there every alias is equally true and the span
+reports one of them without having chosen (issue #47).</p>
+<p>Two merged spans report the duration-weighted mean, and unmeasured plus
+measured is unmeasured — the same rule <a class="reference internal" href="#mixing.audio.AlignedSpan.support" title="mixing.audio.AlignedSpan.support"><code class="xref py py-attr docutils literal notranslate"><span class="pre">support</span></code></a> merges under.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>float | None</p>
@@ -720,7 +745,7 @@ rhythmic onset energy). Its frame <em>k</em> is at time <code class="docutils li
 
 <dl class="py class">
 <dt class="sig sig-object py" id="mixing.audio.ClipAlignment">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">mixing.audio.</span></span><span class="sig-name descname"><span class="pre">ClipAlignment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">offset_s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">confidence</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">duration_s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coverage</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overlaps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">support</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">window_s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hop_s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/mixing/audio/audio_ops.html#ClipAlignment"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.audio.ClipAlignment" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">mixing.audio.</span></span><span class="sig-name descname"><span class="pre">ClipAlignment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">offset_s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">confidence</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">duration_s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coverage</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overlaps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">support</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">margin</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">window_s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hop_s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/mixing/audio/audio_ops.html#ClipAlignment"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.audio.ClipAlignment" title="Link to this definition"></a></dt>
 <dd><p>Where one clip sits on a reference (song) timeline.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="mixing.audio.ClipAlignment.index">
@@ -867,6 +892,82 @@ two clips of different lengths are NOT at the same window unless both are long
 enough to sit at the default; a caller that ranks clips by support should pass
 an explicit <code class="docutils literal notranslate"><span class="pre">window_s</span></code> to put them back on one scale, or read
 <a class="reference internal" href="#mixing.audio.ClipAlignment.window_s" title="mixing.audio.ClipAlignment.window_s"><code class="xref py py-attr docutils literal notranslate"><span class="pre">window_s</span></code></a> and scale its threshold per clip.</p>
+<p>It says how much evidence reaches this offset and nothing about how much
+reaches somewhere else — see <a class="reference internal" href="#mixing.audio.ClipAlignment.margin" title="mixing.audio.ClipAlignment.margin"><code class="xref py py-attr docutils literal notranslate"><span class="pre">margin</span></code></a> for that half.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float | None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mixing.audio.ClipAlignment.margin">
+<span class="sig-name descname"><span class="pre">margin</span></span><a class="headerlink" href="#mixing.audio.ClipAlignment.margin" title="Link to this definition"></a></dt>
+<dd><p>How far <a class="reference internal" href="#mixing.audio.ClipAlignment.support" title="mixing.audio.ClipAlignment.support"><code class="xref py py-attr docutils literal notranslate"><span class="pre">support</span></code></a>’s tally for this offset sits above the tally for
+the best DIFFERENT offset — the best one outside <code class="docutils literal notranslate"><span class="pre">offset_tolerance_s</span></code> of
+it — or <code class="docutils literal notranslate"><span class="pre">None</span></code> when there was nothing to measure. Support says how much of
+the clip’s own evidence reaches this offset; margin says <strong>whether anything
+else has an equal claim</strong> (issue #47). A coefficient cannot answer that: on
+real material the wrong offset’s peak scored 0.987-0.993 of the right one’s,
+and support cannot answer it either, because an ambiguous tiling lands mid-
+scale by construction — every alias is genuinely well supported.</p>
+<p><strong>Scale.</strong> It is a difference of two support tallies, read on
+<a class="reference internal" href="#mixing.audio.ClipAlignment.support" title="mixing.audio.ClipAlignment.support"><code class="xref py py-attr docutils literal notranslate"><span class="pre">support</span></code></a>’s scale and in its units. <code class="docutils literal notranslate"><span class="pre">1.0</span></code> means every independent
+window found this offset unaided and no window put any other offset forward
+at all. <code class="docutils literal notranslate"><span class="pre">0.0</span></code> means some rival offset is backed by exactly as much of the
+clip’s evidence as the answer is.</p>
+<p><strong>A wide margin is not a claim of sub-tolerance precision.</strong> Differences
+smaller than <code class="docutils literal notranslate"><span class="pre">offset_tolerance_s</span></code> are one hypothesis by construction — the
+same equivalence the vote groups ballots by — so a candidate that close is
+the answer, not a runner-up, and never subtracts. Measured at the default
+tolerance: a rival 0.20 s away leaves the margin at 1.000, and the same
+rival at 0.30 s takes it to 0.505. The field says nothing has an equal claim
+<em>at a different offset</em>; how sharply the offset itself is located is
+<code class="docutils literal notranslate"><span class="pre">offset_tolerance_s</span></code>, and it is the caller’s to set. Where no window nominated any rival the
+runner-up’s tally is <code class="docutils literal notranslate"><span class="pre">0.0</span></code>, so the margin is simply the support — nothing
+else has any claim. It can come back slightly NEGATIVE: the offset is chosen
+by the vote’s headcount over every window, while the tally is graded and read
+over the independent subset only (<code class="xref py py-data docutils literal notranslate"><span class="pre">MAX_SUPPORT_OVERLAP</span></code>), so the two
+need not rank identically. A negative margin says the tally actually prefers
+somewhere else, which is the strongest “do not trust this” this object
+carries.</p>
+<p><strong>How to combine it with support.</strong> They answer different questions, and a
+trust gate wants both:</p>
+<ul class="simple">
+<li><p>high support, wide margin — the evidence points here, and nowhere else;</p></li>
+<li><p>high support, margin near zero — the clip fits here <em>and fits somewhere
+else exactly as well</em>. An exactly tiling reference is the pure case: every
+alias draws the same tally, and no estimator can say which one was meant;</p></li>
+<li><p>low support, wide margin — thin evidence, undisputed. A short clip on a
+repeating bed lands here (issue #45): no window’s argmax resolved the tile,
+so the tally sits near <code class="xref py py-data docutils literal notranslate"><span class="pre">BALLOT_VOTE_WEIGHT</span></code>, and yet no other offset
+drew any of it. This is the row a support-only gate refuses and should not;</p></li>
+<li><p>low support, margin near zero — nothing is known.</p></li>
+</ul>
+<p>So <strong>support is a floor and margin is a separator</strong>. Measured on the real
+cross-device material this was built for — 24 correct alignments against 6
+pure-noise clips — the separator is doing nearly all of the work:
+<code class="docutils literal notranslate"><span class="pre">support</span> <span class="pre">&gt;</span> <span class="pre">0.5</span></code> passed 18 of 24 and refused all 6; adding
+<code class="docutils literal notranslate"><span class="pre">and</span> <span class="pre">margin</span> <span class="pre">&gt;</span> <span class="pre">0</span></code> to it changed nothing (margin never refused what support
+passed); and <strong>``margin &gt; 0`` alone passed all 24 and still refused all 6</strong>,
+recovering every correct short clip the support floor was turning away.
+Five of the six noise clips came back NEGATIVE (-0.167 to -0.317) and no
+correct alignment did, so a negative margin is worth reading as a refusal
+rather than merely as a failure to vouch.</p>
+<p><strong>Keep a floor under it anyway.</strong> The sixth noise clip scored exactly
+<code class="docutils literal notranslate"><span class="pre">+0.000</span></code> — refused by an exact tie, which a different draw does not
+guarantee — and two correct alignments passed at <code class="docutils literal notranslate"><span class="pre">+0.014</span></code> and <code class="docutils literal notranslate"><span class="pre">+0.029</span></code>
+on a support of 0.34-0.35, which is the “thin evidence, undisputed” row with
+nothing beneath it. A conjunction such as <code class="docutils literal notranslate"><span class="pre">support</span> <span class="pre">&gt;</span> <span class="pre">0.25</span> <span class="pre">and</span> <span class="pre">margin</span> <span class="pre">&gt;</span> <span class="pre">0</span></code>
+scored the same 24/6 there while giving five of the six noise clips a second,
+independent reason to fail. Thirty cases is encouraging and is not proof.</p>
+<p>Margin is relative to <a class="reference internal" href="#mixing.audio.ClipAlignment.window_s" title="mixing.audio.ClipAlignment.window_s"><code class="xref py py-attr docutils literal notranslate"><span class="pre">window_s</span></code></a> for exactly the reason support is —
+it is built from the same tally — so a threshold on it moves with the window
+the same way.</p>
+<p><strong>``None`` means unmeasured</strong>, never manufactured, on the same quorum as
+<a class="reference internal" href="#mixing.audio.ClipAlignment.support" title="mixing.audio.ClipAlignment.support"><code class="xref py py-attr docutils literal notranslate"><span class="pre">support</span></code></a> (<code class="xref py py-data docutils literal notranslate"><span class="pre">MIN_WINDOWS_FOR_SUPPORT</span></code>): one independent look has
+no runner-up to be ahead of, and a number invented there would VOUCH.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>float | None</p>
@@ -1057,11 +1158,12 @@ it returns whichever repeat won a coin flip, and its coefficient does not
 drop when it does. A spurious peak lands at a different lag in every window
 while the true offset is the one they share, so the windows’ agreement is
 what separates them — and how much of the clip agrees is reported as
-<a class="reference internal" href="#mixing.audio.ClipAlignment.support" title="mixing.audio.ClipAlignment.support"><code class="xref py py-attr docutils literal notranslate"><span class="pre">support</span></code></a>. <code class="docutils literal notranslate"><span class="pre">False</span></code> restores the single whole-clip
-correlation exactly — same offset, same confidence, and <code class="docutils literal notranslate"><span class="pre">support=None</span></code>
-because nothing was put to a vote. It is cheaper (one correlation instead of
-one per window) and is the right choice only when the reference is known not
-to repeat.</p></li>
+<a class="reference internal" href="#mixing.audio.ClipAlignment.support" title="mixing.audio.ClipAlignment.support"><code class="xref py py-attr docutils literal notranslate"><span class="pre">support</span></code></a>, with how far that is ahead of the runner-up
+offset as <a class="reference internal" href="#mixing.audio.ClipAlignment.margin" title="mixing.audio.ClipAlignment.margin"><code class="xref py py-attr docutils literal notranslate"><span class="pre">margin</span></code></a>. <code class="docutils literal notranslate"><span class="pre">False</span></code> restores the single
+whole-clip correlation exactly — same offset, same confidence, and
+<code class="docutils literal notranslate"><span class="pre">support=None</span></code>, <code class="docutils literal notranslate"><span class="pre">margin=None</span></code> because nothing was put to a vote. It
+is cheaper (one correlation instead of one per window) and is the right
+choice only when the reference is known not to repeat.</p></li>
 <li><p><strong>window_s</strong> – Analysis window for the vote. Ignored when <code class="docutils literal notranslate"><span class="pre">consensus</span></code> is False.
 <code class="docutils literal notranslate"><span class="pre">None</span></code> (the default) <strong>fits the window to each clip</strong> — see
 <code class="xref py py-func docutils literal notranslate"><span class="pre">_clip_window_and_hop()</span></code>: <code class="docutils literal notranslate"><span class="pre">min(20</span> <span class="pre">s,</span> <span class="pre">clip_duration</span> <span class="pre">/</span> <span class="pre">3)</span></code>, floored at
@@ -1141,6 +1243,14 @@ reference with no repeats, less where the crowd had to intervene, and very littl
 an exactly tiling reference where there is genuinely no unique answer. <strong>Gate on
 both.</strong> High confidence with low support means “it fits here beautifully, and it
 would fit elsewhere too”.</p>
+<p><strong>And ``support`` in turn cannot see a runner-up</strong>, which is what
+<a class="reference internal" href="#mixing.audio.AlignedSpan.margin" title="mixing.audio.AlignedSpan.margin"><code class="xref py py-attr docutils literal notranslate"><span class="pre">margin</span></code></a> is for (issue #47). Support measures how much of the
+span’s evidence reaches this offset; on an exactly tiling reference every alias is
+reached by the same evidence, so each of them would report a similar middling
+support and none of them is more true than the others. The margin — this offset’s
+tally minus the best other offset’s — reads near zero exactly there, and stays wide
+where a short clip’s thin evidence is nonetheless undisputed. <strong>Support is a floor;
+margin is a separator.</strong></p>
 <p>A span too short to hold a disagreement reports <code class="docutils literal notranslate"><span class="pre">support=None</span></code>, meaning <em>not
 measured</em> — never 1.0. One window agrees with itself, and a unanimous vote of one
 is exactly the kind of number a caller would trust and should not.</p>

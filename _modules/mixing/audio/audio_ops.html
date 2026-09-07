@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>mixing.audio.audio_ops &mdash; mixing 0.0.49 documentation</title>
+  <title>mixing.audio.audio_ops &mdash; mixing 0.0.50 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
@@ -14,7 +14,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=0356c229"></script>
+      <script src="../../../_static/documentation_options.js?v=e072a57b"></script>
       <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="../../../_static/toggleprompt.js?v=d7ede5d2"></script>
@@ -2172,6 +2172,79 @@
 <span class="sd">            enough to sit at the default; a caller that ranks clips by support should pass</span>
 <span class="sd">            an explicit ``window_s`` to put them back on one scale, or read</span>
 <span class="sd">            :attr:`window_s` and scale its threshold per clip.</span>
+
+<span class="sd">            It says how much evidence reaches this offset and nothing about how much</span>
+<span class="sd">            reaches somewhere else — see :attr:`margin` for that half.</span>
+<span class="sd">        margin: How far :attr:`support`'s tally for this offset sits above the tally for</span>
+<span class="sd">            the best DIFFERENT offset — the best one outside ``offset_tolerance_s`` of</span>
+<span class="sd">            it — or ``None`` when there was nothing to measure. Support says how much of</span>
+<span class="sd">            the clip's own evidence reaches this offset; margin says **whether anything</span>
+<span class="sd">            else has an equal claim** (issue #47). A coefficient cannot answer that: on</span>
+<span class="sd">            real material the wrong offset's peak scored 0.987-0.993 of the right one's,</span>
+<span class="sd">            and support cannot answer it either, because an ambiguous tiling lands mid-</span>
+<span class="sd">            scale by construction — every alias is genuinely well supported.</span>
+
+<span class="sd">            **Scale.** It is a difference of two support tallies, read on</span>
+<span class="sd">            :attr:`support`'s scale and in its units. ``1.0`` means every independent</span>
+<span class="sd">            window found this offset unaided and no window put any other offset forward</span>
+<span class="sd">            at all. ``0.0`` means some rival offset is backed by exactly as much of the</span>
+<span class="sd">            clip's evidence as the answer is.</span>
+
+<span class="sd">            **A wide margin is not a claim of sub-tolerance precision.** Differences</span>
+<span class="sd">            smaller than ``offset_tolerance_s`` are one hypothesis by construction — the</span>
+<span class="sd">            same equivalence the vote groups ballots by — so a candidate that close is</span>
+<span class="sd">            the answer, not a runner-up, and never subtracts. Measured at the default</span>
+<span class="sd">            tolerance: a rival 0.20 s away leaves the margin at 1.000, and the same</span>
+<span class="sd">            rival at 0.30 s takes it to 0.505. The field says nothing has an equal claim</span>
+<span class="sd">            *at a different offset*; how sharply the offset itself is located is</span>
+<span class="sd">            ``offset_tolerance_s``, and it is the caller's to set. Where no window nominated any rival the</span>
+<span class="sd">            runner-up's tally is ``0.0``, so the margin is simply the support — nothing</span>
+<span class="sd">            else has any claim. It can come back slightly NEGATIVE: the offset is chosen</span>
+<span class="sd">            by the vote's headcount over every window, while the tally is graded and read</span>
+<span class="sd">            over the independent subset only (:data:`MAX_SUPPORT_OVERLAP`), so the two</span>
+<span class="sd">            need not rank identically. A negative margin says the tally actually prefers</span>
+<span class="sd">            somewhere else, which is the strongest "do not trust this" this object</span>
+<span class="sd">            carries.</span>
+
+<span class="sd">            **How to combine it with support.** They answer different questions, and a</span>
+<span class="sd">            trust gate wants both:</span>
+
+<span class="sd">            - high support, wide margin — the evidence points here, and nowhere else;</span>
+<span class="sd">            - high support, margin near zero — the clip fits here *and fits somewhere</span>
+<span class="sd">              else exactly as well*. An exactly tiling reference is the pure case: every</span>
+<span class="sd">              alias draws the same tally, and no estimator can say which one was meant;</span>
+<span class="sd">            - low support, wide margin — thin evidence, undisputed. A short clip on a</span>
+<span class="sd">              repeating bed lands here (issue #45): no window's argmax resolved the tile,</span>
+<span class="sd">              so the tally sits near :data:`BALLOT_VOTE_WEIGHT`, and yet no other offset</span>
+<span class="sd">              drew any of it. This is the row a support-only gate refuses and should not;</span>
+<span class="sd">            - low support, margin near zero — nothing is known.</span>
+
+<span class="sd">            So **support is a floor and margin is a separator**. Measured on the real</span>
+<span class="sd">            cross-device material this was built for — 24 correct alignments against 6</span>
+<span class="sd">            pure-noise clips — the separator is doing nearly all of the work:</span>
+<span class="sd">            ``support &gt; 0.5`` passed 18 of 24 and refused all 6; adding</span>
+<span class="sd">            ``and margin &gt; 0`` to it changed nothing (margin never refused what support</span>
+<span class="sd">            passed); and **``margin &gt; 0`` alone passed all 24 and still refused all 6**,</span>
+<span class="sd">            recovering every correct short clip the support floor was turning away.</span>
+<span class="sd">            Five of the six noise clips came back NEGATIVE (-0.167 to -0.317) and no</span>
+<span class="sd">            correct alignment did, so a negative margin is worth reading as a refusal</span>
+<span class="sd">            rather than merely as a failure to vouch.</span>
+
+<span class="sd">            **Keep a floor under it anyway.** The sixth noise clip scored exactly</span>
+<span class="sd">            ``+0.000`` — refused by an exact tie, which a different draw does not</span>
+<span class="sd">            guarantee — and two correct alignments passed at ``+0.014`` and ``+0.029``</span>
+<span class="sd">            on a support of 0.34-0.35, which is the "thin evidence, undisputed" row with</span>
+<span class="sd">            nothing beneath it. A conjunction such as ``support &gt; 0.25 and margin &gt; 0``</span>
+<span class="sd">            scored the same 24/6 there while giving five of the six noise clips a second,</span>
+<span class="sd">            independent reason to fail. Thirty cases is encouraging and is not proof.</span>
+
+<span class="sd">            Margin is relative to :attr:`window_s` for exactly the reason support is —</span>
+<span class="sd">            it is built from the same tally — so a threshold on it moves with the window</span>
+<span class="sd">            the same way.</span>
+
+<span class="sd">            **``None`` means unmeasured**, never manufactured, on the same quorum as</span>
+<span class="sd">            :attr:`support` (:data:`MIN_WINDOWS_FOR_SUPPORT`): one independent look has</span>
+<span class="sd">            no runner-up to be ahead of, and a number invented there would VOUCH.</span>
 <span class="sd">        window_s: The analysis window this clip's vote was actually held at, in seconds —</span>
 <span class="sd">            **the scale :attr:`support` is expressed on**, reported because since the</span>
 <span class="sd">            window is fitted to the clip it is no longer something the caller can infer</span>
@@ -2222,6 +2295,7 @@
     <span class="n">coverage</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span>
     <span class="n">overlaps</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
     <span class="n">support</span><span class="p">:</span> <span class="s2">"float | None"</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">margin</span><span class="p">:</span> <span class="s2">"float | None"</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">window_s</span><span class="p">:</span> <span class="s2">"float | None"</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">hop_s</span><span class="p">:</span> <span class="s2">"float | None"</span> <span class="o">=</span> <span class="kc">None</span></div>
 
@@ -2345,11 +2419,12 @@
 <span class="sd">            drop when it does. A spurious peak lands at a different lag in every window</span>
 <span class="sd">            while the true offset is the one they share, so the windows' agreement is</span>
 <span class="sd">            what separates them — and how much of the clip agrees is reported as</span>
-<span class="sd">            :attr:`~ClipAlignment.support`. ``False`` restores the single whole-clip</span>
-<span class="sd">            correlation exactly — same offset, same confidence, and ``support=None``</span>
-<span class="sd">            because nothing was put to a vote. It is cheaper (one correlation instead of</span>
-<span class="sd">            one per window) and is the right choice only when the reference is known not</span>
-<span class="sd">            to repeat.</span>
+<span class="sd">            :attr:`~ClipAlignment.support`, with how far that is ahead of the runner-up</span>
+<span class="sd">            offset as :attr:`~ClipAlignment.margin`. ``False`` restores the single</span>
+<span class="sd">            whole-clip correlation exactly — same offset, same confidence, and</span>
+<span class="sd">            ``support=None``, ``margin=None`` because nothing was put to a vote. It</span>
+<span class="sd">            is cheaper (one correlation instead of one per window) and is the right</span>
+<span class="sd">            choice only when the reference is known not to repeat.</span>
 <span class="sd">        window_s: Analysis window for the vote. Ignored when ``consensus`` is False.</span>
 <span class="sd">            ``None`` (the default) **fits the window to each clip** — see</span>
 <span class="sd">            :func:`_clip_window_and_hop`: ``min(20 s, clip_duration / 3)``, floored at</span>
@@ -2408,7 +2483,7 @@
                 <span class="n">window_s</span><span class="o">=</span><span class="n">window_s</span><span class="p">,</span>
                 <span class="n">hop_s</span><span class="o">=</span><span class="n">hop_s</span><span class="p">,</span>
             <span class="p">)</span>
-            <span class="n">offset_s</span><span class="p">,</span> <span class="n">coeff</span><span class="p">,</span> <span class="n">support</span> <span class="o">=</span> <span class="n">_consensus_alignment</span><span class="p">(</span>
+            <span class="n">offset_s</span><span class="p">,</span> <span class="n">coeff</span><span class="p">,</span> <span class="n">support</span><span class="p">,</span> <span class="n">margin</span> <span class="o">=</span> <span class="n">_consensus_alignment</span><span class="p">(</span>
                 <span class="n">ref</span><span class="p">,</span>
                 <span class="n">query</span><span class="p">,</span>
                 <span class="n">sample_rate</span><span class="p">,</span>
@@ -2428,15 +2503,16 @@
                 <span class="n">min_overlap_ratio</span><span class="o">=</span><span class="n">min_overlap_ratio</span><span class="p">,</span>
                 <span class="n">ref_envelope</span><span class="o">=</span><span class="n">ref_env</span><span class="p">,</span>
             <span class="p">)</span>
-            <span class="c1"># Nothing was put to a vote, so neither support nor the window it would be</span>
-            <span class="c1"># relative to exists — and support is never 1.0 here.</span>
-            <span class="n">offset_s</span><span class="p">,</span> <span class="n">support</span> <span class="o">=</span> <span class="n">lag</span> <span class="o">/</span> <span class="n">sample_rate</span><span class="p">,</span> <span class="kc">None</span>
+            <span class="c1"># Nothing was put to a vote, so neither support, nor the margin over a</span>
+            <span class="c1"># runner-up, nor the window they would be relative to exists — and support</span>
+            <span class="c1"># is never 1.0 here.</span>
+            <span class="n">offset_s</span><span class="p">,</span> <span class="n">support</span><span class="p">,</span> <span class="n">margin</span> <span class="o">=</span> <span class="n">lag</span> <span class="o">/</span> <span class="n">sample_rate</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
             <span class="n">clip_window_s</span> <span class="o">=</span> <span class="n">clip_hop_s</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">lag</span><span class="p">,</span> <span class="n">coeff</span> <span class="o">=</span> <span class="n">_normalized_xcorr</span><span class="p">(</span>
                 <span class="n">ref</span><span class="p">,</span> <span class="n">query</span><span class="p">,</span> <span class="n">min_overlap_ratio</span><span class="o">=</span><span class="n">min_overlap_ratio</span>
             <span class="p">)</span>
-            <span class="n">offset_s</span><span class="p">,</span> <span class="n">support</span> <span class="o">=</span> <span class="n">lag</span> <span class="o">/</span> <span class="n">sample_rate</span><span class="p">,</span> <span class="kc">None</span>
+            <span class="n">offset_s</span><span class="p">,</span> <span class="n">support</span><span class="p">,</span> <span class="n">margin</span> <span class="o">=</span> <span class="n">lag</span> <span class="o">/</span> <span class="n">sample_rate</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
             <span class="n">clip_window_s</span> <span class="o">=</span> <span class="n">clip_hop_s</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="n">dur_s</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">query</span><span class="p">)</span> <span class="o">/</span> <span class="n">sample_rate</span>
         <span class="n">start</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">offset_s</span><span class="p">)</span>
@@ -2451,6 +2527,7 @@
                 <span class="n">coverage</span><span class="o">=</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">)</span> <span class="k">if</span> <span class="n">overlaps</span> <span class="k">else</span> <span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">start</span><span class="p">),</span>
                 <span class="n">overlaps</span><span class="o">=</span><span class="n">overlaps</span><span class="p">,</span>
                 <span class="n">support</span><span class="o">=</span><span class="n">support</span><span class="p">,</span>
+                <span class="n">margin</span><span class="o">=</span><span class="n">margin</span><span class="p">,</span>
                 <span class="n">window_s</span><span class="o">=</span><span class="n">clip_window_s</span><span class="p">,</span>
                 <span class="n">hop_s</span><span class="o">=</span><span class="n">clip_hop_s</span><span class="p">,</span>
             <span class="p">)</span>
@@ -2567,6 +2644,24 @@
     <span class="n">counted</span> <span class="o">=</span> <span class="n">_independent_windows</span><span class="p">(</span><span class="n">windows</span><span class="p">)</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">counted</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">MIN_WINDOWS_FOR_SUPPORT</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">None</span>
+    <span class="k">return</span> <span class="n">_graded_tally</span><span class="p">(</span><span class="n">counted</span><span class="p">,</span> <span class="n">offset_s</span><span class="p">,</span> <span class="n">offset_tolerance_s</span><span class="o">=</span><span class="n">offset_tolerance_s</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_graded_tally</span><span class="p">(</span>
+    <span class="n">counted</span><span class="p">:</span> <span class="s2">"Sequence[_WindowMeasurement]"</span><span class="p">,</span>
+    <span class="n">offset_s</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">offset_tolerance_s</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""The mean of :func:`_window_agreement` over ALREADY-independent windows.</span>
+
+<span class="sd">    Split out from :func:`_support_fraction` because the same tally has to be read at</span>
+<span class="sd">    more than one offset: :func:`_support_margin` compares the winner's against every</span>
+<span class="sd">    rival's, and a margin between two numbers computed different ways would not be a</span>
+<span class="sd">    margin. The quorum rule and the ``None`` live with the caller — this is arithmetic</span>
+<span class="sd">    over the windows it is handed, and it assumes they were already filtered by</span>
+<span class="sd">    :func:`_independent_windows`.</span>
+<span class="sd">    """</span>
     <span class="c1"># The weight is looked up here rather than left to the helper's default so that</span>
     <span class="c1"># setting it to 0 — which is exactly the argmax headcount this replaced — is a thing a</span>
     <span class="c1"># characterization test can do, the way `near_tie_ratio=0.0` restores the pre-#30</span>
@@ -2583,6 +2678,71 @@
     <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">agreement</span><span class="p">))</span>
 
 
+<span class="k">def</span><span class="w"> </span><span class="nf">_rival_offsets</span><span class="p">(</span>
+    <span class="n">counted</span><span class="p">:</span> <span class="s2">"Sequence[_WindowMeasurement]"</span><span class="p">,</span>
+    <span class="n">offset_s</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">offset_tolerance_s</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"list[float]"</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""The DISTINCT offsets these windows put forward that are not ``offset_s``.</span>
+
+<span class="sd">    One representative per cluster: a candidate within ``offset_tolerance_s`` of one</span>
+<span class="sd">    already collected is the same hypothesis seen from another window — the same</span>
+<span class="sd">    equivalence :func:`_consensus_choice` groups ballots by — and counting a peak's</span>
+<span class="sd">    shoulders as several rivals would understate the margin for no reason.</span>
+
+<span class="sd">    Read off the windows' OWN ballots, so a rival exists only because some window</span>
+<span class="sd">    nominated it. An offset nobody put forward is not a runner-up; it is a number.</span>
+<span class="sd">    """</span>
+    <span class="n">rivals</span><span class="p">:</span> <span class="s2">"list[float]"</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">window</span> <span class="ow">in</span> <span class="n">counted</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">candidate_offset</span><span class="p">,</span> <span class="n">_score</span> <span class="ow">in</span> <span class="n">window</span><span class="o">.</span><span class="n">candidates</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">candidate_offset</span> <span class="o">-</span> <span class="n">offset_s</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">offset_tolerance_s</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">candidate_offset</span> <span class="o">-</span> <span class="n">r</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">offset_tolerance_s</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">rivals</span><span class="p">):</span>
+                <span class="k">continue</span>
+            <span class="n">rivals</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">candidate_offset</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">rivals</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_support_margin</span><span class="p">(</span>
+    <span class="n">windows</span><span class="p">:</span> <span class="s2">"Sequence[_WindowMeasurement]"</span><span class="p">,</span>
+    <span class="n">offset_s</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">offset_tolerance_s</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"float | None"</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""How far ``offset_s``' tally sits above the best DIFFERENT offset's, or ``None``.</span>
+
+<span class="sd">    :func:`_support_fraction` answers "how much of the clip's evidence reaches here".</span>
+<span class="sd">    This answers the question that one cannot: **"and how much reaches somewhere else</span>
+<span class="sd">    instead?"** (issue #47). Both are the same :func:`_graded_tally` over the same</span>
+<span class="sd">    independent windows, so the difference is a difference of like for like.</span>
+
+<span class="sd">    The runner-up is the best-tallying offset outside ``offset_tolerance_s`` of the</span>
+<span class="sd">    winner — not the second-best voting group. The two differ exactly on the case that</span>
+<span class="sd">    matters: on an exactly tiling reference every alias draws the same tally, and the</span>
+<span class="sd">    aliases are what a caller needs to hear about. With no rival on any ballot the best</span>
+<span class="sd">    rival tally is ``0.0``, so the margin is the winner's tally itself — nothing else</span>
+<span class="sd">    has any claim at all.</span>
+
+<span class="sd">    ``None`` follows the same quorum rule as support and for the same reason: one</span>
+<span class="sd">    independent look cannot have a runner-up, and a manufactured margin VOUCHES.</span>
+<span class="sd">    """</span>
+    <span class="n">counted</span> <span class="o">=</span> <span class="n">_independent_windows</span><span class="p">(</span><span class="n">windows</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">counted</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">MIN_WINDOWS_FOR_SUPPORT</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="n">tally</span> <span class="o">=</span> <span class="n">_graded_tally</span><span class="p">(</span><span class="n">counted</span><span class="p">,</span> <span class="n">offset_s</span><span class="p">,</span> <span class="n">offset_tolerance_s</span><span class="o">=</span><span class="n">offset_tolerance_s</span><span class="p">)</span>
+    <span class="n">rivals</span> <span class="o">=</span> <span class="n">_rival_offsets</span><span class="p">(</span><span class="n">counted</span><span class="p">,</span> <span class="n">offset_s</span><span class="p">,</span> <span class="n">offset_tolerance_s</span><span class="o">=</span><span class="n">offset_tolerance_s</span><span class="p">)</span>
+    <span class="n">best_rival</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span>
+        <span class="p">(</span>
+            <span class="n">_graded_tally</span><span class="p">(</span><span class="n">counted</span><span class="p">,</span> <span class="n">rival</span><span class="p">,</span> <span class="n">offset_tolerance_s</span><span class="o">=</span><span class="n">offset_tolerance_s</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">rival</span> <span class="ow">in</span> <span class="n">rivals</span>
+        <span class="p">),</span>
+        <span class="n">default</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">tally</span> <span class="o">-</span> <span class="n">best_rival</span>
+
+
 <span class="k">def</span><span class="w"> </span><span class="nf">_consensus_alignment</span><span class="p">(</span>
     <span class="n">ref</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
     <span class="n">clip</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
@@ -2595,8 +2755,8 @@
     <span class="n">near_tie_ratio</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
     <span class="n">offset_tolerance_s</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
     <span class="n">ref_envelope</span><span class="p">:</span> <span class="s2">"tuple[np.ndarray, float] | None"</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"tuple[float, float, float]"</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">"""One ``(offset_s, confidence, support)`` for a whole clip, by majority of windows.</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"tuple[float, float, float | None, float | None]"</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""One ``(offset_s, confidence, support, margin)`` for a clip, by majority of windows.</span>
 
 <span class="sd">    The whole-clip counterpart of what :func:`aligned_spans` does per span, for the</span>
 <span class="sd">    caller who wants one number. The clip is cut into windows, each window's near-tied</span>
@@ -2621,7 +2781,9 @@
 <span class="sd">    **Two offsets can genuinely tie.** A clip that fits equally often in two places</span>
 <span class="sd">    splits its windows evenly and no evidence separates them; one is returned, with a</span>
 <span class="sd">    support near 0.5 that is the honest report of a 50/50 — not a hedge, and not a claim</span>
-<span class="sd">    to have chosen.</span>
+<span class="sd">    to have chosen. ``margin`` is what makes that legible from the outside: it reads</span>
+<span class="sd">    near zero there, and wide where the runner-up is genuinely behind</span>
+<span class="sd">    (:func:`_support_margin`).</span>
 <span class="sd">    """</span>
     <span class="n">windows</span> <span class="o">=</span> <span class="n">_consensus_choice</span><span class="p">(</span>
         <span class="n">_window_offsets</span><span class="p">(</span>
@@ -2639,7 +2801,7 @@
         <span class="n">offset_tolerance_s</span><span class="o">=</span><span class="n">offset_tolerance_s</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">windows</span><span class="p">:</span>  <span class="c1"># an empty clip has no windows and so no opinion</span>
-        <span class="k">return</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
     <span class="n">offsets</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">w</span><span class="o">.</span><span class="n">offset_s</span> <span class="k">for</span> <span class="n">w</span> <span class="ow">in</span> <span class="n">windows</span><span class="p">])</span>
     <span class="n">coeffs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">w</span><span class="o">.</span><span class="n">confidence</span> <span class="k">for</span> <span class="n">w</span> <span class="ow">in</span> <span class="n">windows</span><span class="p">])</span>
     <span class="n">agree</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">offsets</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">-</span> <span class="n">offsets</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="p">:])</span> <span class="o">&lt;=</span> <span class="n">offset_tolerance_s</span>
@@ -2654,7 +2816,8 @@
     <span class="n">support</span> <span class="o">=</span> <span class="n">_support_fraction</span><span class="p">(</span>
         <span class="n">windows</span><span class="p">,</span> <span class="n">offset_s</span><span class="p">,</span> <span class="n">offset_tolerance_s</span><span class="o">=</span><span class="n">offset_tolerance_s</span>
     <span class="p">)</span>
-    <span class="k">return</span> <span class="n">offset_s</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">coeffs</span><span class="p">[</span><span class="n">members</span><span class="p">])),</span> <span class="n">support</span>
+    <span class="n">margin</span> <span class="o">=</span> <span class="n">_support_margin</span><span class="p">(</span><span class="n">windows</span><span class="p">,</span> <span class="n">offset_s</span><span class="p">,</span> <span class="n">offset_tolerance_s</span><span class="o">=</span><span class="n">offset_tolerance_s</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">offset_s</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">coeffs</span><span class="p">[</span><span class="n">members</span><span class="p">])),</span> <span class="n">support</span><span class="p">,</span> <span class="n">margin</span>
 
 
 <div class="viewcode-block" id="AlignedSpan">
@@ -2702,6 +2865,21 @@
 <span class="sd">            vouches for an offset nothing corroborated. ``None`` says "not measured",</span>
 <span class="sd">            which a caller can fall back from; a manufactured 1.0 is what a caller</span>
 <span class="sd">            trusts.</span>
+<span class="sd">        margin: How far this span's :attr:`support` tally sits above the tally for the</span>
+<span class="sd">            best DIFFERENT offset — the best one outside ``offset_tolerance_s`` of this</span>
+<span class="sd">            span's — or ``None`` on the same quorum support is ``None`` on. Same</span>
+<span class="sd">            statistic, same scale and same guidance as</span>
+<span class="sd">            :attr:`ClipAlignment.margin`, which documents both in full: support is the</span>
+<span class="sd">            floor ("this much of the span's evidence reaches here"), margin is the</span>
+<span class="sd">            separator ("and nothing else has an equal claim"). Gate on both.</span>
+
+<span class="sd">            It is the field that tells an exactly tiling reference from a merely</span>
+<span class="sd">            repetitive one. Both report a middling support; only the tiling one reports</span>
+<span class="sd">            a margin near zero, because there every alias is equally true and the span</span>
+<span class="sd">            reports one of them without having chosen (issue #47).</span>
+
+<span class="sd">            Two merged spans report the duration-weighted mean, and unmeasured plus</span>
+<span class="sd">            measured is unmeasured — the same rule :attr:`support` merges under.</span>
 <span class="sd">    """</span>
 
     <span class="n">clip_start_s</span><span class="p">:</span> <span class="nb">float</span>
@@ -2709,6 +2887,7 @@
     <span class="n">offset_s</span><span class="p">:</span> <span class="nb">float</span>
     <span class="n">confidence</span><span class="p">:</span> <span class="nb">float</span>
     <span class="n">support</span><span class="p">:</span> <span class="s2">"float | None"</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">margin</span><span class="p">:</span> <span class="s2">"float | None"</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">duration_s</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
@@ -2779,6 +2958,15 @@
 <span class="sd">    an exactly tiling reference where there is genuinely no unique answer. **Gate on</span>
 <span class="sd">    both.** High confidence with low support means "it fits here beautifully, and it</span>
 <span class="sd">    would fit elsewhere too".</span>
+
+<span class="sd">    **And ``support`` in turn cannot see a runner-up**, which is what</span>
+<span class="sd">    :attr:`~AlignedSpan.margin` is for (issue #47). Support measures how much of the</span>
+<span class="sd">    span's evidence reaches this offset; on an exactly tiling reference every alias is</span>
+<span class="sd">    reached by the same evidence, so each of them would report a similar middling</span>
+<span class="sd">    support and none of them is more true than the others. The margin — this offset's</span>
+<span class="sd">    tally minus the best other offset's — reads near zero exactly there, and stays wide</span>
+<span class="sd">    where a short clip's thin evidence is nonetheless undisputed. **Support is a floor;</span>
+<span class="sd">    margin is a separator.**</span>
 
 <span class="sd">    A span too short to hold a disagreement reports ``support=None``, meaning *not</span>
 <span class="sd">    measured* — never 1.0. One window agrees with itself, and a unanimous vote of one</span>
@@ -3103,15 +3291,21 @@
 <span class="sd">    information at all. A run too short to hold a disagreement</span>
 <span class="sd">    (:data:`MIN_WINDOWS_FOR_SUPPORT`) reports ``None`` for the same reason: 1.0 there</span>
 <span class="sd">    would be a unanimous vote of one.</span>
+
+<span class="sd">    ``margin`` is read off the same ballots at the same time (:func:`_support_margin`),</span>
+<span class="sd">    because the question support cannot answer — whether any OTHER offset is backed by</span>
+<span class="sd">    as much of this run's evidence — is answerable from exactly the same windows.</span>
 <span class="sd">    """</span>
     <span class="n">offset</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">([</span><span class="n">m</span><span class="o">.</span><span class="n">offset_s</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">run</span><span class="p">]))</span>
     <span class="n">support</span> <span class="o">=</span> <span class="n">_support_fraction</span><span class="p">(</span><span class="n">run</span><span class="p">,</span> <span class="n">offset</span><span class="p">,</span> <span class="n">offset_tolerance_s</span><span class="o">=</span><span class="n">offset_tolerance_s</span><span class="p">)</span>
+    <span class="n">margin</span> <span class="o">=</span> <span class="n">_support_margin</span><span class="p">(</span><span class="n">run</span><span class="p">,</span> <span class="n">offset</span><span class="p">,</span> <span class="n">offset_tolerance_s</span><span class="o">=</span><span class="n">offset_tolerance_s</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">AlignedSpan</span><span class="p">(</span>
         <span class="n">clip_start_s</span><span class="o">=</span><span class="n">run</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">clip_start_s</span><span class="p">,</span>
         <span class="n">clip_end_s</span><span class="o">=</span><span class="n">run</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">clip_end_s</span><span class="p">,</span>
         <span class="n">offset_s</span><span class="o">=</span><span class="n">offset</span><span class="p">,</span>
         <span class="n">confidence</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">([</span><span class="n">m</span><span class="o">.</span><span class="n">confidence</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">run</span><span class="p">])),</span>
         <span class="n">support</span><span class="o">=</span><span class="n">support</span><span class="p">,</span>
+        <span class="n">margin</span><span class="o">=</span><span class="n">margin</span><span class="p">,</span>
     <span class="p">)</span>
 
 
@@ -3205,6 +3399,7 @@
                     <span class="o">/</span> <span class="nb">max</span><span class="p">(</span><span class="n">prev</span><span class="o">.</span><span class="n">duration_s</span> <span class="o">+</span> <span class="n">span</span><span class="o">.</span><span class="n">duration_s</span><span class="p">,</span> <span class="mf">1e-9</span><span class="p">),</span>
                     <span class="n">confidence</span><span class="o">=</span><span class="nb">min</span><span class="p">(</span><span class="n">prev</span><span class="o">.</span><span class="n">confidence</span><span class="p">,</span> <span class="n">span</span><span class="o">.</span><span class="n">confidence</span><span class="p">),</span>
                     <span class="n">support</span><span class="o">=</span><span class="n">_merge_support</span><span class="p">(</span><span class="n">prev</span><span class="p">,</span> <span class="n">span</span><span class="p">),</span>
+                    <span class="n">margin</span><span class="o">=</span><span class="n">_merge_margin</span><span class="p">(</span><span class="n">prev</span><span class="p">,</span> <span class="n">span</span><span class="p">),</span>
                 <span class="p">)</span>
                 <span class="k">continue</span>
         <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">span</span><span class="p">)</span>
@@ -3220,10 +3415,37 @@
 <span class="sd">    other side's) would let a stretch nothing corroborated inherit the vouching of the</span>
 <span class="sd">    stretch beside it. Unmeasured plus measured is unmeasured.</span>
 <span class="sd">    """</span>
-    <span class="k">if</span> <span class="n">a</span><span class="o">.</span><span class="n">support</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">b</span><span class="o">.</span><span class="n">support</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">_merge_statistic</span><span class="p">(</span>
+        <span class="n">a</span><span class="o">.</span><span class="n">support</span><span class="p">,</span> <span class="n">b</span><span class="o">.</span><span class="n">support</span><span class="p">,</span> <span class="n">a_duration_s</span><span class="o">=</span><span class="n">a</span><span class="o">.</span><span class="n">duration_s</span><span class="p">,</span> <span class="n">b_duration_s</span><span class="o">=</span><span class="n">b</span><span class="o">.</span><span class="n">duration_s</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_merge_margin</span><span class="p">(</span><span class="n">a</span><span class="p">:</span> <span class="s2">"AlignedSpan"</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="s2">"AlignedSpan"</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"float | None"</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""The margin of two merged spans — the same rule :func:`_merge_support` uses.</span>
+
+<span class="sd">    Deliberately not recomputed from the merged run: the two spans were measured on</span>
+<span class="sd">    their own windows and the merge joins them across a gap nothing verified, so there</span>
+<span class="sd">    is no combined ballot to read a runner-up off. Averaging what was measured is the</span>
+<span class="sd">    honest move, and the ``None`` rule matters more here than for support — a span with</span>
+<span class="sd">    no runner-up measured must not inherit its neighbour's separation.</span>
+<span class="sd">    """</span>
+    <span class="k">return</span> <span class="n">_merge_statistic</span><span class="p">(</span>
+        <span class="n">a</span><span class="o">.</span><span class="n">margin</span><span class="p">,</span> <span class="n">b</span><span class="o">.</span><span class="n">margin</span><span class="p">,</span> <span class="n">a_duration_s</span><span class="o">=</span><span class="n">a</span><span class="o">.</span><span class="n">duration_s</span><span class="p">,</span> <span class="n">b_duration_s</span><span class="o">=</span><span class="n">b</span><span class="o">.</span><span class="n">duration_s</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_merge_statistic</span><span class="p">(</span>
+    <span class="n">a_value</span><span class="p">:</span> <span class="s2">"float | None"</span><span class="p">,</span>
+    <span class="n">b_value</span><span class="p">:</span> <span class="s2">"float | None"</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">a_duration_s</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">b_duration_s</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"float | None"</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Duration-weighted mean of two per-span statistics, ``None`` if either is ``None``."""</span>
+    <span class="k">if</span> <span class="n">a_value</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">b_value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">None</span>
-    <span class="n">total</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">duration_s</span> <span class="o">+</span> <span class="n">b</span><span class="o">.</span><span class="n">duration_s</span><span class="p">,</span> <span class="mf">1e-9</span><span class="p">)</span>
-    <span class="k">return</span> <span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">support</span> <span class="o">*</span> <span class="n">a</span><span class="o">.</span><span class="n">duration_s</span> <span class="o">+</span> <span class="n">b</span><span class="o">.</span><span class="n">support</span> <span class="o">*</span> <span class="n">b</span><span class="o">.</span><span class="n">duration_s</span><span class="p">)</span> <span class="o">/</span> <span class="n">total</span>
+    <span class="n">total</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">a_duration_s</span> <span class="o">+</span> <span class="n">b_duration_s</span><span class="p">,</span> <span class="mf">1e-9</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">a_value</span> <span class="o">*</span> <span class="n">a_duration_s</span> <span class="o">+</span> <span class="n">b_value</span> <span class="o">*</span> <span class="n">b_duration_s</span><span class="p">)</span> <span class="o">/</span> <span class="n">total</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_disjoin</span><span class="p">(</span><span class="n">spans</span><span class="p">:</span> <span class="s2">"list[AlignedSpan]"</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"list[AlignedSpan]"</span><span class="p">:</span>
