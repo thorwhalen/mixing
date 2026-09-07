@@ -19,6 +19,7 @@ from scipy.io import wavfile
 
 from mixing.audio import (
     AlignedSpan,
+    align_clips_to_reference,
     aligned_spans,
     find_audio_offset_detailed,
 )
@@ -349,7 +350,11 @@ def test_a_span_never_reports_reference_time_the_reference_does_not_have(
         tmp_path,
         "overrun.wav",
         np.concatenate(
-            [rng.normal(0, 0.5, int(20 * SR)), _noisy(ref.copy(), rng), rng.normal(0, 0.5, int(20 * SR))]
+            [
+                rng.normal(0, 0.5, int(20 * SR)),
+                _noisy(ref.copy(), rng),
+                rng.normal(0, 0.5, int(20 * SR)),
+            ]
         ),
     )
     ref_dur = len(ref) / SR
@@ -358,7 +363,9 @@ def test_a_span_never_reports_reference_time_the_reference_does_not_have(
     for sp in spans:
         a, b = sp.reference_span
         assert a >= -1e-6, f"reference start {a} is before the reference begins"
-        assert b <= ref_dur + 1e-6, f"reference end {b} is past the reference's {ref_dur}"
+        assert b <= ref_dur + 1e-6, (
+            f"reference end {b} is past the reference's {ref_dur}"
+        )
         assert sp.duration_s <= ref_dur + 1e-6, (
             f"a {sp.duration_s}s span cannot align to a {ref_dur}s reference at one offset"
         )
@@ -429,3 +436,409 @@ def test_reference_duration_can_be_stated_by_the_caller(song, ref, tmp_path):
     assert spans
     for sp in spans:
         assert sp.reference_span[1] <= 40.0 + 1e-6
+
+
+# --------------------------------------------------------------------------
+# Issue #30: a reference that repeats itself
+#
+# The fixtures above are deliberately non-repetitive ("one sharp autocorrelation peak,
+# no alignment ambiguity"), which is why the suite was green while this was live. Music
+# is the material this function exists for, and music repeats.
+# --------------------------------------------------------------------------
+
+
+def _motif(seconds: float, seed: int) -> np.ndarray:
+    """A short broadband phrase with percussive onsets, so both features have a grip."""
+    rng = np.random.default_rng(seed)
+    t = np.arange(int(seconds * SR)) / SR
+    x = np.zeros_like(t)
+    for f0, f1 in rng.uniform(120, 900, (4, 2)):
+        x += np.sin(2 * np.pi * (f0 + (f1 - f0) * (t / max(t[-1], 1e-9))) * t)
+    beat = np.zeros_like(t)
+    for i in range(0, len(t), int(0.5 * SR)):
+        n = min(400, len(t) - i)
+        beat[i : i + n] += np.hanning(400)[:n]
+    return (x / np.max(np.abs(x))) * 0.7 + beat * 0.5
+
+
+#: Length of one motif in the repetitive fixtures, seconds. Six of them make a 90 s
+#: "song" — the same length as the non-repetitive reference above, so the two are
+#: comparable and the only variable is the repetition.
+MOTIF_S = 15.0
+
+
+@pytest.fixture(scope="module")
+def repeating(tmp_path_factory) -> "tuple[str, np.ndarray]":
+    """Verse/chorus structure: A B C B A B. An offset into it is NOT unique."""
+    a, b, c = (_motif(MOTIF_S, s) for s in (1, 2, 3))
+    ref = np.concatenate([a, b, c, b, a, b])
+    p = tmp_path_factory.mktemp("rep") / "repeating.wav"
+    wavfile.write(str(p), SR, (ref * 32767).astype(np.int16))
+    return str(p), ref
+
+
+@pytest.fixture(scope="module")
+def tiling(tmp_path_factory) -> "tuple[str, np.ndarray]":
+    """One motif, nine times. Every offset that is right is right nine ways."""
+    ref = np.concatenate([_motif(10.0, 11)] * 9)
+    p = tmp_path_factory.mktemp("tile") / "tiling.wav"
+    wavfile.write(str(p), SR, (ref * 32767).astype(np.int16))
+    return str(p), ref
+
+
+def test_a_repeating_reference_no_longer_fragments_one_continuous_take(
+    repeating, tmp_path
+):
+    """The headline of issue #30, as a before/after on the same clip.
+
+    ``near_tie_ratio=0.0`` is the shipped-before behaviour — each window picks its lag by
+    an independent argmax — and it is exercised here rather than described, because a
+    regression test for a coin flip has to show the coin.
+
+    Measured: the argmax path returns 4 spans for one continuous take, of which three
+    carry a WRONG offset (80.0, 50.0 and -40.0 against a truth of 20.0) — and the worst
+    of them scores 0.982, HIGHER than the span that is right. That is the failure a
+    consumer cannot filter out. The count is asserted as a floor rather than pinned:
+    which way a near-tie falls is exactly what is not stable here, and pinning it would
+    make this test fail for being right.
+    """
+    song, ref = repeating
+    rng = np.random.default_rng(30)
+    clip = _write(
+        tmp_path, "rep_one.wav", _take(ref, 20, 70, rng)
+    )  # one take, offset 20
+
+    argmax = _spans(song, clip, near_tie_ratio=0.0)
+    assert len(argmax) >= 3, "the fixture must still reproduce the defect"
+    wrong = [s for s in argmax if abs(s.offset_s - 20.0) > 1.0]
+    assert wrong, "the defect is a WRONG offset, not merely a split"
+    assert max(s.confidence for s in wrong) > 0.9, (
+        "and it is wrong at a confidence no caller would filter out"
+    )
+
+    spans = _spans(song, clip)
+    assert len(spans) == 1, [(s.clip_start_s, s.offset_s) for s in spans]
+    assert spans[0].offset_s == pytest.approx(20.0, abs=0.05)
+    assert spans[0].duration_s == pytest.approx(50.0, abs=WIN)
+
+
+def test_support_says_the_windows_needed_help_and_the_confidence_does_not(
+    repeating, tiling, song, ref, tmp_path
+):
+    """The acceptance line: the offset is right AND the honest doubt is reported.
+
+    ``confidence`` answers "how well does the clip match where we put it", and on a
+    repeating reference that question has several excellent answers. Measured across
+    these three references it reads 0.985 / 0.978 / 0.980 — it barely moves, and it does
+    not even move the right way: the exactly tiling reference, where the offset is a
+    free choice among nine, scores HIGHER than the verse/chorus one. A caller gating on
+    it alone cannot tell them apart, which is the complaint in issue #30. ``support`` —
+    the fraction of windows that reached the offset unaided — is what moves, and it
+    moves with the repetition: 1.000 / 0.444 / 0.000.
+    """
+    rng = np.random.default_rng(31)
+    cases = {}
+    for name, (path, material) in {
+        "none": (song, ref),
+        "verse/chorus": repeating,
+        "exact tiling": tiling,
+    }.items():
+        clip = _write(tmp_path, f"sup_{len(cases)}.wav", _take(material, 20, 70, rng))
+        # The take is one span on the first two; on the tiling reference the answer is
+        # arbitrary enough that a tail window can peel off, so take the longest.
+        cases[name] = max(_spans(path, clip), key=lambda s: s.duration_s)
+
+    assert cases["none"].support == 1.0, "no repetition, no disagreement"
+    assert cases["verse/chorus"].support < 1.0, (
+        "some windows correlated just as well against the wrong chorus"
+    )
+    assert cases["exact tiling"].support < cases["verse/chorus"].support, (
+        "and where every offset is equally true, nothing agrees unaided"
+    )
+    # The point of the field: the confidence cannot make this distinction.
+    assert min(s.confidence for s in cases.values()) > 0.9
+
+
+def test_a_stop_and_restart_still_departs_on_a_repeating_reference(repeating, tmp_path):
+    """The feature the fix must not eat.
+
+    Consensus could trivially return one span for everything. It does not, because no
+    window is ever moved to a lag its own correlation did not already rate a near-tie —
+    and a restarted take has no such lag near the old offset. Both takes here span a
+    motif boundary whose SEQUENCE occurs once (…C and B,A…), so each offset is unique
+    and this asserts the answer rather than the tie-break.
+    """
+    song, ref = repeating
+    rng = np.random.default_rng(32)
+    clip = _write(
+        tmp_path,
+        "rep_two.wav",
+        np.concatenate([_take(ref, 25, 45, rng), _take(ref, 55, 75, rng)]),
+    )
+    spans = _spans(song, clip)
+    assert len(spans) == 2, [(s.clip_start_s, s.offset_s) for s in spans]
+    a, b = spans
+    assert a.offset_s == pytest.approx(25.0, abs=0.05)
+    assert b.offset_s == pytest.approx(35.0, abs=0.05)  # clip t=20 -> song t=55
+
+
+def test_near_tie_ratio_zero_is_the_old_behaviour_exactly(song, ref, tmp_path):
+    """The knob is a seam, so it has to be pinned at both ends.
+
+    On material with no repetition the consensus pass has nothing to decide, so the two
+    settings must agree exactly — otherwise the default silently perturbs every existing
+    caller's numbers, and the before/after test above would be measuring the wrong thing.
+    """
+    rng = np.random.default_rng(33)
+    clip = _write(tmp_path, "seam.wav", _take(ref, 10, 60, rng))
+    assert _spans(song, clip) == _spans(song, clip, near_tie_ratio=0.0)
+
+
+def test_a_negative_near_tie_ratio_is_refused(song, tmp_path):
+    rng = np.random.default_rng(34)
+    clip = _write(tmp_path, "neg.wav", rng.normal(0, 1, int(5 * SR)))
+    with pytest.raises(ValueError, match="near_tie_ratio"):
+        aligned_spans(song, clip, sample_rate=SR, near_tie_ratio=-0.1)
+
+
+# --------------------------------------------------------------------------
+# The same defect in the whole-clip estimator (`align_clips_to_reference`)
+#
+# Same correlation, same coin flip — and it is the entry point the named consumer
+# actually calls, so the fix has to reach it or it reaches no one.
+# --------------------------------------------------------------------------
+
+
+@pytest.fixture(scope="module")
+def two_halves(tmp_path_factory) -> "tuple[str, np.ndarray]":
+    """A 90 s reference that is one 45 s half, twice."""
+    ref = np.concatenate([_motif(45.0, 7)] * 2)
+    p = tmp_path_factory.mktemp("halves") / "halves.wav"
+    wavfile.write(str(p), SR, (ref * 32767).astype(np.int16))
+    return str(p), ref
+
+
+def test_the_whole_clip_estimator_reaches_the_consensus_offset(two_halves, tmp_path):
+    """Measured: the argmax puts this clip 45 s out, and its coefficient does not flinch.
+
+    Offset 65 is not merely wrong, it is impossible — the clip is 50 s and the reference
+    ends at 90 s, so the clip's last 25 s would sit past the end of the song. One number
+    over the whole clip cannot notice that; the windows can, because the ones covering
+    that tail have no candidate there at all.
+    """
+    song, ref = two_halves
+    rng = np.random.default_rng(35)
+    clip = _write(tmp_path, "halves_clip.wav", _take(ref, 20, 70, rng))  # offset 20
+
+    (old,) = align_clips_to_reference(song, [clip], sample_rate=SR, consensus=False)
+    assert abs(old.offset_s - 20.0) > 1.0, "the fixture must still reproduce the defect"
+    assert old.confidence > 0.9, "at a confidence that clears any sane gate"
+    assert old.support is None, (
+        "and nothing measured agreed with it, which is what `support` must say — a 1.0 "
+        "here would VOUCH for the wrong offset instead of merely failing to warn"
+    )
+
+    (new,) = align_clips_to_reference(
+        song, [clip], sample_rate=SR, window_s=WIN, hop_s=HOP
+    )
+    assert new.offset_s == pytest.approx(20.0, abs=0.05)
+    assert new.support < 1.0, "half of this reference genuinely does fit twice"
+
+
+def test_support_localises_a_clip_that_is_only_partly_the_song(song, ref, tmp_path):
+    """The second thing a coefficient cannot say: how MUCH of the clip is the reference.
+
+    Half song, half unrelated noise. The confidence is measured where the clip matches,
+    so it stays high — and should, the alignment really is that good. ``support`` is the
+    field that reports that only half the clip voted for it.
+    """
+    rng = np.random.default_rng(36)
+    clip = _write(
+        tmp_path,
+        "halfjunk.wav",
+        np.concatenate([_take(ref, 10, 40, rng), rng.normal(0, 0.5, int(30 * SR))]),
+    )
+    (a,) = align_clips_to_reference(
+        song, [clip], sample_rate=SR, window_s=WIN, hop_s=HOP
+    )
+    assert a.offset_s == pytest.approx(10.0, abs=0.05)
+    assert a.confidence > 0.9
+    assert 0.3 < a.support < 0.8, f"about half the clip should agree, got {a.support}"
+
+
+def test_a_clip_shorter_than_one_window_takes_the_whole_clip_answer(
+    song, ref, tmp_path
+):
+    """Consensus must degrade to the thing it replaces, not to a different thing.
+
+    A clip shorter than ``window_s`` is a single window, so there is nothing to vote on
+    and the answer — offset, confidence and support — must equal the single-correlation
+    path exactly. That is what leaves every existing short-clip caller unmoved, and it is
+    why turning consensus on by default does not perturb the rest of this suite.
+
+    Both sides report ``support=None``: one window is not a quorum, and the equality
+    would be satisfied just as well by both sides manufacturing 1.0, so that is asserted
+    separately below rather than left to the tuple comparison.
+    """
+    rng = np.random.default_rng(37)
+    clip = _write(tmp_path, "short_clip.wav", _take(ref, 30, 45, rng))
+    (new,) = align_clips_to_reference(song, [clip], sample_rate=SR)  # window is 20 s
+    (old,) = align_clips_to_reference(song, [clip], sample_rate=SR, consensus=False)
+    assert (new.offset_s, new.confidence, new.support) == (
+        old.offset_s,
+        old.confidence,
+        old.support,
+    )
+    assert new.support is None, "one window is not a quorum"
+
+
+# --------------------------------------------------------------------------
+# `support` must never vouch for something it did not measure
+#
+# Found by review of the first version of this fix, which reported ``support=1.0``
+# wherever there was only one opinion to count. That is the same class of defect as
+# issue #30 itself: a number that looks like evidence and is not.
+# --------------------------------------------------------------------------
+
+
+def test_support_is_None_where_no_second_opinion_exists(two_halves, tmp_path):
+    """The reviewer's reproduction, and the reason ``None`` is not spelled ``1.0``.
+
+    A 15 s clip taken from offset 30.0 of a reference that is one 45 s half twice comes
+    back at offset **75.0** — wrong — at confidence 0.979, on BOTH paths, because it is
+    a single window and there is nothing for a vote to do. That the answer is wrong is
+    not this test's complaint; a single window genuinely cannot tell those two halves
+    apart. The complaint is what ``support`` says about it. Reporting 1.0 (as the first
+    version of this fix did) turns "nobody checked" into "everybody agreed", and a
+    consumer gating on ``support >= 1.0`` then waves the wrong offset straight through.
+    """
+    song, ref = two_halves
+    rng = np.random.default_rng(38)
+    clip = _write(tmp_path, "one_window.wav", _take(ref, 30, 45, rng))  # true offset 30
+
+    (default,) = align_clips_to_reference(song, [clip], sample_rate=SR)
+    (single,) = align_clips_to_reference(song, [clip], sample_rate=SR, consensus=False)
+    assert default.offset_s == 75.0 and single.offset_s == 75.0, (
+        "the fixture is only meaningful while the offset really is wrong"
+    )
+    assert default.confidence > 0.9
+    assert default.support is None, "one window is not a quorum"
+    assert single.support is None, "and consensus=False put nothing to a vote at all"
+
+
+def test_a_span_too_short_to_disagree_reports_no_support(song, ref, tmp_path):
+    """The same rule on the span side: one window, one opinion, no support fraction."""
+    rng = np.random.default_rng(39)
+    clip = _write(
+        tmp_path, "tiny.wav", _take(ref, 30, 36, rng)
+    )  # shorter than a window
+    (span,) = _spans(song, clip)
+    assert span.offset_s == pytest.approx(30.0, abs=0.05)
+    assert span.support is None
+
+
+def test_an_unmeasured_span_does_not_inherit_support_when_merged(song, ref, tmp_path):
+    """A merge must not launder an unmeasured half through a measured one.
+
+    ``_merge_same_offset`` rejoins two spans that agree across a short unverified gap.
+    If one of them never measured a support, averaging the pair would hand the merged
+    span a fraction that describes only part of it — the vouching problem again, one
+    level up. Unmeasured plus measured is unmeasured.
+    """
+    from mixing.audio.audio_ops import _merge_same_offset
+
+    measured = AlignedSpan(0.0, 30.0, offset_s=5.0, confidence=0.9, support=1.0)
+    unmeasured = AlignedSpan(31.0, 37.0, offset_s=5.0, confidence=0.9, support=None)
+    (merged,) = _merge_same_offset(
+        [measured, unmeasured], offset_tolerance_s=0.25, merge_gap_s=10.0
+    )
+    assert merged.clip_end_s == 37.0, "the fixture must actually merge"
+    assert merged.support is None
+
+    both = AlignedSpan(31.0, 37.0, offset_s=5.0, confidence=0.9, support=0.5)
+    (merged_both,) = _merge_same_offset(
+        [measured, both], offset_tolerance_s=0.25, merge_gap_s=10.0
+    )
+    assert merged_both.support == pytest.approx((1.0 * 30.0 + 0.5 * 6.0) / 36.0)
+
+
+def test_two_offsets_that_genuinely_tie_report_the_tie(song, ref, tmp_path):
+    """A 50/50 is reported as a 50/50, not resolved into a confident single answer.
+
+    Two takes of equal length is the cleanest tie there is: half the windows say one
+    offset, half say the other, and asking `align_clips_to_reference` for ONE number has
+    no better answer than picking one. Measured, it returns a true offset — 5.0, one of
+    the two — at confidence 0.985, which is exactly as high as it would be if the clip
+    were unambiguous. ``support`` is the only thing that reports the split, at 0.444.
+
+    Which of the two wins is arbitrary and deliberately not pinned; that it is one of
+    them, and that the support says half the clip disagrees, is the contract.
+    """
+    rng = np.random.default_rng(40)
+    clip = _write(
+        tmp_path,
+        "tie.wav",
+        np.concatenate([_take(ref, 5, 30, rng), _take(ref, 55, 80, rng)]),
+    )
+    (a,) = align_clips_to_reference(
+        song, [clip], sample_rate=SR, window_s=WIN, hop_s=HOP
+    )
+    assert a.offset_s == pytest.approx(5.0, abs=0.05) or a.offset_s == pytest.approx(
+        30.0, abs=0.05
+    ), f"neither true offset was returned: {a.offset_s}"
+    assert a.confidence > 0.9, "the tie does not show up in the coefficient"
+    assert 0.35 < a.support < 0.65, f"a 50/50 must read as one, got {a.support}"
+
+
+# --------------------------------------------------------------------------
+# `consensus=False` is a characterization guardrail, not a convenience flag
+# --------------------------------------------------------------------------
+
+#: ``(offset_s, confidence)`` produced by ``align_clips_to_reference`` at commit ad8f056
+#: — the last commit BEFORE the consensus pass — for each fixture below. Captured by
+#: running that checkout, not by running the current code, so this pins the new
+#: ``consensus=False`` path against the OLD function rather than against itself.
+#: Keyed by ``(fixture, take_start, take_end, seed, feature)``.
+PRE_CONSENSUS_RESULTS = {
+    ("plain", 30, 45, 37, "envelope"): (30.0, 0.9845849122668827),
+    ("plain", 30, 45, 37, "waveform"): (30.0, 0.9845842060773334),
+    ("plain", 10, 60, 40, "envelope"): (10.0, 0.9845698125115664),
+    ("plain", 10, 60, 40, "waveform"): (10.0, 0.9845689746370594),
+    ("halves", 20, 70, 35, "envelope"): (-25.0, 0.9781992781864717),
+    ("halves", 20, 70, 35, "waveform"): (-25.0, 0.9781992794529429),
+    ("halves", 30, 45, 38, "envelope"): (75.0, 0.9792068725230924),
+    ("halves", 30, 45, 38, "waveform"): (75.0, 0.9792019527804959),
+}
+
+
+@pytest.mark.parametrize("key", sorted(PRE_CONSENSUS_RESULTS))
+def test_consensus_false_reproduces_the_pre_consensus_function(
+    key, song, ref, two_halves, tmp_path
+):
+    """``consensus=False`` must be the OLD behaviour, measured against the old code.
+
+    A new-vs-new comparison could not catch this: if the consensus path and the
+    single-correlation path drifted together, both would move and the test would stay
+    green. So the expected values were captured by running the pre-change checkout
+    (ad8f056) and are pinned here as literals — including the two WRONG offsets that
+    change motivated (-25.0 and 75.0), because a guardrail records what the code did,
+    not what it should have done.
+
+    The confidence is compared to 1e-9 rather than exactly: an FFT correlation can
+    differ in its last bits across platforms and library versions, and a bit-exact pin
+    would fail for reasons that have nothing to do with this function.
+    """
+    fixture, a, b, seed, feature = key
+    path, material = {"plain": (song, ref), "halves": two_halves}[fixture]
+    rng = np.random.default_rng(seed)
+    clip = _write(
+        tmp_path, f"pre_{fixture}_{a}_{b}_{seed}.wav", _take(material, a, b, rng)
+    )
+
+    (got,) = align_clips_to_reference(
+        path, [clip], sample_rate=SR, feature=feature, consensus=False
+    )
+    want_offset, want_confidence = PRE_CONSENSUS_RESULTS[key]
+    assert got.offset_s == want_offset
+    assert got.confidence == pytest.approx(want_confidence, abs=1e-9)
+    assert got.support is None, "the old function had no support to report"

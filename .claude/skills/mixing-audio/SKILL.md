@@ -130,6 +130,7 @@ from mixing.audio import aligned_spans
 for sp in aligned_spans("song.mp3", "phone_recording.mp4"):
     sp.clip_start_s, sp.clip_end_s  # in the CLIP's timeline
     sp.offset_s, sp.confidence  # reference_time = clip_time + offset_s
+    sp.support  # how much of the span found that offset unaided — see below
     sp.reference_span  # the same extent on the SONG timeline
 ```
 
@@ -149,6 +150,40 @@ so it is a safe replacement rather than a different tool.
 that its whole extent aligns; a boundary falling inside one degrades that window rather
 than locating itself within it. Ample for telling two takes apart, **not enough to cut
 on**. Shrink `window_s` to buy precision — cost is linear in the window count.
+
+### Repetitive music: gate on `support`, not on `confidence` alone
+
+Both `aligned_spans` and `align_clips_to_reference` decide the offset by **consensus**
+across analysis windows rather than by one argmax, because on a reference that repeats
+verbatim the correlation's top two peaks are near-tied (0.987–0.993 second-to-first on
+real music) and the argmax is close to a coin flip. Before the consensus pass a
+verse/chorus reference split one continuous take into 4 spans, three of them at wrong
+offsets — the worst scoring *higher* than the correct one.
+
+So read the two numbers as different questions:
+
+- **`confidence`** — how well the clip matches *where this answer puts it*. On repetitive
+  material it stays high, and it should: the match really is that good.
+- **`support`** (0–1, or `None`) — what fraction of the windows reached that offset **on
+  their own**. 1.0 on material with no repeats; ~0.44 on verse/chorus; ~0.0 on an exactly
+  tiling reference, where every offset is equally true and no confidence would ever say
+  so. It also drops when only *part* of the clip is the reference at all (measured 0.545
+  on a half-song/half-noise clip), which is what localises where a clip stops matching.
+
+High confidence with low support means *"it fits here beautifully — and it would fit
+elsewhere too."*
+
+**`support is None` means NOT MEASURED — do not read it as 1.0.** You get it with
+`consensus=False`, and for a clip shorter than one window, because one window cannot
+disagree with itself and a unanimous vote of one would vouch for an offset nothing
+corroborated. Measured: a 15 s clip truly at offset 30 against a two-identical-halves
+reference comes back at offset 75.0 with confidence 0.979 — a `support` of 1.0 there
+would carry the wrong answer through any gate. When it is `None`, fall back to
+`confidence` and know you are trusting a single opinion.
+
+`near_tie_ratio=0.0` disables the vote and restores the old per-window argmax;
+`align_clips_to_reference(..., consensus=False)` restores its single whole-clip
+correlation exactly (cheaper: one correlation instead of one per window).
 
 ## Segmentation — split a long recording into pieces
 

@@ -1227,19 +1227,22 @@ def _load_mono_samples(source: AudioSource, sample_rate: int) -> np.ndarray:
     return _resample_samples(samples, seg.frame_rate, sample_rate)
 
 
-def _normalized_xcorr(
+def _xcorr_surface(
     ref: np.ndarray, query: np.ndarray, *, min_overlap_ratio: float = 0.5
-) -> tuple[int, float]:
-    """Overlap-normalized cross-correlation of two mono signals.
+) -> "tuple[np.ndarray, np.ndarray]":
+    """``(lags, scores)`` — the whole overlap-normalized correlation surface.
 
-    Returns ``(lag_samples, coefficient)`` where ``lag_samples`` is where ``query``
-    begins within ``ref`` (may be negative) and ``coefficient`` is the normalized
-    cross-correlation in ``[0, 1]`` at that lag. Normalizing each lag by the energy of
-    its actual overlap makes the score scale-invariant (comparable across clips) AND
-    removes the triangular-overlap argmax bias for clips that extend before/after the
-    reference — the common multi-device case. Lags overlapping less than
-    ``min_overlap_ratio`` of the shorter signal are excluded so a tiny sliver of overlap
-    can't win.
+    ``scores`` is ``abs(coefficient)`` in ``[0, 1]`` at every admissible lag and ``-1.0``
+    at the lags excluded by ``min_overlap_ratio``, so an argmax over it is already the
+    guarded one. Split out of :func:`_normalized_xcorr` because the SHAPE of this surface
+    is the evidence a repetitive reference destroys: its argmax alone cannot say which
+    repeat a window came from, and only a caller that can see the rival peaks
+    (:func:`_candidate_lags`) has anything to put to a vote.
+
+    **Normalize per lag, by the energy of that lag's overlap** — the trap named in issue
+    #30. An unnormalized FFT correlation lets a boundary spike in the reference make
+    every window lock onto the same lag, which reads downstream as a confident and
+    entirely fictitious "everything aligns at t≈0".
     """
     correlate = require_package("scipy.signal").correlate
     ref = ref - ref.mean()
@@ -1265,9 +1268,93 @@ def _normalized_xcorr(
     nz = denom > 0
     np.divide(num, denom, out=coeff, where=nz)
     valid = overlap >= max(1.0, min_overlap_ratio * min(n_r, n_q))
-    scored = np.where(valid, np.abs(coeff), -1.0)
+    return lags, np.where(valid, np.abs(coeff), -1.0)
+
+
+def _normalized_xcorr(
+    ref: np.ndarray, query: np.ndarray, *, min_overlap_ratio: float = 0.5
+) -> tuple[int, float]:
+    """Overlap-normalized cross-correlation of two mono signals.
+
+    Returns ``(lag_samples, coefficient)`` where ``lag_samples`` is where ``query``
+    begins within ``ref`` (may be negative) and ``coefficient`` is the normalized
+    cross-correlation in ``[0, 1]`` at that lag. Normalizing each lag by the energy of
+    its actual overlap makes the score scale-invariant (comparable across clips) AND
+    removes the triangular-overlap argmax bias for clips that extend before/after the
+    reference — the common multi-device case. Lags overlapping less than
+    ``min_overlap_ratio`` of the shorter signal are excluded so a tiny sliver of overlap
+    can't win.
+
+    **The argmax is only trustworthy when the surface has one peak.** On material that
+    repeats verbatim it does not, and the rival peaks are near-tied — so this returns a
+    near-coin-flip with a coefficient that looks excellent (issue #30). Callers that can
+    be handed repetitive material go through :func:`_candidate_lags` instead.
+    """
+    lags, scored = _xcorr_surface(ref, query, min_overlap_ratio=min_overlap_ratio)
     best = int(np.argmax(scored))
-    return int(lags[best]), float(np.abs(coeff[best]))
+    return int(lags[best]), float(max(scored[best], 0.0))
+
+
+#: How close a rival correlation peak must score to the best one before it counts as a
+#: NEAR-TIE — a fraction of the best score. Measured on real music (issue #30), the
+#: second peak reaches 0.987-0.993 of the first at musical periods, and on synthetic
+#: repeats the two are within 0.2%. At that separation the argmax is a coin flip, so
+#: everything inside this band is treated as "the correlation has no opinion" and the
+#: choice is handed to the vote. Above it, a peak wins on its own evidence — which is
+#: what keeps a genuine stop/restart free to depart from its neighbours.
+NEAR_TIE_RATIO = 0.05
+
+#: How many independent windows it takes before "how many of them agree" is a fact
+#: rather than a tautology. One window agrees with itself, so a support fraction
+#: computed over a single vote is always 1.0 and has measured nothing — and a
+#: manufactured 1.0 is worse than no number at all, because it VOUCHES. Below this,
+#: support is reported as ``None``.
+MIN_WINDOWS_FOR_SUPPORT = 2
+
+#: Most near-tied lags one window may put forward. A cap, not a target: an exactly
+#: tiling reference offers one candidate per repeat, and the vote does not get better
+#: for counting all of them.
+MAX_CANDIDATE_LAGS = 8
+
+
+def _candidate_lags(
+    ref: np.ndarray,
+    query: np.ndarray,
+    *,
+    min_overlap_ratio: float,
+    near_tie_ratio: float,
+    min_separation: int,
+    max_candidates: int = MAX_CANDIDATE_LAGS,
+) -> "list[tuple[int, float]]":
+    """The near-tied lags this correlation genuinely cannot choose between.
+
+    Returns ``[(lag_samples, coefficient), ...]`` ordered best-first and always
+    non-empty, so ``result[0]`` is exactly what :func:`_normalized_xcorr` would have
+    returned. A ``near_tie_ratio`` of ``0.0`` therefore reduces this to the plain argmax.
+
+    Only LOCAL MAXIMA are eligible, and each accepted peak suppresses everything within
+    ``min_separation`` samples of it — otherwise the shoulders of one peak would flood
+    the ballot and a single lag would out-vote every real rival.
+    """
+    lags, scored = _xcorr_surface(ref, query, min_overlap_ratio=min_overlap_ratio)
+    top = int(np.argmax(scored))
+    best = float(scored[top])
+    if best <= 0 or near_tie_ratio <= 0:
+        return [(int(lags[top]), max(best, 0.0))]
+    interior = scored[1:-1]
+    peaks = np.flatnonzero((interior >= scored[:-2]) & (interior > scored[2:])) + 1
+    # The argmax may sit on an edge, where "local maximum" is undefined; it is always a
+    # candidate, and always the first one.
+    eligible = np.unique(np.concatenate([[top], peaks]))
+    eligible = eligible[scored[eligible] >= best * (1.0 - near_tie_ratio)]
+    order = eligible[np.argsort(-scored[eligible], kind="stable")]
+    picked: list[int] = []
+    for k in map(int, order):
+        if all(abs(k - j) >= min_separation for j in picked):
+            picked.append(k)
+            if len(picked) >= max_candidates:
+                break
+    return [(int(lags[k]), float(scored[k])) for k in picked]
 
 
 #: Envelope hop, in samples at the analysis rate. 160 @ 16 kHz = 10 ms frames (100 Hz).
@@ -1402,6 +1489,51 @@ def _correlation_at_lag(ref: np.ndarray, query: np.ndarray, lag: int) -> float:
     return float(abs(np.dot(a, b)) / denom)
 
 
+def _feature_candidates(
+    ref: np.ndarray,
+    query: np.ndarray,
+    sample_rate: int,
+    *,
+    feature: str,
+    min_overlap_ratio: float,
+    near_tie_ratio: float,
+    min_separation: int,
+    ref_envelope: "tuple[np.ndarray, float] | None" = None,
+) -> "list[tuple[int, float]]":
+    """:func:`_candidate_lags`, scored the way ``feature`` scores — best-first.
+
+    The plural counterpart of :func:`_envelope_then_waveform`, and it keeps that
+    function's division of labour intact: **the waveform locates** (so the candidate
+    order is the waveform's), and the confidence at each candidate is the larger of the
+    waveform's and the envelope's correlation THERE. ``result[0]`` is therefore exactly
+    what :func:`_envelope_then_waveform` returns; the rest are the rivals it discarded
+    without saying so.
+    """
+    candidates = _candidate_lags(
+        ref,
+        query,
+        min_overlap_ratio=min_overlap_ratio,
+        near_tie_ratio=near_tie_ratio,
+        min_separation=min_separation,
+    )
+    if feature != "envelope":
+        return candidates
+    env_ref, env_rate = (
+        onset_envelope(ref, sample_rate) if ref_envelope is None else ref_envelope
+    )
+    env_query, _ = onset_envelope(query, sample_rate)
+    scored = []
+    for lag, _ in candidates:
+        wav_at_lag = _correlation_at_lag(ref, query, lag)
+        if env_ref.size < 2 or env_query.size < 2:  # too short to have an envelope
+            scored.append((lag, wav_at_lag))
+            continue
+        env_lag = int(round(lag * env_rate / sample_rate))
+        env_at_lag = _correlation_at_lag(env_ref, env_query, env_lag)
+        scored.append((lag, max(wav_at_lag, env_at_lag)))
+    return scored
+
+
 #: Alignment features. ``'envelope'`` is coarse-to-fine (see
 #: :func:`_envelope_then_waveform`); ``'waveform'`` is raw normalized cross-correlation,
 #: correct when both signals come from the SAME source (re-aligning an export against its
@@ -1460,117 +1592,6 @@ def find_audio_offset_detailed(
     )
 
 
-@dataclass(frozen=True)
-class ClipAlignment:
-    """Where one clip sits on a reference (song) timeline.
-
-    Attributes:
-        index: The clip's position in the input sequence.
-        offset_s: Reference-time where the clip's audio begins (may be negative).
-        confidence: Normalized cross-correlation coefficient in ``[0, 1]``.
-        duration_s: The clip's own duration (seconds).
-        coverage: ``(start_s, end_s)`` — the clip's span **intersected with the
-            reference timeline** ``[0, reference_duration]``. When the clip does not
-            overlap the reference at all this is a degenerate ``(t, t)`` and
-            :attr:`overlaps` is False; callers building an edit must skip those.
-        overlaps: Whether the clip intersects the reference timeline at all. A clip that
-            does not is still RETURNED, with its measured offset and confidence — see
-            :func:`align_clips_to_reference` for why it is not dropped.
-    """
-
-    index: int
-    offset_s: float
-    confidence: float
-    duration_s: float
-    coverage: tuple[float, float]
-    overlaps: bool = True
-
-
-def align_clips_to_reference(
-    reference_audio: AudioSource,
-    clips: "Sequence[AudioSource]",
-    *,
-    reference_duration: float | None = None,
-    sample_rate: int = 16000,
-    min_overlap_ratio: float = 0.5,
-    feature: str = "envelope",
-) -> list[ClipAlignment]:
-    """Align a SET of clips to one reference — the multi-device / multicam primitive.
-
-    Aligns each clip against ``reference_audio`` (e.g. the clean song) and returns its
-    offset, a scale-invariant confidence, and its **coverage clamped to the reference
-    timeline** — so a downstream editor gets valid spans and never references a time the
-    reference does not cover. Preserves the original ``index`` so callers can map results
-    back to inputs.
-
-    **Every clip gets a record.** A clip with no temporal overlap is returned with
-    ``overlaps=False`` rather than omitted, because omission is how a source silently leaves
-    the addressable set: a caller that persists this list as *the* alignment artifact ends
-    up with material it can no longer reference, name, or explain — the file is still there,
-    but nothing downstream can point at it. Selecting what goes into an edit is a matter of
-    *referencing* sources and intervals; a source must never disappear from what can be
-    referenced as a side effect of being measured. Callers building an edit filter on
-    ``overlaps``; callers reporting to a human show all of them, with the reason.
-
-    Args:
-        reference_audio: The signal every clip is aligned to (the song).
-        clips: The clip audio sources (paths, arrays, or ``AudioSegment``\\ s).
-        reference_duration: The reference timeline length (seconds); computed from
-            ``reference_audio`` when omitted.
-        sample_rate: Analysis sample rate (mono).
-        min_overlap_ratio: Passed through to the alignment (see
-            :func:`find_audio_offset_detailed`).
-        feature: Similarity feature for the confidence — see :data:`ALIGNMENT_FEATURES`.
-            Defaults to ``'envelope'`` **because this function's whole purpose is the
-            cross-device case**, and a raw-waveform coefficient is not a usable trust gate
-            there: two microphones in a room are not sample-correlated even when the
-            alignment is exact. Measured on a real 6-device shoot, the waveform coefficient
-            scored provably-correct alignments at 0.064-0.148 — below any threshold a
-            caller would sensibly set — while the envelope scored them 0.441-0.634 and a
-            genuine non-match at 0.102. Pass ``'waveform'`` when the clips come from the
-            SAME source as the reference (e.g. verifying an export against its master),
-            where sample correlation is meaningful and gives finer confidence resolution.
-
-    Returns:
-        A list of :class:`ClipAlignment`, in input order (minus dropped clips).
-    """
-    if feature not in ALIGNMENT_FEATURES:
-        raise ValueError(
-            f"unknown feature {feature!r}; expected one of {ALIGNMENT_FEATURES}"
-        )
-    ref = _load_mono_samples(reference_audio, sample_rate)
-    ref_dur = (
-        reference_duration if reference_duration is not None else len(ref) / sample_rate
-    )
-    out: list[ClipAlignment] = []
-    for i, clip in enumerate(clips):
-        query = _load_mono_samples(clip, sample_rate)
-        if feature == "envelope":
-            lag, coeff = _envelope_then_waveform(
-                ref, query, sample_rate, min_overlap_ratio=min_overlap_ratio
-            )
-        else:
-            lag, coeff = _normalized_xcorr(
-                ref, query, min_overlap_ratio=min_overlap_ratio
-            )
-        offset_s = lag / sample_rate
-        dur_s = len(query) / sample_rate
-        start = max(0.0, offset_s)
-        end = min(ref_dur, offset_s + dur_s)
-        overlaps = end > start
-        out.append(
-            ClipAlignment(
-                index=i,
-                offset_s=offset_s,
-                confidence=coeff,
-                duration_s=dur_s,
-                coverage=(start, end) if overlaps else (start, start),
-                overlaps=overlaps,
-            )
-        )
-    return out
-
-
 #: Default analysis window for :func:`aligned_spans`, in seconds. Long enough that a
 #: window of a real recording carries enough structure to correlate, short enough that a
 #: span boundary is locatable. This is the knob that trades boundary resolution against
@@ -1607,6 +1628,258 @@ SPAN_MERGE_GAP_S: float | None = None
 
 
 @dataclass(frozen=True)
+class ClipAlignment:
+    """Where one clip sits on a reference (song) timeline.
+
+    Attributes:
+        index: The clip's position in the input sequence.
+        offset_s: Reference-time where the clip's audio begins (may be negative).
+        confidence: Normalized cross-correlation coefficient in ``[0, 1]``.
+        duration_s: The clip's own duration (seconds).
+        coverage: ``(start_s, end_s)`` — the clip's span **intersected with the
+            reference timeline** ``[0, reference_duration]``. When the clip does not
+            overlap the reference at all this is a degenerate ``(t, t)`` and
+            :attr:`overlaps` is False; callers building an edit must skip those.
+        overlaps: Whether the clip intersects the reference timeline at all. A clip that
+            does not is still RETURNED, with its measured offset and confidence — see
+            :func:`align_clips_to_reference` for why it is not dropped.
+        support: Fraction in ``[0, 1]`` of the clip's analysis windows that reached
+            :attr:`offset_s` **on their own**, before the consensus vote — "how much of
+            this clip agrees that this is where it goes". It is a different question
+            from :attr:`confidence`, which asks only how well the clip matches at the
+            offset reported, and it is the one that catches the two failures a
+            coefficient cannot: a clip that matches beautifully **somewhere else too**
+            (repetitive music), and a clip only PART of which is the reference at all.
+            Measured on three phone recordings of one commercial track, the whole-clip
+            argmax was 83 s, 174 s and 83 s wrong while its coefficient looked ordinary;
+            consensus support was 10/24, 17/37 and 45/61 and pointed at offsets three
+            independent methods then confirmed to within 40 ms (issue #30).
+            **``None`` when it was not measured** — with ``consensus=False``, and for
+            a clip short enough to be a single window. Neither has a second opinion to
+            compare against, and a support of 1.0 there would be a unanimous vote of
+            one: a number that VOUCHES for an offset nothing corroborated. That is not
+            hypothetical — a 15 s clip truly at offset 30.0, against a reference that is
+            one half twice, comes back at offset 75.0 with confidence 0.979, and a
+            manufactured ``support=1.0`` would carry it through any gate built on this
+            field. ``None`` says "not measured", which a caller can fall back from.
+    """
+
+    index: int
+    offset_s: float
+    confidence: float
+    duration_s: float
+    coverage: tuple[float, float]
+    overlaps: bool = True
+    support: "float | None" = None
+
+
+def align_clips_to_reference(
+    reference_audio: AudioSource,
+    clips: "Sequence[AudioSource]",
+    *,
+    reference_duration: float | None = None,
+    sample_rate: int = 16000,
+    min_overlap_ratio: float = 0.5,
+    feature: str = "envelope",
+    consensus: bool = True,
+    window_s: float = SPAN_WINDOW_S,
+    hop_s: float = SPAN_HOP_S,
+    offset_tolerance_s: float = SPAN_OFFSET_TOLERANCE_S,
+    near_tie_ratio: float = NEAR_TIE_RATIO,
+) -> list[ClipAlignment]:
+    """Align a SET of clips to one reference — the multi-device / multicam primitive.
+
+    Aligns each clip against ``reference_audio`` (e.g. the clean song) and returns its
+    offset, a scale-invariant confidence, and its **coverage clamped to the reference
+    timeline** — so a downstream editor gets valid spans and never references a time the
+    reference does not cover. Preserves the original ``index`` so callers can map results
+    back to inputs.
+
+    **Every clip gets a record.** A clip with no temporal overlap is returned with
+    ``overlaps=False`` rather than omitted, because omission is how a source silently leaves
+    the addressable set: a caller that persists this list as *the* alignment artifact ends
+    up with material it can no longer reference, name, or explain — the file is still there,
+    but nothing downstream can point at it. Selecting what goes into an edit is a matter of
+    *referencing* sources and intervals; a source must never disappear from what can be
+    referenced as a side effect of being measured. Callers building an edit filter on
+    ``overlaps``; callers reporting to a human show all of them, with the reason.
+
+    Args:
+        reference_audio: The signal every clip is aligned to (the song).
+        clips: The clip audio sources (paths, arrays, or ``AudioSegment``\\ s).
+        reference_duration: The reference timeline length (seconds); computed from
+            ``reference_audio`` when omitted.
+        sample_rate: Analysis sample rate (mono).
+        min_overlap_ratio: Passed through to the alignment (see
+            :func:`find_audio_offset_detailed`).
+        feature: Similarity feature for the confidence — see :data:`ALIGNMENT_FEATURES`.
+            Defaults to ``'envelope'`` **because this function's whole purpose is the
+            cross-device case**, and a raw-waveform coefficient is not a usable trust gate
+            there: two microphones in a room are not sample-correlated even when the
+            alignment is exact. Measured on a real 6-device shoot, the waveform coefficient
+            scored provably-correct alignments at 0.064-0.148 — below any threshold a
+            caller would sensibly set — while the envelope scored them 0.441-0.634 and a
+            genuine non-match at 0.102. Pass ``'waveform'`` when the clips come from the
+            SAME source as the reference (e.g. verifying an export against its master),
+            where sample correlation is meaningful and gives finer confidence resolution.
+        consensus: Estimate the offset by putting the clip's analysis windows to a vote
+            rather than by one argmax over the whole clip (issue #30). **On by default,
+            because the whole-clip argmax is measurably wrong on repetitive material**:
+            it minimises a correlation whose peaks are near-tied at musical periods, so
+            it returns whichever repeat won a coin flip, and its coefficient does not
+            drop when it does. A spurious peak lands at a different lag in every window
+            while the true offset is the one they share, so the windows' agreement is
+            what separates them — and how much of the clip agrees is reported as
+            :attr:`~ClipAlignment.support`. ``False`` restores the single whole-clip
+            correlation exactly — same offset, same confidence, and ``support=None``
+            because nothing was put to a vote. It is cheaper (one correlation instead of
+            one per window) and is the right choice only when the reference is known not
+            to repeat.
+        window_s: Analysis window for the vote. Ignored when ``consensus`` is False. A
+            clip shorter than this is a single window, so it takes the whole-clip path's
+            answer either way.
+        hop_s: Step between those windows. Ignored when ``consensus`` is False.
+        offset_tolerance_s: How far two windows' offsets may differ and still count as
+            the same answer.
+        near_tie_ratio: How close a rival peak must score to a window's best one to join
+            the vote — see :data:`NEAR_TIE_RATIO`.
+
+    Returns:
+        A list of :class:`ClipAlignment`, in input order (minus dropped clips).
+    """
+    if feature not in ALIGNMENT_FEATURES:
+        raise ValueError(
+            f"unknown feature {feature!r}; expected one of {ALIGNMENT_FEATURES}"
+        )
+    if near_tie_ratio < 0:
+        raise ValueError(f"near_tie_ratio must not be negative, got {near_tie_ratio}")
+    ref = _load_mono_samples(reference_audio, sample_rate)
+    ref_dur = (
+        reference_duration if reference_duration is not None else len(ref) / sample_rate
+    )
+    # The reference's envelope does not change between clips, let alone between windows.
+    ref_env = onset_envelope(ref, sample_rate) if feature == "envelope" else None
+    out: list[ClipAlignment] = []
+    for i, clip in enumerate(clips):
+        query = _load_mono_samples(clip, sample_rate)
+        if consensus:
+            offset_s, coeff, support = _consensus_alignment(
+                ref,
+                query,
+                sample_rate,
+                window_s=window_s,
+                hop_s=hop_s,
+                feature=feature,
+                min_overlap_ratio=min_overlap_ratio,
+                near_tie_ratio=near_tie_ratio,
+                offset_tolerance_s=offset_tolerance_s,
+                ref_envelope=ref_env,
+            )
+        elif feature == "envelope":
+            lag, coeff = _envelope_then_waveform(
+                ref,
+                query,
+                sample_rate,
+                min_overlap_ratio=min_overlap_ratio,
+                ref_envelope=ref_env,
+            )
+            # Nothing was put to a vote, so support is not measured — never 1.0.
+            offset_s, support = lag / sample_rate, None
+        else:
+            lag, coeff = _normalized_xcorr(
+                ref, query, min_overlap_ratio=min_overlap_ratio
+            )
+            offset_s, support = lag / sample_rate, None
+        dur_s = len(query) / sample_rate
+        start = max(0.0, offset_s)
+        end = min(ref_dur, offset_s + dur_s)
+        overlaps = end > start
+        out.append(
+            ClipAlignment(
+                index=i,
+                offset_s=offset_s,
+                confidence=coeff,
+                duration_s=dur_s,
+                coverage=(start, end) if overlaps else (start, start),
+                overlaps=overlaps,
+                support=support,
+            )
+        )
+    return out
+
+
+def _consensus_alignment(
+    ref: np.ndarray,
+    clip: np.ndarray,
+    sample_rate: int,
+    *,
+    window_s: float,
+    hop_s: float,
+    feature: str,
+    min_overlap_ratio: float,
+    near_tie_ratio: float,
+    offset_tolerance_s: float,
+    ref_envelope: "tuple[np.ndarray, float] | None",
+) -> "tuple[float, float, float]":
+    """One ``(offset_s, confidence, support)`` for a whole clip, by majority of windows.
+
+    The whole-clip counterpart of what :func:`aligned_spans` does per span, for the
+    caller who wants one number. The clip is cut into windows, each window's near-tied
+    candidates vote (:func:`_consensus_choice`), and the offset the most windows landed
+    on wins; the reported offset is the MEDIAN over that winning group, so the answer
+    keeps sub-window precision rather than snapping to one window's estimate.
+
+    ``support`` is counted on the windows' INDEPENDENT argmaxes, not on what the vote
+    assigned them — the vote's own output would agree with itself and say nothing. So it
+    reads as "this fraction of the clip found this offset unaided", which drops both
+    when the reference repeats and when only part of the clip is the reference at all.
+    Under :data:`MIN_WINDOWS_FOR_SUPPORT` windows there is no second opinion to count,
+    and it is ``None`` rather than 1.0 — see :attr:`ClipAlignment.support`.
+
+    A clip shorter than one window is one window, and this returns exactly the offset
+    and confidence the single whole-clip correlation would have.
+
+    **Two offsets can genuinely tie.** A clip that fits equally often in two places
+    splits its windows evenly and no evidence separates them; one is returned, with a
+    support near 0.5 that is the honest report of a 50/50 — not a hedge, and not a claim
+    to have chosen.
+    """
+    windows = _consensus_choice(
+        _window_offsets(
+            ref,
+            clip,
+            sample_rate,
+            window_s=window_s,
+            hop_s=hop_s,
+            feature=feature,
+            min_overlap_ratio=min_overlap_ratio,
+            near_tie_ratio=near_tie_ratio,
+            offset_tolerance_s=offset_tolerance_s,
+            ref_envelope=ref_envelope,
+        ),
+        offset_tolerance_s=offset_tolerance_s,
+    )
+    if not windows:  # an empty clip has no windows and so no opinion
+        return 0.0, 0.0, None
+    offsets = np.array([w.offset_s for w in windows])
+    coeffs = np.array([w.confidence for w in windows])
+    agree = np.abs(offsets[:, None] - offsets[None, :]) <= offset_tolerance_s
+    # Most windows wins; a tie goes to the group the EARLIER windows settled on. That is
+    # the same continuity rule `_consensus_choice` breaks its own ties by, and it is one
+    # rule on purpose: two passes tie-breaking on different principles could settle one
+    # 50/50 clip two different ways inside a single call.
+    counts = agree.sum(axis=1)
+    winner = int(np.lexsort((np.arange(counts.size), -counts))[0])
+    members = agree[winner]
+    offset_s = float(np.median(offsets[members]))
+    support: "float | None" = None
+    if len(windows) >= MIN_WINDOWS_FOR_SUPPORT:
+        votes = np.array([w.vote_offset_s for w in windows])
+        support = float(np.mean(np.abs(votes - offset_s) <= offset_tolerance_s))
+    return offset_s, float(np.median(coeffs[members])), support
+
+
+@dataclass(frozen=True)
 class AlignedSpan:
     """A maximal run of CLIP time that tracks the reference at one stable offset.
 
@@ -1624,13 +1897,33 @@ class AlignedSpan:
             convention as :attr:`ClipAlignment.offset_s`, so
             ``reference_time = clip_time + offset_s`` holds inside the span.
         confidence: Representative confidence for the span (the median over its windows,
-            not the max — a span is only as trustworthy as its typical window).
+            not the max — a span is only as trustworthy as its typical window). It says
+            **how well the clip matches where this span puts it**, and on a reference
+            that repeats verbatim that is a question with several excellent answers —
+            see :attr:`support`, and gate on both.
+        support: Fraction in ``[0, 1]`` of the span's windows that reached this offset
+            **on their own**, before the consensus vote — or ``None`` when the span was
+            built from fewer than :data:`MIN_WINDOWS_FOR_SUPPORT` windows and there was
+            therefore nothing to agree. This is the number that knows about repetition.
+            A reference with no repeats gives 1.0; a verse/chorus reference gives less,
+            because some windows correlated just as well against the wrong chorus and
+            only the crowd put them right; an exactly tiling reference gives very
+            little, because there genuinely is no unique answer and the confidence alone
+            would never say so. Low support with high confidence means "it fits here
+            beautifully, and it would fit elsewhere too".
+
+            **``None`` is not 1.0.** A span of one window cannot disagree with itself,
+            so reporting 1.0 there would be a unanimous vote of one — a number that
+            vouches for an offset nothing corroborated. ``None`` says "not measured",
+            which a caller can fall back from; a manufactured 1.0 is what a caller
+            trusts.
     """
 
     clip_start_s: float
     clip_end_s: float
     offset_s: float
     confidence: float
+    support: "float | None" = None
 
     @property
     def duration_s(self) -> float:
@@ -1655,6 +1948,7 @@ def aligned_spans(
     merge_gap_s: float | None = SPAN_MERGE_GAP_S,
     feature: str = "envelope",
     min_overlap_ratio: float = 0.5,
+    near_tie_ratio: float = NEAR_TIE_RATIO,
 ) -> "list[AlignedSpan]":
     """The MAXIMAL spans of ``clip_audio`` that align to ``reference_audio``.
 
@@ -1672,13 +1966,35 @@ def aligned_spans(
     - A stretch longer than ``merge_gap_s`` that nothing can verify (hard silence, a hand
       over the mic) splits the take into two spans reporting the SAME offset. Two
       same-offset neighbours are the *signal* that this happened, not a stop/restart.
-    - **A reference that repeats itself verbatim fragments a take**, because each window
-      picks its lag by an independent argmax and a repeated chorus makes two peaks
-      near-tied. Measured: a verse/chorus reference split one continuous take into 3
-      spans, and one of them reported a WRONG offset at 0.985 confidence. Music is the
-      material this is for, so treat a short span whose offset disagrees with its
-      neighbours as suspect. Giving the window chooser a continuity prior is the fix and
-      is not done here.
+    - A reference whose repeats are EXACT admits several true answers, and this reports
+      one of them with a low :attr:`~AlignedSpan.support` rather than pretending to have
+      chosen (see below).
+
+    **Repetition is decided by consensus, not by argmax** (issue #30). A verse/chorus
+    reference used to shatter one continuous take into 3 spans — one of them reporting a
+    WRONG offset at 0.985 confidence — because each window picked its lag independently
+    and a repeated chorus makes two peaks near-tied (measured within 0.2% here, and
+    0.987-0.993 second-to-first on real music). So each window now puts its near-tied
+    rivals forward instead of only its argmax, and takes whichever of them the most
+    other windows can also read. A spurious peak lands at a different lag in every
+    window; the true offset is the one they share. Measured on a repeated motif:
+    verse/chorus 3 spans → 1, two identical halves 6 → 1, exact tiling 8 → 1, with the
+    genuine stop/restart still at 2 and the non-repetitive take still at 1 — a window is
+    never moved to a lag its own correlation did not already rate a near-tie, and a
+    restarted take has no such lag near the old offset, so it departs freely.
+
+    **What that costs you is told by ``support``, not by ``confidence``.** The
+    confidence says how well the clip matches where the span puts it, and on repetitive
+    material that question has several excellent answers. ``support`` — the fraction of
+    the span's windows that found this offset unaided — is the one that knows: 1.0 on a
+    reference with no repeats, less where the crowd had to intervene, and very little on
+    an exactly tiling reference where there is genuinely no unique answer. **Gate on
+    both.** High confidence with low support means "it fits here beautifully, and it
+    would fit elsewhere too".
+
+    A span too short to hold a disagreement reports ``support=None``, meaning *not
+    measured* — never 1.0. One window agrees with itself, and a unanimous vote of one
+    is exactly the kind of number a caller would trust and should not.
 
     **Boundary resolution is ``window_s``, and no better.** A window is evidence that its
     whole extent aligns; a boundary falling inside a window degrades that window rather
@@ -1715,6 +2031,12 @@ def aligned_spans(
             the same reason :func:`align_clips_to_reference` does — the cross-device case
             is what this is for.
         min_overlap_ratio: Passed through to the correlation.
+        near_tie_ratio: How close a rival correlation peak must score to a window's best
+            one to join the vote, as a fraction of that best score — see
+            :data:`NEAR_TIE_RATIO`. ``0.0`` disables the consensus pass entirely and
+            restores the per-window argmax this function shipped with, which is
+            measurably wrong on repetitive material and is offered only for reproducing
+            an older result.
 
     Returns:
         Spans in clip order, non-overlapping, and each lying entirely within
@@ -1745,16 +2067,23 @@ def aligned_spans(
             "leaves clip time unmeasured, and a span would then assert alignment over "
             "instants no window ever looked at."
         )
+    if near_tie_ratio < 0:
+        raise ValueError(f"near_tie_ratio must not be negative, got {near_tie_ratio}")
     ref = _load_mono_samples(reference_audio, sample_rate)
     clip = _load_mono_samples(clip_audio, sample_rate)
-    measured = _window_offsets(
-        ref,
-        clip,
-        sample_rate,
-        window_s=window_s,
-        hop_s=hop_s,
-        feature=feature,
-        min_overlap_ratio=min_overlap_ratio,
+    measured = _consensus_choice(
+        _window_offsets(
+            ref,
+            clip,
+            sample_rate,
+            window_s=window_s,
+            hop_s=hop_s,
+            feature=feature,
+            min_overlap_ratio=min_overlap_ratio,
+            near_tie_ratio=near_tie_ratio,
+            offset_tolerance_s=offset_tolerance_s,
+        ),
+        offset_tolerance_s=offset_tolerance_s,
     )
     spans = _spans_from_windows(
         measured,
@@ -1768,6 +2097,32 @@ def aligned_spans(
     return _clamp_to_reference(spans, ref_dur)
 
 
+@dataclass(frozen=True)
+class _WindowMeasurement:
+    """What one analysis window has to say, INCLUDING the rivals it could not separate.
+
+    ``candidates`` is ``((offset_s, confidence), ...)`` best-first, and the first entry
+    is the window's current answer — the plain argmax before :func:`_consensus_choice`
+    runs, the crowd's choice after. ``vote_offset_s`` keeps the argmax whatever happens
+    to ``candidates``: it is the window's INDEPENDENT opinion, and the fraction of
+    windows whose independent opinion matches the answer is what
+    :attr:`AlignedSpan.support` reports.
+    """
+
+    clip_start_s: float
+    clip_end_s: float
+    candidates: "tuple[tuple[float, float], ...]"
+    vote_offset_s: float
+
+    @property
+    def offset_s(self) -> float:
+        return self.candidates[0][0]
+
+    @property
+    def confidence(self) -> float:
+        return self.candidates[0][1]
+
+
 def _window_offsets(
     ref: np.ndarray,
     clip: np.ndarray,
@@ -1777,14 +2132,26 @@ def _window_offsets(
     hop_s: float,
     feature: str,
     min_overlap_ratio: float,
-) -> "list[tuple[float, float, float, float]]":
-    """One ``(clip_start_s, clip_end_s, offset_s, confidence)`` per analysis window.
+    near_tie_ratio: float = NEAR_TIE_RATIO,
+    offset_tolerance_s: float = 0.25,
+    ref_envelope: "tuple[np.ndarray, float] | None" = None,
+) -> "list[_WindowMeasurement]":
+    """One :class:`_WindowMeasurement` per analysis window.
 
     The offset conversion is the load-bearing line. The correlation reports where the
     WINDOW begins on the reference; the window itself begins ``start_s`` into the clip;
     so the offset the window implies for the clip as a whole is ``lag - start_s``.
     Skipping that subtraction would make every window of a correctly-aligned clip report
     a different offset, and no two of them would ever be grouped.
+
+    Each window reports its near-tied rivals rather than only its argmax, because on a
+    reference that repeats verbatim the argmax is a coin flip (issue #30). Resolving the
+    flip is :func:`_consensus_choice`'s job, and it cannot do it from an answer that has
+    already thrown the alternatives away.
+
+    ``offset_tolerance_s`` is not a filter here — it sets how far apart two candidates
+    must be to count as different lags at all, so one peak's shoulders cannot appear on
+    the ballot as several rivals.
     """
     n_win = max(1, int(round(window_s * sample_rate)))
     n_hop = max(1, int(round(hop_s * sample_rate)))
@@ -1796,39 +2163,98 @@ def _window_offsets(
 
     # Computed once for the whole call rather than per window — 2.11x measured, and
     # the reference does not change between windows.
-    ref_env = onset_envelope(ref, sample_rate) if feature == "envelope" else None
+    ref_env = ref_envelope
+    if feature == "envelope" and ref_env is None:
+        ref_env = onset_envelope(ref, sample_rate)
+    min_separation = max(1, int(round(offset_tolerance_s * sample_rate)))
 
-    out = []
+    out: "list[_WindowMeasurement]" = []
     for s0 in starts:
         win = clip[s0 : s0 + n_win]
         if len(win) == 0:
             continue
-        if feature == "envelope":
-            lag, coeff = _envelope_then_waveform(
-                ref,
-                win,
-                sample_rate,
-                min_overlap_ratio=min_overlap_ratio,
-                ref_envelope=ref_env,
-            )
-        else:
-            lag, coeff = _normalized_xcorr(
-                ref, win, min_overlap_ratio=min_overlap_ratio
-            )
+        candidates = _feature_candidates(
+            ref,
+            win,
+            sample_rate,
+            feature=feature,
+            min_overlap_ratio=min_overlap_ratio,
+            near_tie_ratio=near_tie_ratio,
+            min_separation=min_separation,
+            ref_envelope=ref_env,
+        )
         start_s = s0 / sample_rate
+        offsets = tuple(
+            (lag / sample_rate - start_s, coeff) for lag, coeff in candidates
+        )
         out.append(
-            (
-                start_s,
-                (s0 + len(win)) / sample_rate,
-                lag / sample_rate - start_s,
-                coeff,
+            _WindowMeasurement(
+                clip_start_s=start_s,
+                clip_end_s=(s0 + len(win)) / sample_rate,
+                candidates=offsets,
+                vote_offset_s=offsets[0][0],
             )
         )
     return out
 
 
+def _consensus_choice(
+    windows: "list[_WindowMeasurement]", *, offset_tolerance_s: float
+) -> "list[_WindowMeasurement]":
+    """Let the near-ties vote: a window departs from the crowd only on real evidence.
+
+    The fix for issue #30. Each window's near-tied candidates are ballots for an offset;
+    an offset's SUPPORT is the number of distinct windows that could be reading it; and
+    each window then takes whichever of its own candidates has the most support, keeping
+    its argmax to break a tie.
+
+    Why this is the right shape rather than a smoothing pass: the disagreement between
+    windows on repetitive material is not noise, it is the signal. A spurious peak lands
+    at a DIFFERENT lag in each window (it comes from wherever that window's content
+    happens to also fit), while the true offset is the one lag every window has in
+    common. So the offset that repeats across windows is the true one almost by
+    construction, and no window is ever moved to a lag its own correlation did not
+    already rate as a near-tie — which is what leaves a genuine stop/restart alone. A
+    restarted take has NO peak near the old offset, so it has nothing to vote for there
+    and departs freely.
+
+    **Support alone cannot settle an exactly tiling reference**, where every window
+    offers a candidate at every repeat and all of them draw the same support. The tie is
+    broken by CONTINUITY — stay with the previous window's offset — which is the honest
+    move, because on an exact tiling those offsets are all equally true and the only
+    thing left to prefer is the one that describes the clip as one take. That the answer
+    was arbitrary is not swallowed: it shows up as a low
+    :attr:`AlignedSpan.support`. Continuity is deliberately the SECOND key: support is
+    evidence gathered from the whole clip, and a local prior must not overrule it.
+    """
+    if not windows:
+        return []
+    ballots = [np.array([off for off, _ in w.candidates]) for w in windows]
+    hypotheses = np.unique(np.concatenate(ballots))
+    support = np.zeros(hypotheses.size, dtype=int)
+    for ballot in ballots:
+        support += (
+            np.abs(hypotheses[:, None] - ballot[None, :]) <= offset_tolerance_s
+        ).any(axis=1)
+
+    out: "list[_WindowMeasurement]" = []
+    anchor: float | None = None
+    for window, ballot in zip(windows, ballots):
+        # `hypotheses` holds every candidate value exactly, so this is a lookup.
+        own = support[np.searchsorted(hypotheses, ballot)]
+        drift = np.zeros(ballot.size) if anchor is None else np.abs(ballot - anchor)
+        # Keys are applied last-first: most support, then nearest the previous window,
+        # then the window's own ranking (argmax first).
+        best = int(np.lexsort((np.arange(ballot.size), drift, -own))[0])
+        chosen = window.candidates[best]
+        rest = tuple(c for i, c in enumerate(window.candidates) if i != best)
+        out.append(replace(window, candidates=(chosen,) + rest))
+        anchor = chosen[0]
+    return out
+
+
 def _spans_from_windows(
-    measured: "list[tuple[float, float, float, float]]",
+    measured: "list[_WindowMeasurement]",
     *,
     min_confidence: float,
     offset_tolerance_s: float,
@@ -1846,12 +2272,12 @@ def _spans_from_windows(
     a window degraded by silence does not dip, it collapses to zero — far under any keep
     threshold — so hysteresis was never what decided. Merging same-offset neighbours is.
     """
-    runs: list[list[tuple[float, float, float, float]]] = []
-    current: list[tuple[float, float, float, float]] = []
+    runs: "list[list[_WindowMeasurement]]" = []
+    current: "list[_WindowMeasurement]" = []
     for w in measured:
-        _, _, offset, coeff = w
+        offset, coeff = w.offset_s, w.confidence
         if current:
-            ref_offset = float(np.median([m[2] for m in current]))
+            ref_offset = float(np.median([m.offset_s for m in current]))
             if (
                 coeff >= min_confidence
                 and abs(offset - ref_offset) <= offset_tolerance_s
@@ -1865,17 +2291,40 @@ def _spans_from_windows(
     if current:
         runs.append(current)
 
-    spans = [
-        AlignedSpan(
-            clip_start_s=run[0][0],
-            clip_end_s=run[-1][1],
-            offset_s=float(np.median([m[2] for m in run])),
-            confidence=float(np.median([m[3] for m in run])),
-        )
-        for run in runs
-    ]
+    spans = [_span_from_run(run, offset_tolerance_s=offset_tolerance_s) for run in runs]
     return _merge_same_offset(
         _disjoin(spans), offset_tolerance_s=offset_tolerance_s, merge_gap_s=merge_gap_s
+    )
+
+
+def _span_from_run(
+    run: "list[_WindowMeasurement]", *, offset_tolerance_s: float
+) -> "AlignedSpan":
+    """One run of agreeing windows → one :class:`AlignedSpan`, support included.
+
+    Both the offset and the confidence are the MEDIAN over the run's windows — a span is
+    only as trustworthy as its typical window, and the max would let one lucky window
+    speak for all of them.
+
+    ``support`` is counted on the windows' INDEPENDENT argmaxes
+    (:attr:`_WindowMeasurement.vote_offset_s`), not on the offsets consensus assigned
+    them. Counting the assigned offsets would be circular — every window in a run agrees
+    with its run by construction, so the number would be 1.0 always and would carry no
+    information at all. A run too short to hold a disagreement
+    (:data:`MIN_WINDOWS_FOR_SUPPORT`) reports ``None`` for the same reason: 1.0 there
+    would be a unanimous vote of one.
+    """
+    offset = float(np.median([m.offset_s for m in run]))
+    support: "float | None" = None
+    if len(run) >= MIN_WINDOWS_FOR_SUPPORT:
+        agreed = sum(abs(m.vote_offset_s - offset) <= offset_tolerance_s for m in run)
+        support = agreed / len(run)
+    return AlignedSpan(
+        clip_start_s=run[0].clip_start_s,
+        clip_end_s=run[-1].clip_end_s,
+        offset_s=offset,
+        confidence=float(np.median([m.confidence for m in run])),
+        support=support,
     )
 
 
@@ -1968,10 +2417,26 @@ def _merge_same_offset(
                     )
                     / max(prev.duration_s + span.duration_s, 1e-9),
                     confidence=min(prev.confidence, span.confidence),
+                    support=_merge_support(prev, span),
                 )
                 continue
         out.append(span)
     return out
+
+
+def _merge_support(a: "AlignedSpan", b: "AlignedSpan") -> "float | None":
+    """The support of two merged spans — duration-weighted, and ``None`` if either is.
+
+    Weighted like the offset, so a long span is not dragged by a short one. The
+    ``None`` rule is the load-bearing half: a span that never measured its support has
+    no fraction to average in, and defaulting it to 1.0 (or dropping it and keeping the
+    other side's) would let a stretch nothing corroborated inherit the vouching of the
+    stretch beside it. Unmeasured plus measured is unmeasured.
+    """
+    if a.support is None or b.support is None:
+        return None
+    total = max(a.duration_s + b.duration_s, 1e-9)
+    return (a.support * a.duration_s + b.support * b.duration_s) / total
 
 
 def _disjoin(spans: "list[AlignedSpan]") -> "list[AlignedSpan]":
