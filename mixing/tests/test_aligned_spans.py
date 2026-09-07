@@ -673,16 +673,27 @@ def test_a_clip_shorter_than_one_window_takes_the_whole_clip_answer(
 
     A clip shorter than ``window_s`` is a single window, so there is nothing to vote on
     and the answer — offset, confidence and support — must equal the single-correlation
-    path exactly. That is what leaves every existing short-clip caller unmoved, and it is
-    why turning consensus on by default does not perturb the rest of this suite.
+    path exactly.
+
+    ``window_s`` is passed explicitly here, and that is the whole change issue #41 made:
+    a 15 s clip at the DEFAULT window is no longer one window, because the default now
+    fits the window to the clip (:func:`_clip_window_and_hop`) precisely so that a short
+    clip gets the vote this test describes the absence of. The statement itself is
+    unchanged and still worth pinning — whenever a clip really is one window, however
+    that came about, consensus must return the single correlation's answer and not a
+    different one.
 
     Both sides report ``support=None``: one window is not a quorum, and the equality
     would be satisfied just as well by both sides manufacturing 1.0, so that is asserted
     separately below rather than left to the tuple comparison.
     """
+    from mixing.audio.audio_ops import SPAN_HOP_S, SPAN_WINDOW_S
+
     rng = np.random.default_rng(37)
     clip = _write(tmp_path, "short_clip.wav", _take(ref, 30, 45, rng))
-    (new,) = align_clips_to_reference(song, [clip], sample_rate=SR)  # window is 20 s
+    (new,) = align_clips_to_reference(
+        song, [clip], sample_rate=SR, window_s=SPAN_WINDOW_S, hop_s=SPAN_HOP_S
+    )
     (old,) = align_clips_to_reference(song, [clip], sample_rate=SR, consensus=False)
     assert (new.offset_s, new.confidence, new.support) == (
         old.offset_s,
@@ -711,19 +722,62 @@ def test_support_is_None_where_no_second_opinion_exists(two_halves, tmp_path):
     apart. The complaint is what ``support`` says about it. Reporting 1.0 (as the first
     version of this fix did) turns "nobody checked" into "everybody agreed", and a
     consumer gating on ``support >= 1.0`` then waves the wrong offset straight through.
+
+    ``window_s`` is pinned to the shipped default rather than left to it: since issue #41
+    the default fits the window to the clip, so this 15 s clip is no longer one window
+    unless it is asked to be. What that adaptation does to this very fixture is the
+    subject of the test below.
     """
+    from mixing.audio.audio_ops import SPAN_HOP_S, SPAN_WINDOW_S
+
     song, ref = two_halves
     rng = np.random.default_rng(38)
     clip = _write(tmp_path, "one_window.wav", _take(ref, 30, 45, rng))  # true offset 30
 
-    (default,) = align_clips_to_reference(song, [clip], sample_rate=SR)
+    (one_window,) = align_clips_to_reference(
+        song, [clip], sample_rate=SR, window_s=SPAN_WINDOW_S, hop_s=SPAN_HOP_S
+    )
     (single,) = align_clips_to_reference(song, [clip], sample_rate=SR, consensus=False)
-    assert default.offset_s == 75.0 and single.offset_s == 75.0, (
+    assert one_window.offset_s == 75.0 and single.offset_s == 75.0, (
         "the fixture is only meaningful while the offset really is wrong"
     )
-    assert default.confidence > 0.9
-    assert default.support is None, "one window is not a quorum"
+    assert one_window.confidence > 0.9
+    assert one_window.support is None, "one window is not a quorum"
     assert single.support is None, "and consensus=False put nothing to a vote at all"
+
+
+def test_the_same_clip_gets_a_measured_support_once_its_window_fits_it(
+    two_halves, tmp_path
+):
+    """The other half of the test above: the vote exists, so the number exists.
+
+    Same fixture, same clip, same call — minus the pinned window. At the shipped default
+    the window is now fitted to the clip, so the 15 s clip that had ONE opinion has
+    several, and ``support`` is a fraction instead of ``None``. That is what this test is
+    for, and all it is for.
+
+    **This is a tie-break, not a wrong→right correction, and it is not evidence that the
+    fix works.** The reference here is one 45 s half twice, so 30.0 and 75.0 are *both*
+    places the clip genuinely fits: the material at those two times is identical, and no
+    correlation can prefer one. 30.0 is where this clip was cut from, which the vote now
+    settles on, but a fixture that cannot distinguish them cannot demonstrate an offset
+    being corrected. The evidence that #41's rule fixes offsets is the measurement on real
+    cross-device material (thorwhalen/muvid#59), where the wrong answer was wrong by 102 s
+    against a reference that does not repeat verbatim.
+
+    The support is deliberately not asserted to be 1.0: with two equally true answers some
+    windows land on each, and a fraction strictly inside ``(0, 1]`` is the honest report of
+    exactly that — a number a caller can gate on, which ``None`` was not.
+    """
+    song, ref = two_halves
+    rng = np.random.default_rng(38)
+    clip = _write(tmp_path, "fitted_window.wav", _take(ref, 30, 45, rng))
+
+    (fitted,) = align_clips_to_reference(song, [clip], sample_rate=SR)
+
+    assert fitted.offset_s == pytest.approx(30.0, abs=0.05)
+    assert fitted.support is not None, "a fitted window is a vote, and a vote is measured"
+    assert 0.0 < fitted.support <= 1.0
 
 
 def test_a_span_too_short_to_disagree_reports_no_support(song, ref, tmp_path):
