@@ -1304,6 +1304,13 @@ def _normalized_xcorr(
 #: what keeps a genuine stop/restart free to depart from its neighbours.
 NEAR_TIE_RATIO = 0.05
 
+#: How many independent windows it takes before "how many of them agree" is a fact
+#: rather than a tautology. One window agrees with itself, so a support fraction
+#: computed over a single vote is always 1.0 and has measured nothing — and a
+#: manufactured 1.0 is worse than no number at all, because it VOUCHES. Below this,
+#: support is reported as ``None``.
+MIN_WINDOWS_FOR_SUPPORT = 2
+
 #: Most near-tied lags one window may put forward. A cap, not a target: an exactly
 #: tiling reference offers one candidate per repeat, and the vote does not get better
 #: for counting all of them.
@@ -1647,8 +1654,14 @@ class ClipAlignment:
             argmax was 83 s, 174 s and 83 s wrong while its coefficient looked ordinary;
             consensus support was 10/24, 17/37 and 45/61 and pointed at offsets three
             independent methods then confirmed to within 40 ms (issue #30).
-            ``1.0`` when the clip is short enough to be a single window, and when
-            ``consensus=False``, since there is then nothing to disagree.
+            **``None`` when it was not measured** — with ``consensus=False``, and for
+            a clip short enough to be a single window. Neither has a second opinion to
+            compare against, and a support of 1.0 there would be a unanimous vote of
+            one: a number that VOUCHES for an offset nothing corroborated. That is not
+            hypothetical — a 15 s clip truly at offset 30.0, against a reference that is
+            one half twice, comes back at offset 75.0 with confidence 0.979, and a
+            manufactured ``support=1.0`` would carry it through any gate built on this
+            field. ``None`` says "not measured", which a caller can fall back from.
     """
 
     index: int
@@ -1657,7 +1670,7 @@ class ClipAlignment:
     duration_s: float
     coverage: tuple[float, float]
     overlaps: bool = True
-    support: float = 1.0
+    support: "float | None" = None
 
 
 def align_clips_to_reference(
@@ -1718,9 +1731,10 @@ def align_clips_to_reference(
             while the true offset is the one they share, so the windows' agreement is
             what separates them — and how much of the clip agrees is reported as
             :attr:`~ClipAlignment.support`. ``False`` restores the single whole-clip
-            correlation exactly, which is cheaper (one correlation instead of one per
-            window) and is the right choice only when the reference is known not to
-            repeat.
+            correlation exactly — same offset, same confidence, and ``support=None``
+            because nothing was put to a vote. It is cheaper (one correlation instead of
+            one per window) and is the right choice only when the reference is known not
+            to repeat.
         window_s: Analysis window for the vote. Ignored when ``consensus`` is False. A
             clip shorter than this is a single window, so it takes the whole-clip path's
             answer either way.
@@ -1769,12 +1783,13 @@ def align_clips_to_reference(
                 min_overlap_ratio=min_overlap_ratio,
                 ref_envelope=ref_env,
             )
-            offset_s, support = lag / sample_rate, 1.0
+            # Nothing was put to a vote, so support is not measured — never 1.0.
+            offset_s, support = lag / sample_rate, None
         else:
             lag, coeff = _normalized_xcorr(
                 ref, query, min_overlap_ratio=min_overlap_ratio
             )
-            offset_s, support = lag / sample_rate, 1.0
+            offset_s, support = lag / sample_rate, None
         dur_s = len(query) / sample_rate
         start = max(0.0, offset_s)
         end = min(ref_dur, offset_s + dur_s)
@@ -1818,9 +1833,16 @@ def _consensus_alignment(
     assigned them — the vote's own output would agree with itself and say nothing. So it
     reads as "this fraction of the clip found this offset unaided", which drops both
     when the reference repeats and when only part of the clip is the reference at all.
+    Under :data:`MIN_WINDOWS_FOR_SUPPORT` windows there is no second opinion to count,
+    and it is ``None`` rather than 1.0 — see :attr:`ClipAlignment.support`.
 
-    A clip shorter than one window is one window, and this returns exactly what the
-    single whole-clip correlation would have.
+    A clip shorter than one window is one window, and this returns exactly the offset
+    and confidence the single whole-clip correlation would have.
+
+    **Two offsets can genuinely tie.** A clip that fits equally often in two places
+    splits its windows evenly and no evidence separates them; one is returned, with a
+    support near 0.5 that is the honest report of a 50/50 — not a hedge, and not a claim
+    to have chosen.
     """
     windows = _consensus_choice(
         _window_offsets(
@@ -1838,19 +1860,22 @@ def _consensus_alignment(
         offset_tolerance_s=offset_tolerance_s,
     )
     if not windows:  # an empty clip has no windows and so no opinion
-        return 0.0, 0.0, 0.0
+        return 0.0, 0.0, None
     offsets = np.array([w.offset_s for w in windows])
     coeffs = np.array([w.confidence for w in windows])
     agree = np.abs(offsets[:, None] - offsets[None, :]) <= offset_tolerance_s
-    # Most windows wins; a tie goes to the group that correlates better, so two equally
-    # popular offsets are separated by evidence rather than by clip order.
+    # Most windows wins; a tie goes to the group the EARLIER windows settled on. That is
+    # the same continuity rule `_consensus_choice` breaks its own ties by, and it is one
+    # rule on purpose: two passes tie-breaking on different principles could settle one
+    # 50/50 clip two different ways inside a single call.
     counts = agree.sum(axis=1)
-    weight = agree @ coeffs
-    winner = int(np.lexsort((-weight, -counts))[0])
+    winner = int(np.lexsort((np.arange(counts.size), -counts))[0])
     members = agree[winner]
     offset_s = float(np.median(offsets[members]))
-    votes = np.array([w.vote_offset_s for w in windows])
-    support = float(np.mean(np.abs(votes - offset_s) <= offset_tolerance_s))
+    support: "float | None" = None
+    if len(windows) >= MIN_WINDOWS_FOR_SUPPORT:
+        votes = np.array([w.vote_offset_s for w in windows])
+        support = float(np.mean(np.abs(votes - offset_s) <= offset_tolerance_s))
     return offset_s, float(np.median(coeffs[members])), support
 
 
@@ -1877,20 +1902,28 @@ class AlignedSpan:
             that repeats verbatim that is a question with several excellent answers —
             see :attr:`support`, and gate on both.
         support: Fraction in ``[0, 1]`` of the span's windows that reached this offset
-            **on their own**, before the consensus vote. This is the number that knows
-            about repetition. A reference with no repeats gives 1.0; a verse/chorus
-            reference gives less, because some windows correlated just as well against
-            the wrong chorus and only the crowd put them right; an exactly tiling
-            reference gives very little, because there genuinely is no unique answer and
-            the confidence alone would never say so. Low support with high confidence
-            means "it fits here beautifully, and it would fit elsewhere too".
+            **on their own**, before the consensus vote — or ``None`` when the span was
+            built from fewer than :data:`MIN_WINDOWS_FOR_SUPPORT` windows and there was
+            therefore nothing to agree. This is the number that knows about repetition.
+            A reference with no repeats gives 1.0; a verse/chorus reference gives less,
+            because some windows correlated just as well against the wrong chorus and
+            only the crowd put them right; an exactly tiling reference gives very
+            little, because there genuinely is no unique answer and the confidence alone
+            would never say so. Low support with high confidence means "it fits here
+            beautifully, and it would fit elsewhere too".
+
+            **``None`` is not 1.0.** A span of one window cannot disagree with itself,
+            so reporting 1.0 there would be a unanimous vote of one — a number that
+            vouches for an offset nothing corroborated. ``None`` says "not measured",
+            which a caller can fall back from; a manufactured 1.0 is what a caller
+            trusts.
     """
 
     clip_start_s: float
     clip_end_s: float
     offset_s: float
     confidence: float
-    support: float = 1.0
+    support: "float | None" = None
 
     @property
     def duration_s(self) -> float:
@@ -1958,6 +1991,10 @@ def aligned_spans(
     an exactly tiling reference where there is genuinely no unique answer. **Gate on
     both.** High confidence with low support means "it fits here beautifully, and it
     would fit elsewhere too".
+
+    A span too short to hold a disagreement reports ``support=None``, meaning *not
+    measured* — never 1.0. One window agrees with itself, and a unanimous vote of one
+    is exactly the kind of number a caller would trust and should not.
 
     **Boundary resolution is ``window_s``, and no better.** A window is evidence that its
     whole extent aligns; a boundary falling inside a window degrades that window rather
@@ -2273,16 +2310,21 @@ def _span_from_run(
     (:attr:`_WindowMeasurement.vote_offset_s`), not on the offsets consensus assigned
     them. Counting the assigned offsets would be circular — every window in a run agrees
     with its run by construction, so the number would be 1.0 always and would carry no
-    information at all.
+    information at all. A run too short to hold a disagreement
+    (:data:`MIN_WINDOWS_FOR_SUPPORT`) reports ``None`` for the same reason: 1.0 there
+    would be a unanimous vote of one.
     """
     offset = float(np.median([m.offset_s for m in run]))
-    agreed = sum(abs(m.vote_offset_s - offset) <= offset_tolerance_s for m in run)
+    support: "float | None" = None
+    if len(run) >= MIN_WINDOWS_FOR_SUPPORT:
+        agreed = sum(abs(m.vote_offset_s - offset) <= offset_tolerance_s for m in run)
+        support = agreed / len(run)
     return AlignedSpan(
         clip_start_s=run[0].clip_start_s,
         clip_end_s=run[-1].clip_end_s,
         offset_s=offset,
         confidence=float(np.median([m.confidence for m in run])),
-        support=agreed / len(run),
+        support=support,
     )
 
 
@@ -2375,16 +2417,26 @@ def _merge_same_offset(
                     )
                     / max(prev.duration_s + span.duration_s, 1e-9),
                     confidence=min(prev.confidence, span.confidence),
-                    # Duration-weighted like the offset: the merged span's support is
-                    # what fraction of the whole take found this offset unaided.
-                    support=(
-                        prev.support * prev.duration_s + span.support * span.duration_s
-                    )
-                    / max(prev.duration_s + span.duration_s, 1e-9),
+                    support=_merge_support(prev, span),
                 )
                 continue
         out.append(span)
     return out
+
+
+def _merge_support(a: "AlignedSpan", b: "AlignedSpan") -> "float | None":
+    """The support of two merged spans — duration-weighted, and ``None`` if either is.
+
+    Weighted like the offset, so a long span is not dragged by a short one. The
+    ``None`` rule is the load-bearing half: a span that never measured its support has
+    no fraction to average in, and defaulting it to 1.0 (or dropping it and keeping the
+    other side's) would let a stretch nothing corroborated inherit the vouching of the
+    stretch beside it. Unmeasured plus measured is unmeasured.
+    """
+    if a.support is None or b.support is None:
+        return None
+    total = max(a.duration_s + b.duration_s, 1e-9)
+    return (a.support * a.duration_s + b.support * b.duration_s) / total
 
 
 def _disjoin(spans: "list[AlignedSpan]") -> "list[AlignedSpan]":

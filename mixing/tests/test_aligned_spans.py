@@ -633,7 +633,10 @@ def test_the_whole_clip_estimator_reaches_the_consensus_offset(two_halves, tmp_p
     (old,) = align_clips_to_reference(song, [clip], sample_rate=SR, consensus=False)
     assert abs(old.offset_s - 20.0) > 1.0, "the fixture must still reproduce the defect"
     assert old.confidence > 0.9, "at a confidence that clears any sane gate"
-    assert old.support == 1.0, "and with nothing else to warn the caller"
+    assert old.support is None, (
+        "and nothing measured agreed with it, which is what `support` must say — a 1.0 "
+        "here would VOUCH for the wrong offset instead of merely failing to warn"
+    )
 
     (new,) = align_clips_to_reference(
         song, [clip], sample_rate=SR, window_s=WIN, hop_s=HOP
@@ -672,6 +675,10 @@ def test_a_clip_shorter_than_one_window_takes_the_whole_clip_answer(
     and the answer — offset, confidence and support — must equal the single-correlation
     path exactly. That is what leaves every existing short-clip caller unmoved, and it is
     why turning consensus on by default does not perturb the rest of this suite.
+
+    Both sides report ``support=None``: one window is not a quorum, and the equality
+    would be satisfied just as well by both sides manufacturing 1.0, so that is asserted
+    separately below rather than left to the tuple comparison.
     """
     rng = np.random.default_rng(37)
     clip = _write(tmp_path, "short_clip.wav", _take(ref, 30, 45, rng))
@@ -682,3 +689,156 @@ def test_a_clip_shorter_than_one_window_takes_the_whole_clip_answer(
         old.confidence,
         old.support,
     )
+    assert new.support is None, "one window is not a quorum"
+
+
+# --------------------------------------------------------------------------
+# `support` must never vouch for something it did not measure
+#
+# Found by review of the first version of this fix, which reported ``support=1.0``
+# wherever there was only one opinion to count. That is the same class of defect as
+# issue #30 itself: a number that looks like evidence and is not.
+# --------------------------------------------------------------------------
+
+
+def test_support_is_None_where_no_second_opinion_exists(two_halves, tmp_path):
+    """The reviewer's reproduction, and the reason ``None`` is not spelled ``1.0``.
+
+    A 15 s clip taken from offset 30.0 of a reference that is one 45 s half twice comes
+    back at offset **75.0** — wrong — at confidence 0.979, on BOTH paths, because it is
+    a single window and there is nothing for a vote to do. That the answer is wrong is
+    not this test's complaint; a single window genuinely cannot tell those two halves
+    apart. The complaint is what ``support`` says about it. Reporting 1.0 (as the first
+    version of this fix did) turns "nobody checked" into "everybody agreed", and a
+    consumer gating on ``support >= 1.0`` then waves the wrong offset straight through.
+    """
+    song, ref = two_halves
+    rng = np.random.default_rng(38)
+    clip = _write(tmp_path, "one_window.wav", _take(ref, 30, 45, rng))  # true offset 30
+
+    (default,) = align_clips_to_reference(song, [clip], sample_rate=SR)
+    (single,) = align_clips_to_reference(song, [clip], sample_rate=SR, consensus=False)
+    assert default.offset_s == 75.0 and single.offset_s == 75.0, (
+        "the fixture is only meaningful while the offset really is wrong"
+    )
+    assert default.confidence > 0.9
+    assert default.support is None, "one window is not a quorum"
+    assert single.support is None, "and consensus=False put nothing to a vote at all"
+
+
+def test_a_span_too_short_to_disagree_reports_no_support(song, ref, tmp_path):
+    """The same rule on the span side: one window, one opinion, no support fraction."""
+    rng = np.random.default_rng(39)
+    clip = _write(
+        tmp_path, "tiny.wav", _take(ref, 30, 36, rng)
+    )  # shorter than a window
+    (span,) = _spans(song, clip)
+    assert span.offset_s == pytest.approx(30.0, abs=0.05)
+    assert span.support is None
+
+
+def test_an_unmeasured_span_does_not_inherit_support_when_merged(song, ref, tmp_path):
+    """A merge must not launder an unmeasured half through a measured one.
+
+    ``_merge_same_offset`` rejoins two spans that agree across a short unverified gap.
+    If one of them never measured a support, averaging the pair would hand the merged
+    span a fraction that describes only part of it — the vouching problem again, one
+    level up. Unmeasured plus measured is unmeasured.
+    """
+    from mixing.audio.audio_ops import _merge_same_offset
+
+    measured = AlignedSpan(0.0, 30.0, offset_s=5.0, confidence=0.9, support=1.0)
+    unmeasured = AlignedSpan(31.0, 37.0, offset_s=5.0, confidence=0.9, support=None)
+    (merged,) = _merge_same_offset(
+        [measured, unmeasured], offset_tolerance_s=0.25, merge_gap_s=10.0
+    )
+    assert merged.clip_end_s == 37.0, "the fixture must actually merge"
+    assert merged.support is None
+
+    both = AlignedSpan(31.0, 37.0, offset_s=5.0, confidence=0.9, support=0.5)
+    (merged_both,) = _merge_same_offset(
+        [measured, both], offset_tolerance_s=0.25, merge_gap_s=10.0
+    )
+    assert merged_both.support == pytest.approx((1.0 * 30.0 + 0.5 * 6.0) / 36.0)
+
+
+def test_two_offsets_that_genuinely_tie_report_the_tie(song, ref, tmp_path):
+    """A 50/50 is reported as a 50/50, not resolved into a confident single answer.
+
+    Two takes of equal length is the cleanest tie there is: half the windows say one
+    offset, half say the other, and asking `align_clips_to_reference` for ONE number has
+    no better answer than picking one. Measured, it returns a true offset — 5.0, one of
+    the two — at confidence 0.985, which is exactly as high as it would be if the clip
+    were unambiguous. ``support`` is the only thing that reports the split, at 0.444.
+
+    Which of the two wins is arbitrary and deliberately not pinned; that it is one of
+    them, and that the support says half the clip disagrees, is the contract.
+    """
+    rng = np.random.default_rng(40)
+    clip = _write(
+        tmp_path,
+        "tie.wav",
+        np.concatenate([_take(ref, 5, 30, rng), _take(ref, 55, 80, rng)]),
+    )
+    (a,) = align_clips_to_reference(
+        song, [clip], sample_rate=SR, window_s=WIN, hop_s=HOP
+    )
+    assert a.offset_s == pytest.approx(5.0, abs=0.05) or a.offset_s == pytest.approx(
+        30.0, abs=0.05
+    ), f"neither true offset was returned: {a.offset_s}"
+    assert a.confidence > 0.9, "the tie does not show up in the coefficient"
+    assert 0.35 < a.support < 0.65, f"a 50/50 must read as one, got {a.support}"
+
+
+# --------------------------------------------------------------------------
+# `consensus=False` is a characterization guardrail, not a convenience flag
+# --------------------------------------------------------------------------
+
+#: ``(offset_s, confidence)`` produced by ``align_clips_to_reference`` at commit ad8f056
+#: — the last commit BEFORE the consensus pass — for each fixture below. Captured by
+#: running that checkout, not by running the current code, so this pins the new
+#: ``consensus=False`` path against the OLD function rather than against itself.
+#: Keyed by ``(fixture, take_start, take_end, seed, feature)``.
+PRE_CONSENSUS_RESULTS = {
+    ("plain", 30, 45, 37, "envelope"): (30.0, 0.9845849122668827),
+    ("plain", 30, 45, 37, "waveform"): (30.0, 0.9845842060773334),
+    ("plain", 10, 60, 40, "envelope"): (10.0, 0.9845698125115664),
+    ("plain", 10, 60, 40, "waveform"): (10.0, 0.9845689746370594),
+    ("halves", 20, 70, 35, "envelope"): (-25.0, 0.9781992781864717),
+    ("halves", 20, 70, 35, "waveform"): (-25.0, 0.9781992794529429),
+    ("halves", 30, 45, 38, "envelope"): (75.0, 0.9792068725230924),
+    ("halves", 30, 45, 38, "waveform"): (75.0, 0.9792019527804959),
+}
+
+
+@pytest.mark.parametrize("key", sorted(PRE_CONSENSUS_RESULTS))
+def test_consensus_false_reproduces_the_pre_consensus_function(
+    key, song, ref, two_halves, tmp_path
+):
+    """``consensus=False`` must be the OLD behaviour, measured against the old code.
+
+    A new-vs-new comparison could not catch this: if the consensus path and the
+    single-correlation path drifted together, both would move and the test would stay
+    green. So the expected values were captured by running the pre-change checkout
+    (ad8f056) and are pinned here as literals — including the two WRONG offsets that
+    change motivated (-25.0 and 75.0), because a guardrail records what the code did,
+    not what it should have done.
+
+    The confidence is compared to 1e-9 rather than exactly: an FFT correlation can
+    differ in its last bits across platforms and library versions, and a bit-exact pin
+    would fail for reasons that have nothing to do with this function.
+    """
+    fixture, a, b, seed, feature = key
+    path, material = {"plain": (song, ref), "halves": two_halves}[fixture]
+    rng = np.random.default_rng(seed)
+    clip = _write(
+        tmp_path, f"pre_{fixture}_{a}_{b}_{seed}.wav", _take(material, a, b, rng)
+    )
+
+    (got,) = align_clips_to_reference(
+        path, [clip], sample_rate=SR, feature=feature, consensus=False
+    )
+    want_offset, want_confidence = PRE_CONSENSUS_RESULTS[key]
+    assert got.offset_s == want_offset
+    assert got.confidence == pytest.approx(want_confidence, abs=1e-9)
+    assert got.support is None, "the old function had no support to report"

@@ -164,16 +164,26 @@ So read the two numbers as different questions:
 
 - **`confidence`** — how well the clip matches *where this answer puts it*. On repetitive
   material it stays high, and it should: the match really is that good.
-- **`support`** (0–1) — what fraction of the windows reached that offset **on their own**.
-  1.0 on material with no repeats; ~0.44 on verse/chorus; ~0.0 on an exactly tiling
-  reference, where every offset is equally true and no confidence would ever say so. It
-  also drops when only *part* of the clip is the reference at all (measured 0.545 on a
-  half-song/half-noise clip), which is what localises where a clip stops matching.
+- **`support`** (0–1, or `None`) — what fraction of the windows reached that offset **on
+  their own**. 1.0 on material with no repeats; ~0.44 on verse/chorus; ~0.0 on an exactly
+  tiling reference, where every offset is equally true and no confidence would ever say
+  so. It also drops when only *part* of the clip is the reference at all (measured 0.545
+  on a half-song/half-noise clip), which is what localises where a clip stops matching.
 
 High confidence with low support means *"it fits here beautifully — and it would fit
-elsewhere too."* `near_tie_ratio=0.0` disables the vote and restores the old per-window
-argmax; `align_clips_to_reference(..., consensus=False)` restores its single whole-clip
-correlation (cheaper: one correlation instead of one per window).
+elsewhere too."*
+
+**`support is None` means NOT MEASURED — do not read it as 1.0.** You get it with
+`consensus=False`, and for a clip shorter than one window, because one window cannot
+disagree with itself and a unanimous vote of one would vouch for an offset nothing
+corroborated. Measured: a 15 s clip truly at offset 30 against a two-identical-halves
+reference comes back at offset 75.0 with confidence 0.979 — a `support` of 1.0 there
+would carry the wrong answer through any gate. When it is `None`, fall back to
+`confidence` and know you are trusting a single opinion.
+
+`near_tie_ratio=0.0` disables the vote and restores the old per-window argmax;
+`align_clips_to_reference(..., consensus=False)` restores its single whole-clip
+correlation exactly (cheaper: one correlation instead of one per window).
 
 ## Segmentation — split a long recording into pieces
 
