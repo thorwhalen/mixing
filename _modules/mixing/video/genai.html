@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>mixing.video.genai &mdash; mixing 0.0.50 documentation</title>
+  <title>mixing.video.genai &mdash; mixing 0.0.51 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
@@ -14,7 +14,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=e072a57b"></script>
+      <script src="../../../_static/documentation_options.js?v=440a2162"></script>
       <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="../../../_static/toggleprompt.js?v=d7ede5d2"></script>
@@ -173,6 +173,7 @@
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">base64</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">mimetypes</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
@@ -183,9 +184,11 @@
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">._helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">_is_video_file</span>
 
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_print_auth_help</span><span class="p">():</span>
-<span class="w">    </span><span class="sd">"""Print helpful authentication setup information."""</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_log_auth_help</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">"""Log helpful authentication setup information."""</span>
     <span class="n">help_msg</span> <span class="o">=</span> <span class="s2">"""</span>
 <span class="s2">╔══════════════════════════════════════════════════════════════════════════════╗</span>
 <span class="s2">║                        GOOGLE CLOUD AUTHENTICATION SETUP                     ║</span>
@@ -216,7 +219,7 @@
 <span class="s2">║                                                                              ║</span>
 <span class="s2">╚══════════════════════════════════════════════════════════════════════════════╝</span>
 <span class="s2">    """</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">help_msg</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">help_msg</span><span class="p">)</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_get_auth_from_env</span><span class="p">():</span>
@@ -273,18 +276,17 @@
         <span class="k">return</span> <span class="n">client</span>
 
     <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-        <span class="c1"># Print helpful error message</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">"</span> <span class="o">+</span> <span class="s2">"="</span> <span class="o">*</span> <span class="mi">80</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">"❌ AUTHENTICATION ERROR"</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">"="</span> <span class="o">*</span> <span class="mi">80</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Error: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">This usually means one of the following:"</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">"• Service account file is missing or invalid"</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">"• Project ID is not set or incorrect"</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">"• Application default credentials are not configured"</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">"• Missing required permissions for Vertex AI"</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
-        <span class="n">_print_auth_help</span><span class="p">()</span>
+        <span class="c1"># Log helpful error message</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+            <span class="s2">"AUTHENTICATION ERROR: </span><span class="si">%s</span><span class="se">\n</span><span class="s2">"</span>
+            <span class="s2">"This usually means one of the following:</span><span class="se">\n</span><span class="s2">"</span>
+            <span class="s2">"• Service account file is missing or invalid</span><span class="se">\n</span><span class="s2">"</span>
+            <span class="s2">"• Project ID is not set or incorrect</span><span class="se">\n</span><span class="s2">"</span>
+            <span class="s2">"• Application default credentials are not configured</span><span class="se">\n</span><span class="s2">"</span>
+            <span class="s2">"• Missing required permissions for Vertex AI"</span><span class="p">,</span>
+            <span class="n">e</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">_log_auth_help</span><span class="p">()</span>
         <span class="k">raise</span>  <span class="c1"># Re-raise the original exception</span>
 
 
@@ -803,15 +805,13 @@
     <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
         <span class="c1"># Additional context for missing project ID</span>
         <span class="k">if</span> <span class="s2">"project"</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">final_project_id</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">"</span> <span class="o">+</span> <span class="s2">"="</span> <span class="o">*</span> <span class="mi">80</span><span class="p">)</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s2">"❌ MISSING PROJECT ID"</span><span class="p">)</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s2">"="</span> <span class="o">*</span> <span class="mi">80</span><span class="p">)</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s2">"No project ID was provided via parameter or environment variable."</span><span class="p">)</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s2">"Please set one of the following:"</span><span class="p">)</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s2">"• export GOOGLE_CLOUD_PROJECT='your-project-id'"</span><span class="p">)</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s2">"• export VEO_PROJECT_ID='your-project-id'"</span><span class="p">)</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s2">"• Or pass project_id='your-project-id' to the function"</span><span class="p">)</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s2">"="</span> <span class="o">*</span> <span class="mi">80</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                <span class="s2">"MISSING PROJECT ID: no project ID was provided via parameter or "</span>
+                <span class="s2">"environment variable. Please set one of the following:</span><span class="se">\n</span><span class="s2">"</span>
+                <span class="s2">"• export GOOGLE_CLOUD_PROJECT='your-project-id'</span><span class="se">\n</span><span class="s2">"</span>
+                <span class="s2">"• export VEO_PROJECT_ID='your-project-id'</span><span class="se">\n</span><span class="s2">"</span>
+                <span class="s2">"• Or pass project_id='your-project-id' to the function"</span>
+            <span class="p">)</span>
         <span class="k">raise</span>
 
     <span class="c1"># Prepare Image objects if frames provided</span>
@@ -858,20 +858,19 @@
             <span class="n">term</span> <span class="ow">in</span> <span class="n">error_str</span>
             <span class="k">for</span> <span class="n">term</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"unauthenticated"</span><span class="p">,</span> <span class="s2">"unauthorized"</span><span class="p">,</span> <span class="s2">"401"</span><span class="p">,</span> <span class="s2">"403"</span><span class="p">]</span>
         <span class="p">):</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">"</span> <span class="o">+</span> <span class="s2">"="</span> <span class="o">*</span> <span class="mi">80</span><span class="p">)</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s2">"❌ API AUTHENTICATION/PERMISSION ERROR"</span><span class="p">)</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s2">"="</span> <span class="o">*</span> <span class="mi">80</span><span class="p">)</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Error: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">This usually means:"</span><span class="p">)</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s2">"• Your authentication credentials are invalid or expired"</span><span class="p">)</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s2">"• Your project doesn't have Vertex AI API enabled"</span><span class="p">)</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s2">"• Your service account lacks necessary permissions"</span><span class="p">)</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s2">"• You need to enable the Vertex AI API in Google Cloud Console"</span><span class="p">)</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">Required permissions:"</span><span class="p">)</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s2">"• aiplatform.predictions.predict"</span><span class="p">)</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s2">"• aiplatform.operations.get"</span><span class="p">)</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
-            <span class="n">_print_auth_help</span><span class="p">()</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                <span class="s2">"API AUTHENTICATION/PERMISSION ERROR: </span><span class="si">%s</span><span class="se">\n</span><span class="s2">"</span>
+                <span class="s2">"This usually means:</span><span class="se">\n</span><span class="s2">"</span>
+                <span class="s2">"• Your authentication credentials are invalid or expired</span><span class="se">\n</span><span class="s2">"</span>
+                <span class="s2">"• Your project doesn't have Vertex AI API enabled</span><span class="se">\n</span><span class="s2">"</span>
+                <span class="s2">"• Your service account lacks necessary permissions</span><span class="se">\n</span><span class="s2">"</span>
+                <span class="s2">"• You need to enable the Vertex AI API in Google Cloud Console</span><span class="se">\n</span><span class="s2">"</span>
+                <span class="s2">"Required permissions:</span><span class="se">\n</span><span class="s2">"</span>
+                <span class="s2">"• aiplatform.predictions.predict</span><span class="se">\n</span><span class="s2">"</span>
+                <span class="s2">"• aiplatform.operations.get"</span><span class="p">,</span>
+                <span class="n">e</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">_log_auth_help</span><span class="p">()</span>
         <span class="k">raise</span>
 
     <span class="c1"># Poll until done with error handling</span>
@@ -880,16 +879,15 @@
             <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
             <span class="n">operation</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">operations</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">operation</span><span class="p">)</span>
     <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">"</span> <span class="o">+</span> <span class="s2">"="</span> <span class="o">*</span> <span class="mi">80</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">"❌ VIDEO GENERATION ERROR"</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">"="</span> <span class="o">*</span> <span class="mi">80</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Error during video generation: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">This could be due to:"</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">"• API quota limits exceeded"</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">"• Invalid model parameters"</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">"• Network connectivity issues"</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">"• Service temporarily unavailable"</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">"="</span> <span class="o">*</span> <span class="mi">80</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+            <span class="s2">"VIDEO GENERATION ERROR: </span><span class="si">%s</span><span class="se">\n</span><span class="s2">"</span>
+            <span class="s2">"This could be due to:</span><span class="se">\n</span><span class="s2">"</span>
+            <span class="s2">"• API quota limits exceeded</span><span class="se">\n</span><span class="s2">"</span>
+            <span class="s2">"• Invalid model parameters</span><span class="se">\n</span><span class="s2">"</span>
+            <span class="s2">"• Network connectivity issues</span><span class="se">\n</span><span class="s2">"</span>
+            <span class="s2">"• Service temporarily unavailable"</span><span class="p">,</span>
+            <span class="n">e</span><span class="p">,</span>
+        <span class="p">)</span>
         <span class="k">raise</span>
 
     <span class="c1"># Process the result through the resolved ``output`` egress sink. The</span>
@@ -898,12 +896,14 @@
         <span class="k">try</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">output</span><span class="p">(</span><span class="n">operation</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Error saving video: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">"Error saving video: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
             <span class="kn">from</span><span class="w"> </span><span class="nn">xdol</span><span class="w"> </span><span class="kn">import</span> <span class="n">save_obj</span>
 
             <span class="c1"># TODO: Change this to saving the operation to a temp file and including the path to it in the error message.</span>
             <span class="n">_error_save_path</span> <span class="o">=</span> <span class="n">save_obj</span><span class="p">(</span><span class="n">operation</span><span class="p">)</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"I saved the operation object as a pickle under: </span><span class="si">{</span><span class="n">_error_save_path</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                <span class="s2">"Saved the operation object as a pickle under: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="n">_error_save_path</span>
+            <span class="p">)</span>
             <span class="k">raise</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">operation</span></div>

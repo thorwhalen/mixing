@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>mixing.util &mdash; mixing 0.0.50 documentation</title>
+  <title>mixing.util &mdash; mixing 0.0.51 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
@@ -14,7 +14,7 @@
   
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../_static/documentation_options.js?v=e072a57b"></script>
+      <script src="../../_static/documentation_options.js?v=440a2162"></script>
       <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="../../_static/toggleprompt.js?v=d7ede5d2"></script>
@@ -110,7 +110,10 @@
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Literal</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">importlib</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">shutil</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
 <span class="n">TimeUnit</span> <span class="o">=</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"seconds"</span><span class="p">,</span> <span class="s2">"frames"</span><span class="p">,</span> <span class="s2">"milliseconds"</span><span class="p">]</span>
 <span class="n">AudioTimeUnit</span> <span class="o">=</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"seconds"</span><span class="p">,</span> <span class="s2">"samples"</span><span class="p">,</span> <span class="s2">"milliseconds"</span><span class="p">]</span>
@@ -236,7 +239,7 @@
     <span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
     <span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
 
-    <span class="nb">print</span><span class="p">(</span><span class="s2">"Getting file path from clipboard..."</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"Getting file path from clipboard..."</span><span class="p">)</span>
     <span class="n">clipboard_content</span> <span class="o">=</span> <span class="n">require_package</span><span class="p">(</span><span class="s2">"pyclip"</span><span class="p">)</span><span class="o">.</span><span class="n">paste</span><span class="p">()</span>
 
     <span class="c1"># Validate it's text, not binary data</span>
@@ -261,7 +264,7 @@
 
     <span class="c1"># Try the path as-is first</span>
     <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">file_path</span><span class="p">):</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"... File path: </span><span class="si">{</span><span class="n">file_path</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"... File path: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="n">file_path</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">file_path</span>
 
     <span class="c1"># If that didn't work, try to extract paths from the text</span>
@@ -277,7 +280,9 @@
         <span class="k">for</span> <span class="n">match</span> <span class="ow">in</span> <span class="n">matches</span><span class="p">:</span>
             <span class="n">candidate</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">expanduser</span><span class="p">(</span><span class="n">match</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
             <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">candidate</span><span class="p">):</span>
-                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"... Extracted file path from clipboard text: </span><span class="si">{</span><span class="n">candidate</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                    <span class="s2">"... Extracted file path from clipboard text: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="n">candidate</span>
+                <span class="p">)</span>
                 <span class="k">return</span> <span class="n">candidate</span>
 
     <span class="c1"># If still not found, give helpful error</span>

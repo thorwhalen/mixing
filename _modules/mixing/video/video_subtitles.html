@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>mixing.video.video_subtitles &mdash; mixing 0.0.50 documentation</title>
+  <title>mixing.video.video_subtitles &mdash; mixing 0.0.51 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
@@ -14,7 +14,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=e072a57b"></script>
+      <script src="../../../_static/documentation_options.js?v=440a2162"></script>
       <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="../../../_static/toggleprompt.js?v=d7ede5d2"></script>
@@ -115,6 +115,7 @@
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Callable</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">subprocess</span>
@@ -135,6 +136,8 @@
     <span class="n">to_srt_time</span><span class="p">,</span>
     <span class="n">shift_srt_timestamps</span><span class="p">,</span>
 <span class="p">)</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_find_audio_peaks</span><span class="p">(</span>
@@ -315,9 +318,7 @@
 <span class="sd">        ... 2</span>
 <span class="sd">        ... 00:43:20,557 --&gt; 00:43:22,087</span>
 <span class="sd">        ... Second subtitle'''</span>
-<span class="sd">        &gt;&gt;&gt; shifted = auto_shift_srt_to_start(srt, start_time=0.0)  # doctest: +ELLIPSIS</span>
-<span class="sd">        📝 Subtitles currently start at: ...s</span>
-<span class="sd">        ⏱️  Shifting by: ...s (first subtitle → 0.00s)</span>
+<span class="sd">        &gt;&gt;&gt; shifted = auto_shift_srt_to_start(srt, start_time=0.0)</span>
 <span class="sd">        &gt;&gt;&gt; '00:00:00,000 --&gt; 00:00:01,630' in shifted</span>
 <span class="sd">        True</span>
 <span class="sd">        &gt;&gt;&gt; '00:00:08,370 --&gt; 00:00:09,900' in shifted</span>
@@ -365,19 +366,23 @@
         <span class="c1"># Calculate shift: if subtitles start at 10s and target is 3s, shift by -7s</span>
         <span class="n">shift_amount</span> <span class="o">=</span> <span class="n">target_start_time</span> <span class="o">-</span> <span class="n">first_subtitle_time</span>
 
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"🎵 Audio detected at: </span><span class="si">{</span><span class="n">target_start_time</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">s"</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"📝 Subtitles currently start at: </span><span class="si">{</span><span class="n">first_subtitle_time</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">s"</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">"⏱️  Shifting by: </span><span class="si">{</span><span class="n">shift_amount</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">s (first subtitle → </span><span class="si">{</span><span class="n">target_start_time</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">s)"</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"Audio detected at: </span><span class="si">%.2f</span><span class="s2">s"</span><span class="p">,</span> <span class="n">target_start_time</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"Subtitles currently start at: </span><span class="si">%.2f</span><span class="s2">s"</span><span class="p">,</span> <span class="n">first_subtitle_time</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="s2">"Shifting by: </span><span class="si">%.2f</span><span class="s2">s (first subtitle -&gt; </span><span class="si">%.2f</span><span class="s2">s)"</span><span class="p">,</span>
+            <span class="n">shift_amount</span><span class="p">,</span>
+            <span class="n">target_start_time</span><span class="p">,</span>
         <span class="p">)</span>
     <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">start_time</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">)):</span>
         <span class="c1"># User provided explicit target start time</span>
         <span class="n">target_start_time</span> <span class="o">=</span> <span class="n">start_time</span>
         <span class="n">shift_amount</span> <span class="o">=</span> <span class="n">target_start_time</span> <span class="o">-</span> <span class="n">first_subtitle_time</span>
 
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"📝 Subtitles currently start at: </span><span class="si">{</span><span class="n">first_subtitle_time</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">s"</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">"⏱️  Shifting by: </span><span class="si">{</span><span class="n">shift_amount</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">s (first subtitle → </span><span class="si">{</span><span class="n">target_start_time</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">s)"</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"Subtitles currently start at: </span><span class="si">%.2f</span><span class="s2">s"</span><span class="p">,</span> <span class="n">first_subtitle_time</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="s2">"Shifting by: </span><span class="si">%.2f</span><span class="s2">s (first subtitle -&gt; </span><span class="si">%.2f</span><span class="s2">s)"</span><span class="p">,</span>
+            <span class="n">shift_amount</span><span class="p">,</span>
+            <span class="n">target_start_time</span><span class="p">,</span>
         <span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="c1"># Should not reach here, but fallback to no change</span>
@@ -447,9 +452,9 @@
     <span class="c1"># Write fixed content</span>
     <span class="n">output_path</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="n">fixed_content</span><span class="p">)</span>
 
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"✅ Fixed SRT file saved to: </span><span class="si">{</span><span class="n">output_path</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"   Original first subtitle: </span><span class="si">{</span><span class="n">_get_first_timestamp</span><span class="p">(</span><span class="n">srt_content</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"   Fixed first subtitle: </span><span class="si">{</span><span class="n">_get_first_timestamp</span><span class="p">(</span><span class="n">fixed_content</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"Fixed SRT file saved to: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="n">output_path</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"Original first subtitle: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="n">_get_first_timestamp</span><span class="p">(</span><span class="n">srt_content</span><span class="p">))</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"Fixed first subtitle: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="n">_get_first_timestamp</span><span class="p">(</span><span class="n">fixed_content</span><span class="p">))</span>
 
     <span class="k">return</span> <span class="n">output_path</span></div>
 
@@ -585,7 +590,7 @@
             <span class="p">)</span>
             <span class="n">subtitle_clips</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">txt_clip</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Warning: Failed to create subtitle clip: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">"Failed to create subtitle clip: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
             <span class="k">continue</span>
 
     <span class="k">return</span> <span class="n">subtitle_clips</span></div>
@@ -701,15 +706,15 @@
             <span class="nb">str</span><span class="p">(</span><span class="n">output_path</span><span class="p">),</span>
         <span class="p">]</span>
 
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Running FFmpeg to embed subtitles..."</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"Running FFmpeg to embed subtitles..."</span><span class="p">)</span>
 
         <span class="n">result</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="n">capture_output</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">check</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">result</span><span class="o">.</span><span class="n">returncode</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"FFmpeg stderr: </span><span class="si">{</span><span class="n">result</span><span class="o">.</span><span class="n">stderr</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">"FFmpeg stderr: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="n">result</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"FFmpeg failed with return code </span><span class="si">{</span><span class="n">result</span><span class="o">.</span><span class="n">returncode</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"✅ Subtitles embedded successfully!"</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"Subtitles embedded successfully"</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">output_path</span>
 
     <span class="k">finally</span><span class="p">:</span>
@@ -727,8 +732,8 @@
     <span class="o">**</span><span class="n">subtitle_kwargs</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Embed subtitles using MoviePy CompositeVideoClip (SLOW - legacy method)."""</span>
-    <span class="nb">print</span><span class="p">(</span>
-        <span class="s2">"WARNING: Using slow MoviePy method. Consider use_ffmpeg=True for 100x speedup."</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+        <span class="s2">"Using slow MoviePy method. Consider use_ffmpeg=True for 100x speedup."</span>
     <span class="p">)</span>
 
     <span class="n">video_clip</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">VideoFileClip</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">video_path</span><span class="p">))</span>
