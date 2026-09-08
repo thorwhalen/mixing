@@ -65,6 +65,7 @@ Main Functions:
 
 import time
 import base64
+import logging
 import mimetypes
 import os
 import tempfile
@@ -75,9 +76,11 @@ from dol import non_colliding_key
 
 from ._helpers import _is_video_file
 
+logger = logging.getLogger(__name__)
+
 
 def _print_auth_help():
-    """Print helpful authentication setup information."""
+    """Log helpful authentication setup information."""
     help_msg = """
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                        GOOGLE CLOUD AUTHENTICATION SETUP                     ║
@@ -108,7 +111,7 @@ def _print_auth_help():
 ║                                                                              ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
     """
-    print(help_msg)
+    logger.error(help_msg)
 
 
 def _get_auth_from_env():
@@ -165,17 +168,16 @@ def _setup_genai_client(
         return client
 
     except Exception as e:
-        # Print helpful error message
-        print("\n" + "=" * 80)
-        print("❌ AUTHENTICATION ERROR")
-        print("=" * 80)
-        print(f"Error: {str(e)}")
-        print("\nThis usually means one of the following:")
-        print("• Service account file is missing or invalid")
-        print("• Project ID is not set or incorrect")
-        print("• Application default credentials are not configured")
-        print("• Missing required permissions for Vertex AI")
-        print("\n")
+        # Log helpful error message
+        logger.error(
+            "AUTHENTICATION ERROR: %s\n"
+            "This usually means one of the following:\n"
+            "• Service account file is missing or invalid\n"
+            "• Project ID is not set or incorrect\n"
+            "• Application default credentials are not configured\n"
+            "• Missing required permissions for Vertex AI",
+            e,
+        )
         _print_auth_help()
         raise  # Re-raise the original exception
 
@@ -690,15 +692,13 @@ def generate_video(
     except Exception as e:
         # Additional context for missing project ID
         if "project" in str(e).lower() and not final_project_id:
-            print("\n" + "=" * 80)
-            print("❌ MISSING PROJECT ID")
-            print("=" * 80)
-            print("No project ID was provided via parameter or environment variable.")
-            print("Please set one of the following:")
-            print("• export GOOGLE_CLOUD_PROJECT='your-project-id'")
-            print("• export VEO_PROJECT_ID='your-project-id'")
-            print("• Or pass project_id='your-project-id' to the function")
-            print("=" * 80)
+            logger.error(
+                "MISSING PROJECT ID: no project ID was provided via parameter or "
+                "environment variable. Please set one of the following:\n"
+                "• export GOOGLE_CLOUD_PROJECT='your-project-id'\n"
+                "• export VEO_PROJECT_ID='your-project-id'\n"
+                "• Or pass project_id='your-project-id' to the function"
+            )
         raise
 
     # Prepare Image objects if frames provided
@@ -745,19 +745,18 @@ def generate_video(
             term in error_str
             for term in ["unauthenticated", "unauthorized", "401", "403"]
         ):
-            print("\n" + "=" * 80)
-            print("❌ API AUTHENTICATION/PERMISSION ERROR")
-            print("=" * 80)
-            print(f"Error: {str(e)}")
-            print("\nThis usually means:")
-            print("• Your authentication credentials are invalid or expired")
-            print("• Your project doesn't have Vertex AI API enabled")
-            print("• Your service account lacks necessary permissions")
-            print("• You need to enable the Vertex AI API in Google Cloud Console")
-            print("\nRequired permissions:")
-            print("• aiplatform.predictions.predict")
-            print("• aiplatform.operations.get")
-            print("\n")
+            logger.error(
+                "API AUTHENTICATION/PERMISSION ERROR: %s\n"
+                "This usually means:\n"
+                "• Your authentication credentials are invalid or expired\n"
+                "• Your project doesn't have Vertex AI API enabled\n"
+                "• Your service account lacks necessary permissions\n"
+                "• You need to enable the Vertex AI API in Google Cloud Console\n"
+                "Required permissions:\n"
+                "• aiplatform.predictions.predict\n"
+                "• aiplatform.operations.get",
+                e,
+            )
             _print_auth_help()
         raise
 
@@ -767,16 +766,15 @@ def generate_video(
             time.sleep(5)
             operation = client.operations.get(operation)
     except Exception as e:
-        print("\n" + "=" * 80)
-        print("❌ VIDEO GENERATION ERROR")
-        print("=" * 80)
-        print(f"Error during video generation: {str(e)}")
-        print("\nThis could be due to:")
-        print("• API quota limits exceeded")
-        print("• Invalid model parameters")
-        print("• Network connectivity issues")
-        print("• Service temporarily unavailable")
-        print("=" * 80)
+        logger.error(
+            "VIDEO GENERATION ERROR: %s\n"
+            "This could be due to:\n"
+            "• API quota limits exceeded\n"
+            "• Invalid model parameters\n"
+            "• Network connectivity issues\n"
+            "• Service temporarily unavailable",
+            e,
+        )
         raise
 
     # Process the result through the resolved ``output`` egress sink. The
@@ -785,12 +783,14 @@ def generate_video(
         try:
             return output(operation)
         except Exception as e:
-            print(f"Error saving video: {e}")
+            logger.error("Error saving video: %s", e)
             from xdol import save_obj
 
             # TODO: Change this to saving the operation to a temp file and including the path to it in the error message.
             _error_save_path = save_obj(operation)
-            print(f"I saved the operation object as a pickle under: {_error_save_path}")
+            logger.error(
+                "Saved the operation object as a pickle under: %s", _error_save_path
+            )
             raise
     else:
         return operation

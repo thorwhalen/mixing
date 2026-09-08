@@ -2,7 +2,10 @@
 
 from typing import Literal
 import importlib
+import logging
 import shutil
+
+logger = logging.getLogger(__name__)
 
 TimeUnit = Literal["seconds", "frames", "milliseconds"]
 AudioTimeUnit = Literal["seconds", "samples", "milliseconds"]
@@ -114,7 +117,7 @@ def get_path_from_clipboard() -> str:
     import os
     import re
 
-    print("Getting file path from clipboard...")
+    logger.info("Getting file path from clipboard...")
     clipboard_content = require_package("pyclip").paste()
 
     # Validate it's text, not binary data
@@ -139,7 +142,7 @@ def get_path_from_clipboard() -> str:
 
     # Try the path as-is first
     if os.path.isfile(file_path):
-        print(f"... File path: {file_path}")
+        logger.info("... File path: %s", file_path)
         return file_path
 
     # If that didn't work, try to extract paths from the text
@@ -155,7 +158,9 @@ def get_path_from_clipboard() -> str:
         for match in matches:
             candidate = os.path.expanduser(match.strip())
             if os.path.isfile(candidate):
-                print(f"... Extracted file path from clipboard text: {candidate}")
+                logger.info(
+                    "... Extracted file path from clipboard text: %s", candidate
+                )
                 return candidate
 
     # If still not found, give helpful error

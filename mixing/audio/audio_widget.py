@@ -2,10 +2,13 @@
 
 import io
 import base64
+import logging
 import numpy as np
 from pathlib import Path
 from typing import Union, Tuple, Optional
 from IPython.display import display, HTML
+
+logger = logging.getLogger(__name__)
 
 
 # Type aliases
@@ -522,7 +525,9 @@ __temp_sel_end = ${{sel.end}}
         self._create_widget()
         self.display()
 
-        print(f"✓ Zoomed to {(end_sample - start_sample) / self.sr:.2f}s segment")
+        logger.info(
+            "Zoomed to %.2fs segment", (end_sample - start_sample) / self.sr
+        )
 
     def crop(self):
         """
@@ -566,9 +571,10 @@ __temp_sel_end = ${{sel.end}}
         self._create_widget()
         self.display()
 
-        print(
-            f"✓ Cropped to {(end_sample - start_sample) / self.sr:.2f}s segment "
-            f"({end_sample - start_sample:,} samples)"
+        logger.info(
+            "Cropped to %.2fs segment (%s samples)",
+            (end_sample - start_sample) / self.sr,
+            f"{end_sample - start_sample:,}",
         )
 
     def set_selection(self, start: float, end: float):
@@ -595,7 +601,9 @@ __temp_sel_end = ${{sel.end}}
         self.selection_start = start
         self.selection_end = end
         self.has_selection = True
-        print(f"✓ Selection set: {start:.2f}s - {end:.2f}s ({end - start:.2f}s)")
+        logger.info(
+            "Selection set: %.2fs - %.2fs (%.2fs)", start, end, end - start
+        )
         return self
 
     def reset(self):
@@ -611,7 +619,7 @@ __temp_sel_end = ${{sel.end}}
         self._create_widget()
         self.display()
 
-        print("✓ Audio reset to original state")
+        logger.info("Audio reset to original state")
 
     def get_waveform(self) -> WfSr:
         """
@@ -665,7 +673,7 @@ __temp_sel_end = ${{sel.end}}
 
         # Save
         sf.write(str(filepath), self.wf, self.sr, format=format.upper())
-        print(f"✓ Saved audio to: {filepath}")
+        logger.info("Saved audio to: %s", filepath)
 
     def apply_fade_in(self, duration: float = 1.0):
         """
@@ -690,7 +698,7 @@ __temp_sel_end = ${{sel.end}}
         self._create_widget()
         self.display()
 
-        print(f"✓ Applied {duration}s fade-in")
+        logger.info("Applied %ss fade-in", duration)
 
     def apply_fade_out(self, duration: float = 1.0):
         """
@@ -715,4 +723,4 @@ __temp_sel_end = ${{sel.end}}
         self._create_widget()
         self.display()
 
-        print(f"✓ Applied {duration}s fade-out")
+        logger.info("Applied %ss fade-out", duration)

@@ -7,6 +7,7 @@ This module provides utilities for embedding subtitles into videos with two appr
 
 from typing import Optional, Callable
 from pathlib import Path
+import logging
 import os
 import re
 import subprocess
@@ -27,6 +28,8 @@ from mixing.srt import (
     to_srt_time,
     shift_srt_timestamps,
 )
+
+logger = logging.getLogger(__name__)
 
 
 def _find_audio_peaks(
@@ -252,19 +255,23 @@ def auto_shift_srt_to_start(
         # Calculate shift: if subtitles start at 10s and target is 3s, shift by -7s
         shift_amount = target_start_time - first_subtitle_time
 
-        print(f"🎵 Audio detected at: {target_start_time:.2f}s")
-        print(f"📝 Subtitles currently start at: {first_subtitle_time:.2f}s")
-        print(
-            f"⏱️  Shifting by: {shift_amount:.2f}s (first subtitle → {target_start_time:.2f}s)"
+        logger.info("Audio detected at: %.2fs", target_start_time)
+        logger.info("Subtitles currently start at: %.2fs", first_subtitle_time)
+        logger.info(
+            "Shifting by: %.2fs (first subtitle -> %.2fs)",
+            shift_amount,
+            target_start_time,
         )
     elif isinstance(start_time, (int, float)):
         # User provided explicit target start time
         target_start_time = start_time
         shift_amount = target_start_time - first_subtitle_time
 
-        print(f"📝 Subtitles currently start at: {first_subtitle_time:.2f}s")
-        print(
-            f"⏱️  Shifting by: {shift_amount:.2f}s (first subtitle → {target_start_time:.2f}s)"
+        logger.info("Subtitles currently start at: %.2fs", first_subtitle_time)
+        logger.info(
+            "Shifting by: %.2fs (first subtitle -> %.2fs)",
+            shift_amount,
+            target_start_time,
         )
     else:
         # Should not reach here, but fallback to no change
@@ -331,9 +338,9 @@ def fix_srt_file(
     # Write fixed content
     output_path.write_text(fixed_content)
 
-    print(f"✅ Fixed SRT file saved to: {output_path}")
-    print(f"   Original first subtitle: {_get_first_timestamp(srt_content)}")
-    print(f"   Fixed first subtitle: {_get_first_timestamp(fixed_content)}")
+    logger.info("Fixed SRT file saved to: %s", output_path)
+    logger.info("Original first subtitle: %s", _get_first_timestamp(srt_content))
+    logger.info("Fixed first subtitle: %s", _get_first_timestamp(fixed_content))
 
     return output_path
 
@@ -457,7 +464,7 @@ def generate_subtitle_clips(
             )
             subtitle_clips.append(txt_clip)
         except Exception as e:
-            print(f"Warning: Failed to create subtitle clip: {e}")
+            logger.warning("Failed to create subtitle clip: %s", e)
             continue
 
     return subtitle_clips
@@ -569,15 +576,15 @@ def _embed_subtitles_ffmpeg(
             str(output_path),
         ]
 
-        print(f"Running FFmpeg to embed subtitles...")
+        logger.info("Running FFmpeg to embed subtitles...")
 
         result = subprocess.run(cmd, capture_output=True, text=True, check=False)
 
         if result.returncode != 0:
-            print(f"FFmpeg stderr: {result.stderr}")
+            logger.error("FFmpeg stderr: %s", result.stderr)
             raise RuntimeError(f"FFmpeg failed with return code {result.returncode}")
 
-        print(f"✅ Subtitles embedded successfully!")
+        logger.info("Subtitles embedded successfully")
         return output_path
 
     finally:
@@ -595,8 +602,8 @@ def _embed_subtitles_moviepy(
     **subtitle_kwargs,
 ) -> Path:
     """Embed subtitles using MoviePy CompositeVideoClip (SLOW - legacy method)."""
-    print(
-        "WARNING: Using slow MoviePy method. Consider use_ffmpeg=True for 100x speedup."
+    logger.warning(
+        "Using slow MoviePy method. Consider use_ffmpeg=True for 100x speedup."
     )
 
     video_clip = mp.VideoFileClip(str(video_path))

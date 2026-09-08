@@ -39,12 +39,15 @@ from pathlib import Path
 from io import BytesIO
 import functools
 import inspect
+import logging
 import os
 import warnings
 import numpy as np
 from moviepy import VideoFileClip, concatenate_videoclips, afx, vfx
 
 from ._helpers import _is_video_file
+
+logger = logging.getLogger(__name__)
 
 VideoSource = Union[str, Path, VideoFileClip, bytes, BytesIO]
 
@@ -533,7 +536,7 @@ def _save_frame_comparison(
     )
 
     composite.save(output)
-    print(f"Comparison saved to: {output}")
+    logger.info("Comparison saved to: %s", output)
 
 
 def concatenate_videos(

@@ -42,6 +42,7 @@ from typing import Optional, TYPE_CHECKING, Union
 from pathlib import Path
 from collections.abc import Callable, Iterator, Mapping, Sequence
 import io
+import logging
 import os
 import tempfile
 import numpy as np
@@ -57,6 +58,8 @@ from ._helpers import (
     _set_default_codecs,
     _validated_crop_box,
 )
+
+logger = logging.getLogger(__name__)
 
 
 if TYPE_CHECKING:  # `mixing.audio` (pydub) is imported lazily, inside functions
@@ -836,7 +839,7 @@ def loop_video(
             # Clean up
             looped.close()
 
-        print(f"Saved looped video to: {output_path}")
+        logger.info("Saved looped video to: %s", output_path)
 
     return write_egress(output, default_path=default_path, write=_write)
 
@@ -889,7 +892,7 @@ def replace_audio(
             match_duration=match_duration,
             **save_kwargs,
         )
-        print(f"Saved video with audio to: {output_path}")
+        logger.info("Saved video with audio to: %s", output_path)
 
     return write_egress(output, default_path=default_path, write=_write)
 
@@ -1006,12 +1009,12 @@ def normalize_audio(
                 final_clip = clip.with_audio(normalized_audio)
             else:
                 # No audio to normalize
-                print(f"Warning: {video_src} has no audio track")
+                logger.warning("%s has no audio track", video_src)
                 final_clip = clip
 
             final_clip.write_videofile(str(output_path), **save_kwargs)
 
-        print(f"Saved video with normalized audio to: {output_path}")
+        logger.info("Saved video with normalized audio to: %s", output_path)
 
     return write_egress(output, default_path=default_path, write=_write)
 
@@ -1245,7 +1248,7 @@ def overlay_ambient_bed(
                 match_duration=True,
                 **save_kwargs,
             )
-        print(f"Saved video with ambient bed to: {target}")
+        logger.info("Saved video with ambient bed to: %s", target)
 
     return write_egress(output, default_path=default_path, write=_write_video)
 
@@ -1305,7 +1308,7 @@ def change_speed(
             # Clean up
             sped_clip.close()
 
-        print(f"Saved {speed_factor}x speed video to: {output_path}")
+        logger.info("Saved %sx speed video to: %s", speed_factor, output_path)
 
     return write_egress(output, default_path=default_path, write=_write)
 
