@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>mixing.audio.audio_ops &mdash; mixing 0.0.51 documentation</title>
+  <title>mixing.audio.audio_ops &mdash; mixing 0.0.52 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
@@ -15,7 +15,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=440a2162"></script>
+      <script src="../../../_static/documentation_options.js?v=73f2ab08"></script>
       <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="../../../_static/toggleprompt.js?v=d7ede5d2"></script>
@@ -152,6 +152,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../dubbing/srt.html">mixing.dubbing.srt</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../dubbing/tts.html">mixing.dubbing.tts</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../egress.html">mixing.egress</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../errors.html">mixing.errors</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../srt.html">mixing.srt</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../transcript.html">mixing.transcript</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../transcript/fillers.html">mixing.transcript.fillers</a></li>
@@ -1255,7 +1256,7 @@ whole-clip correlation exactly — same offset, same confidence, and
 <code class="docutils literal notranslate"><span class="pre">support=None</span></code>, <code class="docutils literal notranslate"><span class="pre">margin=None</span></code> because nothing was put to a vote. It
 is cheaper (one correlation instead of one per window) and is the right
 choice only when the reference is known not to repeat.</p></li>
-<li><p><strong>window_s</strong> – Analysis window for the vote. Ignored when <code class="docutils literal notranslate"><span class="pre">consensus</span></code> is False.
+<li><p><strong>window_s</strong> – <p>Analysis window for the vote. Ignored when <code class="docutils literal notranslate"><span class="pre">consensus</span></code> is False.
 <code class="docutils literal notranslate"><span class="pre">None</span></code> (the default) <strong>fits the window to each clip</strong> — see
 <code class="xref py py-func docutils literal notranslate"><span class="pre">_clip_window_and_hop()</span></code>: <code class="docutils literal notranslate"><span class="pre">min(20</span> <span class="pre">s,</span> <span class="pre">clip_duration</span> <span class="pre">/</span> <span class="pre">3)</span></code>, floored at
 what the onset envelope can carry, so a clip too short to hold three default
@@ -1265,8 +1266,21 @@ measured at is reported back as <a class="reference internal" href="#mixing.audi
 the scale its <code class="docutils literal notranslate"><span class="pre">support</span></code> is on. A clip of three default windows or
 more is measured at <a class="reference internal" href="#mixing.audio.audio_ops.SPAN_WINDOW_S" title="mixing.audio.audio_ops.SPAN_WINDOW_S"><code class="xref py py-data docutils literal notranslate"><span class="pre">SPAN_WINDOW_S</span></code></a> exactly, so nothing about a long
 clip’s answer moves. Pass a number to fix the window yourself — an explicit
-value is never overridden, and it is how the pre-adaptation answer for a short
-clip is reproduced.</p></li>
+value is never overridden.</p>
+<p><strong>An explicit window a clip cannot hold is REFUSED</strong> with
+<a class="reference internal" href="../errors.html#mixing.errors.WindowTooWideForClip" title="mixing.errors.WindowTooWideForClip"><code class="xref py py-class docutils literal notranslate"><span class="pre">WindowTooWideForClip</span></code></a> (issue #43). The bound is
+<code class="docutils literal notranslate"><span class="pre">clip_duration</span> <span class="pre">/</span> <span class="pre">(1</span> <span class="pre">+</span> <span class="pre">MAX_SUPPORT_OVERLAP)</span></code> and does NOT involve <code class="docutils literal notranslate"><span class="pre">hop_s</span></code>
+(<code class="xref py py-func docutils literal notranslate"><span class="pre">_max_supportable_window_s()</span></code>): above it no second INDEPENDENT window
+exists, so the vote asked for cannot be held and the result would be one
+whole-clip correlation reporting <code class="docutils literal notranslate"><span class="pre">support=None</span></code> — the same thing a clip too
+short to support at any window reports, with nothing to tell the two apart.
+The error names the clip, its duration and the largest window that still
+leaves a second look — measurable for any clip long enough to be worth
+aligning, though a degenerate clip of a sample or two has no such window at
+all. To measure such a clip, pass that window, pass <code class="docutils literal notranslate"><span class="pre">window_s=None</span></code> to fit
+the window to each clip, or pass <code class="docutils literal notranslate"><span class="pre">consensus=False</span></code> to ask for the single
+correlation outright.</p>
+</p></li>
 <li><p><strong>hop_s</strong> – <p>Step between those windows. Ignored when <code class="docutils literal notranslate"><span class="pre">consensus</span></code> is False. <code class="docutils literal notranslate"><span class="pre">None</span></code>
 (the default) is <a class="reference internal" href="#mixing.audio.audio_ops.ADAPTIVE_HOP_RATIO" title="mixing.audio.audio_ops.ADAPTIVE_HOP_RATIO"><code class="xref py py-data docutils literal notranslate"><span class="pre">ADAPTIVE_HOP_RATIO</span></code></a> of whatever window is in force —
 half of it, the default pair’s own ratio — so an adapted grid keeps the
@@ -1289,6 +1303,17 @@ the vote — see <a class="reference internal" href="#mixing.audio.audio_ops.NEA
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>A list of <a class="reference internal" href="#mixing.audio.audio_ops.ClipAlignment" title="mixing.audio.audio_ops.ClipAlignment"><code class="xref py py-class docutils literal notranslate"><span class="pre">ClipAlignment</span></code></a>, in input order (minus dropped clips).</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ValueError</strong> – <code class="docutils literal notranslate"><span class="pre">feature</span></code> is not one of <a class="reference internal" href="#mixing.audio.audio_ops.ALIGNMENT_FEATURES" title="mixing.audio.audio_ops.ALIGNMENT_FEATURES"><code class="xref py py-data docutils literal notranslate"><span class="pre">ALIGNMENT_FEATURES</span></code></a>, or
+    <code class="docutils literal notranslate"><span class="pre">near_tie_ratio</span></code> is negative.</p></li>
+<li><p><a class="reference internal" href="../errors.html#mixing.errors.WindowTooWideForClip" title="mixing.errors.WindowTooWideForClip"><strong>WindowTooWideForClip</strong></a> – <code class="docutils literal notranslate"><span class="pre">consensus</span></code> is on and an EXPLICIT
+    <code class="docutils literal notranslate"><span class="pre">window_s</span></code> is wider than some clip can hold a second independent look at
+    (issue #43). The error names that clip, its duration and the largest window
+    that would work; it subclasses <code class="docutils literal notranslate"><span class="pre">ValueError</span></code>. Never raised on the
+    <code class="docutils literal notranslate"><span class="pre">window_s=None</span></code> path, which fits the window to each clip.</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>

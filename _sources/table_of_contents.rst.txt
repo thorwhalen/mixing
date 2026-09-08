@@ -17,6 +17,7 @@
    module_docs/mixing/dubbing/srt
    module_docs/mixing/dubbing/tts
    module_docs/mixing/egress
+   module_docs/mixing/errors
    module_docs/mixing/srt
    module_docs/mixing/transcript
    module_docs/mixing/transcript/fillers

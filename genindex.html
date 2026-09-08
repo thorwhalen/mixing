@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Index &mdash; mixing 0.0.51 documentation</title>
+  <title>Index &mdash; mixing 0.0.52 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
@@ -14,7 +14,7 @@
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=440a2162"></script>
+      <script src="_static/documentation_options.js?v=73f2ab08"></script>
       <script src="_static/doctools.js?v=fd6eb6e6"></script>
       <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="_static/toggleprompt.js?v=d7ede5d2"></script>
@@ -61,6 +61,7 @@
 <li class="toctree-l1"><a class="reference internal" href="module_docs/mixing/dubbing/srt.html">mixing.dubbing.srt</a></li>
 <li class="toctree-l1"><a class="reference internal" href="module_docs/mixing/dubbing/tts.html">mixing.dubbing.tts</a></li>
 <li class="toctree-l1"><a class="reference internal" href="module_docs/mixing/egress.html">mixing.egress</a></li>
+<li class="toctree-l1"><a class="reference internal" href="module_docs/mixing/errors.html">mixing.errors</a></li>
 <li class="toctree-l1"><a class="reference internal" href="module_docs/mixing/srt.html">mixing.srt</a></li>
 <li class="toctree-l1"><a class="reference internal" href="module_docs/mixing/transcript.html">mixing.transcript</a></li>
 <li class="toctree-l1"><a class="reference internal" href="module_docs/mixing/transcript/fillers.html">mixing.transcript.fillers</a></li>
@@ -278,10 +279,26 @@
         <li><a href="module_docs/mixing/chapters.html#mixing.chapters.Chapter">(class in mixing.chapters)</a>
 </li>
       </ul></li>
+      <li><a href="module_docs/mixing/audio.html#mixing.audio.WindowTooWideForClip.clip_duration_s">clip_duration_s (mixing.audio.WindowTooWideForClip attribute)</a>
+
+      <ul>
+        <li><a href="module_docs/mixing/errors.html#mixing.errors.WindowTooWideForClip.clip_duration_s">(mixing.errors.WindowTooWideForClip attribute)</a>
+</li>
+        <li><a href="module_docs/mixing.html#mixing.WindowTooWideForClip.clip_duration_s">(mixing.WindowTooWideForClip attribute)</a>
+</li>
+      </ul></li>
       <li><a href="module_docs/mixing/audio.html#mixing.audio.AlignedSpan.clip_end_s">clip_end_s (mixing.audio.AlignedSpan attribute)</a>
 
       <ul>
         <li><a href="module_docs/mixing/audio/audio_ops.html#mixing.audio.audio_ops.AlignedSpan.clip_end_s">(mixing.audio.audio_ops.AlignedSpan attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="module_docs/mixing/audio.html#mixing.audio.WindowTooWideForClip.clip_index">clip_index (mixing.audio.WindowTooWideForClip attribute)</a>
+
+      <ul>
+        <li><a href="module_docs/mixing/errors.html#mixing.errors.WindowTooWideForClip.clip_index">(mixing.errors.WindowTooWideForClip attribute)</a>
+</li>
+        <li><a href="module_docs/mixing.html#mixing.WindowTooWideForClip.clip_index">(mixing.WindowTooWideForClip attribute)</a>
 </li>
       </ul></li>
       <li><a href="module_docs/mixing/audio.html#mixing.audio.AlignedSpan.clip_start_s">clip_start_s (mixing.audio.AlignedSpan attribute)</a>
@@ -316,14 +333,14 @@
         <li><a href="module_docs/mixing/audio/audio_ops.html#mixing.audio.audio_ops.concatenate_audio">(in module mixing.audio.audio_ops)</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="module_docs/mixing.html#mixing.concatenate_videos">concatenate_videos() (in module mixing)</a>
 
       <ul>
         <li><a href="module_docs/mixing/video/video_concat.html#mixing.video.video_concat.concatenate_videos">(in module mixing.video.video_concat)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="module_docs/mixing/audio.html#mixing.audio.AlignedSpan.confidence">confidence (mixing.audio.AlignedSpan attribute)</a>
 
       <ul>
@@ -730,12 +747,16 @@
         <li><a href="module_docs/mixing/util.html#mixing.util.has_ffmpeg">(in module mixing.util)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="module_docs/mixing/audio/audio_ops.html#mixing.audio.audio_ops.ClipAlignment.hop_s">hop_s (mixing.audio.audio_ops.ClipAlignment attribute)</a>
 
       <ul>
         <li><a href="module_docs/mixing/audio.html#mixing.audio.ClipAlignment.hop_s">(mixing.audio.ClipAlignment attribute)</a>
+</li>
+        <li><a href="module_docs/mixing/audio.html#mixing.audio.WindowTooWideForClip.hop_s">(mixing.audio.WindowTooWideForClip attribute)</a>
+</li>
+        <li><a href="module_docs/mixing/errors.html#mixing.errors.WindowTooWideForClip.hop_s">(mixing.errors.WindowTooWideForClip attribute)</a>
+</li>
+        <li><a href="module_docs/mixing.html#mixing.WindowTooWideForClip.hop_s">(mixing.WindowTooWideForClip attribute)</a>
 </li>
       </ul></li>
   </ul></td>
@@ -870,6 +891,14 @@
       </ul></li>
       <li><a href="module_docs/mixing/audio/audio_ops.html#mixing.audio.audio_ops.MAX_SUPPORT_OVERLAP">MAX_SUPPORT_OVERLAP (in module mixing.audio.audio_ops)</a>
 </li>
+      <li><a href="module_docs/mixing/audio.html#mixing.audio.WindowTooWideForClip.max_window_s">max_window_s (mixing.audio.WindowTooWideForClip attribute)</a>
+
+      <ul>
+        <li><a href="module_docs/mixing/errors.html#mixing.errors.WindowTooWideForClip.max_window_s">(mixing.errors.WindowTooWideForClip attribute)</a>
+</li>
+        <li><a href="module_docs/mixing.html#mixing.WindowTooWideForClip.max_window_s">(mixing.WindowTooWideForClip attribute)</a>
+</li>
+      </ul></li>
       <li><a href="module_docs/mixing/video/gif.html#mixing.video.gif.MIN_GIF_COLORS">MIN_GIF_COLORS (in module mixing.video.gif)</a>
 </li>
       <li><a href="module_docs/mixing/audio/audio_ops.html#mixing.audio.audio_ops.MIN_WINDOWS_FOR_SUPPORT">MIN_WINDOWS_FOR_SUPPORT (in module mixing.audio.audio_ops)</a>
@@ -975,6 +1004,13 @@
 </li>
       </ul></li>
       <li>
+    mixing.errors
+
+      <ul>
+        <li><a href="module_docs/mixing/errors.html#module-mixing.errors">module</a>
+</li>
+      </ul></li>
+      <li>
     mixing.srt
 
       <ul>
@@ -1016,6 +1052,8 @@
         <li><a href="module_docs/mixing/transcript/persist.html#module-mixing.transcript.persist">module</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     mixing.transcript.pipeline
 
@@ -1023,8 +1061,6 @@
         <li><a href="module_docs/mixing/transcript/pipeline.html#module-mixing.transcript.pipeline">module</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     mixing.transcript.scribe
 
@@ -1102,6 +1138,8 @@
         <li><a href="module_docs/mixing/video/video_util.html#module-mixing.video.video_util">module</a>
 </li>
       </ul></li>
+      <li><a href="module_docs/mixing.html#mixing.MixingError">MixingError</a>, <a href="module_docs/mixing/audio.html#mixing.audio.MixingError">[1]</a>, <a href="module_docs/mixing/errors.html#mixing.errors.MixingError">[2]</a>
+</li>
       <li>
     module
 
@@ -1133,6 +1171,8 @@
         <li><a href="module_docs/mixing/dubbing/tts.html#module-mixing.dubbing.tts">mixing.dubbing.tts</a>
 </li>
         <li><a href="module_docs/mixing/egress.html#module-mixing.egress">mixing.egress</a>
+</li>
+        <li><a href="module_docs/mixing/errors.html#module-mixing.errors">mixing.errors</a>
 </li>
         <li><a href="module_docs/mixing/srt.html#module-mixing.srt">mixing.srt</a>
 </li>
@@ -1718,21 +1758,29 @@
       <ul>
         <li><a href="module_docs/mixing/audio.html#mixing.audio.ClipAlignment.window_s">(mixing.audio.ClipAlignment attribute)</a>
 </li>
+        <li><a href="module_docs/mixing/audio.html#mixing.audio.WindowTooWideForClip.window_s">(mixing.audio.WindowTooWideForClip attribute)</a>
+</li>
+        <li><a href="module_docs/mixing/errors.html#mixing.errors.WindowTooWideForClip.window_s">(mixing.errors.WindowTooWideForClip attribute)</a>
+</li>
+        <li><a href="module_docs/mixing.html#mixing.WindowTooWideForClip.window_s">(mixing.WindowTooWideForClip attribute)</a>
+</li>
       </ul></li>
+      <li><a href="module_docs/mixing.html#mixing.WindowTooWideForClip">WindowTooWideForClip</a>, <a href="module_docs/mixing/audio.html#mixing.audio.WindowTooWideForClip">[1]</a>, <a href="module_docs/mixing/errors.html#mixing.errors.WindowTooWideForClip">[2]</a>
+</li>
       <li><a href="module_docs/mixing/transcript.html#mixing.transcript.words_to_prose">words_to_prose() (in module mixing.transcript)</a>
 
       <ul>
         <li><a href="module_docs/mixing/transcript/formats.html#mixing.transcript.formats.words_to_prose">(in module mixing.transcript.formats)</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="module_docs/mixing/transcript.html#mixing.transcript.words_to_srt">words_to_srt() (in module mixing.transcript)</a>
 
       <ul>
         <li><a href="module_docs/mixing/transcript/formats.html#mixing.transcript.formats.words_to_srt">(in module mixing.transcript.formats)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="module_docs/mixing/transcript.html#mixing.transcript.words_to_srt_remapped">words_to_srt_remapped() (in module mixing.transcript)</a>
 
       <ul>

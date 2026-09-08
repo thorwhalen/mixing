@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>mixing.audio.audio_ops &mdash; mixing 0.0.51 documentation</title>
+  <title>mixing.audio.audio_ops &mdash; mixing 0.0.52 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
@@ -14,7 +14,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=440a2162"></script>
+      <script src="../../../_static/documentation_options.js?v=73f2ab08"></script>
       <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="../../../_static/toggleprompt.js?v=d7ede5d2"></script>
@@ -61,6 +61,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/dubbing/srt.html">mixing.dubbing.srt</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/dubbing/tts.html">mixing.dubbing.tts</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/egress.html">mixing.egress</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/errors.html">mixing.errors</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/srt.html">mixing.srt</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/transcript.html">mixing.transcript</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../module_docs/mixing/transcript/fillers.html">mixing.transcript.fillers</a></li>
@@ -158,6 +159,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">..util</span><span class="w"> </span><span class="kn">import</span> <span class="n">require_package</span><span class="p">,</span> <span class="n">AudioTimeUnit</span><span class="p">,</span> <span class="n">to_seconds</span><span class="p">,</span> <span class="n">get_path_from_clipboard</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.audio_util</span><span class="w"> </span><span class="kn">import</span> <span class="n">AudioSource</span><span class="p">,</span> <span class="n">_normalize_audio_source</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">..egress</span><span class="w"> </span><span class="kn">import</span> <span class="n">Output</span><span class="p">,</span> <span class="n">deliver</span><span class="p">,</span> <span class="n">is_sink</span><span class="p">,</span> <span class="n">resolve_output_path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..errors</span><span class="w"> </span><span class="kn">import</span> <span class="n">WindowTooWideForClip</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
@@ -2304,12 +2306,79 @@
 
 
 
+<span class="k">def</span><span class="w"> </span><span class="nf">_window_samples</span><span class="p">(</span><span class="n">seconds</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">sample_rate</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Samples in a window of ``seconds`` — :func:`_window_offsets`' own rounding.</span>
+
+<span class="sd">    Duplicated deliberately rather than shared: the guard must decide on the SAME</span>
+<span class="sd">    integer the grid will be built from, and a guard that rounds even slightly</span>
+<span class="sd">    differently is a guard that disagrees with the thing it guards.</span>
+<span class="sd">    """</span>
+    <span class="k">return</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">seconds</span> <span class="o">*</span> <span class="n">sample_rate</span><span class="p">)))</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_max_supportable_window_s</span><span class="p">(</span>
+    <span class="n">clip_duration_s</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">sample_rate</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">max_overlap</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">MAX_SUPPORT_OVERLAP</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""The widest window at which a clip of this length still holds a SECOND look.</span>
+
+<span class="sd">    Roughly ``clip_duration_s / (1 + max_overlap)``, and it does NOT depend on ``hop_s`` —</span>
+<span class="sd">    which is the whole subtlety. A hop-based bound (``duration - hop``) is wrong in both</span>
+<span class="sd">    directions: at ``window=11, hop=1`` on a 15 s clip it accepts a call that returns</span>
+<span class="sd">    ``support=None``, and at ``window=6, hop=12`` it refuses one that measures</span>
+<span class="sd">    ``support=1.0``.</span>
+
+<span class="sd">    The reason the hop drops out is :func:`_window_offsets`. Its regular grid stops at the</span>
+<span class="sd">    last start that fits, and it then APPENDS a tail window starting at</span>
+<span class="sd">    ``len(clip) - n_win`` whenever the grid did not already reach the end — so whatever</span>
+<span class="sd">    the hop, the last window begins exactly one window's length from the clip's end.</span>
+<span class="sd">    :func:`_independent_windows` keeps a second window once it has moved on by</span>
+<span class="sd">    ``1 - max_overlap`` of a window, so a quorum exists iff</span>
+<span class="sd">    ``clip_duration - window &gt;= max_overlap * window``. The hop decides how MANY looks</span>
+<span class="sd">    there are and how finely a boundary is placed, never whether a second independent one</span>
+<span class="sd">    can exist at all.</span>
+
+<span class="sd">    **Computed in SAMPLES, which is not a detail.** The grid rounds the window to whole</span>
+<span class="sd">    samples before any of this happens, and at the seconds bound that rounding can go the</span>
+<span class="sd">    wrong way by half a sample: on a 10 s clip at 16 kHz the exact ``10 / 1.5`` rounds to</span>
+<span class="sd">    106667 samples where 106666 is the most that fits, so a caller retrying at the</span>
+<span class="sd">    ceiling this function is FOR would land straight back in the exception. Taking the</span>
+<span class="sd">    floor in samples makes the bound admissible by construction wherever one exists,</span>
+<span class="sd">    which is the only thing that makes it worth reporting. The exception is a degenerate</span>
+<span class="sd">    clip of a sample or two, which holds no second look at ANY window: the result is</span>
+<span class="sd">    floored at one sample there and is a lower bound rather than a promise.</span>
+<span class="sd">    """</span>
+    <span class="n">clip_samples</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">clip_duration_s</span> <span class="o">*</span> <span class="n">sample_rate</span><span class="p">))</span>
+    <span class="n">max_window_samples</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">clip_samples</span> <span class="o">/</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">+</span> <span class="n">max_overlap</span><span class="p">))</span>
+    <span class="k">return</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">max_window_samples</span><span class="p">)</span> <span class="o">/</span> <span class="n">sample_rate</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_holds_a_second_look</span><span class="p">(</span>
+    <span class="n">clip_duration_s</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">window_s</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">sample_rate</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">max_overlap</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">MAX_SUPPORT_OVERLAP</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Whether this window leaves the clip a second INDEPENDENT look.</span>
+
+<span class="sd">    :func:`_independent_windows`' own test, on the two windows that always exist: the one</span>
+<span class="sd">    at the start and the one ending at the clip's end.</span>
+<span class="sd">    """</span>
+    <span class="n">clip_samples</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">clip_duration_s</span> <span class="o">*</span> <span class="n">sample_rate</span><span class="p">))</span>
+    <span class="n">window_samples</span> <span class="o">=</span> <span class="n">_window_samples</span><span class="p">(</span><span class="n">window_s</span><span class="p">,</span> <span class="n">sample_rate</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">clip_samples</span> <span class="o">-</span> <span class="n">window_samples</span> <span class="o">&gt;=</span> <span class="n">max_overlap</span> <span class="o">*</span> <span class="n">window_samples</span>
+
+
 <span class="k">def</span><span class="w"> </span><span class="nf">_clip_window_and_hop</span><span class="p">(</span>
     <span class="n">clip_duration_s</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
     <span class="n">sample_rate</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
     <span class="n">window_s</span><span class="p">:</span> <span class="s2">"float | None"</span><span class="p">,</span>
     <span class="n">hop_s</span><span class="p">:</span> <span class="s2">"float | None"</span><span class="p">,</span>
+    <span class="n">clip_index</span><span class="p">:</span> <span class="s2">"int | None"</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">default_window_s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">SPAN_WINDOW_S</span><span class="p">,</span>
     <span class="n">target_windows</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">MIN_WINDOWS_FOR_SUPPORT_TARGET</span><span class="p">,</span>
     <span class="n">min_frames</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">ADAPTIVE_WINDOW_MIN_FRAMES</span><span class="p">,</span>
@@ -2350,12 +2419,34 @@
 <span class="sd">    real alignments read 0.45/0.64/0.73 at 20 s and 0.19/0.16/0.23 at 5 s. A short clip had</span>
 <span class="sd">    no support at all before, so nothing is being reinterpreted; but a caller gating on</span>
 <span class="sd">    support must know that the number arrives on the clip's scale, not the default's.</span>
+
+<span class="sd">    **An EXPLICIT window too wide for the clip is refused, not honored** (issue #43).</span>
+<span class="sd">    Above :func:`_max_supportable_window_s` the clip cannot hold two INDEPENDENT windows</span>
+<span class="sd">    (:func:`_holds_a_second_look`),</span>
+<span class="sd">    so the vote the caller asked for cannot be held and ``support`` comes back ``None`` —</span>
+<span class="sd">    which reads exactly like a clip too short to support at any window. Rather than</span>
+<span class="sd">    degrade silently, this raises :class:`~mixing.errors.WindowTooWideForClip`, naming the</span>
+<span class="sd">    clip, its duration and the largest window that would still hold a quorum. Only an</span>
+<span class="sd">    explicit window is refused: the ``None`` path above fits the window to the clip and,</span>
+<span class="sd">    at the floor, may legitimately land on a single window, which is the honest answer for</span>
+<span class="sd">    a clip that short and not a caller's mistake.</span>
 <span class="sd">    """</span>
+    <span class="n">explicit_window</span> <span class="o">=</span> <span class="n">window_s</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
     <span class="k">if</span> <span class="n">window_s</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">floor_s</span> <span class="o">=</span> <span class="n">min_frames</span> <span class="o">*</span> <span class="n">envelope_hop</span> <span class="o">/</span> <span class="n">sample_rate</span>
         <span class="n">window_s</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">default_window_s</span><span class="p">,</span> <span class="nb">max</span><span class="p">(</span><span class="n">floor_s</span><span class="p">,</span> <span class="n">clip_duration_s</span> <span class="o">/</span> <span class="n">target_windows</span><span class="p">))</span>
     <span class="k">if</span> <span class="n">hop_s</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">hop_s</span> <span class="o">=</span> <span class="n">window_s</span> <span class="o">*</span> <span class="n">hop_ratio</span>
+    <span class="k">if</span> <span class="n">explicit_window</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">_holds_a_second_look</span><span class="p">(</span>
+        <span class="n">clip_duration_s</span><span class="p">,</span> <span class="n">window_s</span><span class="p">,</span> <span class="n">sample_rate</span>
+    <span class="p">):</span>
+        <span class="k">raise</span> <span class="n">WindowTooWideForClip</span><span class="p">(</span>
+            <span class="n">clip_index</span><span class="o">=</span><span class="n">clip_index</span><span class="p">,</span>
+            <span class="n">clip_duration_s</span><span class="o">=</span><span class="n">clip_duration_s</span><span class="p">,</span>
+            <span class="n">window_s</span><span class="o">=</span><span class="n">window_s</span><span class="p">,</span>
+            <span class="n">hop_s</span><span class="o">=</span><span class="n">hop_s</span><span class="p">,</span>
+            <span class="n">max_window_s</span><span class="o">=</span><span class="n">_max_supportable_window_s</span><span class="p">(</span><span class="n">clip_duration_s</span><span class="p">,</span> <span class="n">sample_rate</span><span class="p">),</span>
+        <span class="p">)</span>
     <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">window_s</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">hop_s</span><span class="p">)</span>
 
 
@@ -2438,8 +2529,21 @@
 <span class="sd">            the scale its ``support`` is on. A clip of three default windows or</span>
 <span class="sd">            more is measured at :data:`SPAN_WINDOW_S` exactly, so nothing about a long</span>
 <span class="sd">            clip's answer moves. Pass a number to fix the window yourself — an explicit</span>
-<span class="sd">            value is never overridden, and it is how the pre-adaptation answer for a short</span>
-<span class="sd">            clip is reproduced.</span>
+<span class="sd">            value is never overridden.</span>
+
+<span class="sd">            **An explicit window a clip cannot hold is REFUSED** with</span>
+<span class="sd">            :class:`~mixing.errors.WindowTooWideForClip` (issue #43). The bound is</span>
+<span class="sd">            ``clip_duration / (1 + MAX_SUPPORT_OVERLAP)`` and does NOT involve ``hop_s``</span>
+<span class="sd">            (:func:`_max_supportable_window_s`): above it no second INDEPENDENT window</span>
+<span class="sd">            exists, so the vote asked for cannot be held and the result would be one</span>
+<span class="sd">            whole-clip correlation reporting ``support=None`` — the same thing a clip too</span>
+<span class="sd">            short to support at any window reports, with nothing to tell the two apart.</span>
+<span class="sd">            The error names the clip, its duration and the largest window that still</span>
+<span class="sd">            leaves a second look — measurable for any clip long enough to be worth</span>
+<span class="sd">            aligning, though a degenerate clip of a sample or two has no such window at</span>
+<span class="sd">            all. To measure such a clip, pass that window, pass ``window_s=None`` to fit</span>
+<span class="sd">            the window to each clip, or pass ``consensus=False`` to ask for the single</span>
+<span class="sd">            correlation outright.</span>
 <span class="sd">        hop_s: Step between those windows. Ignored when ``consensus`` is False. ``None``</span>
 <span class="sd">            (the default) is :data:`ADAPTIVE_HOP_RATIO` of whatever window is in force —</span>
 <span class="sd">            half of it, the default pair's own ratio — so an adapted grid keeps the</span>
@@ -2461,6 +2565,15 @@
 
 <span class="sd">    Returns:</span>
 <span class="sd">        A list of :class:`ClipAlignment`, in input order (minus dropped clips).</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError: ``feature`` is not one of :data:`ALIGNMENT_FEATURES`, or</span>
+<span class="sd">            ``near_tie_ratio`` is negative.</span>
+<span class="sd">        ~mixing.errors.WindowTooWideForClip: ``consensus`` is on and an EXPLICIT</span>
+<span class="sd">            ``window_s`` is wider than some clip can hold a second independent look at</span>
+<span class="sd">            (issue #43). The error names that clip, its duration and the largest window</span>
+<span class="sd">            that would work; it subclasses ``ValueError``. Never raised on the</span>
+<span class="sd">            ``window_s=None`` path, which fits the window to each clip.</span>
 <span class="sd">    """</span>
     <span class="k">if</span> <span class="n">feature</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ALIGNMENT_FEATURES</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
@@ -2485,6 +2598,7 @@
                 <span class="n">sample_rate</span><span class="p">,</span>
                 <span class="n">window_s</span><span class="o">=</span><span class="n">window_s</span><span class="p">,</span>
                 <span class="n">hop_s</span><span class="o">=</span><span class="n">hop_s</span><span class="p">,</span>
+                <span class="n">clip_index</span><span class="o">=</span><span class="n">i</span><span class="p">,</span>
             <span class="p">)</span>
             <span class="n">offset_s</span><span class="p">,</span> <span class="n">coeff</span><span class="p">,</span> <span class="n">support</span><span class="p">,</span> <span class="n">margin</span> <span class="o">=</span> <span class="n">_consensus_alignment</span><span class="p">(</span>
                 <span class="n">ref</span><span class="p">,</span>

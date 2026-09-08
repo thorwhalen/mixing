@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>mixing &mdash; mixing 0.0.51 documentation</title>
+  <title>mixing &mdash; mixing 0.0.52 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
@@ -15,7 +15,7 @@
   
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=440a2162"></script>
+      <script src="../_static/documentation_options.js?v=73f2ab08"></script>
       <script src="../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="../_static/toggleprompt.js?v=d7ede5d2"></script>
@@ -80,6 +80,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#mixing.FillerRemovalResult"><code class="docutils literal notranslate"><span class="pre">FillerRemovalResult</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mixing.MixingError"><code class="docutils literal notranslate"><span class="pre">MixingError</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#mixing.Segment"><code class="docutils literal notranslate"><span class="pre">Segment</span></code></a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#mixing.Segment.start"><code class="docutils literal notranslate"><span class="pre">Segment.start</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#mixing.Segment.end"><code class="docutils literal notranslate"><span class="pre">Segment.end</span></code></a></li>
@@ -106,6 +107,14 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#mixing.VideoFrames"><code class="docutils literal notranslate"><span class="pre">VideoFrames</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mixing.WindowTooWideForClip"><code class="docutils literal notranslate"><span class="pre">WindowTooWideForClip</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#mixing.WindowTooWideForClip.clip_index"><code class="docutils literal notranslate"><span class="pre">WindowTooWideForClip.clip_index</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mixing.WindowTooWideForClip.clip_duration_s"><code class="docutils literal notranslate"><span class="pre">WindowTooWideForClip.clip_duration_s</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mixing.WindowTooWideForClip.window_s"><code class="docutils literal notranslate"><span class="pre">WindowTooWideForClip.window_s</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mixing.WindowTooWideForClip.hop_s"><code class="docutils literal notranslate"><span class="pre">WindowTooWideForClip.hop_s</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mixing.WindowTooWideForClip.max_window_s"><code class="docutils literal notranslate"><span class="pre">WindowTooWideForClip.max_window_s</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="#mixing.assemble_audio_track"><code class="docutils literal notranslate"><span class="pre">assemble_audio_track()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#mixing.change_speed"><code class="docutils literal notranslate"><span class="pre">change_speed()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#mixing.concatenate_audio"><code class="docutils literal notranslate"><span class="pre">concatenate_audio()</span></code></a></li>
@@ -171,6 +180,7 @@
 <li class="toctree-l1"><a class="reference internal" href="mixing/dubbing/srt.html">mixing.dubbing.srt</a></li>
 <li class="toctree-l1"><a class="reference internal" href="mixing/dubbing/tts.html">mixing.dubbing.tts</a></li>
 <li class="toctree-l1"><a class="reference internal" href="mixing/egress.html">mixing.egress</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mixing/errors.html">mixing.errors</a></li>
 <li class="toctree-l1"><a class="reference internal" href="mixing/srt.html">mixing.srt</a></li>
 <li class="toctree-l1"><a class="reference internal" href="mixing/transcript.html">mixing.transcript</a></li>
 <li class="toctree-l1"><a class="reference internal" href="mixing/transcript/fillers.html">mixing.transcript.fillers</a></li>
@@ -573,6 +583,12 @@ indexing and slicing. Samples are returned as normalized float values.</p>
 <dd><p>Paths and computed ranges produced by <a class="reference internal" href="#mixing.remove_fillers" title="mixing.remove_fillers"><code class="xref py py-func docutils literal notranslate"><span class="pre">remove_fillers()</span></code></a>.</p>
 </dd></dl>
 
+<dl class="py exception">
+<dt class="sig sig-object py" id="mixing.MixingError">
+<span class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">mixing.</span></span><span class="sig-name descname"><span class="pre">MixingError</span></span><a class="reference internal" href="../_modules/mixing/errors.html#MixingError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.MixingError" title="Link to this definition"></a></dt>
+<dd><p>Base for every error <cite>mixing</cite> raises on its own behalf.</p>
+</dd></dl>
+
 <dl class="py class">
 <dt class="sig sig-object py" id="mixing.Segment">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">mixing.</span></span><span class="sig-name descname"><span class="pre">Segment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">score</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mixing/audio/segmentation.html#Segment"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.Segment" title="Link to this definition"></a></dt>
@@ -827,6 +843,64 @@ indexing and slicing. Frames are returned as numpy arrays (BGR format).</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">frames</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">vf</span><span class="p">[</span><span class="mi">10</span><span class="p">:</span><span class="mi">20</span><span class="p">])</span>  <span class="c1"># Get frames 10-19</span>
 </pre></div>
 </div>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="mixing.WindowTooWideForClip">
+<span class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">mixing.</span></span><span class="sig-name descname"><span class="pre">WindowTooWideForClip</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">clip_index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clip_duration_s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">window_s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hop_s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_window_s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mixing/errors.html#WindowTooWideForClip"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.WindowTooWideForClip" title="Link to this definition"></a></dt>
+<dd><p>An explicit analysis window leaves a clip no second, independent look.</p>
+<p>Raised by <a class="reference internal" href="mixing/audio.html#mixing.audio.align_clips_to_reference" title="mixing.audio.align_clips_to_reference"><code class="xref py py-func docutils literal notranslate"><span class="pre">mixing.audio.align_clips_to_reference()</span></code></a> when the caller passes a
+<code class="docutils literal notranslate"><span class="pre">window_s</span></code> wider than <a class="reference internal" href="#mixing.WindowTooWideForClip.max_window_s" title="mixing.WindowTooWideForClip.max_window_s"><code class="xref py py-attr docutils literal notranslate"><span class="pre">max_window_s</span></code></a> — the length above which the clip holds
+no second INDEPENDENT window, so the consensus vote has nothing to arbitrate and
+<code class="docutils literal notranslate"><span class="pre">support</span></code> comes back <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p>
+<p>Why an error and not a clamp or a silent single window: the caller asked for a
+windowed vote and would otherwise receive a single whole-clip correlation whose
+only signal is the ABSENCE of a support number — indistinguishable from a clip
+that is genuinely too short to support at any window (issue #43). Clamping would
+be worse still: an explicit <code class="docutils literal notranslate"><span class="pre">window_s</span></code> is the caller saying what a window means
+for their material, and silently measuring at a different one makes <code class="docutils literal notranslate"><span class="pre">support</span></code>
+incomparable across a set for a reason nothing reports.</p>
+<p>It subclasses <code class="xref py py-class docutils literal notranslate"><span class="pre">ValueError</span></code> because it is an argument that cannot be honored,
+so existing <code class="docutils literal notranslate"><span class="pre">except</span> <span class="pre">ValueError</span></code> handlers around alignment keep working.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mixing.WindowTooWideForClip.clip_index">
+<span class="sig-name descname"><span class="pre">clip_index</span></span><a class="headerlink" href="#mixing.WindowTooWideForClip.clip_index" title="Link to this definition"></a></dt>
+<dd><p>Position of the offending clip in the <code class="docutils literal notranslate"><span class="pre">clips</span></code> sequence, or
+<code class="docutils literal notranslate"><span class="pre">None</span></code> when the caller did not identify one.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mixing.WindowTooWideForClip.clip_duration_s">
+<span class="sig-name descname"><span class="pre">clip_duration_s</span></span><a class="headerlink" href="#mixing.WindowTooWideForClip.clip_duration_s" title="Link to this definition"></a></dt>
+<dd><p>The clip’s duration in seconds.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mixing.WindowTooWideForClip.window_s">
+<span class="sig-name descname"><span class="pre">window_s</span></span><a class="headerlink" href="#mixing.WindowTooWideForClip.window_s" title="Link to this definition"></a></dt>
+<dd><p>The window that was asked for.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mixing.WindowTooWideForClip.hop_s">
+<span class="sig-name descname"><span class="pre">hop_s</span></span><a class="headerlink" href="#mixing.WindowTooWideForClip.hop_s" title="Link to this definition"></a></dt>
+<dd><p>The hop in force — the caller’s, or the one derived from <code class="docutils literal notranslate"><span class="pre">window_s</span></code>.
+Reported because it is part of the grid that was asked for; it is NOT part
+of the bound, which does not depend on it (see
+<code class="xref py py-func docutils literal notranslate"><span class="pre">_max_supportable_window_s()</span></code>).</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mixing.WindowTooWideForClip.max_window_s">
+<span class="sig-name descname"><span class="pre">max_window_s</span></span><a class="headerlink" href="#mixing.WindowTooWideForClip.max_window_s" title="Link to this definition"></a></dt>
+<dd><p>The largest window that still leaves this clip a second,
+independent look. The bound is inclusive, so for any clip long enough to be
+worth aligning a retry at exactly this window measures — which is what makes
+it worth reporting. A degenerate clip of a sample or two has no such window
+at all; the value is floored at one sample there and is a lower bound rather
+than a promise.</p>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="py function">

@@ -1,0 +1,238 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>mixing.errors &mdash; mixing 0.0.52 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=73f2ab08"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../../_static/toggleprompt.js?v=d7ede5d2"></script>
+      <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            mixing
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/mixing.html">mixing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/mixing/_cache.html">mixing._cache</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/mixing/_elevenlabs.html">mixing._elevenlabs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/mixing/audio.html">mixing.audio</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/mixing/audio/audio_ops.html">mixing.audio.audio_ops</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/mixing/audio/audio_util.html">mixing.audio.audio_util</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/mixing/audio/audio_widget.html">mixing.audio.audio_widget</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/mixing/audio/beats.html">mixing.audio.beats</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/mixing/audio/segmentation.html">mixing.audio.segmentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/mixing/chapters.html">mixing.chapters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/mixing/dubbing.html">mixing.dubbing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/mixing/dubbing/dub.html">mixing.dubbing.dub</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/mixing/dubbing/srt.html">mixing.dubbing.srt</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/mixing/dubbing/tts.html">mixing.dubbing.tts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/mixing/egress.html">mixing.egress</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/mixing/errors.html">mixing.errors</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/mixing/srt.html">mixing.srt</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/mixing/transcript.html">mixing.transcript</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/mixing/transcript/fillers.html">mixing.transcript.fillers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/mixing/transcript/formats.html">mixing.transcript.formats</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/mixing/transcript/media.html">mixing.transcript.media</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/mixing/transcript/persist.html">mixing.transcript.persist</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/mixing/transcript/pipeline.html">mixing.transcript.pipeline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/mixing/transcript/scribe.html">mixing.transcript.scribe</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/mixing/util.html">mixing.util</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/mixing/video.html">mixing.video</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/mixing/video/_helpers.html">mixing.video._helpers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/mixing/video/genai.html">mixing.video.genai</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/mixing/video/gif.html">mixing.video.gif</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/mixing/video/thumbnail.html">mixing.video.thumbnail</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/mixing/video/video_concat.html">mixing.video.video_concat</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/mixing/video/video_ops.html">mixing.video.video_ops</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/mixing/video/video_subtitles.html">mixing.video.video_subtitles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/mixing/video/video_util.html">mixing.video.video_util</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">mixing</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">mixing.errors</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for mixing.errors</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""Typed errors `mixing` raises — the home for exceptions a caller may want to catch.</span>
+
+<span class="sd">Pure stdlib, imported by the lazy facade without pulling any backend, so a consumer</span>
+<span class="sd">can ``from mixing import WindowTooWideForClip`` in a light module and still catch what</span>
+<span class="sd">a heavy one raises.</span>
+
+<span class="sd">The convention: an error class carries the MEASURED numbers as attributes, not only in</span>
+<span class="sd">its message, so a caller can act on them (retry at the largest valid window, say) rather</span>
+<span class="sd">than parse prose.</span>
+<span class="sd">"""</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"MixingError"</span><span class="p">,</span> <span class="s2">"WindowTooWideForClip"</span><span class="p">]</span>
+
+<span class="c1">#: Decimal places the remedy in a :class:`WindowTooWideForClip` message is stated to.</span>
+<span class="c1">#: The number is rounded DOWN to them, so what the message tells a caller to pass is</span>
+<span class="c1">#: always inside the bound rather than one rounding step outside it.</span>
+<span class="n">_ADVICE_DECIMALS</span> <span class="o">=</span> <span class="mi">6</span>
+
+
+<div class="viewcode-block" id="MixingError">
+<a class="viewcode-back" href="../../module_docs/mixing/errors.html#mixing.MixingError">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">MixingError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Base for every error `mixing` raises on its own behalf."""</span></div>
+
+
+
+<div class="viewcode-block" id="WindowTooWideForClip">
+<a class="viewcode-back" href="../../module_docs/mixing/errors.html#mixing.WindowTooWideForClip">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">WindowTooWideForClip</span><span class="p">(</span><span class="n">MixingError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""An explicit analysis window leaves a clip no second, independent look.</span>
+
+<span class="sd">    Raised by :func:`mixing.audio.align_clips_to_reference` when the caller passes a</span>
+<span class="sd">    ``window_s`` wider than :attr:`max_window_s` — the length above which the clip holds</span>
+<span class="sd">    no second INDEPENDENT window, so the consensus vote has nothing to arbitrate and</span>
+<span class="sd">    ``support`` comes back ``None``.</span>
+
+<span class="sd">    Why an error and not a clamp or a silent single window: the caller asked for a</span>
+<span class="sd">    windowed vote and would otherwise receive a single whole-clip correlation whose</span>
+<span class="sd">    only signal is the ABSENCE of a support number — indistinguishable from a clip</span>
+<span class="sd">    that is genuinely too short to support at any window (issue #43). Clamping would</span>
+<span class="sd">    be worse still: an explicit ``window_s`` is the caller saying what a window means</span>
+<span class="sd">    for their material, and silently measuring at a different one makes ``support``</span>
+<span class="sd">    incomparable across a set for a reason nothing reports.</span>
+
+<span class="sd">    It subclasses :class:`ValueError` because it is an argument that cannot be honored,</span>
+<span class="sd">    so existing ``except ValueError`` handlers around alignment keep working.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        clip_index: Position of the offending clip in the ``clips`` sequence, or</span>
+<span class="sd">            ``None`` when the caller did not identify one.</span>
+<span class="sd">        clip_duration_s: The clip's duration in seconds.</span>
+<span class="sd">        window_s: The window that was asked for.</span>
+<span class="sd">        hop_s: The hop in force — the caller's, or the one derived from ``window_s``.</span>
+<span class="sd">            Reported because it is part of the grid that was asked for; it is NOT part</span>
+<span class="sd">            of the bound, which does not depend on it (see</span>
+<span class="sd">            :func:`~mixing.audio.audio_ops._max_supportable_window_s`).</span>
+<span class="sd">        max_window_s: The largest window that still leaves this clip a second,</span>
+<span class="sd">            independent look. The bound is inclusive, so for any clip long enough to be</span>
+<span class="sd">            worth aligning a retry at exactly this window measures — which is what makes</span>
+<span class="sd">            it worth reporting. A degenerate clip of a sample or two has no such window</span>
+<span class="sd">            at all; the value is floored at one sample there and is a lower bound rather</span>
+<span class="sd">            than a promise.</span>
+<span class="sd">    """</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">clip_index</span><span class="p">:</span> <span class="s2">"int | None"</span><span class="p">,</span>
+        <span class="n">clip_duration_s</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+        <span class="n">window_s</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+        <span class="n">hop_s</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+        <span class="n">max_window_s</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">clip_index</span> <span class="o">=</span> <span class="n">clip_index</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">clip_duration_s</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">clip_duration_s</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">window_s</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">window_s</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hop_s</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">hop_s</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_window_s</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">max_window_s</span><span class="p">)</span>
+        <span class="n">who</span> <span class="o">=</span> <span class="s2">"clip"</span> <span class="k">if</span> <span class="n">clip_index</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="sa">f</span><span class="s2">"clip </span><span class="si">{</span><span class="n">clip_index</span><span class="si">}</span><span class="s2">"</span>
+        <span class="c1"># Rounded DOWN, never to nearest: a ceiling printed even one ULP above the real</span>
+        <span class="c1"># one sends the caller straight back into this exception, which is the one</span>
+        <span class="c1"># remedy the message must not suggest.</span>
+        <span class="n">advice</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">max_window_s</span> <span class="o">*</span> <span class="mi">10</span><span class="o">**</span><span class="n">_ADVICE_DECIMALS</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span>
+            <span class="mi">10</span><span class="o">**</span><span class="n">_ADVICE_DECIMALS</span>
+        <span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"window_s=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">window_s</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2"> is wider than </span><span class="si">{</span><span class="n">who</span><span class="si">}</span><span class="s2"> "</span>
+            <span class="sa">f</span><span class="s2">"(</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">clip_duration_s</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2"> s) allows: no second INDEPENDENT window fits, "</span>
+            <span class="sa">f</span><span class="s2">"so the consensus vote has nothing to arbitrate and support would be None "</span>
+            <span class="sa">f</span><span class="s2">"for a reason nothing reports — pass window_s &lt;= "</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">advice</span><span class="si">:</span><span class="s2">.</span><span class="si">{</span><span class="n">_ADVICE_DECIMALS</span><span class="si">}</span><span class="s2">f</span><span class="si">}</span><span class="s2">, or window_s=None to fit the window to each "</span>
+            <span class="sa">f</span><span class="s2">"clip. "</span>
+            <span class="sa">f</span><span class="s2">"(hop_s=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">hop_s</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2"> does not enter this bound: the analysis grid "</span>
+            <span class="sa">f</span><span class="s2">"always ends with a window one window's length from the clip's end, "</span>
+            <span class="sa">f</span><span class="s2">"whatever the hop.)"</span>
+        <span class="p">)</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,229 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>mixing.errors &mdash; mixing 0.0.52 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=73f2ab08"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../../_static/toggleprompt.js?v=d7ede5d2"></script>
+      <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="mixing.srt" href="srt.html" />
+    <link rel="prev" title="mixing.egress" href="egress.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            mixing
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../mixing.html">mixing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="_cache.html">mixing._cache</a></li>
+<li class="toctree-l1"><a class="reference internal" href="_elevenlabs.html">mixing._elevenlabs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="audio.html">mixing.audio</a></li>
+<li class="toctree-l1"><a class="reference internal" href="audio/audio_ops.html">mixing.audio.audio_ops</a></li>
+<li class="toctree-l1"><a class="reference internal" href="audio/audio_util.html">mixing.audio.audio_util</a></li>
+<li class="toctree-l1"><a class="reference internal" href="audio/audio_widget.html">mixing.audio.audio_widget</a></li>
+<li class="toctree-l1"><a class="reference internal" href="audio/beats.html">mixing.audio.beats</a></li>
+<li class="toctree-l1"><a class="reference internal" href="audio/segmentation.html">mixing.audio.segmentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="chapters.html">mixing.chapters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dubbing.html">mixing.dubbing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dubbing/dub.html">mixing.dubbing.dub</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dubbing/srt.html">mixing.dubbing.srt</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dubbing/tts.html">mixing.dubbing.tts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="egress.html">mixing.egress</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">mixing.errors</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#mixing.errors.MixingError"><code class="docutils literal notranslate"><span class="pre">MixingError</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mixing.errors.WindowTooWideForClip"><code class="docutils literal notranslate"><span class="pre">WindowTooWideForClip</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#mixing.errors.WindowTooWideForClip.clip_index"><code class="docutils literal notranslate"><span class="pre">WindowTooWideForClip.clip_index</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mixing.errors.WindowTooWideForClip.clip_duration_s"><code class="docutils literal notranslate"><span class="pre">WindowTooWideForClip.clip_duration_s</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mixing.errors.WindowTooWideForClip.window_s"><code class="docutils literal notranslate"><span class="pre">WindowTooWideForClip.window_s</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mixing.errors.WindowTooWideForClip.hop_s"><code class="docutils literal notranslate"><span class="pre">WindowTooWideForClip.hop_s</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mixing.errors.WindowTooWideForClip.max_window_s"><code class="docutils literal notranslate"><span class="pre">WindowTooWideForClip.max_window_s</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="srt.html">mixing.srt</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transcript.html">mixing.transcript</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transcript/fillers.html">mixing.transcript.fillers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transcript/formats.html">mixing.transcript.formats</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transcript/media.html">mixing.transcript.media</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transcript/persist.html">mixing.transcript.persist</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transcript/pipeline.html">mixing.transcript.pipeline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transcript/scribe.html">mixing.transcript.scribe</a></li>
+<li class="toctree-l1"><a class="reference internal" href="util.html">mixing.util</a></li>
+<li class="toctree-l1"><a class="reference internal" href="video.html">mixing.video</a></li>
+<li class="toctree-l1"><a class="reference internal" href="video/_helpers.html">mixing.video._helpers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="video/genai.html">mixing.video.genai</a></li>
+<li class="toctree-l1"><a class="reference internal" href="video/gif.html">mixing.video.gif</a></li>
+<li class="toctree-l1"><a class="reference internal" href="video/thumbnail.html">mixing.video.thumbnail</a></li>
+<li class="toctree-l1"><a class="reference internal" href="video/video_concat.html">mixing.video.video_concat</a></li>
+<li class="toctree-l1"><a class="reference internal" href="video/video_ops.html">mixing.video.video_ops</a></li>
+<li class="toctree-l1"><a class="reference internal" href="video/video_subtitles.html">mixing.video.video_subtitles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="video/video_util.html">mixing.video.video_util</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">mixing</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">mixing.errors</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/module_docs/mixing/errors.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-mixing.errors">
+<span id="mixing-errors"></span><h1>mixing.errors<a class="headerlink" href="#module-mixing.errors" title="Link to this heading"></a></h1>
+<p>Typed errors <cite>mixing</cite> raises — the home for exceptions a caller may want to catch.</p>
+<p>Pure stdlib, imported by the lazy facade without pulling any backend, so a consumer
+can <code class="docutils literal notranslate"><span class="pre">from</span> <span class="pre">mixing</span> <span class="pre">import</span> <span class="pre">WindowTooWideForClip</span></code> in a light module and still catch what
+a heavy one raises.</p>
+<p>The convention: an error class carries the MEASURED numbers as attributes, not only in
+its message, so a caller can act on them (retry at the largest valid window, say) rather
+than parse prose.</p>
+<dl class="py exception">
+<dt class="sig sig-object py" id="mixing.errors.MixingError">
+<span class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">mixing.errors.</span></span><span class="sig-name descname"><span class="pre">MixingError</span></span><a class="reference internal" href="../../_modules/mixing/errors.html#MixingError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.errors.MixingError" title="Link to this definition"></a></dt>
+<dd><p>Base for every error <cite>mixing</cite> raises on its own behalf.</p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="mixing.errors.WindowTooWideForClip">
+<span class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">mixing.errors.</span></span><span class="sig-name descname"><span class="pre">WindowTooWideForClip</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">clip_index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clip_duration_s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">window_s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hop_s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_window_s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/mixing/errors.html#WindowTooWideForClip"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mixing.errors.WindowTooWideForClip" title="Link to this definition"></a></dt>
+<dd><p>An explicit analysis window leaves a clip no second, independent look.</p>
+<p>Raised by <a class="reference internal" href="audio.html#mixing.audio.align_clips_to_reference" title="mixing.audio.align_clips_to_reference"><code class="xref py py-func docutils literal notranslate"><span class="pre">mixing.audio.align_clips_to_reference()</span></code></a> when the caller passes a
+<code class="docutils literal notranslate"><span class="pre">window_s</span></code> wider than <a class="reference internal" href="#mixing.errors.WindowTooWideForClip.max_window_s" title="mixing.errors.WindowTooWideForClip.max_window_s"><code class="xref py py-attr docutils literal notranslate"><span class="pre">max_window_s</span></code></a> — the length above which the clip holds
+no second INDEPENDENT window, so the consensus vote has nothing to arbitrate and
+<code class="docutils literal notranslate"><span class="pre">support</span></code> comes back <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p>
+<p>Why an error and not a clamp or a silent single window: the caller asked for a
+windowed vote and would otherwise receive a single whole-clip correlation whose
+only signal is the ABSENCE of a support number — indistinguishable from a clip
+that is genuinely too short to support at any window (issue #43). Clamping would
+be worse still: an explicit <code class="docutils literal notranslate"><span class="pre">window_s</span></code> is the caller saying what a window means
+for their material, and silently measuring at a different one makes <code class="docutils literal notranslate"><span class="pre">support</span></code>
+incomparable across a set for a reason nothing reports.</p>
+<p>It subclasses <code class="xref py py-class docutils literal notranslate"><span class="pre">ValueError</span></code> because it is an argument that cannot be honored,
+so existing <code class="docutils literal notranslate"><span class="pre">except</span> <span class="pre">ValueError</span></code> handlers around alignment keep working.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mixing.errors.WindowTooWideForClip.clip_index">
+<span class="sig-name descname"><span class="pre">clip_index</span></span><a class="headerlink" href="#mixing.errors.WindowTooWideForClip.clip_index" title="Link to this definition"></a></dt>
+<dd><p>Position of the offending clip in the <code class="docutils literal notranslate"><span class="pre">clips</span></code> sequence, or
+<code class="docutils literal notranslate"><span class="pre">None</span></code> when the caller did not identify one.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mixing.errors.WindowTooWideForClip.clip_duration_s">
+<span class="sig-name descname"><span class="pre">clip_duration_s</span></span><a class="headerlink" href="#mixing.errors.WindowTooWideForClip.clip_duration_s" title="Link to this definition"></a></dt>
+<dd><p>The clip’s duration in seconds.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mixing.errors.WindowTooWideForClip.window_s">
+<span class="sig-name descname"><span class="pre">window_s</span></span><a class="headerlink" href="#mixing.errors.WindowTooWideForClip.window_s" title="Link to this definition"></a></dt>
+<dd><p>The window that was asked for.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mixing.errors.WindowTooWideForClip.hop_s">
+<span class="sig-name descname"><span class="pre">hop_s</span></span><a class="headerlink" href="#mixing.errors.WindowTooWideForClip.hop_s" title="Link to this definition"></a></dt>
+<dd><p>The hop in force — the caller’s, or the one derived from <code class="docutils literal notranslate"><span class="pre">window_s</span></code>.
+Reported because it is part of the grid that was asked for; it is NOT part
+of the bound, which does not depend on it (see
+<code class="xref py py-func docutils literal notranslate"><span class="pre">_max_supportable_window_s()</span></code>).</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mixing.errors.WindowTooWideForClip.max_window_s">
+<span class="sig-name descname"><span class="pre">max_window_s</span></span><a class="headerlink" href="#mixing.errors.WindowTooWideForClip.max_window_s" title="Link to this definition"></a></dt>
+<dd><p>The largest window that still leaves this clip a second,
+independent look. The bound is inclusive, so for any clip long enough to be
+worth aligning a retry at exactly this window measures — which is what makes
+it worth reporting. A degenerate clip of a sample or two has no such window
+at all; the value is floored at one sample there and is a lower bound rather
+than a promise.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="egress.html" class="btn btn-neutral float-left" title="mixing.egress" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="srt.html" class="btn btn-neutral float-right" title="mixing.srt" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
