@@ -95,6 +95,20 @@ with Video("movie.mp4") as v:
     v[10:30].save(output="cut.mp4")  # seconds; v[100] returns a single frame
 ```
 
+**Logging, not printing.** `mixing` never writes progress messages to stdout —
+every module logs through `logging.getLogger(__name__)`, and the package root
+carries a `NullHandler`, so `mixing` is silent by default. This keeps library
+calls usable from a stdout-parsing consumer. To see mixing's own progress
+messages (e.g. while working interactively, or when an operation like
+`mixing.video.genai.generate_video` fails and you want the full diagnostic),
+opt in with:
+
+```python
+import logging
+
+logging.basicConfig(level=logging.INFO)  # or level=logging.ERROR for errors only
+```
+
 ## Requirements
 
 - **ffmpeg** on PATH (most operations). macOS: `brew install ffmpeg`;

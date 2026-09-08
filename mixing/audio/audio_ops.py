@@ -42,6 +42,7 @@ from pathlib import Path
 from collections.abc import Iterator, Mapping, Sequence
 from dataclasses import dataclass, replace
 import io
+import logging
 import os
 import tempfile
 import numpy as np
@@ -49,6 +50,8 @@ import numpy as np
 from ..util import require_package, AudioTimeUnit, to_seconds, get_path_from_clipboard
 from .audio_util import AudioSource, _normalize_audio_source
 from ..egress import Output, deliver, is_sink, resolve_output_path
+
+logger = logging.getLogger(__name__)
 
 if TYPE_CHECKING:
     from pydub import AudioSegment
@@ -370,7 +373,7 @@ class Audio:
             str(output_path), format=format, bitrate=bitrate, **export_kwargs
         )
 
-        print(f"Saved audio to: {output_path}")
+        logger.info("Saved audio to: %s", output_path)
         return sink(output_path) if sink is not None else output_path
 
     def fade_in(self, duration: float = 1.0) -> "Audio":

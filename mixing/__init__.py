@@ -27,6 +27,7 @@ it directly (``from mixing.audio import ...``).
 from __future__ import annotations
 
 import importlib
+import logging
 from typing import TYPE_CHECKING
 
 # --- Eager, dependency-light exports -------------------------------------
@@ -34,6 +35,13 @@ from typing import TYPE_CHECKING
 # ``import mixing.chapters``) cheap.
 from mixing.chapters import Chapter, detect_chapters
 from mixing.util import has_ffmpeg
+
+# Library convention: mixing never configures logging or writes to stdout on
+# its own. A ``NullHandler`` on the package root means every ``mixing.*``
+# logger is silent until a consuming application adds its own handler — the
+# single package-wide seam for what was ad hoc ``print()``/``quiet=`` noise
+# (see #32, #39).
+logging.getLogger(__name__).addHandler(logging.NullHandler())
 
 # --- Lazy facade ----------------------------------------------------------
 # name -> the submodule that defines it. The submodule (and its backend deps)

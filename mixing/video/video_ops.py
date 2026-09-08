@@ -42,6 +42,7 @@ from typing import Optional, TYPE_CHECKING, Union
 from pathlib import Path
 from collections.abc import Callable, Iterator, Mapping, Sequence
 import io
+import logging
 import os
 import tempfile
 import numpy as np
@@ -57,6 +58,8 @@ from ._helpers import (
     _set_default_codecs,
     _validated_crop_box,
 )
+
+logger = logging.getLogger(__name__)
 
 
 if TYPE_CHECKING:  # `mixing.audio` (pydub) is imported lazily, inside functions
@@ -505,7 +508,6 @@ class Video:
         *,
         image_format: str = "png",
         copy_to_clipboard: bool = False,
-        quiet: bool = True,
     ) -> Path | None:
         """
         Save a single frame as an image and/or copy to clipboard.
@@ -518,9 +520,6 @@ class Video:
                 only). See mixing.egress.
             image_format: Image format (png, jpg, etc.)
             copy_to_clipboard: If True, copy image to system clipboard
-            quiet: If False, print progress messages ("Copying image to
-                clipboard...", "Saved frame to: ..."). Defaults to True so
-                library callers keep a clean stdout (see mixing#32).
 
         Returns:
             Path to saved image, or None if only copied to clipboard
@@ -544,8 +543,7 @@ class Video:
 
         # Copy to clipboard if requested
         if copy_to_clipboard:
-            if not quiet:
-                print("Copying image to clipboard...")
+            logger.info("Copying image to clipboard...")
             _copy_frame_to_clipboard(frame)
 
         # Save to file if requested
@@ -561,8 +559,7 @@ class Video:
 
             def _write(path: Path) -> None:
                 cv2.imwrite(str(path), frame)
-                if not quiet:
-                    print(f"Saved frame to: {path}")
+                logger.info("Saved frame to: %s", path)
 
             return write_egress(output, default_path=default_path, write=_write)
 
@@ -679,7 +676,7 @@ def crop_video(
                 "crop_box is not supported for single-frame extraction "
                 "(start == end); use save_frame and crop the image instead"
             )
-        frame_kwargs = {"image_format", "copy_to_clipboard", "quiet"}
+        frame_kwargs = {"image_format", "copy_to_clipboard"}
         segment_only = sorted(set(save_kwargs) - frame_kwargs)
         if segment_only:
             raise ValueError(
@@ -702,7 +699,6 @@ def save_frame(
     output: str | bool | None = None,
     image_format: str = "png",
     copy_to_clipboard: bool = False,
-    quiet: bool = True,
 ) -> Path | None:
     """
     Extract and save a frame from a video file.
@@ -721,8 +717,6 @@ def save_frame(
             ``False`` means "don't save to file" (requires copy_to_clipboard).
         image_format: Default image format if not specified in output
         copy_to_clipboard: If True, copy image to system clipboard
-        quiet: If False, print progress messages. Defaults to True so library
-            callers keep a clean stdout (see mixing#32).
 
     Returns:
         Path to the saved image file, or None if only copied to clipboard
@@ -785,7 +779,6 @@ def save_frame(
         output=output_path,
         image_format=image_format,
         copy_to_clipboard=copy_to_clipboard,
-        quiet=quiet,
     )
 
 
@@ -836,7 +829,7 @@ def loop_video(
             # Clean up
             looped.close()
 
-        print(f"Saved looped video to: {output_path}")
+        logger.info("Saved looped video to: %s", output_path)
 
     return write_egress(output, default_path=default_path, write=_write)
 
@@ -889,7 +882,7 @@ def replace_audio(
             match_duration=match_duration,
             **save_kwargs,
         )
-        print(f"Saved video with audio to: {output_path}")
+        logger.info("Saved video with audio to: %s", output_path)
 
     return write_egress(output, default_path=default_path, write=_write)
 
@@ -1006,12 +999,12 @@ def normalize_audio(
                 final_clip = clip.with_audio(normalized_audio)
             else:
                 # No audio to normalize
-                print(f"Warning: {video_src} has no audio track")
+                logger.warning("%s has no audio track", video_src)
                 final_clip = clip
 
             final_clip.write_videofile(str(output_path), **save_kwargs)
 
-        print(f"Saved video with normalized audio to: {output_path}")
+        logger.info("Saved video with normalized audio to: %s", output_path)
 
     return write_egress(output, default_path=default_path, write=_write)
 
@@ -1245,7 +1238,7 @@ def overlay_ambient_bed(
                 match_duration=True,
                 **save_kwargs,
             )
-        print(f"Saved video with ambient bed to: {target}")
+        logger.info("Saved video with ambient bed to: %s", target)
 
     return write_egress(output, default_path=default_path, write=_write_video)
 
@@ -1305,7 +1298,7 @@ def change_speed(
             # Clean up
             sped_clip.close()
 
-        print(f"Saved {speed_factor}x speed video to: {output_path}")
+        logger.info("Saved %sx speed video to: %s", speed_factor, output_path)
 
     return write_egress(output, default_path=default_path, write=_write)
 
