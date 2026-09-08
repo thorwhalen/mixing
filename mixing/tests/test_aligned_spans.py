@@ -23,9 +23,11 @@ from mixing.audio import (
     aligned_spans,
     find_audio_offset_detailed,
 )
+from mixing.errors import WindowTooWideForClip
 
 SR = 16000
 WIN, HOP = 10.0, 5.0
+SPAN_WINDOW_S_DEFAULT = 20.0
 
 
 def _reference(seconds: float = 90.0) -> np.ndarray:
@@ -666,41 +668,44 @@ def test_support_localises_a_clip_that_is_only_partly_the_song(song, ref, tmp_pa
     assert 0.3 < a.support < 0.8, f"about half the clip should agree, got {a.support}"
 
 
-def test_a_clip_shorter_than_one_window_takes_the_whole_clip_answer(
-    song, ref, tmp_path
-):
-    """Consensus must degrade to the thing it replaces, not to a different thing.
+def test_an_explicit_window_wider_than_the_clip_is_refused(song, ref, tmp_path):
+    """A window the clip cannot hold is an error, not a silently ungoverned answer.
 
-    A clip shorter than ``window_s`` is a single window, so there is nothing to vote on
-    and the answer — offset, confidence and support — must equal the single-correlation
-    path exactly.
+    This test used to assert the opposite: that consensus at ``window_s=SPAN_WINDOW_S``
+    on a 15 s clip degraded to the single whole-clip correlation, same offset, same
+    confidence, ``support=None``. It degraded correctly — and unreportably. The caller
+    asked for a windowed vote, got one correlation, and the only trace was the ABSENCE
+    of a support number, which is exactly what a clip too short to support at any window
+    also shows (issue #43). So the explicit-window path now refuses.
 
-    ``window_s`` is passed explicitly here, and that is the whole change issue #41 made:
-    a 15 s clip at the DEFAULT window is no longer one window, because the default now
-    fits the window to the clip (:func:`_clip_window_and_hop`) precisely so that a short
-    clip gets the vote this test describes the absence of. The statement itself is
-    unchanged and still worth pinning — whenever a clip really is one window, however
-    that came about, consensus must return the single correlation's answer and not a
-    different one.
-
-    Both sides report ``support=None``: one window is not a quorum, and the equality
-    would be satisfied just as well by both sides manufacturing 1.0, so that is asserted
-    separately below rather than left to the tuple comparison.
+    What is NOT refused, and is pinned separately below: the ``window_s=None`` path,
+    which fits the window to the clip and may honestly land on a single window at the
+    floor. That is the estimator doing its best for a short clip, not a caller's mistake.
     """
     from mixing.audio.audio_ops import SPAN_HOP_S, SPAN_WINDOW_S
 
     rng = np.random.default_rng(37)
     clip = _write(tmp_path, "short_clip.wav", _take(ref, 30, 45, rng))
-    (new,) = align_clips_to_reference(
-        song, [clip], sample_rate=SR, window_s=SPAN_WINDOW_S, hop_s=SPAN_HOP_S
+    with pytest.raises(WindowTooWideForClip) as excinfo:
+        align_clips_to_reference(
+            song, [clip], sample_rate=SR, window_s=SPAN_WINDOW_S, hop_s=SPAN_HOP_S
+        )
+    err = excinfo.value
+    assert err.clip_index == 0
+    assert err.window_s == SPAN_WINDOW_S and err.hop_s == SPAN_HOP_S
+    assert err.clip_duration_s == pytest.approx(15.0, abs=0.05)
+    # duration - hop: the largest window that still leaves room for a second look.
+    assert err.max_window_s == pytest.approx(5.0, abs=0.05)
+    # The numbers must be IN the message too — the point of the error is that the
+    # window, not the clip's length alone, is nameable as the reason.
+    text = str(err)
+    assert "window_s=20.000" in text and "clip 0" in text
+    assert isinstance(err, ValueError), "existing ValueError handlers keep working"
+    # And the window the error names is one the call accepts.
+    (ok,) = align_clips_to_reference(
+        song, [clip], sample_rate=SR, window_s=err.max_window_s, hop_s=SPAN_HOP_S
     )
-    (old,) = align_clips_to_reference(song, [clip], sample_rate=SR, consensus=False)
-    assert (new.offset_s, new.confidence, new.support) == (
-        old.offset_s,
-        old.confidence,
-        old.support,
-    )
-    assert new.support is None, "one window is not a quorum"
+    assert ok.window_s == pytest.approx(err.max_window_s)
 
 
 # --------------------------------------------------------------------------
@@ -712,21 +717,20 @@ def test_a_clip_shorter_than_one_window_takes_the_whole_clip_answer(
 # --------------------------------------------------------------------------
 
 
-def test_support_is_None_where_no_second_opinion_exists(two_halves, tmp_path):
-    """The reviewer's reproduction, and the reason ``None`` is not spelled ``1.0``.
+def test_the_one_window_reproduction_is_now_a_refusal(two_halves, tmp_path):
+    """The reviewer's reproduction, converted from a silent ``None`` to a refusal.
 
     A 15 s clip taken from offset 30.0 of a reference that is one 45 s half twice comes
-    back at offset **75.0** — wrong — at confidence 0.979, on BOTH paths, because it is
-    a single window and there is nothing for a vote to do. That the answer is wrong is
-    not this test's complaint; a single window genuinely cannot tell those two halves
-    apart. The complaint is what ``support`` says about it. Reporting 1.0 (as the first
-    version of this fix did) turns "nobody checked" into "everybody agreed", and a
-    consumer gating on ``support >= 1.0`` then waves the wrong offset straight through.
+    back at offset **75.0** — wrong — at confidence 0.979 when it is measured as a single
+    window, because a single window genuinely cannot tell those two halves apart. The
+    original complaint was about what ``support`` said of that: reporting 1.0 turns
+    "nobody checked" into "everybody agreed", so it reports ``None``.
 
-    ``window_s`` is pinned to the shipped default rather than left to it: since issue #41
-    the default fits the window to the clip, so this 15 s clip is no longer one window
-    unless it is asked to be. What that adaptation does to this very fixture is the
-    subject of the test below.
+    ``None`` was the right answer for the vote and the wrong answer for the CALL: asking
+    for a 20 s window on a 15 s clip cannot produce the vote it names, and issue #43 says
+    so out loud rather than handing back an uncorroborated 75.0. ``consensus=False`` still
+    returns that same wrong offset with ``support=None`` — asked for explicitly, it is an
+    answer and not a degradation, and it stays pinned here as the contrast.
     """
     from mixing.audio.audio_ops import SPAN_HOP_S, SPAN_WINDOW_S
 
@@ -734,16 +738,48 @@ def test_support_is_None_where_no_second_opinion_exists(two_halves, tmp_path):
     rng = np.random.default_rng(38)
     clip = _write(tmp_path, "one_window.wav", _take(ref, 30, 45, rng))  # true offset 30
 
-    (one_window,) = align_clips_to_reference(
-        song, [clip], sample_rate=SR, window_s=SPAN_WINDOW_S, hop_s=SPAN_HOP_S
-    )
+    with pytest.raises(WindowTooWideForClip) as excinfo:
+        align_clips_to_reference(
+            song, [clip], sample_rate=SR, window_s=SPAN_WINDOW_S, hop_s=SPAN_HOP_S
+        )
+    assert excinfo.value.max_window_s == pytest.approx(5.0, abs=0.05)
+
     (single,) = align_clips_to_reference(song, [clip], sample_rate=SR, consensus=False)
-    assert one_window.offset_s == 75.0 and single.offset_s == 75.0, (
+    assert single.offset_s == 75.0, (
         "the fixture is only meaningful while the offset really is wrong"
     )
-    assert one_window.confidence > 0.9
-    assert one_window.support is None, "one window is not a quorum"
-    assert single.support is None, "and consensus=False put nothing to a vote at all"
+    assert single.confidence > 0.9
+    assert single.support is None, "consensus=False put nothing to a vote at all"
+
+
+def test_the_default_window_path_is_untouched_by_the_refusal(two_halves, ref, tmp_path):
+    """The refusal is about EXPLICIT windows only — ``window_s=None`` is byte-identical.
+
+    Issue #43 converts a working call into an error, so the boundary of that change is
+    worth pinning rather than inferring: with no explicit ``window_s`` the window is
+    fitted per clip, every clip from long to floor-short is accepted, and the numbers
+    that come back are the ones the adaptive path produced before the refusal existed.
+
+    The floor case is the one that would break first if the check ever leaked into the
+    ``None`` path: a clip short enough that the fitted window is the floor may hold a
+    single window, which is precisely the shape the explicit path now refuses — and here
+    it must still be answered, because nobody asked for a window the clip cannot hold.
+    """
+    song, _ = two_halves
+    rng = np.random.default_rng(39)
+    clips = [
+        _write(tmp_path, "long.wav", _take(ref, 5, 65, rng)),  # 60 s, default window
+        _write(tmp_path, "mid.wav", _take(ref, 30, 45, rng)),  # 15 s, fitted window
+        _write(tmp_path, "tiny.wav", _take(ref, 10, 12, rng)),  # 2 s, floor window
+    ]
+    got = align_clips_to_reference(song, clips, sample_rate=SR)
+    assert [a.index for a in got] == [0, 1, 2], "no clip was refused"
+    assert got[0].window_s == pytest.approx(SPAN_WINDOW_S_DEFAULT)
+    assert got[1].window_s == pytest.approx(5.0, abs=0.05), "min(20, 15/3)"
+    assert got[2].window_s < 5.0, "the floor window, fitted to a 2 s clip"
+    assert all(a.hop_s == pytest.approx(a.window_s / 2) for a in got)
+    # A single-window answer is still an ANSWER on this path, not an error.
+    assert got[2].offset_s is not None and got[2].confidence is not None
 
 
 def test_the_same_clip_gets_a_measured_support_once_its_window_fits_it(
@@ -776,7 +812,9 @@ def test_the_same_clip_gets_a_measured_support_once_its_window_fits_it(
     (fitted,) = align_clips_to_reference(song, [clip], sample_rate=SR)
 
     assert fitted.offset_s == pytest.approx(30.0, abs=0.05)
-    assert fitted.support is not None, "a fitted window is a vote, and a vote is measured"
+    assert fitted.support is not None, (
+        "a fitted window is a vote, and a vote is measured"
+    )
     assert 0.0 < fitted.support <= 1.0
 
 
@@ -812,7 +850,9 @@ def test_windows_that_are_the_same_look_twice_do_not_count_as_support(
     (crowded,) = align_clips_to_reference(
         song, [clip], sample_rate=SR, window_s=9.5, hop_s=0.5
     )
-    assert crowded.offset_s == pytest.approx(20.0, abs=0.05), "the offset still measures"
+    assert crowded.offset_s == pytest.approx(20.0, abs=0.05), (
+        "the offset still measures"
+    )
     assert crowded.support is None, "but 95%-overlapping windows are not two opinions"
 
     (spaced,) = align_clips_to_reference(
@@ -842,9 +882,17 @@ def _spaced_windows(starts, length: float):
     [
         ([0.0, 10.0, 20.0, 30.0], 4, "a hop of exactly half a window keeps them all"),
         ([0.0, 10.1, 20.2, 30.3], 4, "and anything wider certainly does"),
-        ([0.0, 5.0, 10.0, 15.0, 20.0], 3, "a quarter-window hop counts every other one"),
+        (
+            [0.0, 5.0, 10.0, 15.0, 20.0],
+            3,
+            "a quarter-window hop counts every other one",
+        ),
         ([0.0, 0.5], 1, "95% overlap is one look, not two — the real-material case"),
-        ([0.0, 10.0, 20.0, 30.0, 35.0], 4, "the appended TAIL window is not a new look"),
+        (
+            [0.0, 10.0, 20.0, 30.0, 35.0],
+            4,
+            "the appended TAIL window is not a new look",
+        ),
     ],
 )
 def test_where_the_independence_bound_falls(starts, kept, why):

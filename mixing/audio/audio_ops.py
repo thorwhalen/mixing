@@ -50,6 +50,7 @@ import numpy as np
 from ..util import require_package, AudioTimeUnit, to_seconds, get_path_from_clipboard
 from .audio_util import AudioSource, _normalize_audio_source
 from ..egress import Output, deliver, is_sink, resolve_output_path
+from ..errors import WindowTooWideForClip
 
 logger = logging.getLogger(__name__)
 
@@ -2133,6 +2134,7 @@ def _clip_window_and_hop(
     *,
     window_s: "float | None",
     hop_s: "float | None",
+    clip_index: "int | None" = None,
     default_window_s: float = SPAN_WINDOW_S,
     target_windows: int = MIN_WINDOWS_FOR_SUPPORT_TARGET,
     min_frames: int = ADAPTIVE_WINDOW_MIN_FRAMES,
@@ -2173,12 +2175,40 @@ def _clip_window_and_hop(
     real alignments read 0.45/0.64/0.73 at 20 s and 0.19/0.16/0.23 at 5 s. A short clip had
     no support at all before, so nothing is being reinterpreted; but a caller gating on
     support must know that the number arrives on the clip's scale, not the default's.
+
+    **An EXPLICIT window too wide for the clip is refused, not honored** (issue #43).
+    Above ``clip_duration_s - hop_s`` the clip holds one window, so the vote the caller
+    asked for cannot be held and ``support`` comes back ``None`` — which reads exactly
+    like a clip too short to support at any window. Rather than degrade silently, this
+    raises :class:`~mixing.errors.WindowTooWideForClip`, naming the clip, its duration
+    and the largest window that still leaves a second look. Only an explicit window is
+    refused: the ``None`` path above fits the window to the clip and, at the floor, may
+    legitimately land on a single window, which is the honest answer for a clip that
+    short and not a caller's mistake.
     """
+    explicit_window = window_s is not None
     if window_s is None:
         floor_s = min_frames * envelope_hop / sample_rate
         window_s = min(default_window_s, max(floor_s, clip_duration_s / target_windows))
+    explicit_hop = hop_s is not None
     if hop_s is None:
         hop_s = window_s * hop_ratio
+    if explicit_window and window_s > clip_duration_s - hop_s:
+        # The hop is what a second window costs, so the largest window that still
+        # leaves room for one is `duration - hop` when the hop is the caller's, and
+        # `duration / (1 + ratio)` when the hop rides on the window.
+        max_window_s = (
+            clip_duration_s - hop_s
+            if explicit_hop
+            else clip_duration_s / (1.0 + hop_ratio)
+        )
+        raise WindowTooWideForClip(
+            clip_index=clip_index,
+            clip_duration_s=clip_duration_s,
+            window_s=window_s,
+            hop_s=hop_s,
+            max_window_s=max_window_s,
+        )
     return float(window_s), float(hop_s)
 
 
@@ -2259,8 +2289,17 @@ def align_clips_to_reference(
             the scale its ``support`` is on. A clip of three default windows or
             more is measured at :data:`SPAN_WINDOW_S` exactly, so nothing about a long
             clip's answer moves. Pass a number to fix the window yourself — an explicit
-            value is never overridden, and it is how the pre-adaptation answer for a short
-            clip is reproduced.
+            value is never overridden.
+
+            **An explicit window wider than ``clip_duration - hop_s`` is REFUSED** with
+            :class:`~mixing.errors.WindowTooWideForClip` (issue #43). Above that length
+            the clip holds a single window, so the vote asked for cannot be held and the
+            result would be one whole-clip correlation reporting ``support=None`` — the
+            same thing a clip too short to support at any window reports, with nothing to
+            tell the two apart. The error names the clip, its duration and the largest
+            window that still leaves a second look. To measure such a clip, pass that
+            window, pass ``window_s=None`` to fit the window to each clip, or pass
+            ``consensus=False`` to ask for the single correlation outright.
         hop_s: Step between those windows. Ignored when ``consensus`` is False. ``None``
             (the default) is :data:`ADAPTIVE_HOP_RATIO` of whatever window is in force —
             half of it, the default pair's own ratio — so an adapted grid keeps the
@@ -2306,6 +2345,7 @@ def align_clips_to_reference(
                 sample_rate,
                 window_s=window_s,
                 hop_s=hop_s,
+                clip_index=i,
             )
             offset_s, coeff, support, margin = _consensus_alignment(
                 ref,

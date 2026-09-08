@@ -10,6 +10,12 @@ So the window is now fitted to the clip. These tests pin the two halves of that:
 clip gets a real vote and a measured support, and a clip long enough to hold the default
 window is measured at the default window *exactly* — same offset, same confidence, same
 support, to the bit.
+
+Issue #43 closed the other side of the same door. Fitting the window is what the DEFAULT
+does; an EXPLICIT window is still never overridden, but one the clip cannot hold is now
+refused (:class:`~mixing.errors.WindowTooWideForClip`) instead of quietly delivering the
+single-window answer this module exists to have replaced. Several tests below pin that
+boundary, and the calls they make are the ones that used to return ``support=None``.
 """
 
 import numpy as np
@@ -17,6 +23,7 @@ import pytest
 from scipy.io import wavfile
 
 from mixing.audio import align_clips_to_reference
+from mixing.errors import WindowTooWideForClip
 from mixing.audio.audio_ops import (
     ADAPTIVE_HOP_RATIO,
     ADAPTIVE_WINDOW_MIN_FRAMES,
@@ -157,12 +164,56 @@ def test_the_floor_follows_the_analysis_rate_not_the_clock():
 
 
 def test_an_explicit_window_is_never_overridden():
-    """The caller has said what a window means for their material; the rule has not."""
-    assert _clip_window_and_hop(5.0, SR, window_s=20.0, hop_s=10.0) == (20.0, 10.0)
-    assert _clip_window_and_hop(5.0, SR, window_s=20.0, hop_s=None) == (
+    """The caller has said what a window means for their material; the rule has not.
+
+    Stated on a clip the window FITS. It used to be stated on a 5 s clip, where the
+    window could not be honored at all — the rule left it alone there too, and the
+    result was a single-window answer with ``support=None`` and nothing saying the
+    window was the reason. That case is now a refusal (issue #43, below); what survives
+    unchanged is the part that was ever meaningful: where the window can be honored, it
+    is, exactly as given.
+    """
+    assert _clip_window_and_hop(60.0, SR, window_s=20.0, hop_s=10.0) == (20.0, 10.0)
+    assert _clip_window_and_hop(60.0, SR, window_s=20.0, hop_s=None) == (
         20.0,
         20.0 * ADAPTIVE_HOP_RATIO,
     )
+
+
+def test_an_explicit_window_the_clip_cannot_hold_is_refused():
+    """Issue #43: the boundary of "never overridden" is a refusal, not a silent fallback.
+
+    Above ``clip_duration - hop_s`` the clip holds one window, so the vote the caller
+    named cannot be held. Neither honoring it (one correlation, ``support=None``, no
+    reason given) nor clamping it (a support on a scale nobody asked for) is reportable,
+    so the call refuses and the error carries the largest window that would work.
+
+    The bound is exact and inclusive: at ``window_s == clip_duration - hop_s`` a second
+    window still starts a hop in, so it is accepted.
+    """
+    assert _clip_window_and_hop(30.0, SR, window_s=20.0, hop_s=10.0) == (20.0, 10.0)
+
+    with pytest.raises(WindowTooWideForClip) as excinfo:
+        _clip_window_and_hop(29.0, SR, window_s=20.0, hop_s=10.0, clip_index=3)
+    err = excinfo.value
+    assert (err.clip_index, err.window_s, err.hop_s) == (3, 20.0, 10.0)
+    assert err.clip_duration_s == 29.0
+    assert err.max_window_s == pytest.approx(19.0), "duration - the caller's hop"
+    assert "clip 3" in str(err)
+
+    # With the hop riding on the window, a wider window buys its own wider hop, so the
+    # ceiling is duration / (1 + ratio) rather than duration - hop.
+    with pytest.raises(WindowTooWideForClip) as excinfo:
+        _clip_window_and_hop(24.0, SR, window_s=20.0, hop_s=None)
+    assert excinfo.value.max_window_s == pytest.approx(24.0 / (1 + ADAPTIVE_HOP_RATIO))
+    assert excinfo.value.clip_index is None and "clip (" in str(excinfo.value)
+
+    # Shorter than the hop itself: no window at all can hold a second look, and the
+    # message must say that rather than name an impossible ceiling.
+    with pytest.raises(WindowTooWideForClip) as excinfo:
+        _clip_window_and_hop(8.0, SR, window_s=20.0, hop_s=10.0)
+    assert excinfo.value.max_window_s <= 0
+    assert "consensus=False" in str(excinfo.value)
 
 
 #: The smallest clip that can hold two half-window-separated looks at the floor window:
@@ -253,8 +304,9 @@ def test_a_short_clip_now_gets_a_vote_and_a_measured_support(
 
     At the default the clip is measured at a window fitted to it, so several independent
     windows look at it and agree. The comparison is with the same call at the default
-    *pair* — which is what this clip used to get — where there is exactly one window,
-    nothing to arbitrate, and ``support`` is honestly ``None``.
+    *pair* — which is what this clip used to get. That call returned one window and an
+    honest ``support=None``; since issue #43 it is refused outright, which is the same
+    statement made where the caller can see it: this clip cannot be measured at 20 s.
     """
     reference_path, reference = repeating_reference
     clip = _excerpt(
@@ -262,11 +314,15 @@ def test_a_short_clip_now_gets_a_vote_and_a_measured_support(
     )
 
     (fitted,) = align_clips_to_reference(reference_path, [clip], sample_rate=SR)
-    (one_window,) = align_clips_to_reference(
-        reference_path, [clip], sample_rate=SR, window_s=SPAN_WINDOW_S, hop_s=SPAN_HOP_S
-    )
+    with pytest.raises(WindowTooWideForClip):
+        align_clips_to_reference(
+            reference_path,
+            [clip],
+            sample_rate=SR,
+            window_s=SPAN_WINDOW_S,
+            hop_s=SPAN_HOP_S,
+        )
 
-    assert one_window.support is None, "the fixture must start out unmeasured"
     assert fitted.offset_s == pytest.approx(TRUE_OFFSET_S, abs=0.05)
     assert fitted.support is not None
     assert 0.0 < fitted.support <= 1.0
@@ -289,11 +345,18 @@ def test_a_clip_just_LONGER_than_one_default_window_is_rescued_too(
     clip = _excerpt(tmp_path, reference, "just_over.wav", TRUE_OFFSET_S, 22.0, seed=29)
 
     (fitted,) = align_clips_to_reference(reference_path, [clip], sample_rate=SR)
-    (default_grid,) = align_clips_to_reference(
-        reference_path, [clip], sample_rate=SR, window_s=SPAN_WINDOW_S, hop_s=SPAN_HOP_S
-    )
+    # Longer than a window, still only one INDEPENDENT look — and since issue #43 that
+    # is refused rather than answered with an unexplained ``support=None``.
+    with pytest.raises(WindowTooWideForClip) as excinfo:
+        align_clips_to_reference(
+            reference_path,
+            [clip],
+            sample_rate=SR,
+            window_s=SPAN_WINDOW_S,
+            hop_s=SPAN_HOP_S,
+        )
+    assert excinfo.value.max_window_s < SPAN_WINDOW_S
 
-    assert default_grid.support is None, "longer than a window, still only one look"
     assert fitted.offset_s == pytest.approx(TRUE_OFFSET_S, abs=0.05)
     assert fitted.support is not None
     assert 0.0 < fitted.support <= 1.0
@@ -340,7 +403,9 @@ def test_the_window_support_is_relative_to_comes_back_with_it(
     short = _excerpt(
         tmp_path, reference, "scale_short.wav", TRUE_OFFSET_S, SHORT_CLIP_S, seed=31
     )
-    long_clip = _excerpt(tmp_path, reference, "scale_long.wav", 5.0, LONG_CLIP_S, seed=33)
+    long_clip = _excerpt(
+        tmp_path, reference, "scale_long.wav", 5.0, LONG_CLIP_S, seed=33
+    )
 
     short_result, long_result = align_clips_to_reference(
         reference_path, [short, long_clip], sample_rate=SR
@@ -357,8 +422,8 @@ def test_the_window_support_is_relative_to_comes_back_with_it(
 
 def test_the_reported_window_is_the_one_asked_for_when_one_is_asked_for():
     """An explicit window is reported unchanged, so the field never lies about the scale."""
-    reference = np.zeros(int(90 * SR))
-    clip = np.zeros(int(30 * SR))
+    reference = np.zeros(int(300 * SR))
+    clip = np.zeros(int(120 * SR))
     (pinned,) = align_clips_to_reference(
         reference, [clip], sample_rate=SR, window_s=SPAN_WINDOW_S, hop_s=SPAN_HOP_S
     )
