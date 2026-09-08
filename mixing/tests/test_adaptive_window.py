@@ -257,7 +257,10 @@ def test_the_refused_window_is_exactly_the_one_that_would_have_no_support():
     for clip_duration_s in (6.0, 10.0, 12.5, 15.0, 22.0):
         reference = np.zeros(int(90 * SR))
         clip = np.zeros(int(clip_duration_s * SR))
-        for window_s in (1.0, 3.33, 5.0, 7.0, 9.0, 11.0, 20.0):
+        # The exact bound is in the list: an off-by-one in either direction shows up
+        # only at the cell where accepted and refused meet.
+        boundary_s = clip_duration_s / (1 + MAX_SUPPORT_OVERLAP)
+        for window_s in (1.0, 3.33, 5.0, boundary_s, 7.0, 9.0, 11.0, 20.0):
             for hop_s in (0.5, 2.0, 8.0, 30.0):
                 windows = _window_offsets(
                     reference,

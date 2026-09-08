@@ -52,8 +52,11 @@ class WindowTooWideForClip(MixingError, ValueError):
             of the bound, which does not depend on it (see
             :func:`~mixing.audio.audio_ops._max_supportable_window_s`).
         max_window_s: The largest window that still leaves this clip a second,
-            independent look. Always positive, and the bound is inclusive: a retry at
-            exactly this window is measurable, which is what makes it worth reporting.
+            independent look. The bound is inclusive, so for any clip long enough to be
+            worth aligning a retry at exactly this window measures — which is what makes
+            it worth reporting. A degenerate clip of a sample or two has no such window
+            at all; the value is floored at one sample there and is a lower bound rather
+            than a promise.
     """
 
     def __init__(

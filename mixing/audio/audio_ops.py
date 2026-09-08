@@ -2167,8 +2167,10 @@ def _max_supportable_window_s(
     wrong way by half a sample: on a 10 s clip at 16 kHz the exact ``10 / 1.5`` rounds to
     106667 samples where 106666 is the most that fits, so a caller retrying at the
     ceiling this function is FOR would land straight back in the exception. Taking the
-    floor in samples makes the bound admissible by construction — the value returned is
-    always measurable, which is the only thing that makes it worth reporting.
+    floor in samples makes the bound admissible by construction wherever one exists,
+    which is the only thing that makes it worth reporting. The exception is a degenerate
+    clip of a sample or two, which holds no second look at ANY window: the result is
+    floored at one sample there and is a lower bound rather than a promise.
     """
     clip_samples = int(round(clip_duration_s * sample_rate))
     max_window_samples = int(clip_samples / (1.0 + max_overlap))
@@ -2357,9 +2359,11 @@ def align_clips_to_reference(
             whole-clip correlation reporting ``support=None`` — the same thing a clip too
             short to support at any window reports, with nothing to tell the two apart.
             The error names the clip, its duration and the largest window that still
-            leaves a second look, and that window is guaranteed measurable. To measure
-            such a clip, pass it, pass ``window_s=None`` to fit the window to each clip,
-            or pass ``consensus=False`` to ask for the single correlation outright.
+            leaves a second look — measurable for any clip long enough to be worth
+            aligning, though a degenerate clip of a sample or two has no such window at
+            all. To measure such a clip, pass that window, pass ``window_s=None`` to fit
+            the window to each clip, or pass ``consensus=False`` to ask for the single
+            correlation outright.
         hop_s: Step between those windows. Ignored when ``consensus`` is False. ``None``
             (the default) is :data:`ADAPTIVE_HOP_RATIO` of whatever window is in force —
             half of it, the default pair's own ratio — so an adapted grid keeps the
