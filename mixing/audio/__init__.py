@@ -65,6 +65,7 @@ from .segmentation import (
     segment_by_speech_music,
 )
 from .beats import beat_grid, BeatGrid
+from ..errors import MixingError, WindowTooWideForClip
 
 __all__ = [
     "Audio",
@@ -93,6 +94,8 @@ __all__ = [
     "ClipAlignment",
     "onset_envelope",
     "ALIGNMENT_FEATURES",
+    "MixingError",
+    "WindowTooWideForClip",
     "Segment",
     "find_segments",
     "extract_segments",

@@ -240,6 +240,8 @@ that spread but does not remove it. Scale your threshold to `window_s`, or pass 
 `window_s` to put every clip on one scale. `aligned_spans` is NOT adapted — there `window_s` is boundary resolution, which
 is the caller's to choose.
 
+**An explicit `window_s` a clip cannot hold raises `WindowTooWideForClip`** (0.0.53, issue #43). The bound is `clip_duration / 1.5` — `clip_duration / (1 + MAX_SUPPORT_OVERLAP)` — and **it does not involve `hop_s`**: the analysis grid always appends a tail window one window's length from the clip's end, so a second look exists or not regardless of the hop. (The intuitive `duration - hop_s` is wrong both ways: `window_s=11, hop_s=1` on a 15 s clip satisfies it and still returns `support=None`; `window_s=6, hop_s=12` violates it and measures `support=1.0`.) Above the bound you used to get one whole-clip correlation and a `support=None` that looked exactly like a clip too short to support at any window. The error is importable from `mixing` or `mixing.errors`, subclasses `ValueError`, and carries `clip_index`, `clip_duration_s`, `window_s`, `hop_s` and `max_window_s` — the largest window that still leaves a second look, computed in samples so a retry at exactly that value is guaranteed to measure. This is the explicit path only: `window_s=None` still fits the window to each clip and answers every clip, including one that lands on a single window at the floor.
+
 **Reading `window_s` is necessary and, since 0.0.49, no longer sufficient.** A rule of the
 form *"below the default window, treat the value as unmeasured"* was a complete defence
 while `support` was an argmax headcount, because the window was the only axis that moved

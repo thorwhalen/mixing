@@ -50,6 +50,7 @@ import numpy as np
 from ..util import require_package, AudioTimeUnit, to_seconds, get_path_from_clipboard
 from .audio_util import AudioSource, _normalize_audio_source
 from ..egress import Output, deliver, is_sink, resolve_output_path
+from ..errors import WindowTooWideForClip
 
 logger = logging.getLogger(__name__)
 
@@ -2127,12 +2128,79 @@ class ClipAlignment:
     hop_s: "float | None" = None
 
 
+def _window_samples(seconds: float, sample_rate: int) -> int:
+    """Samples in a window of ``seconds`` — :func:`_window_offsets`' own rounding.
+
+    Duplicated deliberately rather than shared: the guard must decide on the SAME
+    integer the grid will be built from, and a guard that rounds even slightly
+    differently is a guard that disagrees with the thing it guards.
+    """
+    return max(1, int(round(seconds * sample_rate)))
+
+
+def _max_supportable_window_s(
+    clip_duration_s: float,
+    sample_rate: int,
+    *,
+    max_overlap: float = MAX_SUPPORT_OVERLAP,
+) -> float:
+    """The widest window at which a clip of this length still holds a SECOND look.
+
+    Roughly ``clip_duration_s / (1 + max_overlap)``, and it does NOT depend on ``hop_s`` —
+    which is the whole subtlety. A hop-based bound (``duration - hop``) is wrong in both
+    directions: at ``window=11, hop=1`` on a 15 s clip it accepts a call that returns
+    ``support=None``, and at ``window=6, hop=12`` it refuses one that measures
+    ``support=1.0``.
+
+    The reason the hop drops out is :func:`_window_offsets`. Its regular grid stops at the
+    last start that fits, and it then APPENDS a tail window starting at
+    ``len(clip) - n_win`` whenever the grid did not already reach the end — so whatever
+    the hop, the last window begins exactly one window's length from the clip's end.
+    :func:`_independent_windows` keeps a second window once it has moved on by
+    ``1 - max_overlap`` of a window, so a quorum exists iff
+    ``clip_duration - window >= max_overlap * window``. The hop decides how MANY looks
+    there are and how finely a boundary is placed, never whether a second independent one
+    can exist at all.
+
+    **Computed in SAMPLES, which is not a detail.** The grid rounds the window to whole
+    samples before any of this happens, and at the seconds bound that rounding can go the
+    wrong way by half a sample: on a 10 s clip at 16 kHz the exact ``10 / 1.5`` rounds to
+    106667 samples where 106666 is the most that fits, so a caller retrying at the
+    ceiling this function is FOR would land straight back in the exception. Taking the
+    floor in samples makes the bound admissible by construction wherever one exists,
+    which is the only thing that makes it worth reporting. The exception is a degenerate
+    clip of a sample or two, which holds no second look at ANY window: the result is
+    floored at one sample there and is a lower bound rather than a promise.
+    """
+    clip_samples = int(round(clip_duration_s * sample_rate))
+    max_window_samples = int(clip_samples / (1.0 + max_overlap))
+    return max(1, max_window_samples) / sample_rate
+
+
+def _holds_a_second_look(
+    clip_duration_s: float,
+    window_s: float,
+    sample_rate: int,
+    *,
+    max_overlap: float = MAX_SUPPORT_OVERLAP,
+) -> bool:
+    """Whether this window leaves the clip a second INDEPENDENT look.
+
+    :func:`_independent_windows`' own test, on the two windows that always exist: the one
+    at the start and the one ending at the clip's end.
+    """
+    clip_samples = int(round(clip_duration_s * sample_rate))
+    window_samples = _window_samples(window_s, sample_rate)
+    return clip_samples - window_samples >= max_overlap * window_samples
+
+
 def _clip_window_and_hop(
     clip_duration_s: float,
     sample_rate: int,
     *,
     window_s: "float | None",
     hop_s: "float | None",
+    clip_index: "int | None" = None,
     default_window_s: float = SPAN_WINDOW_S,
     target_windows: int = MIN_WINDOWS_FOR_SUPPORT_TARGET,
     min_frames: int = ADAPTIVE_WINDOW_MIN_FRAMES,
@@ -2173,12 +2241,34 @@ def _clip_window_and_hop(
     real alignments read 0.45/0.64/0.73 at 20 s and 0.19/0.16/0.23 at 5 s. A short clip had
     no support at all before, so nothing is being reinterpreted; but a caller gating on
     support must know that the number arrives on the clip's scale, not the default's.
+
+    **An EXPLICIT window too wide for the clip is refused, not honored** (issue #43).
+    Above :func:`_max_supportable_window_s` the clip cannot hold two INDEPENDENT windows
+    (:func:`_holds_a_second_look`),
+    so the vote the caller asked for cannot be held and ``support`` comes back ``None`` —
+    which reads exactly like a clip too short to support at any window. Rather than
+    degrade silently, this raises :class:`~mixing.errors.WindowTooWideForClip`, naming the
+    clip, its duration and the largest window that would still hold a quorum. Only an
+    explicit window is refused: the ``None`` path above fits the window to the clip and,
+    at the floor, may legitimately land on a single window, which is the honest answer for
+    a clip that short and not a caller's mistake.
     """
+    explicit_window = window_s is not None
     if window_s is None:
         floor_s = min_frames * envelope_hop / sample_rate
         window_s = min(default_window_s, max(floor_s, clip_duration_s / target_windows))
     if hop_s is None:
         hop_s = window_s * hop_ratio
+    if explicit_window and not _holds_a_second_look(
+        clip_duration_s, window_s, sample_rate
+    ):
+        raise WindowTooWideForClip(
+            clip_index=clip_index,
+            clip_duration_s=clip_duration_s,
+            window_s=window_s,
+            hop_s=hop_s,
+            max_window_s=_max_supportable_window_s(clip_duration_s, sample_rate),
+        )
     return float(window_s), float(hop_s)
 
 
@@ -2259,8 +2349,21 @@ def align_clips_to_reference(
             the scale its ``support`` is on. A clip of three default windows or
             more is measured at :data:`SPAN_WINDOW_S` exactly, so nothing about a long
             clip's answer moves. Pass a number to fix the window yourself — an explicit
-            value is never overridden, and it is how the pre-adaptation answer for a short
-            clip is reproduced.
+            value is never overridden.
+
+            **An explicit window a clip cannot hold is REFUSED** with
+            :class:`~mixing.errors.WindowTooWideForClip` (issue #43). The bound is
+            ``clip_duration / (1 + MAX_SUPPORT_OVERLAP)`` and does NOT involve ``hop_s``
+            (:func:`_max_supportable_window_s`): above it no second INDEPENDENT window
+            exists, so the vote asked for cannot be held and the result would be one
+            whole-clip correlation reporting ``support=None`` — the same thing a clip too
+            short to support at any window reports, with nothing to tell the two apart.
+            The error names the clip, its duration and the largest window that still
+            leaves a second look — measurable for any clip long enough to be worth
+            aligning, though a degenerate clip of a sample or two has no such window at
+            all. To measure such a clip, pass that window, pass ``window_s=None`` to fit
+            the window to each clip, or pass ``consensus=False`` to ask for the single
+            correlation outright.
         hop_s: Step between those windows. Ignored when ``consensus`` is False. ``None``
             (the default) is :data:`ADAPTIVE_HOP_RATIO` of whatever window is in force —
             half of it, the default pair's own ratio — so an adapted grid keeps the
@@ -2282,6 +2385,15 @@ def align_clips_to_reference(
 
     Returns:
         A list of :class:`ClipAlignment`, in input order (minus dropped clips).
+
+    Raises:
+        ValueError: ``feature`` is not one of :data:`ALIGNMENT_FEATURES`, or
+            ``near_tie_ratio`` is negative.
+        ~mixing.errors.WindowTooWideForClip: ``consensus`` is on and an EXPLICIT
+            ``window_s`` is wider than some clip can hold a second independent look at
+            (issue #43). The error names that clip, its duration and the largest window
+            that would work; it subclasses ``ValueError``. Never raised on the
+            ``window_s=None`` path, which fits the window to each clip.
     """
     if feature not in ALIGNMENT_FEATURES:
         raise ValueError(
@@ -2306,6 +2418,7 @@ def align_clips_to_reference(
                 sample_rate,
                 window_s=window_s,
                 hop_s=hop_s,
+                clip_index=i,
             )
             offset_s, coeff, support, margin = _consensus_alignment(
                 ref,
