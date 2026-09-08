@@ -79,7 +79,7 @@ from ._helpers import _is_video_file
 logger = logging.getLogger(__name__)
 
 
-def _print_auth_help():
+def _log_auth_help():
     """Log helpful authentication setup information."""
     help_msg = """
 ╔══════════════════════════════════════════════════════════════════════════════╗
@@ -178,7 +178,7 @@ def _setup_genai_client(
             "• Missing required permissions for Vertex AI",
             e,
         )
-        _print_auth_help()
+        _log_auth_help()
         raise  # Re-raise the original exception
 
 
@@ -757,7 +757,7 @@ def generate_video(
                 "• aiplatform.operations.get",
                 e,
             )
-            _print_auth_help()
+            _log_auth_help()
         raise
 
     # Poll until done with error handling

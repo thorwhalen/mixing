@@ -258,7 +258,9 @@ def test_save_frame_requires_an_output_target(color_video):
 
 
 def test_save_frame_is_silent_by_default(make_color_video, capsys):
-    """save_frame prints nothing on stdout unless quiet=False is passed (mixing#32)."""
+    """save_frame prints nothing on stdout — progress goes through logging,
+    silent by default via the NullHandler on the mixing root logger (mixing#32,
+    generalized package-wide in mixing#39)."""
     pytest.importorskip("cv2")
 
     path = make_color_video(1.0, fps=24, size=(320, 240))
@@ -272,17 +274,18 @@ def test_save_frame_is_silent_by_default(make_color_video, capsys):
         out.unlink(missing_ok=True)
 
 
-def test_save_frame_prints_when_opted_in(make_color_video, capsys):
-    """save_frame(..., quiet=False) still prints its progress message."""
+def test_save_frame_logs_when_a_handler_is_attached(make_color_video, caplog):
+    """save_frame's progress message is available via logging.getLogger for a
+    consumer that opts in with logging.basicConfig() or an explicit handler."""
     pytest.importorskip("cv2")
 
     path = make_color_video(1.0, fps=24, size=(320, 240))
     v = Video(path)
     out = _tmp_out(".png")
     try:
-        v.save_frame(0.0, output=str(out), quiet=False)
-        captured = capsys.readouterr()
-        assert "Saved frame to:" in captured.out
+        with caplog.at_level("INFO", logger="mixing.video.video_ops"):
+            v.save_frame(0.0, output=str(out))
+        assert "Saved frame to:" in caplog.text
     finally:
         out.unlink(missing_ok=True)
 

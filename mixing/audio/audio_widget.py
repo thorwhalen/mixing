@@ -525,9 +525,7 @@ __temp_sel_end = ${{sel.end}}
         self._create_widget()
         self.display()
 
-        logger.info(
-            "Zoomed to %.2fs segment", (end_sample - start_sample) / self.sr
-        )
+        logger.info("Zoomed to %.2fs segment", (end_sample - start_sample) / self.sr)
 
     def crop(self):
         """
@@ -601,9 +599,7 @@ __temp_sel_end = ${{sel.end}}
         self.selection_start = start
         self.selection_end = end
         self.has_selection = True
-        logger.info(
-            "Selection set: %.2fs - %.2fs (%.2fs)", start, end, end - start
-        )
+        logger.info("Selection set: %.2fs - %.2fs (%.2fs)", start, end, end - start)
         return self
 
     def reset(self):

@@ -508,7 +508,6 @@ class Video:
         *,
         image_format: str = "png",
         copy_to_clipboard: bool = False,
-        quiet: bool = True,
     ) -> Path | None:
         """
         Save a single frame as an image and/or copy to clipboard.
@@ -521,9 +520,6 @@ class Video:
                 only). See mixing.egress.
             image_format: Image format (png, jpg, etc.)
             copy_to_clipboard: If True, copy image to system clipboard
-            quiet: If False, print progress messages ("Copying image to
-                clipboard...", "Saved frame to: ..."). Defaults to True so
-                library callers keep a clean stdout (see mixing#32).
 
         Returns:
             Path to saved image, or None if only copied to clipboard
@@ -547,8 +543,7 @@ class Video:
 
         # Copy to clipboard if requested
         if copy_to_clipboard:
-            if not quiet:
-                print("Copying image to clipboard...")
+            logger.info("Copying image to clipboard...")
             _copy_frame_to_clipboard(frame)
 
         # Save to file if requested
@@ -564,8 +559,7 @@ class Video:
 
             def _write(path: Path) -> None:
                 cv2.imwrite(str(path), frame)
-                if not quiet:
-                    print(f"Saved frame to: {path}")
+                logger.info("Saved frame to: %s", path)
 
             return write_egress(output, default_path=default_path, write=_write)
 
@@ -682,7 +676,7 @@ def crop_video(
                 "crop_box is not supported for single-frame extraction "
                 "(start == end); use save_frame and crop the image instead"
             )
-        frame_kwargs = {"image_format", "copy_to_clipboard", "quiet"}
+        frame_kwargs = {"image_format", "copy_to_clipboard"}
         segment_only = sorted(set(save_kwargs) - frame_kwargs)
         if segment_only:
             raise ValueError(
@@ -705,7 +699,6 @@ def save_frame(
     output: str | bool | None = None,
     image_format: str = "png",
     copy_to_clipboard: bool = False,
-    quiet: bool = True,
 ) -> Path | None:
     """
     Extract and save a frame from a video file.
@@ -724,8 +717,6 @@ def save_frame(
             ``False`` means "don't save to file" (requires copy_to_clipboard).
         image_format: Default image format if not specified in output
         copy_to_clipboard: If True, copy image to system clipboard
-        quiet: If False, print progress messages. Defaults to True so library
-            callers keep a clean stdout (see mixing#32).
 
     Returns:
         Path to the saved image file, or None if only copied to clipboard
@@ -788,7 +779,6 @@ def save_frame(
         output=output_path,
         image_format=image_format,
         copy_to_clipboard=copy_to_clipboard,
-        quiet=quiet,
     )
 
 

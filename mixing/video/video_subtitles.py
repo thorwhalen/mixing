@@ -205,9 +205,7 @@ def auto_shift_srt_to_start(
         ... 2
         ... 00:43:20,557 --> 00:43:22,087
         ... Second subtitle'''
-        >>> shifted = auto_shift_srt_to_start(srt, start_time=0.0)  # doctest: +ELLIPSIS
-        📝 Subtitles currently start at: ...s
-        ⏱️  Shifting by: ...s (first subtitle → 0.00s)
+        >>> shifted = auto_shift_srt_to_start(srt, start_time=0.0)
         >>> '00:00:00,000 --> 00:00:01,630' in shifted
         True
         >>> '00:00:08,370 --> 00:00:09,900' in shifted
