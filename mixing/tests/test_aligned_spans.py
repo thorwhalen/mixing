@@ -694,18 +694,53 @@ def test_an_explicit_window_wider_than_the_clip_is_refused(song, ref, tmp_path):
     assert err.clip_index == 0
     assert err.window_s == SPAN_WINDOW_S and err.hop_s == SPAN_HOP_S
     assert err.clip_duration_s == pytest.approx(15.0, abs=0.05)
-    # duration - hop: the largest window that still leaves room for a second look.
-    assert err.max_window_s == pytest.approx(5.0, abs=0.05)
+    # duration / (1 + MAX_SUPPORT_OVERLAP): the largest window that still leaves a
+    # second INDEPENDENT look. NOT duration - hop_s — see the counterexamples in
+    # test_adaptive_window.py, which the hop-based bound gets wrong in both directions.
+    assert err.max_window_s == pytest.approx(10.0, abs=0.05)
     # The numbers must be IN the message too — the point of the error is that the
     # window, not the clip's length alone, is nameable as the reason.
     text = str(err)
     assert "window_s=20.000" in text and "clip 0" in text
     assert isinstance(err, ValueError), "existing ValueError handlers keep working"
-    # And the window the error names is one the call accepts.
+    # And the window the error names must RESTORE what the refusal withheld: not merely
+    # be accepted, but come back with the support the caller asked for in the first
+    # place. An accepted-but-still-unmeasured ceiling would be the original bug wearing
+    # an exception.
     (ok,) = align_clips_to_reference(
         song, [clip], sample_rate=SR, window_s=err.max_window_s, hop_s=SPAN_HOP_S
     )
     assert ok.window_s == pytest.approx(err.max_window_s)
+    assert ok.support is not None, "the remedy the error names must actually measure"
+
+
+def test_the_bound_is_the_clips_length_and_the_overlap_rule_not_the_hop(
+    song, ref, tmp_path
+):
+    """The two hop-based counterexamples, stated on real support rather than arithmetic.
+
+    ``window_s > clip_duration - hop_s`` is the intuitive bound and it is wrong in both
+    directions, because :func:`_window_offsets` appends a tail window at
+    ``len(clip) - n_win`` whatever the hop:
+
+    - a TINY hop does not buy a second look — ``window_s=11, hop_s=1`` on a 15 s clip
+      satisfies the hop-based bound and still has nothing independent to vote with;
+    - a hop LONGER than the clip does not cost one — ``window_s=6, hop_s=12`` violates
+      the hop-based bound and measures a support perfectly well.
+
+    Pinned on the estimator's own output, so the guard cannot drift back onto the
+    intuitive rule without a test failing on the thing that actually matters.
+    """
+    rng = np.random.default_rng(41)
+    clip = _write(tmp_path, "fifteen.wav", _take(ref, 30, 45, rng))
+
+    with pytest.raises(WindowTooWideForClip):
+        align_clips_to_reference(song, [clip], sample_rate=SR, window_s=11.0, hop_s=1.0)
+
+    (wide_hop,) = align_clips_to_reference(
+        song, [clip], sample_rate=SR, window_s=6.0, hop_s=12.0
+    )
+    assert wide_hop.support is not None, "the tail window is a second look"
 
 
 # --------------------------------------------------------------------------
@@ -742,7 +777,7 @@ def test_the_one_window_reproduction_is_now_a_refusal(two_halves, tmp_path):
         align_clips_to_reference(
             song, [clip], sample_rate=SR, window_s=SPAN_WINDOW_S, hop_s=SPAN_HOP_S
         )
-    assert excinfo.value.max_window_s == pytest.approx(5.0, abs=0.05)
+    assert excinfo.value.max_window_s == pytest.approx(10.0, abs=0.05)
 
     (single,) = align_clips_to_reference(song, [clip], sample_rate=SR, consensus=False)
     assert single.offset_s == 75.0, (
@@ -843,17 +878,28 @@ def test_windows_that_are_the_same_look_twice_do_not_count_as_support(
     :data:`~mixing.audio.audio_ops.MAX_SUPPORT_OVERLAP`, and below a quorum of those the
     answer is ``None`` — unmeasured — rather than a manufactured 1.0.
 
-    The offset itself is unaffected: every window still votes.
+    Since issue #43 this exact call does not return an unmeasured answer — it REFUSES.
+    ``window_s=9.5`` on a 10 s clip is above the largest window that leaves a second
+    independent look (10 / 1.5 = 6.67), so the vote it names cannot be held, and the
+    ``support=None`` this test was written to pin is precisely the unexplained silence
+    #43 is about. The tally rule is unchanged and still what makes the answer ``None``;
+    what changed is that the caller is now told, and told at what window to ask again.
+
+    The offset itself is unaffected: every window still votes, which the retry shows.
     """
     rng = np.random.default_rng(41)
     clip = _write(tmp_path, "overlapped.wav", _take(ref, 20, 30, rng))
-    (crowded,) = align_clips_to_reference(
-        song, [clip], sample_rate=SR, window_s=9.5, hop_s=0.5
+    with pytest.raises(WindowTooWideForClip) as excinfo:
+        align_clips_to_reference(song, [clip], sample_rate=SR, window_s=9.5, hop_s=0.5)
+    assert excinfo.value.max_window_s == pytest.approx(10.0 / 1.5, abs=0.05)
+
+    (retried,) = align_clips_to_reference(
+        song, [clip], sample_rate=SR, window_s=excinfo.value.max_window_s, hop_s=0.5
     )
-    assert crowded.offset_s == pytest.approx(20.0, abs=0.05), (
+    assert retried.offset_s == pytest.approx(20.0, abs=0.05), (
         "the offset still measures"
     )
-    assert crowded.support is None, "but 95%-overlapping windows are not two opinions"
+    assert retried.support is not None, "and now it is corroborated as well"
 
     (spaced,) = align_clips_to_reference(
         song, [clip], sample_rate=SR, window_s=5.0, hop_s=2.5

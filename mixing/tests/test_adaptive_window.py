@@ -26,6 +26,7 @@ from mixing.audio import align_clips_to_reference
 from mixing.errors import WindowTooWideForClip
 from mixing.audio.audio_ops import (
     ADAPTIVE_HOP_RATIO,
+    MAX_SUPPORT_OVERLAP,
     ADAPTIVE_WINDOW_MIN_FRAMES,
     ENVELOPE_HOP,
     MIN_WINDOWS_FOR_SUPPORT,
@@ -183,37 +184,131 @@ def test_an_explicit_window_is_never_overridden():
 def test_an_explicit_window_the_clip_cannot_hold_is_refused():
     """Issue #43: the boundary of "never overridden" is a refusal, not a silent fallback.
 
-    Above ``clip_duration - hop_s`` the clip holds one window, so the vote the caller
-    named cannot be held. Neither honoring it (one correlation, ``support=None``, no
-    reason given) nor clamping it (a support on a scale nobody asked for) is reportable,
-    so the call refuses and the error carries the largest window that would work.
+    Above :func:`_max_supportable_window_s` the clip holds no second INDEPENDENT window,
+    so the vote the caller named cannot be held. Neither honoring it (one correlation,
+    ``support=None``, no reason given) nor clamping it (a support on a scale nobody asked
+    for) is reportable, so the call refuses and the error carries the largest window that
+    would work.
 
-    The bound is exact and inclusive: at ``window_s == clip_duration - hop_s`` a second
-    window still starts a hop in, so it is accepted.
+    **The bound is a function of the clip and the overlap rule, NOT of the hop.** A
+    hop-based bound is the obvious guess and it is wrong in both directions — the two
+    counterexamples below were measured against the support
+    ``align_clips_to_reference`` actually returns, and they are pinned here because the
+    guess is what a future reader will reach for again.
     """
-    assert _clip_window_and_hop(30.0, SR, window_s=20.0, hop_s=10.0) == (20.0, 10.0)
+    supportable = 15.0 / (1 + MAX_SUPPORT_OVERLAP)  # 10.0 s
+
+    # At the bound and below: honored exactly as given, whatever the hop.
+    assert _clip_window_and_hop(15.0, SR, window_s=supportable, hop_s=3.0) == (
+        supportable,
+        3.0,
+    )
 
     with pytest.raises(WindowTooWideForClip) as excinfo:
-        _clip_window_and_hop(29.0, SR, window_s=20.0, hop_s=10.0, clip_index=3)
+        _clip_window_and_hop(15.0, SR, window_s=11.0, hop_s=1.0, clip_index=3)
     err = excinfo.value
-    assert (err.clip_index, err.window_s, err.hop_s) == (3, 20.0, 10.0)
-    assert err.clip_duration_s == 29.0
-    assert err.max_window_s == pytest.approx(19.0), "duration - the caller's hop"
+    assert (err.clip_index, err.window_s, err.hop_s) == (3, 11.0, 1.0)
+    assert err.clip_duration_s == 15.0
+    assert err.max_window_s == pytest.approx(supportable)
     assert "clip 3" in str(err)
 
-    # With the hop riding on the window, a wider window buys its own wider hop, so the
-    # ceiling is duration / (1 + ratio) rather than duration - hop.
-    with pytest.raises(WindowTooWideForClip) as excinfo:
-        _clip_window_and_hop(24.0, SR, window_s=20.0, hop_s=None)
-    assert excinfo.value.max_window_s == pytest.approx(24.0 / (1 + ADAPTIVE_HOP_RATIO))
-    assert excinfo.value.clip_index is None and "clip (" in str(excinfo.value)
+    # Counterexample 1 — a TINY hop does not buy a second look. `window_s=11, hop_s=1`
+    # on a 15 s clip passes `window <= duration - hop` and returns support=None: the
+    # windows the small hop produces overlap far too much to count as second opinions.
+    # (Same call as above; stated separately because this is what it is pinning.)
+    assert 11.0 <= 15.0 - 1.0, "the hop-based bound would have accepted this"
 
-    # Shorter than the hop itself: no window at all can hold a second look, and the
-    # message must say that rather than name an impossible ceiling.
+    # Counterexample 2 — a hop LONGER than the clip does not cost one. `window_s=6,
+    # hop_s=12` on a 15 s clip fails `window <= duration - hop`, yet measures
+    # support=1.0: the grid always appends a tail window at `len(clip) - n_win`, so a
+    # second look exists no matter how large the hop.
+    assert 6.0 > 15.0 - 12.0, "the hop-based bound would have refused this"
+    assert _clip_window_and_hop(15.0, SR, window_s=6.0, hop_s=12.0) == (6.0, 12.0)
+
+    # The hop does not enter the ceiling either — same clip, same window, four hops.
+    ceilings = {
+        _clip_window_and_hop_error(15.0, window_s=14.0, hop_s=h).max_window_s
+        for h in (0.5, 3.0, 7.0, 30.0, None)
+    }
+    assert len(ceilings) == 1 and ceilings.pop() == pytest.approx(supportable)
+
+
+def _clip_window_and_hop_error(clip_duration_s, **kwargs):
+    """The :class:`WindowTooWideForClip` a refused call raises — a test-local helper."""
     with pytest.raises(WindowTooWideForClip) as excinfo:
-        _clip_window_and_hop(8.0, SR, window_s=20.0, hop_s=10.0)
-    assert excinfo.value.max_window_s <= 0
-    assert "consensus=False" in str(excinfo.value)
+        _clip_window_and_hop(clip_duration_s, SR, **kwargs)
+    return excinfo.value
+
+
+def test_the_refused_window_is_exactly_the_one_that_would_have_no_support():
+    """The guard's verdict must equal what the estimator would actually report.
+
+    A guard that is merely *nearly* right is worse than none: it refuses calls that
+    would have measured a support (a false refusal the caller cannot work around) and
+    lets through calls that return the unexplained ``None`` issue #43 is about. So the
+    predicate is not an approximation of the rule — it IS the rule
+    (:func:`_independent_windows`' own test on the two windows that always exist),
+    evaluated on the same rounded sample counts the grid is built from.
+
+    Checked here against :func:`_window_offsets` + :func:`_independent_windows`
+    directly, over a grid of durations, windows and hops, rather than against the
+    formula restated.
+    """
+    for clip_duration_s in (6.0, 10.0, 12.5, 15.0, 22.0):
+        reference = np.zeros(int(90 * SR))
+        clip = np.zeros(int(clip_duration_s * SR))
+        for window_s in (1.0, 3.33, 5.0, 7.0, 9.0, 11.0, 20.0):
+            for hop_s in (0.5, 2.0, 8.0, 30.0):
+                windows = _window_offsets(
+                    reference,
+                    clip,
+                    SR,
+                    window_s=window_s,
+                    hop_s=hop_s,
+                    feature="envelope",
+                    min_overlap_ratio=0.5,
+                )
+                would_support = (
+                    len(_independent_windows(windows)) >= MIN_WINDOWS_FOR_SUPPORT
+                )
+                try:
+                    _clip_window_and_hop(
+                        clip_duration_s, SR, window_s=window_s, hop_s=hop_s
+                    )
+                    accepted = True
+                except WindowTooWideForClip:
+                    accepted = False
+                assert accepted is would_support, (
+                    f"guard says {accepted} but {clip_duration_s} s at "
+                    f"window_s={window_s}, hop_s={hop_s} would "
+                    f"{'have' if would_support else 'have no'} support"
+                )
+
+
+def test_the_ceiling_the_error_names_is_one_the_call_accepts():
+    """The remedy must work, and half a sample of rounding is enough to break it.
+
+    ``max_window_s`` exists to be retried at, so a value even one rounding step outside
+    the bound sends the caller straight back into the exception. The seconds expression
+    does exactly that at some durations: on a 10 s clip at 16 kHz, ``10 / 1.5`` rounds
+    UP to 106667 samples where 106666 is the most that fits. The bound is therefore
+    taken in samples, and this pins the property rather than the expression.
+    """
+    for clip_duration_s in (6.0, 8.0, 10.0, 12.5, 15.0, 22.0, 30.0, 47.3):
+        err = _clip_window_and_hop_error(
+            clip_duration_s, window_s=clip_duration_s, hop_s=1.0
+        )
+        assert err.max_window_s > 0, "some window always holds a second look"
+        # The ceiling itself is accepted...
+        _clip_window_and_hop(clip_duration_s, SR, window_s=err.max_window_s, hop_s=1.0)
+        # ...and it really is the ceiling: one sample more is not.
+        with pytest.raises(WindowTooWideForClip):
+            _clip_window_and_hop(
+                clip_duration_s, SR, window_s=err.max_window_s + 1 / SR, hop_s=1.0
+            )
+        # The number the MESSAGE names is rounded down, so it is admissible too.
+        advised = float(str(err).split("pass window_s <= ")[1].split(",")[0])
+        _clip_window_and_hop(clip_duration_s, SR, window_s=advised, hop_s=1.0)
 
 
 #: The smallest clip that can hold two half-window-separated looks at the floor window:

@@ -9,7 +9,14 @@ its message, so a caller can act on them (retry at the largest valid window, say
 than parse prose.
 """
 
+import math
+
 __all__ = ["MixingError", "WindowTooWideForClip"]
+
+#: Decimal places the remedy in a :class:`WindowTooWideForClip` message is stated to.
+#: The number is rounded DOWN to them, so what the message tells a caller to pass is
+#: always inside the bound rather than one rounding step outside it.
+_ADVICE_DECIMALS = 6
 
 
 class MixingError(Exception):
@@ -20,8 +27,8 @@ class WindowTooWideForClip(MixingError, ValueError):
     """An explicit analysis window leaves a clip no second, independent look.
 
     Raised by :func:`mixing.audio.align_clips_to_reference` when the caller passes a
-    ``window_s`` wider than ``clip_duration_s - hop_s`` — the length below which the
-    clip holds only one window, so the consensus vote has nothing to arbitrate and
+    ``window_s`` wider than :attr:`max_window_s` — the length above which the clip holds
+    no second INDEPENDENT window, so the consensus vote has nothing to arbitrate and
     ``support`` comes back ``None``.
 
     Why an error and not a clamp or a silent single window: the caller asked for a
@@ -41,10 +48,12 @@ class WindowTooWideForClip(MixingError, ValueError):
         clip_duration_s: The clip's duration in seconds.
         window_s: The window that was asked for.
         hop_s: The hop in force — the caller's, or the one derived from ``window_s``.
-        max_window_s: The largest window that would still leave this clip a second
-            look, given ``hop_s``. ``<= 0`` means no window can: the clip is shorter
-            than the hop, and only ``consensus=False`` (or a smaller ``hop_s``)
-            applies.
+            Reported because it is part of the grid that was asked for; it is NOT part
+            of the bound, which does not depend on it (see
+            :func:`~mixing.audio.audio_ops._max_supportable_window_s`).
+        max_window_s: The largest window that still leaves this clip a second,
+            independent look. Always positive, and the bound is inclusive: a retry at
+            exactly this window is measurable, which is what makes it worth reporting.
     """
 
     def __init__(
@@ -62,20 +71,20 @@ class WindowTooWideForClip(MixingError, ValueError):
         self.hop_s = float(hop_s)
         self.max_window_s = float(max_window_s)
         who = "clip" if clip_index is None else f"clip {clip_index}"
-        if self.max_window_s > 0:
-            remedy = (
-                f"pass window_s <= {self.max_window_s:.3f}, or window_s=None to fit "
-                f"the window to each clip"
-            )
-        else:
-            remedy = (
-                f"no window holds a second look at hop_s={self.hop_s:.3f}; pass a "
-                f"smaller hop_s, window_s=None, or consensus=False"
-            )
+        # Rounded DOWN, never to nearest: a ceiling printed even one ULP above the real
+        # one sends the caller straight back into this exception, which is the one
+        # remedy the message must not suggest.
+        advice = math.floor(self.max_window_s * 10**_ADVICE_DECIMALS) / (
+            10**_ADVICE_DECIMALS
+        )
         super().__init__(
             f"window_s={self.window_s:.3f} is wider than {who} "
-            f"({self.clip_duration_s:.3f} s) allows at hop_s={self.hop_s:.3f}: the clip "
-            f"would hold a single window, so the consensus vote has nothing to "
-            f"arbitrate and support would be None for a reason nothing reports — "
-            f"{remedy}."
+            f"({self.clip_duration_s:.3f} s) allows: no second INDEPENDENT window fits, "
+            f"so the consensus vote has nothing to arbitrate and support would be None "
+            f"for a reason nothing reports — pass window_s <= "
+            f"{advice:.{_ADVICE_DECIMALS}f}, or window_s=None to fit the window to each "
+            f"clip. "
+            f"(hop_s={self.hop_s:.3f} does not enter this bound: the analysis grid "
+            f"always ends with a window one window's length from the clip's end, "
+            f"whatever the hop.)"
         )
