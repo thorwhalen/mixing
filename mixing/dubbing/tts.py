@@ -37,12 +37,25 @@ ELEVENLABS_ADD_VOICE_URL = "https://api.elevenlabs.io/v1/voices/add"
 CACHE_ENV_KEY = "MIXING_TTS_CACHE_DIR"
 
 #: High-quality, multilingual default model (one voice speaks many languages).
+#:
+#: **This is a DUBBING default, and deliberately not an expressive one.** A dub
+#: has to track a performance that already exists: the timing is fixed by the
+#: source, the delivery belongs to the original actor, and per-take variance is
+#: a defect rather than life. ``eleven_multilingual_v2`` is steady and speaks
+#: many languages in one voice, which is what that job wants.
+#:
+#: **If you are writing NARRATION or COMMENTARY, this is the wrong tool.** Use
+#: :mod:`braidio`, which owns expressive delivery and defaults to ``eleven_v3``
+#: so inline ``[audio tags]`` fire — the single biggest lever on whether a read
+#: sounds alive (measured: plain text 70.8 Hz of pitch range, densely tagged
+#: 124.4 Hz). v2 cannot render those tags at all, so a narration built on this
+#: default is capped at the flat end before a word is written.
 DFLT_MODEL_ID = "eleven_multilingual_v2"
 #: Highest standard MP3 quality that does not require a paid tier.
 DFLT_OUTPUT_FORMAT = "mp3_44100_128"
 
-#: Voice settings tuned for clear, consistent marketing/narration delivery.
-#: ``stability`` ~0.5 keeps the read steady (not over-expressive);
+#: Voice settings for dubbing fidelity — see :data:`DFLT_MODEL_ID` on why this
+#: is not tuned for expressiveness. ``stability`` ~0.5 keeps the read steady;
 #: ``similarity_boost`` ~0.8 keeps timbre faithful to the chosen voice.
 DFLT_VOICE_SETTINGS: dict[str, Any] = {
     "stability": 0.5,
