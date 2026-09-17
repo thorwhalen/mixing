@@ -1,0 +1,26 @@
+mixing.chapters
+===============
+
+.. automodule:: mixing.chapters
+
+   
+   .. rubric:: Module Attributes
+
+   .. autosummary::
+   
+      SegmentFn
+      SECONDS_PER_CHAPTER_HEURISTIC
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      default_segment_fn
+      detect_chapters
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      Chapter
+   

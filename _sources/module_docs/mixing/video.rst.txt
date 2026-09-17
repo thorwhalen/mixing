@@ -1,4 +1,0 @@
-mixing.video
-============
-.. automodule:: mixing.video
-   :members:

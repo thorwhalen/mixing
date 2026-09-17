@@ -1,0 +1,18 @@
+mixing.transcript.pipeline
+==========================
+
+.. automodule:: mixing.transcript.pipeline
+
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      remove_fillers
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      FillerRemovalResult
+   

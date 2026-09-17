@@ -1,0 +1,22 @@
+mixing.transcript.fillers
+=========================
+
+.. automodule:: mixing.transcript.fillers
+
+   
+   .. rubric:: Module Attributes
+
+   .. autosummary::
+   
+      DEFAULT_FILLER_TOKENS
+      DEFAULT_AUDIO_EVENTS_TO_CUT
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      build_cuts
+      is_filler
+      keeps_from_cuts
+      normalize_token
+   

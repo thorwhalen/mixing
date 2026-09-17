@@ -1,4 +1,0 @@
-mixing.dubbing.srt
-==================
-.. automodule:: mixing.dubbing.srt
-   :members:

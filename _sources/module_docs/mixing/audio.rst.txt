@@ -1,4 +1,0 @@
-mixing.audio
-============
-.. automodule:: mixing.audio
-   :members:

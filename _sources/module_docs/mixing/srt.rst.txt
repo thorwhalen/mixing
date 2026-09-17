@@ -1,4 +1,0 @@
-mixing.srt
-==========
-.. automodule:: mixing.srt
-   :members:

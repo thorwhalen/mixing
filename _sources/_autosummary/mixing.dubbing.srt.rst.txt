@@ -1,0 +1,28 @@
+mixing.dubbing.srt
+==================
+
+.. automodule:: mixing.dubbing.srt
+
+   
+   .. rubric:: Module Attributes
+
+   .. autosummary::
+   
+      TranslateFn
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      parse_srt
+      dump_srt
+      srt_time_to_seconds
+      translate_srt
+      default_translate_fn
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      Cue
+   

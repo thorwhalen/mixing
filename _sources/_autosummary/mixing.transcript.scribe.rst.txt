@@ -1,0 +1,13 @@
+mixing.transcript.scribe
+========================
+
+.. automodule:: mixing.transcript.scribe
+
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      default_cache_dir
+      transcribe
+   

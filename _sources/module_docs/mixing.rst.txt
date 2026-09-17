@@ -1,4 +1,0 @@
-mixing
-======
-.. automodule:: mixing
-   :members:

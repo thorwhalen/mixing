@@ -1,0 +1,18 @@
+mixing.dubbing.dub
+==================
+
+.. automodule:: mixing.dubbing.dub
+
+   
+   .. rubric:: Module Attributes
+
+   .. autosummary::
+   
+      SynthFn
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      dub_video_from_srt
+   

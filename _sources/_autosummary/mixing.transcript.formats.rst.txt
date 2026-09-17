@@ -1,0 +1,15 @@
+mixing.transcript.formats
+=========================
+
+.. automodule:: mixing.transcript.formats
+
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      remap_time_after_cuts
+      words_to_prose
+      words_to_srt
+      words_to_srt_remapped
+   

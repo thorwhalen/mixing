@@ -1,0 +1,13 @@
+mixing.transcript.media
+=======================
+
+.. automodule:: mixing.transcript.media
+
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      apply_keeps
+      extract_audio
+   

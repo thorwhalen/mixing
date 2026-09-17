@@ -1,0 +1,14 @@
+mixing.video.genai
+==================
+
+.. automodule:: mixing.video.genai
+
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      generate_video
+      save_generated_video
+      save_generated_videos
+   

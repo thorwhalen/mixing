@@ -1,0 +1,12 @@
+mixing.transcript.persist
+=========================
+
+.. automodule:: mixing.transcript.persist
+
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      srt_for_media
+   

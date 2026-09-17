@@ -1,0 +1,13 @@
+mixing.errors
+=============
+
+.. automodule:: mixing.errors
+
+   
+   .. rubric:: Exceptions
+
+   .. autosummary::
+   
+      MixingError
+      WindowTooWideForClip
+   

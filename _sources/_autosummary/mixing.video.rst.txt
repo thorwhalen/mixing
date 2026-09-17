@@ -1,0 +1,19 @@
+mixing.video
+============
+
+.. automodule:: mixing.video
+
+   
+.. rubric:: Modules
+
+.. autosummary::
+   :toctree:
+   :recursive:
+
+   genai
+   gif
+   thumbnail
+   video_concat
+   video_ops
+   video_subtitles
+   video_util

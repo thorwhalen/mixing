@@ -1,4 +1,0 @@
-mixing.errors
-=============
-.. automodule:: mixing.errors
-   :members:

@@ -1,0 +1,75 @@
+{
+  "schema_version": 1,
+  "built_at": "2026-09-17T08:29:19Z",
+  "package": {
+    "name": "mixing",
+    "version": "0.0.54",
+    "display_name": "mixing",
+    "source": "pyproject.toml"
+  },
+  "git": {
+    "available": true,
+    "commit": "032d25d5163c77d10577407f1da441b58b7d161e",
+    "short_commit": "032d25d",
+    "branch": "main",
+    "tags": [
+      "0.0.54"
+    ],
+    "dirty": false,
+    "remote_url": "https://github.com/thorwhalen/mixing",
+    "commit_url": "https://github.com/thorwhalen/mixing/commit/032d25d5163c77d10577407f1da441b58b7d161e",
+    "error": null
+  },
+  "ci": {
+    "provider": "github",
+    "repository": "thorwhalen/mixing",
+    "sha": "c27b4abcd44722a16a79b3802acc2abea4731e35",
+    "sha_in_history": true,
+    "ref": "refs/heads/main",
+    "ref_name": "main",
+    "run_id": "35199254063",
+    "run_url": "https://github.com/thorwhalen/mixing/actions/runs/35199254063",
+    "server_url": "https://github.com"
+  },
+  "tools": {
+    "epythet": "0.2.12",
+    "sphinx": "9.1.0",
+    "docutils": "0.22.4",
+    "python": "3.12.14"
+  },
+  "config": {
+    "theme": "auto",
+    "html_theme": "sphinxawesome_theme",
+    "accent": "#8d325a",
+    "mode": "auto",
+    "api_generator": "autosummary",
+    "ignore": [
+      "tests/",
+      "scrap/",
+      "examples/"
+    ],
+    "agent_outputs": true,
+    "aggregates": [
+      "md"
+    ],
+    "ai_artifacts": true,
+    "provenance": true,
+    "docs_dir": "docsrc"
+  },
+  "site": {
+    "modules_documented": 30,
+    "objects_documented": 467
+  },
+  "pypi": {
+    "checked": true,
+    "latest": "0.0.54",
+    "relation": "same",
+    "error": null
+  },
+  "reproduce": "git clone https://github.com/thorwhalen/mixing && cd mixing\ngit checkout 032d25d5163c77d10577407f1da441b58b7d161e\npip install \"epythet==0.2.12\"\nepythet quickstart . --ignore tests/ scrap/ examples/",
+  "warnings": [],
+  "alignment": {
+    "aligned": true,
+    "notes": []
+  }
+}

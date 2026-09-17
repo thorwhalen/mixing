@@ -1,0 +1,39 @@
+mixing.dubbing
+==============
+
+.. automodule:: mixing.dubbing
+
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      default_cache_dir
+      text_to_speech
+      synthesize_to_file
+      list_voices
+      find_voice
+      search_shared_voices
+      add_shared_voice
+      parse_srt
+      dump_srt
+      srt_time_to_seconds
+      translate_srt
+      default_translate_fn
+      dub_video_from_srt
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      Cue
+   
+.. rubric:: Modules
+
+.. autosummary::
+   :toctree:
+   :recursive:
+
+   dub
+   srt
+   tts

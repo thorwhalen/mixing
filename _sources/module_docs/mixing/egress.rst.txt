@@ -1,4 +1,0 @@
-mixing.egress
-=============
-.. automodule:: mixing.egress
-   :members:

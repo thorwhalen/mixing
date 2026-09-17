@@ -1,4 +1,0 @@
-mixing.dubbing.dub
-==================
-.. automodule:: mixing.dubbing.dub
-   :members:

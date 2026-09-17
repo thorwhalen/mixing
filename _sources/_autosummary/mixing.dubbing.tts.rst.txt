@@ -1,0 +1,26 @@
+mixing.dubbing.tts
+==================
+
+.. automodule:: mixing.dubbing.tts
+
+   
+   .. rubric:: Module Attributes
+
+   .. autosummary::
+   
+      DFLT_MODEL_ID
+      DFLT_OUTPUT_FORMAT
+      DFLT_VOICE_SETTINGS
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      add_shared_voice
+      default_cache_dir
+      find_voice
+      list_voices
+      search_shared_voices
+      synthesize_to_file
+      text_to_speech
+   

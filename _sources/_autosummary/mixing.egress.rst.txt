@@ -1,0 +1,22 @@
+mixing.egress
+=============
+
+.. automodule:: mixing.egress
+
+   
+   .. rubric:: Module Attributes
+
+   .. autosummary::
+   
+      Output
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      is_path_output
+      is_sink
+      resolve_output_path
+      deliver
+      write_egress
+   

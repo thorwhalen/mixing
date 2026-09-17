@@ -1,0 +1,31 @@
+mixing.srt
+==========
+
+.. automodule:: mixing.srt
+
+   
+   .. rubric:: Module Attributes
+
+   .. autosummary::
+   
+      TIME_RE
+      fmt_srt_time
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      srt_time_to_seconds
+      seconds_to_srt_time
+      fmt_srt_time
+      to_srt_time
+      parse_srt
+      dump_srt
+      shift_srt_timestamps
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      Cue
+   

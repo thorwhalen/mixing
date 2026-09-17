@@ -1,4 +1,0 @@
-mixing.transcript.fillers
-=========================
-.. automodule:: mixing.transcript.fillers
-   :members:

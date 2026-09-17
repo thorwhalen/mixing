@@ -1,4 +1,0 @@
-mixing.transcript
-=================
-.. automodule:: mixing.transcript
-   :members:
