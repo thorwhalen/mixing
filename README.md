@@ -128,13 +128,14 @@ pip install mixing[widget]     # interactive Jupyter audio widget
 pip install mixing[gen]        # Google Vertex AI Veo generation
 pip install mixing[llm]        # aix — chapter titling + SRT translation
 pip install mixing[clipboard]  # get file paths from the clipboard
+pip install mixing[beats]      # librosa — beat/downbeat/onset analysis
 ```
 
 ## What's inside
 
 | Subpackage | Highlights |
 |---|---|
-| `mixing.audio` | `Audio`, `fade_in/out`, `crop_audio`, `concatenate_audio`, `overlay_audio`, `loop_audio`, `duck_audio`, `find_audio_offset`, `find_segments`/`extract_segments` |
+| `mixing.audio` | `Audio`, `fade_in/out`, `crop_audio`, `concatenate_audio`, `overlay_audio`, `loop_audio`, `duck_audio`, `find_audio_offset`, `find_segments`/`extract_segments`, `beat_grid`/`BeatGrid` (extra `beats`) |
 | `mixing.video` | `Video`, `crop_video`, `loop_video`, `change_speed`, `replace_audio`, `normalize_audio`, `overlay_ambient_bed`, `ken_burns_video`/`ken_burns_film`, `concatenate_videos` (+ transitions: `crossfade_transition`, `fade_through_black`, …), `make_thumbnail`, `write_subtitles_in_video`, `SOCIAL_SIZES` |
 | `mixing.video.genai` | `generate_video` (Vertex AI Veo) |
 | `mixing.transcript` | `transcribe`, `remove_fillers`, `srt_for_media`, `words_to_srt`/`words_to_prose` |

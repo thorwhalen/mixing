@@ -61,8 +61,9 @@ audio = [
     "ffmpeg-python",
     "soundfile",
 ]
-# Beat / downbeat / onset analysis (mixing.audio.beat_grid). librosa is ISC
-# (commercial-clean) and lazy-imported, so `import mixing.audio` stays light.
+# Beat / downbeat / onset analysis (mixing.audio.beats: beat_grid, BeatGrid).
+# librosa is ISC (commercial-clean) and lazy-imported, so `import mixing.audio`
+# stays light.
 beats = [
     "librosa",
 ]
@@ -146,7 +147,7 @@ install.macos = "brew install ffmpeg"
 install.windows = "choco install ffmpeg -y --no-progress"
 
 [tool.wads.ci]
-project_name = ""
+project_name = "mixing"
 
 [tool.wads.ci.commands]
 pre_test = []

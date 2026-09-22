@@ -34,6 +34,7 @@ Focused subpackages, each with a clear dependency footprint:
 | Module | Purpose | Heavy deps |
 |---|---|---|
 | `mixing.audio` | `Audio`/`AudioSamples`, fades, crop, concat, overlay, `loop_audio`, `duck_audio`, `find_audio_offset`, segmentation | `pydub`, `numpy`, `scipy` |
+| `mixing.audio.beats` | `beat_grid`/`BeatGrid` — beat/downbeat/onset analysis | `librosa` (extra `beats`, lazy-imported) |
 | `mixing.video` | `Video`/`VideoFrames`, crop/loop/speed, `replace_audio`, `normalize_audio`, `overlay_ambient_bed`, `ken_burns_*`, `concatenate_videos`, thumbnails, subtitles | `moviepy`, `opencv`, `pillow`, `looks` (vocabulary only — stdlib) |
 | `mixing.video.genai` | Google Vertex AI **Veo** generation | `google-genai` (extra `gen`) |
 | `mixing.transcript` | ElevenLabs **Scribe** STT (stdlib HTTP, cached), filler removal, SRT/prose | stdlib only |
@@ -124,7 +125,8 @@ Use the helpers, don't reinvent them:
 
 `pip install mixing[<extra>]`: `audio` (pydub/ffmpeg-python/soundfile),
 `widget` (Jupyter audio widget), `gen` (Veo/`google-genai`), `llm` (`aix`, for
-chapter titling + SRT translation), `clipboard` (`pyclip`), `dev`/`testing`.
+chapter titling + SRT translation), `clipboard` (`pyclip`), `beats` (`librosa`,
+for `mixing.audio.beats.beat_grid`), `dev`/`testing`.
 **ffmpeg must be on PATH** for most real work (`mixing.has_ffmpeg()` checks).
 
 ## Tests = guardrails
