@@ -23,6 +23,8 @@
 <meta content="width=device-width, initial-scale=1" name="viewport"/>
 <link href="index.html.md" rel="alternate" type="text/markdown"/>
 <link href="llms.txt" rel="describedby" type="text/markdown"/>
+<link href="index.html.md" rel="alternate" type="text/markdown"/>
+<link href="llms.txt" rel="describedby"/>
 <title>mixing</title>
 <meta content="mixing" property="og:title"/>
 <meta content="mixing" name="twitter:title"/>
@@ -241,6 +243,7 @@ re-runs are free and offline.</p></li>
 </span><span id="line-3">pip<span class="w"> </span>install<span class="w"> </span>mixing<span class="o">[</span>gen<span class="o">]</span><span class="w">        </span><span class="c1"># Google Vertex AI Veo generation</span>
 </span><span id="line-4">pip<span class="w"> </span>install<span class="w"> </span>mixing<span class="o">[</span>llm<span class="o">]</span><span class="w">        </span><span class="c1"># aix — chapter titling + SRT translation</span>
 </span><span id="line-5">pip<span class="w"> </span>install<span class="w"> </span>mixing<span class="o">[</span>clipboard<span class="o">]</span><span class="w">  </span><span class="c1"># get file paths from the clipboard</span>
+</span><span id="line-6">pip<span class="w"> </span>install<span class="w"> </span>mixing<span class="o">[</span>beats<span class="o">]</span><span class="w">      </span><span class="c1"># librosa — beat/downbeat/onset analysis</span>
 </span></code></pre></div>
 </div>
 </section>
@@ -255,7 +258,7 @@ re-runs are free and offline.</p></li>
 </thead>
 <tbody>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">mixing.audio</span></code></p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">Audio</span></code>, <code class="docutils literal notranslate"><span class="pre">fade_in/out</span></code>, <code class="docutils literal notranslate"><span class="pre">crop_audio</span></code>, <code class="docutils literal notranslate"><span class="pre">concatenate_audio</span></code>, <code class="docutils literal notranslate"><span class="pre">overlay_audio</span></code>, <code class="docutils literal notranslate"><span class="pre">loop_audio</span></code>, <code class="docutils literal notranslate"><span class="pre">duck_audio</span></code>, <code class="docutils literal notranslate"><span class="pre">find_audio_offset</span></code>, <code class="docutils literal notranslate"><span class="pre">find_segments</span></code>/<code class="docutils literal notranslate"><span class="pre">extract_segments</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">Audio</span></code>, <code class="docutils literal notranslate"><span class="pre">fade_in/out</span></code>, <code class="docutils literal notranslate"><span class="pre">crop_audio</span></code>, <code class="docutils literal notranslate"><span class="pre">concatenate_audio</span></code>, <code class="docutils literal notranslate"><span class="pre">overlay_audio</span></code>, <code class="docutils literal notranslate"><span class="pre">loop_audio</span></code>, <code class="docutils literal notranslate"><span class="pre">duck_audio</span></code>, <code class="docutils literal notranslate"><span class="pre">find_audio_offset</span></code>, <code class="docutils literal notranslate"><span class="pre">find_segments</span></code>/<code class="docutils literal notranslate"><span class="pre">extract_segments</span></code>, <code class="docutils literal notranslate"><span class="pre">beat_grid</span></code>/<code class="docutils literal notranslate"><span class="pre">BeatGrid</span></code> (extra <code class="docutils literal notranslate"><span class="pre">beats</span></code>)</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">mixing.video</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">Video</span></code>, <code class="docutils literal notranslate"><span class="pre">crop_video</span></code>, <code class="docutils literal notranslate"><span class="pre">loop_video</span></code>, <code class="docutils literal notranslate"><span class="pre">change_speed</span></code>, <code class="docutils literal notranslate"><span class="pre">replace_audio</span></code>, <code class="docutils literal notranslate"><span class="pre">normalize_audio</span></code>, <code class="docutils literal notranslate"><span class="pre">overlay_ambient_bed</span></code>, <code class="docutils literal notranslate"><span class="pre">ken_burns_video</span></code>/<code class="docutils literal notranslate"><span class="pre">ken_burns_film</span></code>, <code class="docutils literal notranslate"><span class="pre">concatenate_videos</span></code> (+ transitions: <code class="docutils literal notranslate"><span class="pre">crossfade_transition</span></code>, <code class="docutils literal notranslate"><span class="pre">fade_through_black</span></code>, …), <code class="docutils literal notranslate"><span class="pre">make_thumbnail</span></code>, <code class="docutils literal notranslate"><span class="pre">write_subtitles_in_video</span></code>, <code class="docutils literal notranslate"><span class="pre">SOCIAL_SIZES</span></code></p></td>
@@ -286,7 +289,7 @@ re-runs are free and offline.</p></li>
 
 </section>
 </section>
-<p class="epythet-provenance" style="font-size:.8em;opacity:.65;margin-top:2.5em;text-align:right">built 2026-09-17 08:29 UTC from <a href="https://github.com/thorwhalen/mixing/commit/032d25d5163c77d10577407f1da441b58b7d161e">032d25d</a> (main) · mixing 0.0.54 · <a href="about-this-build.html">about this build</a></p>
+<p class="epythet-provenance" style="font-size:.8em;opacity:.65;margin-top:2.5em;text-align:right">built 2026-09-22 14:05 UTC from <a href="https://github.com/thorwhalen/mixing/commit/e937a1be1ff027fc1e1dcb59eb0ff8b471bcc103">e937a1b</a> (main) · mixing 0.0.55 · <a href="about-this-build.html">about this build</a></p>
 </div></div><aside class="hidden text-sm xl:block" id="right-sidebar">
 <div class="sticky top-16 -mt-10 max-h-[calc(100vh-5rem)] h-full overflow-y-auto pt-6 space-y-2"><p class="font-medium">On this page</p>
 <ul>
@@ -312,7 +315,7 @@ re-runs are free and offline.</p></li>
 </div>
 </footer>
 </div>
-<script src="_static/documentation_options.js?v=1c03bfdc"></script>
+<script src="_static/documentation_options.js?v=b87b3bc5"></script>
 <script src="_static/doctools.js?v=fd6eb6e6"></script>
 <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
 <script src="_static/clipboard.min.js?v=a7894cd8"></script>

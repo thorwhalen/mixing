@@ -1,4 +1,4 @@
-> built 2026-09-17 08:29 UTC from 032d25d (main) · mixing 0.0.54. Details: build_info.json
+> built 2026-09-22 14:05 UTC from e937a1b (main) · mixing 0.0.55. Details: build_info.json
 
 # index.html.md
 
@@ -134,13 +134,14 @@ pip install mixing[widget]     # interactive Jupyter audio widget
 pip install mixing[gen]        # Google Vertex AI Veo generation
 pip install mixing[llm]        # aix — chapter titling + SRT translation
 pip install mixing[clipboard]  # get file paths from the clipboard
+pip install mixing[beats]      # librosa — beat/downbeat/onset analysis
 ```
 
 ## What’s inside
 
 | Subpackage           | Highlights                                                                                                                                                                                                                                                                                              |
 |----------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `mixing.audio`       | `Audio`, `fade_in/out`, `crop_audio`, `concatenate_audio`, `overlay_audio`, `loop_audio`, `duck_audio`, `find_audio_offset`, `find_segments`/`extract_segments`                                                                                                                                         |
+| `mixing.audio`       | `Audio`, `fade_in/out`, `crop_audio`, `concatenate_audio`, `overlay_audio`, `loop_audio`, `duck_audio`, `find_audio_offset`, `find_segments`/`extract_segments`, `beat_grid`/`BeatGrid` (extra `beats`)                                                                                                 |
 | `mixing.video`       | `Video`, `crop_video`, `loop_video`, `change_speed`, `replace_audio`, `normalize_audio`, `overlay_ambient_bed`, `ken_burns_video`/`ken_burns_film`, `concatenate_videos` (+ transitions: `crossfade_transition`, `fade_through_black`, …), `make_thumbnail`, `write_subtitles_in_video`, `SOCIAL_SIZES` |
 | `mixing.video.genai` | `generate_video` (Vertex AI Veo)                                                                                                                                                                                                                                                                        |
 | `mixing.transcript`  | `transcribe`, `remove_fillers`, `srt_for_media`, `words_to_srt`/`words_to_prose`                                                                                                                                                                                                                        |
@@ -9582,7 +9583,7 @@ Resize a video to target dimensions with different methods.
 
 # About this build
 
-This documentation was built on **2026-09-17 08:29 UTC** from commit <a href="https://github.com/thorwhalen/mixing/commit/032d25d5163c77d10577407f1da441b58b7d161e"><code>032d25d</code></a> on branch <code>main</code>, for **mixing 0.0.54** (from <code>pyproject.toml</code>).
+This documentation was built on **2026-09-22 14:05 UTC** from commit <a href="https://github.com/thorwhalen/mixing/commit/e937a1be1ff027fc1e1dcb59eb0ff8b471bcc103"><code>e937a1b</code></a> on branch <code>main</code>, for **mixing 0.0.55** (from <code>pyproject.toml</code>).
 
 #### NOTE
 Nothing suggests a mismatch: the tree was clean at the commit above, and the documented version is the one on PyPI.
@@ -9591,9 +9592,9 @@ Nothing suggests a mismatch: the tree was clean at the commit above, and the doc
 
 |                     |                                                                                                                                                          |
 |---------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Commit              | <a href="https://github.com/thorwhalen/mixing/commit/032d25d5163c77d10577407f1da441b58b7d161e"><code>032d25d5163c77d10577407f1da441b58b7d161e</code></a> |
+| Commit              | <a href="https://github.com/thorwhalen/mixing/commit/e937a1be1ff027fc1e1dcb59eb0ff8b471bcc103"><code>e937a1be1ff027fc1e1dcb59eb0ff8b471bcc103</code></a> |
 | Branch              | <code>main</code>                                                                                                                                        |
-| Tags at this commit | <code>0.0.54</code>                                                                                                                                      |
+| Tags at this commit | <code>0.0.55</code>                                                                                                                                      |
 | Working tree        | clean                                                                                                                                                    |
 | Remote              | <code>https://github.com/thorwhalen/mixing</code>                                                                                                        |
 
@@ -9602,9 +9603,9 @@ Nothing suggests a mismatch: the tree was clean at the commit above, and the doc
 |              |                                                                                            |
 |--------------|--------------------------------------------------------------------------------------------|
 | Repository   | <code>thorwhalen/mixing</code>                                                             |
-| Run          | <a href="https://github.com/thorwhalen/mixing/actions/runs/35199254063">35199254063</a>    |
+| Run          | <a href="https://github.com/thorwhalen/mixing/actions/runs/35736841180">35736841180</a>    |
 | Ref          | <code>refs/heads/main</code>                                                               |
-| Event commit | <code>c27b4abcd44722a16a79b3802acc2abea4731e35</code> (in the history of the built commit) |
+| Event commit | <code>56b2a4d5cf73f07aa37cc5f72e35833b73c6e10f</code> (in the history of the built commit) |
 
 ## Tools
 
@@ -9629,13 +9630,13 @@ Nothing suggests a mismatch: the tree was clean at the commit above, and the doc
 
 ## Package on PyPI
 
-Latest release: <a href="https://pypi.org/project/mixing/0.0.54/">0.0.54</a>, the same as the documented version.
+Latest release: <a href="https://pypi.org/project/mixing/0.0.55/">0.0.55</a>, the same as the documented version.
 
 ## Reproduce
 
 ```bash
 git clone https://github.com/thorwhalen/mixing && cd mixing
-git checkout 032d25d5163c77d10577407f1da441b58b7d161e
+git checkout e937a1be1ff027fc1e1dcb59eb0ff8b471bcc103
 pip install "epythet==0.2.12"
 epythet quickstart . --ignore tests/ scrap/ examples/
 ```

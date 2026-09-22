@@ -5,21 +5,21 @@
 
 ## Pages
 
-- [mixing](index.html.md): Tools for **video and audio editing** in Python — slicing, fades, audio
-- [API reference](api.html.md): | [`mixing`](_autosummary/mixing.html.md#module-mixing)   | Tools for video and audio editing.   |
+- [mixing](index.html.md): Tools for &#42;&#42;video and audio editing&#42;&#42; in Python — slicing, fades, audio
+- [API reference](api.html.md): | &#96;mixing&#96;   | Tools for video and audio editing.   |
 - [mixing](_autosummary/mixing.html.md): Tools for video and audio editing.
 - [mixing.audio](_autosummary/mixing.audio.html.md): Audio mixing and editing functionality.
 - [mixing.audio.audio_ops](_autosummary/mixing.audio.audio_ops.html.md): Audio editing via slicing interface.
 - [mixing.audio.audio_util](_autosummary/mixing.audio.audio_util.html.md): Audio utility functions.
-- [mixing.audio.beats](_autosummary/mixing.audio.beats.html.md): Beat / downbeat / onset analysis of an audio signal — the `mixing[beats]` primitive.
+- [mixing.audio.beats](_autosummary/mixing.audio.beats.html.md): Beat / downbeat / onset analysis of an audio signal — the &#96;mixing&#91;beats&#93;&#96; primitive.
 - [mixing.audio.segmentation](_autosummary/mixing.audio.segmentation.html.md): Split a long audio into segments — for example, the individual songs in a
 - [mixing.chapters](_autosummary/mixing.chapters.html.md): Detect chapter markers from a transcript — platform-agnostic.
 - [mixing.dubbing](_autosummary/mixing.dubbing.html.md): Text-to-speech dubbing: re-voice or translate a video from its SRT.
 - [mixing.dubbing.dub](_autosummary/mixing.dubbing.dub.html.md): SRT-driven dubbing: replace a video’s audio with TTS narration.
-- [mixing.dubbing.srt](_autosummary/mixing.dubbing.srt.html.md): SRT translation for dubbing — built on the canonical [`mixing.srt`](mixing.srt.html.md#module-mixing...
+- [mixing.dubbing.srt](_autosummary/mixing.dubbing.srt.html.md): SRT translation for dubbing — built on the canonical &#96;mixing.srt&#96;.
 - [mixing.dubbing.tts](_autosummary/mixing.dubbing.tts.html.md): ElevenLabs text-to-speech (TTS) HTTP client.
-- [mixing.egress](_autosummary/mixing.egress.html.md): Canonical *egress*: route a produced result to its destination.
-- [mixing.errors](_autosummary/mixing.errors.html.md): Typed errors `mixing` raises — the home for exceptions a caller may want to catch.
+- [mixing.egress](_autosummary/mixing.egress.html.md): Canonical &#42;egress&#42;: route a produced result to its destination.
+- [mixing.errors](_autosummary/mixing.errors.html.md): Typed errors &#96;mixing&#96; raises — the home for exceptions a caller may want to catch.
 - [mixing.srt](_autosummary/mixing.srt.html.md): Canonical SRT / timeline parsing and formatting (pure, dependency-free).
 - [mixing.transcript](_autosummary/mixing.transcript.html.md): Transcript-driven media editing.
 - [mixing.transcript.fillers](_autosummary/mixing.transcript.fillers.html.md): Filler-word detection over Scribe-shaped word lists.
@@ -37,12 +37,12 @@
 - [mixing.video.video_ops](_autosummary/mixing.video.video_ops.html.md): Video cropping via slicing interface.
 - [mixing.video.video_subtitles](_autosummary/mixing.video.video_subtitles.html.md): Video utilities for subtitle embedding and video processing.
 - [mixing.video.video_util](_autosummary/mixing.video.video_util.html.md): Video utils.
-- [For AI agents](ai-agents.html.md): `mixing` ships artifacts for coding agents alongside its code. This page lists
-- [About this build](about-this-build.html.md): This documentation was built on **2026-09-17 08:29 UTC** from commit <a href="https://github.com/tho...
+- [For AI agents](ai-agents.html.md): &#96;mixing&#96; ships artifacts for coding agents alongside its code. This page lists
+- [About this build](about-this-build.html.md): This documentation was built on &#42;&#42;2026-09-22 14:05 UTC&#42;&#42; from commit &lt;a href="https://github.com/tho...
 
----
+## Optional
 
-For more comprehensive documentation, see [mixing.md](mixing.md)
+- [mixing.md](mixing.md): Complete documentation in a single file.
 
 ## Build
 
