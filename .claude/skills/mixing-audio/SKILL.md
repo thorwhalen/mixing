@@ -401,6 +401,27 @@ own `(AudioSegment, **kwargs) -> list[Segment]` callable as `strategy`. The
 `segment_by_silence/energy/self_similarity/speech_music` functions are exported
 too if you want to call one directly on a pydub `AudioSegment`.
 
+## Beat / downbeat / onset analysis (`mixing[beats]` extra)
+
+```python
+from mixing.audio import beat_grid, BeatGrid
+
+grid = beat_grid("song.mp3")  # -> BeatGrid; installs librosa lazily on first call
+grid.beat_times  # np.ndarray of beat instants, seconds, ascending
+grid.downbeat_times  # best-effort; empty array for the default (only) "librosa" backend
+grid.onset_env  # onset-strength envelope, one value per STFT hop
+grid.onset_hop_s  # seconds between onset_env frames (hop_length / sample_rate)
+grid.tempo_bpm  # estimated global tempo
+grid.to_dict()  # JSON-round-trippable summary (arrays -> lists; onset_env omitted)
+```
+
+`backend="librosa"` is the only shipped backend (ISC, commercial-clean); a
+stronger downbeat tracker can be added later behind the same `BeatGrid` shape.
+Needs `pip install mixing[beats]` (`librosa`) — `import mixing.audio` stays
+light without it; the import happens lazily inside `beat_grid` itself. First
+customer is muvid's footage-scoring layer (computes one grid on the master
+song, maps clips onto it via their known offset).
+
 ## Common recipes
 
 ```python
